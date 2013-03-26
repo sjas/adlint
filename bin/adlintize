@@ -1,0 +1,553 @@
+#! /usr/bin/env ruby
+#
+# AdLint project generator.
+#
+# Author::    Yutaka Yanoh <mailto:yanoh@users.sourceforge.net>
+# Copyright:: Copyright (C) 2010-2013, OGIS-RI Co.,Ltd.
+# License::   GPLv3+: GNU General Public License version 3 or later
+#
+# Owner::     Yutaka Yanoh <mailto:yanoh@users.sourceforge.net>
+
+#--
+#     ___    ____  __    ___   _________
+#    /   |  / _  |/ /   / / | / /__  __/           Source Code Static Analyzer
+#   / /| | / / / / /   / /  |/ /  / /                   AdLint - Advanced Lint
+#  / __  |/ /_/ / /___/ / /|  /  / /
+# /_/  |_|_____/_____/_/_/ |_/  /_/   Copyright (C) 2010-2013, OGIS-RI Co.,Ltd.
+#
+# This file is part of AdLint.
+#
+# AdLint is free software: you can redistribute it and/or modify it under the
+# terms of the GNU General Public License as published by the Free Software
+# Foundation, either version 3 of the License, or (at your option) any later
+# version.
+#
+# AdLint is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+# A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# AdLint.  If not, see <http://www.gnu.org/licenses/>.
+#
+#++
+
+$LOAD_PATH.unshift(File.expand_path("../lib", File.dirname(__FILE__)))
+require "adlint"
+
+version = "AdLint project generator #{AdLint::VERSION}"
+
+usage = <<EOS
+Usage: adlintize [options] [project-name]
+Options:
+  -t FILE, --traits FILE         Write traits to FILE
+                                 If omitted, `adlint_traits.yml' will be used
+  -p FILE, --pinit-hdr FILE      Write project initial header to FILE
+                                 If omitted, `adlint_pinit.h' will be used
+  -c FILE, --cinit-hdr FILE      Write compiler initial header to FILE
+                                 If omitted, `adlint_cinit.h' will be used
+  -l FILE, --list-file FILE      Write list file to FILE
+                                 If omitted, `adlint_files.txt' will be used
+  -m FILE, --makefile FILE       Write analysis procedure GNUmakefile to FILE
+                                 If omitted, `GNUmakefile' will be used
+  -s FILE, --sh-script FILE      Write analysis procedure sh script to FILE
+                                 If omitted, `adlint_all.sh' will be used
+  -b FILE, --bat-file FILE       Write analysis procedure bat file to FILE
+                                 If omitted, `adlint_all.bat' will be used
+  -o DIR, --output-dir DIR       Set output directory
+                                 If omitted, `.' will be used
+  -e ENV, --environment ENV      Assume ENV as target build environment
+  -L, --list-environment         List all preset build environments
+  -f, --force                    Force to overwrite existing files
+      --version                  Display version information
+      --copyright                Display copyright information
+      --prefix                   Display prefix directory of AdLint
+      --migrate FILE             Migrate format of the specified traits file
+  -h, --help                     Display this message
+EOS
+
+def print_environments
+  conf_dpath = Pathname.new("conf.d").expand_path(AdLint::Config[:etcdir])
+  Dir.entries(conf_dpath).each do |dirent|
+    case dirent
+    when ".", "..", "fallback", "noarch"
+      next
+    end
+
+    traits_ptn = "#{AdLint::Config[:etcdir]}/conf.d/#{dirent}/traits-*.erb"
+    Dir.glob(traits_ptn).each do |traits_fpath|
+      basename = File.basename(traits_fpath, ".erb")
+      puts "#{dirent}-#{basename.sub(/\Atraits-/, "")}"
+    end
+  end
+end
+
+def migrate_traits_schema(traits_fpath)
+  unless traits_fpath.exist? && traits_fpath.file?
+    $stderr.puts "#{File.basename(__FILE__)} : no such traits file"
+    exit 1
+  end
+
+  backup_traits_file(traits_fpath, %w(.orig .old .mig))
+  contents = File.open(traits_fpath, "r:utf-8") { |io| io.read }
+
+  case contents
+  when /^version: "1\.0\.0"$/
+    migrate_traits_schema_from_1_0_0(traits_fpath, contents)
+    contents = File.open(traits_fpath, "r:utf-8") { |io| io.read }
+    migrate_traits_schema_from_2_4_0(traits_fpath, contents)
+  when /^version: "2\.0\.0"$/
+    migrate_traits_schema_from_2_0_0(traits_fpath, contents)
+    contents = File.open(traits_fpath, "r:utf-8") { |io| io.read }
+    migrate_traits_schema_from_2_4_0(traits_fpath, contents)
+  when /^version: "2\.4\.0"$/
+    migrate_traits_schema_from_2_4_0(traits_fpath, contents)
+  else
+    $stderr.puts "nothing to be done"
+  end
+end
+
+# TODO: Refine this ad-hoc schema migration.
+def migrate_traits_schema_from_1_0_0(traits_fpath, contents)
+  File.open(traits_fpath, "w:utf-8") do |io|
+    io.puts "# Traits file migrated by adlintize #{AdLint::SHORT_VERSION}.", ""
+    change_list = []
+    contents.lines.map { |str| str.chomp }.each do |line|
+      case line
+      when /\Aversion:/
+        io.puts "version: \"2.4.0\"", ""
+        io.puts <<EOS
+# List of names of source code examination packages.
+#
+# "c_builtin" is a builtin source code examination package for C language.
+# You can install optional examination packages and append (or replace) this
+# list to specify which examination packages are to be run.
+exam_packages:
+  - "c_builtin"
+EOS
+      when /\Aproject_traits:/
+        io.puts <<EOS
+project_traits:
+
+  # Project root directory.
+  project_root: "#{vpath_from_traits_fpath(traits_fpath)}"
+EOS
+      when /\Amessage_traits:/
+        io.puts <<EOS
+message_traits:
+
+  # Output messages with category and severity information?
+  message_with_class: false
+
+  # Warn only files in the specified directory.
+  # If omitted, all files including system headers will be warned.
+  warn_files_in:
+    - "#{vpath_from_traits_fpath(traits_fpath)}"
+
+  # Don't warn files in the specified directory.
+  # You can specify 3rd-party library header directories imported in the
+  # project to suppress warnings about unconcerned headers.
+  warn_files_not_in:
+
+  # Enable translation-unit specific code check selection?
+  individual_selection: true
+
+  # Project-wide code check exclusion settings.
+  # Ex.
+  #   exclusion:
+  #     categories:
+  #       - "REL"
+  #       - "PRT"
+  #     severities: "[ABC][5-9][0-9]"
+  #     messages:
+  #       W0001: "c_builtin"
+  #       W0002: "c_ansi"
+  exclusion:
+
+  # Project-wide code check inclusion settings.
+  # Ex.
+  #   inclusion:
+  #     messages:
+  #       W0001: "c_builtin"
+  #       W0002: "c_ansi"
+  inclusion:
+EOS
+      when /\A  change_list:/, /\A    [WCEX]\d{4}\s*:/
+        # NOTE: change_list will be migrated later.
+        change_list.push(line)
+      else
+        io.puts line
+      end
+    end
+
+    change_list.each do |line|
+      case line
+      when /\A  change_list:/
+        io.puts <<EOS
+  # Message text replacement for AdLint 2.0.0 or later.
+  # Ex.
+  #   change_list:
+  #     W9999:
+  #       package: "c_builtin"
+  #       classes:
+  #         - "REL:A10"
+  #         - "PRT:B20"
+  #       format: "Your custom message for the warning of W9999."
+  #     X9999:
+  #       package: "core"
+  #       classes:
+  #         - "ERR:X99"
+  #       format: "Your custom message for the warning of X9999."
+  #     E9999:
+  #       package: "core"
+  #       classes:
+  #         - "ERR:X99"
+  #       format: "Your custom message for the warning of E9999."
+  change_list:
+EOS
+      when /\A    ([WCEX]\d{4})\s*:(.*)\z/
+        io.puts <<EOS
+    #{$1}:
+      package: "c_builtin"
+      classes:
+        - "UNC:X99"
+      format:#{$2}
+EOS
+      end
+    end
+  end
+end
+
+# TODO: Refine this ad-hoc schema migration.
+def migrate_traits_schema_from_2_0_0(traits_fpath, contents)
+  File.open(traits_fpath, "w:utf-8") do |io|
+    io.puts "# Traits file migrated by adlintize #{AdLint::SHORT_VERSION}.", ""
+    contents.lines.map { |str| str.chomp }.each do |line|
+      case line
+      when /\Aversion:/
+        io.puts "version: \"2.4.0\"", ""
+      when /\Aproject_traits:/
+        io.puts <<EOS
+project_traits:
+
+  # Project root directory.
+  project_root: "#{vpath_from_traits_fpath(traits_fpath)}"
+EOS
+      when /\A  (warn_only_files_in:.*)\z/
+        io.puts "  # #{$1} is obsolete"
+        io.puts
+        io.puts <<EOS
+  # Warn only files in the specified directory.
+  # If omitted, all files including system headers will be warned.
+  warn_files_in:
+    - "#{vpath_from_traits_fpath(traits_fpath)}"
+
+  # Don't warn files in the specified directory.
+  # You can specify 3rd-party library header directories imported in the
+  # project to suppress warnings about unconcerned headers.
+  warn_files_not_in:
+EOS
+      else
+        io.puts line
+      end
+    end
+  end
+end
+
+# TODO: Refine this ad-hoc schema migration.
+def migrate_traits_schema_from_2_4_0(traits_fpath, contents)
+  File.open(traits_fpath, "w:utf-8") do |io|
+    in_warn_files_in = in_warn_files_not_in = false
+
+    io.puts "# Traits file migrated by adlintize #{AdLint::SHORT_VERSION}.", ""
+    contents.lines.map { |str| str.chomp }.each do |line|
+      case line
+      when /\Aversion:/
+        io.puts "version: \"3.0.0\"", ""
+      when /\Aproject_traits:/
+        io.puts <<EOS
+project_traits:
+
+  # Analysys target selection.
+  # Ex.
+  #   target_files:
+  #     inclusion_paths:
+  #       - "../foo"
+  #       - "../bar"
+  #     exclusion_paths:
+  #       - "../bar/baz"
+  target_files:
+    inclusion_paths:
+      - "#{vpath_from_traits_fpath(traits_fpath)}"
+    exclusion_paths:
+EOS
+      when /\A  include_path:/
+        io.puts <<EOS
+  # include_paths is obsolete
+
+  # include-file search paths.
+  # Ex.
+  #   file_search_paths:
+  #     - "include/foo"
+  #     - "../include/bar"
+  #     - "/opt/baz/include"
+  file_search_paths:
+EOS
+      when /\A  standard_type:/
+        io.puts "  standard_types:"
+      when /\A  extension_substitution:/
+        io.puts "  extension_substitutions:"
+      when /\A  arbitrary_substitution:/
+        io.puts "  arbitrary_substitutions:"
+      when /\A  individual_selection:/
+        io.puts "  individual_suppression:"
+      when /\A  (message_with_class:.*)\z/
+        io.puts <<EOS
+  # #{$1} is obsolete
+EOS
+      when /\A  warn_files_in:/
+        in_warn_files_in = true
+        io.puts <<EOS
+  # warn_files_in: is obsolete
+EOS
+      when /\A  warn_files_not_in:/
+        in_warn_files_not_in = true
+        io.puts <<EOS
+  # warn_files_not_in: is obsolete
+EOS
+      when ""
+        in_warn_files_in = in_warn_files_not_in = false
+        io.puts
+      else
+        if in_warn_files_in || in_warn_files_not_in
+          io.puts "  ##{line}"
+        else
+          io.puts line
+        end
+      end
+    end
+  end
+end
+
+def vpath_from_traits_fpath(traits_fpath)
+  Pathname.pwd.relative_path_from(Pathname.new(traits_fpath.dirname).realpath)
+end
+
+def backup_traits_file(traits_fpath, suffixes)
+  suffixes.each do |suffix|
+    backup_fpath = Pathname.new("#{traits_fpath}#{suffix}")
+    unless backup_fpath.exist?
+      FileUtils.cp(traits_fpath, backup_fpath)
+      break
+    end
+  end
+end
+
+require "getoptlong"
+
+getopt = GetoptLong.new(
+  ["--traits",           "-t", GetoptLong::REQUIRED_ARGUMENT],
+  ["--pinit-hdr",        "-p", GetoptLong::REQUIRED_ARGUMENT],
+  ["--cinit-hdr",        "-c", GetoptLong::REQUIRED_ARGUMENT],
+  ["--list-file",        "-l", GetoptLong::REQUIRED_ARGUMENT],
+  ["--makefile",         "-m", GetoptLong::REQUIRED_ARGUMENT],
+  ["--sh-script",        "-s", GetoptLong::REQUIRED_ARGUMENT],
+  ["--bat-file",         "-b", GetoptLong::REQUIRED_ARGUMENT],
+  ["--output-dir",       "-o", GetoptLong::REQUIRED_ARGUMENT],
+  ["--environment",      "-e", GetoptLong::REQUIRED_ARGUMENT],
+  ["--list-environment", "-L", GetoptLong::NO_ARGUMENT],
+  ["--force",            "-f", GetoptLong::NO_ARGUMENT],
+  ["--version",                GetoptLong::NO_ARGUMENT],
+  ["--copyright",              GetoptLong::NO_ARGUMENT],
+  ["--prefix",                 GetoptLong::NO_ARGUMENT],
+  ["--migrate",                GetoptLong::REQUIRED_ARGUMENT],
+  ["--help",             "-h", GetoptLong::NO_ARGUMENT]
+)
+
+begin
+  traits_fpath    = Pathname.new("adlint_traits.yml")
+  pinit_fpath     = Pathname.new("adlint_pinit.h")
+  cinit_fpath     = Pathname.new("adlint_cinit.h")
+  list_fpath      = Pathname.new("adlint_files.txt")
+  make_fpath      = Pathname.new("GNUmakefile")
+  sh_fpath        = Pathname.new("adlint_all.sh")
+  bat_fpath       = Pathname.new("adlint_all.bat")
+  output_dpath    = Pathname.new(".")
+  environment     = nil
+  force_overwrite = false
+
+  getopt.each do |opt_name, opt_val|
+    case opt_name
+    when "--traits"
+      traits_fpath = Pathname.new(opt_val)
+    when "--pinit-hdr"
+      pinit_fpath = Pathname.new(opt_val)
+    when "--cinit-hdr"
+      cinit_fpath = Pathname.new(opt_val)
+    when "--list-file"
+      list_fpath = Pathname.new(opt_val)
+    when "--makefile"
+      make_fpath = Pathname.new(opt_val)
+    when "--sh-script"
+      sh_fpath = Pathname.new(opt_val)
+    when "--bat-file"
+      bat_fpath = Pathname.new(opt_val)
+    when "--output-dir"
+      output_dpath = Pathname.new(opt_val)
+    when "--environment"
+      environment = opt_val
+    when "--list-environment"
+      print_environments
+      exit 0
+    when "--force"
+      force_overwrite = true
+    when "--version"
+      puts version, AdLint::AUTHOR
+      exit 0
+    when "--copyright"
+      puts AdLint::COPYRIGHT
+      exit 0
+    when "--prefix"
+      puts AdLint::Config[:prefix]
+      exit 0
+    when "--migrate"
+      migrate_traits_schema(Pathname.new(opt_val))
+      exit 0
+    when "--help"
+      puts usage
+      exit 0
+    end
+  end
+rescue
+  $stderr.puts usage
+  exit 1
+end
+
+project_name = ARGV.empty? ? Pathname.getwd.each_filename.to_a.last : ARGV[0]
+
+FileUtils.mkdir_p(output_dpath) unless Dir.exist?(output_dpath)
+vpath = Pathname.pwd.relative_path_from(Pathname.new(output_dpath).realpath)
+
+traits_fpath = traits_fpath.expand_path(output_dpath)
+pinit_fpath  = pinit_fpath.expand_path(output_dpath)
+cinit_fpath  = cinit_fpath.expand_path(output_dpath)
+list_fpath   = list_fpath.expand_path(output_dpath)
+make_fpath   = make_fpath.expand_path(output_dpath)
+sh_fpath     = sh_fpath.expand_path(output_dpath)
+bat_fpath    = bat_fpath.expand_path(output_dpath)
+
+if environment
+  arch, os, compiler = environment.split("-")
+
+  cinit_templ_fpath = Pathname.new(
+    "#{AdLint::Config[:etcdir]}/conf.d/#{arch}-#{os}/cinit-#{compiler}.erb")
+  unless File.readable?(cinit_templ_fpath)
+    $stderr.puts "#{File.basename(__FILE__)}: no such preset build environment"
+    exit 1
+  end
+
+  traits_templ_fpath = Pathname.new(
+    "#{AdLint::Config[:etcdir]}/conf.d/#{arch}-#{os}/traits-#{compiler}.erb")
+  unless File.readable?(traits_templ_fpath)
+    $stderr.puts "#{File.basename(__FILE__)}: no such preset build environment"
+    exit 1
+  end
+else
+  cinit_templ_fpath = Pathname.new(
+    "#{AdLint::Config[:etcdir]}/conf.d/fallback/cinit.erb")
+  traits_templ_fpath = Pathname.new(
+    "#{AdLint::Config[:etcdir]}/conf.d/fallback/traits.erb")
+end
+
+pinit_templ_fpath = Pathname.new(
+  "#{AdLint::Config[:etcdir]}/conf.d/noarch/pinit.erb")
+make_templ_fpath = Pathname.new(
+  "#{AdLint::Config[:etcdir]}/conf.d/noarch/GNUmakefile.erb")
+sh_templ_fpath = Pathname.new(
+  "#{AdLint::Config[:etcdir]}/conf.d/noarch/adlint_all_sh.erb")
+bat_templ_fpath = Pathname.new(
+  "#{AdLint::Config[:etcdir]}/conf.d/noarch/adlint_all_bat.erb")
+
+require "erb"
+
+if ENV["LANG"] =~ /ja_JP/
+  lang = "ja_JP"
+else
+  case Encoding.default_external
+  when Encoding::Windows_31J
+    lang = "ja_JP"
+  else
+    lang = "en_US"
+  end
+end
+
+if !File.exist?(traits_fpath) || force_overwrite
+  File.open(traits_fpath, "w") do |io|
+    io.set_encoding(Encoding::UTF_8)
+    io.puts(ERB.new(File.read(traits_templ_fpath)).result(binding))
+  end
+else
+  $stderr.puts "#{File.basename(__FILE__)}: #{traits_fpath} already exists"
+  exit 1
+end
+
+if !File.exist?(pinit_fpath) || force_overwrite
+  File.open(pinit_fpath, "w") do |io|
+    io.set_encoding(Encoding::UTF_8)
+    io.puts(ERB.new(File.read(pinit_templ_fpath)).result(binding))
+  end
+else
+  $stderr.puts "#{File.basename(__FILE__)}: #{pinit_fpath} already exists"
+  exit 1
+end
+
+if !File.exist?(cinit_fpath) || force_overwrite
+  File.open(cinit_fpath, "w") do |io|
+    io.set_encoding(Encoding::UTF_8)
+    io.puts(ERB.new(File.read(cinit_templ_fpath)).result(binding))
+  end
+else
+  $stderr.puts "#{File.basename(__FILE__)}: #{cinit_fpath} already exists"
+  exit 1
+end
+
+if !File.exist?(list_fpath) || force_overwrite
+  File.open(list_fpath, "w") do |io|
+    io.set_encoding(Encoding::UTF_8)
+    Dir.glob("**/*.c").each { |str| io.puts(vpath.join(Pathname.new(str))) }
+  end
+else
+  $stderr.puts "#{File.basename(__FILE__)}: #{list_fpath} already exists"
+  exit 1
+end
+
+if !File.exist?(make_fpath) || force_overwrite
+  File.open(make_fpath, "w") do |io|
+    io.set_encoding(Encoding::UTF_8)
+    io.puts(ERB.new(File.read(make_templ_fpath)).result(binding))
+  end
+else
+  $stderr.puts "#{File.basename(__FILE__)}: #{make_fpath} already exists"
+  exit 1
+end
+
+if !File.exist?(sh_fpath) || force_overwrite
+  File.open(sh_fpath, "w") do |io|
+    io.set_encoding(Encoding::UTF_8)
+    io.puts(ERB.new(File.read(sh_templ_fpath)).result(binding))
+  end
+else
+  $stderr.puts "#{File.basename(__FILE__)}: #{sh_fpath} already exists"
+  exit 1
+end
+
+if !File.exist?(bat_fpath) || force_overwrite
+  File.open(bat_fpath, "w") do |io|
+    io.set_encoding(Encoding::UTF_8)
+    io.puts(ERB.new(File.read(bat_templ_fpath)).result(binding))
+  end
+else
+  $stderr.puts "#{File.basename(__FILE__)}: #{bat_fpath} already exists"
+  exit 1
+end
+
+exit 0

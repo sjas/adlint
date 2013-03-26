@@ -1,0 +1,133 @@
+#! /usr/bin/env ruby
+#
+# Configuration validator.
+#
+# Author::    Yutaka Yanoh <mailto:yanoh@users.sourceforge.net>
+# Copyright:: Copyright (C) 2010-2013, OGIS-RI Co.,Ltd.
+# License::   GPLv3+: GNU General Public License version 3 or later
+#
+# Owner::     Yutaka Yanoh <mailto:yanoh@users.sourceforge.net>
+
+#--
+#     ___    ____  __    ___   _________
+#    /   |  / _  |/ /   / / | / /__  __/           Source Code Static Analyzer
+#   / /| | / / / / /   / /  |/ /  / /                   AdLint - Advanced Lint
+#  / __  |/ /_/ / /___/ / /|  /  / /
+# /_/  |_|_____/_____/_/_/ |_/  /_/   Copyright (C) 2010-2013, OGIS-RI Co.,Ltd.
+#
+# This file is part of AdLint.
+#
+# AdLint is free software: you can redistribute it and/or modify it under the
+# terms of the GNU General Public License as published by the Free Software
+# Foundation, either version 3 of the License, or (at your option) any later
+# version.
+#
+# AdLint is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+# A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# AdLint.  If not, see <http://www.gnu.org/licenses/>.
+#
+#++
+
+$LOAD_PATH.unshift(File.expand_path("../lib", File.dirname(__FILE__)))
+require "adlint"
+
+$stdout.set_encoding(Encoding.default_external)
+$stderr.set_encoding(Encoding.default_external)
+
+version = "AdLint configuration validator #{AdLint::VERSION}"
+
+usage = <<EOS
+Usage: adlint_chk [options] source-file...
+Options:
+  -t FILE, --traits FILE         Use FILE as traits file (mandatory)
+  -o DIR, --output-dir DIR       Output result files to DIR
+  -p NUM, --strip NUM            Use source file names from which stripped NUM
+                                 leading components as the base name of output
+                                 files
+  -v, --verbose                  Increase verbosity but suppress message output
+      --version                  Display version information
+      --copyright                Display copyright information
+      --prefix                   Display prefix directory of AdLint
+  -h, --help                     Display this message
+EOS
+
+require "getoptlong"
+
+getopt = GetoptLong.new(
+  ["--traits",     "-t", GetoptLong::REQUIRED_ARGUMENT],
+  ["--output-dir", "-o", GetoptLong::REQUIRED_ARGUMENT],
+  ["--strip",      "-p", GetoptLong::REQUIRED_ARGUMENT],
+  ["--verbose",    "-v", GetoptLong::NO_ARGUMENT],
+  ["--version",          GetoptLong::NO_ARGUMENT],
+  ["--copyright",        GetoptLong::NO_ARGUMENT],
+  ["--prefix",           GetoptLong::NO_ARGUMENT],
+  ["--help",       "-h", GetoptLong::NO_ARGUMENT]
+)
+
+begin
+  traits_fpath = nil
+  output_dpath = nil
+  strip_num    = 0
+  verbose      = false
+
+  getopt.each_option do |opt_name, opt_val|
+    case opt_name
+    when "--traits"
+      traits_fpath = Pathname.new(opt_val)
+    when "--output-dir"
+      output_dpath = Pathname.new(opt_val)
+    when "--strip"
+      strip_num = opt_val.to_i
+    when "--verbose"
+      verbose = true
+    when "--version"
+      puts version, AdLint::AUTHOR
+      exit 0
+    when "--copyright"
+      puts AdLint::COPYRIGHT
+      exit 0
+    when "--prefix"
+      puts AdLint::Config[:prefix]
+      exit 0
+    when "--help"
+      puts usage
+      exit 0
+    end
+  end
+rescue
+  $stderr.puts usage
+  exit 1
+end
+
+input_fpaths = ARGV.map { |str| Pathname.new(str) }
+
+if input_fpaths.empty?
+  $stderr.puts "#{File.basename(__FILE__)}: no input files"
+  $stderr.puts usage
+  exit 1
+end
+
+unless traits_fpath
+  $stderr.puts "#{File.basename(__FILE__)}: no traits file"
+  $stderr.puts usage
+  exit 1
+end
+
+begin
+  adlint = AdLint::AdLint.new(traits_fpath, output_dpath, verbose)
+
+  failed = false
+  input_fpaths.each do |fpath|
+    adlint.run_chk!(fpath, strip_num) or failed = true
+  end
+  exit 6 if failed
+rescue => ex
+  $stderr.puts ex.message, ex.backtrace
+  $stderr.puts
+  exit 2
+end
+
+exit 0

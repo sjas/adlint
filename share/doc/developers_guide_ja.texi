@@ -1,0 +1,223 @@
+\input texinfo
+@setfilename developers_guide_ja.info
+@documentlanguage ja
+@documentencoding utf-8
+@settitle AdLint 3.0.0 開発者ガイド
+
+@copying
+Copyright (C) 2010-2013, OGIS-RI Co.,Ltd.
+@end copying
+
+@titlepage
+@page
+@vskip 0pt plus 1filll
+@insertcopying
+@end titlepage
+
+@contents
+
+@ifnottex
+@node Top
+@top 導入
+@end ifnottex
+
+@unnumberedsec ライセンス
+Copyright (C) 2010-2013, OGIS-RI Co.,Ltd.
+
+AdLint is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+AdLint is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with AdLint.  If not, see <@uref{http://www.gnu.org/licenses/}>.
+
+@unnumberedsec 開発環境
+@multitable @columnfractions .1 .1 .3
+@headitem 名称 @tab バージョン @tab 用途
+@item @uref{http://www.ruby-lang.org/, Ruby}
+@tab @code{1.9.3-p194}
+@tab ベースとなる実装言語
+@item @uref{http://rubyforge.org/projects/racc/, Racc}
+@tab @code{1.4.8}
+@tab 構文解析器の生成
+@item @uref{http://rspec.info/, RSpec}
+@tab @code{2.10.0}
+@tab 単体仕様の記述と回帰テスト
+@item @uref{http://cukes.info/, Cucumber}
+@tab @code{1.2.0}
+@tab 機能仕様の記述と回帰テスト
+@end multitable
+
+@unnumberedsec 文書化環境
+利用者ガイド、開発者ガイドなどの文書化には
+@uref{http://www.gnu.org/software/texinfo/, GNU Texinfo} を使用する。
+
+@unnumberedsec コーディング規約
+Ruby 言語コードの整形は、@uref{http://shugo.net/ruby-codeconv/codeconv.html} に
+従う。ただし、@code{return} は原則として使用しない。
+
+Ruby 言語ソースを含む全てのテキストファイルは UTF-8 でエンコードし、改行文字は
+LF とする。
+
+@unnumberedsec 目次
+@menu
+* アーキテクチャ:Architecture.
+* 略語一覧:Abbreviation.
+* 索引:Index.
+@end menu
+
+@node Architecture
+@chapter アーキテクチャ
+
+追記予定。
+
+
+@node Abbreviation
+@chapter 略語一覧
+
+@verbatim
+object                 -> obj
+variable               -> var
+function               -> fun
+value                  -> val
+expression             -> expr
+interpreter            -> interp
+array                  -> ary
+pointer                -> ptr
+subscript              -> subs
+alignment              -> align
+declaration            -> dcl
+declarator             -> dcr
+definition             -> def
+enumerator             -> enum
+member                 -> memb
+element                -> elem
+original               -> org
+converted              -> conved
+conversion             -> conv
+arithmetic             -> arith
+alternative            -> alt
+manipulator            -> manip
+sequence-point         -> seqp
+operator               -> op
+initializer            -> init
+source                 -> src
+destination            -> dst
+translation-unit       -> tunit
+parameter              -> param
+constant               -> const
+specifier              -> spec
+controlling            -> ctrl
+reference              -> ref
+dereference            -> deref
+statement              -> stmt
+controlling-expression -> ctrlexpr
+option                 -> opt
+options                -> opts
+first                  -> fst
+second                 -> snd
+last                   -> lst
+location               -> loc
+composite              -> cmp
+identifier             -> id
+substitute             -> sub
+indirection            -> ind
+category               -> cat
+severity               -> sev
+complement             -> comp
+message                -> msg
+metric                 -> met
+package                -> pkg
+representation         -> rep
+assignment             -> assign
+literal                -> lit
+directive              -> dire
+count                  -> cnt
+signature              -> sig
+suppress               -> supp
+version                -> ver
+storage-class          -> sc
+command                -> cmd
+file-path              -> fpath
+directory-path         -> dpath
+length                 -> len
+content                -> cont
+context                -> ctxt
+exception              -> ex
+template               -> tmpl
+format                 -> fmt
+return                 -> retn
+current                -> cur
+replacement            -> repl
+index                  -> idx
+modifier               -> mod
+environment            -> env
+precision              -> prec
+cyclomatic-complexity  -> cycle_compl
+token                  -> tok
+next                   -> nxt
+encoding               -> enc
+annotation             -> annot
+pathname               -> path
+user                   -> usr
+system                 -> sys
+new-line               -> nl
+table                  -> tbl
+abstract-syntax-tree   -> ast
+pattern                -> ptn
+condition              -> cond
+collector              -> col
+branch                 -> br
+function-call          -> funcall
+program                -> prog
+address                -> addr
+memory                 -> mem
+window                 -> win
+anonymous              -> anon
+qualifier              -> qual
+symbol                 -> sym
+candidate              -> cand
+terminator             -> term
+initiator              -> init
+selection              -> sel
+global-variable        -> gvar
+record                 -> rec
+referrer               -> ref
+cross-reference        -> xref
+monitor                -> mon
+iteration              -> iter
+local-variable         -> lvar
+previous               -> prv
+operation              -> op
+extractor              -> extr
+enclosure              -> encl
+relational             -> relat
+equality               -> equal
+logical-and            -> land
+logical-or             -> lor
+relationship           -> relat
+prototype              -> proto
+termination            -> term
+result                 -> res
+operand                -> ope
+domain                 -> dom
+qualified              -> qualed
+error                  -> err
+project                -> proj
+temporary              -> tmp
+@end verbatim
+
+
+@node Index
+@unnumbered 索引
+@printindex cp
+
+@bye
+
+@c vim:sw=2:sts=2:et:tw=79:fo+=mM:

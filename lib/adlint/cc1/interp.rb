@@ -430,12 +430,20 @@ module Cc1 #:nodoc:
     def object_to_variable(obj)
       case
       when obj.function?
-        create_tmpvar(pointer_type(obj.type), pointer_value_of(obj))
-      when obj.type.array?
-        create_tmpvar(pointer_type(obj.type.base_type), pointer_value_of(obj))
+        function_to_pointer(obj)
+      when obj.variable? && obj.type.array?
+        array_to_pointer(obj)
       else
         obj
       end
+    end
+
+    def function_to_pointer(fun)
+      create_tmpvar(pointer_type(fun.type), pointer_value_of(fun))
+    end
+
+    def array_to_pointer(ary)
+      create_tmpvar(pointer_type(ary.type.base_type), pointer_value_of(ary))
     end
 
     def value_of(obj)

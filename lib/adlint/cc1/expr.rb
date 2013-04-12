@@ -461,7 +461,7 @@ module Cc1 #:nodoc:
       end
 
       def eval_array_subscript_expr(node, obj, subs)
-        unless obj.variable? && (obj.type.array? || obj.type.pointer?)
+        unless obj.variable? and obj.type.array? || obj.type.pointer?
           return create_tmpvar
         end
 
@@ -627,9 +627,9 @@ module Cc1 #:nodoc:
       end
 
       def eval_postfix_increment_expr(node, obj)
-        if obj.variable? && obj.type.scalar?
-          var = obj
-        else
+        var = object_to_variable(obj)
+        if !var.type.scalar? && !var.type.void?
+          # NOTE: To detect bad value reference of `void' expressions.
           return create_tmpvar
         end
 
@@ -650,9 +650,9 @@ module Cc1 #:nodoc:
       end
 
       def eval_postfix_decrement_expr(node, obj)
-        if obj.variable? && obj.type.scalar?
-          var = obj
-        else
+        var = object_to_variable(obj)
+        if !var.type.scalar? && !var.type.void?
+          # NOTE: To detect bad value reference of `void' expressions.
           return create_tmpvar
         end
 
@@ -673,9 +673,9 @@ module Cc1 #:nodoc:
       end
 
       def eval_prefix_increment_expr(node, obj)
-        if obj.variable? && obj.type.scalar?
-          var = obj
-        else
+        var = object_to_variable(obj)
+        if !var.type.scalar? && !var.type.void?
+          # NOTE: To detect bad value reference of `void' expressions.
           return create_tmpvar
         end
 
@@ -696,9 +696,9 @@ module Cc1 #:nodoc:
       end
 
       def eval_prefix_decrement_expr(node, obj)
-        if obj.variable? && obj.type.scalar?
-          var = obj
-        else
+        var = object_to_variable(obj)
+        if !var.type.scalar? && !var.type.void?
+          # NOTE: To detect bad value reference of `void' expressions.
           return create_tmpvar
         end
 
@@ -730,8 +730,9 @@ module Cc1 #:nodoc:
       end
 
       def eval_indirection_expr(node, obj)
-        if obj.variable? && obj.type.pointer?
-          ptr = obj
+        var = object_to_variable(obj)
+        if var.type.pointer?
+          ptr = var
         else
           return create_tmpvar
         end
@@ -768,12 +769,9 @@ module Cc1 #:nodoc:
 
       def eval_unary_arithmetic_expr(node, obj)
         var = object_to_variable(obj)
-        case
-        when !var.type.scalar? && !var.type.void?
+        if !var.type.scalar? && !var.type.void?
           # NOTE: To detect bad value reference of `void' expressions.
           return create_tmpvar
-        when var != obj
-          notify_implicit_conv_performed(node.operand, obj, var)
         end
 
         case node.operator.type
@@ -813,21 +811,15 @@ module Cc1 #:nodoc:
 
       def eval_multiplicative_expr(node, lhs_obj, rhs_obj)
         lhs_var = object_to_variable(lhs_obj)
-        case
-        when !lhs_var.type.scalar? && !lhs_var.type.void?
+        if !lhs_var.type.scalar? && !lhs_var.type.void?
           # NOTE: To detect bad value reference of `void' expressions.
           return create_tmpvar
-        when lhs_var != lhs_obj
-          notify_implicit_conv_performed(node.lhs_operand, lhs_obj, lhs_var)
         end
 
         rhs_var = object_to_variable(rhs_obj)
-        case
-        when !rhs_var.type.scalar? && !rhs_var.type.void?
+        if !rhs_var.type.scalar? && !rhs_var.type.void?
           # NOTE: To detect bad value reference of `void' expressions.
           return create_tmpvar
-        when rhs_var != rhs_obj
-          notify_implicit_conv_performed(node.rhs_operand, rhs_obj, rhs_var)
         end
 
         lhs_conved, rhs_conved =
@@ -872,21 +864,15 @@ module Cc1 #:nodoc:
 
       def eval_additive_expr(node, lhs_obj, rhs_obj)
         lhs_var = object_to_variable(lhs_obj)
-        case
-        when !lhs_var.type.scalar? && !lhs_var.type.void?
+        if !lhs_var.type.scalar? && !lhs_var.type.void?
           # NOTE: To detect bad value reference of `void' expressions.
           return create_tmpvar
-        when lhs_var != lhs_obj
-          notify_implicit_conv_performed(node.lhs_operand, lhs_obj, lhs_var)
         end
 
         rhs_var = object_to_variable(rhs_obj)
-        case
-        when !rhs_var.type.scalar? && !rhs_var.type.void?
+        if !rhs_var.type.scalar? && !rhs_var.type.void?
           # NOTE: To detect bad value reference of `void' expressions.
           return create_tmpvar
-        when rhs_var != rhs_obj
-          notify_implicit_conv_performed(node.rhs_operand, rhs_obj, rhs_var)
         end
 
         lhs_conved, rhs_conved =
@@ -923,21 +909,15 @@ module Cc1 #:nodoc:
 
       def eval_shift_expr(node, lhs_obj, rhs_obj)
         lhs_var = object_to_variable(lhs_obj)
-        case
-        when !lhs_var.type.scalar? && !lhs_var.type.void?
+        if !lhs_var.type.scalar? && !lhs_var.type.void?
           # NOTE: To detect bad value reference of `void' expressions.
           return create_tmpvar
-        when lhs_var != lhs_obj
-          notify_implicit_conv_performed(node.lhs_operand, lhs_obj, lhs_var)
         end
 
         rhs_var = object_to_variable(rhs_obj)
-        case
-        when !rhs_var.type.scalar? && !rhs_var.type.void?
+        if !rhs_var.type.scalar? && !rhs_var.type.void?
           # NOTE: To detect bad value reference of `void' expressions.
           return create_tmpvar
-        when rhs_var != rhs_obj
-          notify_implicit_conv_performed(node.rhs_operand, rhs_obj, rhs_var)
         end
 
         # NOTE: The ISO C99 standard says;
@@ -984,21 +964,15 @@ module Cc1 #:nodoc:
 
       def eval_relational_expr(node, lhs_obj, rhs_obj)
         lhs_var = object_to_variable(lhs_obj)
-        case
-        when !lhs_var.type.scalar? && !lhs_var.type.void?
+        if !lhs_var.type.scalar? && !lhs_var.type.void?
           # NOTE: To detect bad value reference of `void' expressions.
           return create_tmpvar(int_t, scalar_value_of_arbitrary)
-        when lhs_var != lhs_obj
-          notify_implicit_conv_performed(node.lhs_operand, lhs_obj, lhs_var)
         end
 
         rhs_var = object_to_variable(rhs_obj)
-        case
-        when !rhs_var.type.scalar? && !rhs_var.type.void?
+        if !rhs_var.type.scalar? && !rhs_var.type.void?
           # NOTE: To detect bad value reference of `void' expressions.
           return create_tmpvar(int_t, scalar_value_of_arbitrary)
-        when rhs_var != rhs_obj
-          notify_implicit_conv_performed(node.rhs_operand, rhs_obj, rhs_var)
         end
 
         lhs_conved, rhs_conved =
@@ -1035,21 +1009,15 @@ module Cc1 #:nodoc:
 
       def eval_equality_expr(node, lhs_obj, rhs_obj)
         lhs_var = object_to_variable(lhs_obj)
-        case
-        when !lhs_var.type.scalar? && !lhs_var.type.void?
+        if !lhs_var.type.scalar? && !lhs_var.type.void?
           # NOTE: To detect bad value reference of `void' expressions.
           return create_tmpvar(int_t, scalar_value_of_arbitrary)
-        when lhs_var != lhs_obj
-          notify_implicit_conv_performed(node.lhs_operand, lhs_obj, lhs_var)
         end
 
         rhs_var = object_to_variable(rhs_obj)
-        case
-        when !rhs_var.type.scalar? && !rhs_var.type.void?
+        if !rhs_var.type.scalar? && !rhs_var.type.void?
           # NOTE: To detect bad value reference of `void' expressions.
           return create_tmpvar(int_t, scalar_value_of_arbitrary)
-        when rhs_var != rhs_obj
-          notify_implicit_conv_performed(node.rhs_operand, rhs_obj, rhs_var)
         end
 
         lhs_conved, rhs_conved =
@@ -1082,21 +1050,15 @@ module Cc1 #:nodoc:
 
       def eval_and_expr(node, lhs_obj, rhs_obj)
         lhs_var = object_to_variable(lhs_obj)
-        case
-        when !lhs_var.type.scalar? && !lhs_var.type.void?
+        if !lhs_var.type.scalar? && !lhs_var.type.void?
           # NOTE: To detect bad value reference of `void' expressions.
           return create_tmpvar
-        when lhs_var != lhs_obj
-          notify_implicit_conv_performed(node.lhs_operand, lhs_obj, lhs_var)
         end
 
         rhs_var = object_to_variable(rhs_obj)
-        case
-        when !rhs_var.type.scalar? && !rhs_var.type.void?
+        if !rhs_var.type.scalar? && !rhs_var.type.void?
           # NOTE: To detect bad value reference of `void' expressions.
           return create_tmpvar
-        when rhs_var != rhs_obj
-          notify_implicit_conv_performed(node.rhs_operand, rhs_obj, rhs_var)
         end
 
         lhs_conved, rhs_conved =
@@ -1124,21 +1086,15 @@ module Cc1 #:nodoc:
 
       def eval_exclusive_or_expr(node, lhs_obj, rhs_obj)
         lhs_var = object_to_variable(lhs_obj)
-        case
-        when !lhs_var.type.scalar? && !lhs_var.type.void?
+        if !lhs_var.type.scalar? && !lhs_var.type.void?
           # NOTE: To detect bad value reference of `void' expressions.
           return create_tmpvar
-        when lhs_var != lhs_obj
-          notify_implicit_conv_performed(node.lhs_operand, lhs_obj, lhs_var)
         end
 
         rhs_var = object_to_variable(rhs_obj)
-        case
-        when !rhs_var.type.scalar? && !rhs_var.type.void?
+        if !rhs_var.type.scalar? && !rhs_var.type.void?
           # NOTE: To detect bad value reference of `void' expressions.
           return create_tmpvar
-        when rhs_var != rhs_obj
-          notify_implicit_conv_performed(node.rhs_operand, rhs_obj, rhs_var)
         end
 
         lhs_conved, rhs_conved =
@@ -1166,21 +1122,15 @@ module Cc1 #:nodoc:
 
       def eval_inclusive_or_expr(node, lhs_obj, rhs_obj)
         lhs_var = object_to_variable(lhs_obj)
-        case
-        when !lhs_var.type.scalar? && !lhs_var.type.void?
+        if !lhs_var.type.scalar? && !lhs_var.type.void?
           # NOTE: To detect bad value reference of `void' expressions.
           return create_tmpvar
-        when lhs_var != lhs_obj
-          notify_implicit_conv_performed(node.lhs_operand, lhs_obj, lhs_var)
         end
 
         rhs_var = object_to_variable(rhs_obj)
-        case
-        when !rhs_var.type.scalar? && !rhs_var.type.void?
+        if !rhs_var.type.scalar? && !rhs_var.type.void?
           # NOTE: To detect bad value reference of `void' expressions.
           return create_tmpvar
-        when rhs_var != rhs_obj
-          notify_implicit_conv_performed(node.rhs_operand, rhs_obj, rhs_var)
         end
 
         lhs_conved, rhs_conved =
@@ -1207,16 +1157,8 @@ module Cc1 #:nodoc:
       end
 
       def eval_simple_assignment_expr(node, lhs_obj, rhs_obj)
-        if lhs_obj.variable?
-          lhs_var = lhs_obj
-        else
-          return lhs_obj
-        end
-
+        lhs_var = object_to_variable(lhs_obj)
         rhs_var = object_to_variable(rhs_obj)
-        unless rhs_var == rhs_obj
-          notify_implicit_conv_performed(node.rhs_operand, rhs_obj, rhs_var)
-        end
 
         if rhs_var.type.same_as?(lhs_var.type)
           rhs_conved = rhs_var
@@ -1240,19 +1182,16 @@ module Cc1 #:nodoc:
       end
 
       def eval_compound_assignment_expr(node, lhs_obj, rhs_obj)
-        if lhs_obj.variable? && lhs_obj.type.scalar?
-          lhs_var = lhs_obj
-        else
+        lhs_var = object_to_variable(lhs_obj)
+        if !lhs_var.type.scalar? && !lhs_var.type.void?
+          # NOTE: To detect bad value reference of `void' expressions.
           return lhs_obj
         end
 
         rhs_var = object_to_variable(rhs_obj)
-        case
-        when !rhs_var.type.scalar? && !rhs_var.type.void?
+        if !rhs_var.type.scalar? && !rhs_var.type.void?
           # NOTE: To detect bad value reference of `void' expressions.
-          return create_tmpvar
-        when rhs_var != rhs_obj
-          notify_implicit_conv_performed(node.rhs_operand, rhs_obj, rhs_var)
+          return lhs_var
         end
 
         case node.operator.type

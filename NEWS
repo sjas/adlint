@@ -21,6 +21,20 @@
 
 ++
 
+=== \AdLint 3.0.2 is released (2013-04-12)
+
+==== Changes since the 3.0.0 release
+
+* Add missing transparency between a pointer to array and an array variable in
+  expression evaluation
+* Add missing transparency between a pointer function and a function in
+  expression evaluation
+* Clarify W0100 message text
+
+See the file
+{ChangeLog}[http://adlint.sourceforge.net/pmwiki/upload.d/Main/ChangeLog]
+for more details.
+
 === \AdLint 3.0.0 is released (2013-03-27)
 
 ==== Changes since the 2.6.14 release
@@ -49,10 +63,6 @@
 * Fix bad value domain management in order to correctly thin a value domain of
   the terminating execution path
 * Support Ruby 2.0.0-p0
-
-See the file
-{ChangeLog}[http://adlint.sourceforge.net/pmwiki/upload.d/Main/ChangeLog]
-for more details.
 
 === \AdLint 2.6.14 is released (2012-12-17)
 

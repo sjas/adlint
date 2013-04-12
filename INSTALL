@@ -21,7 +21,7 @@
 
 ++
 
-=== Requirements
+=== Requirement
 
 * Ruby 1.9.3-p0 or later for normal use [*mandatory*]
 * GNU Make 3 or later to use adlintized Makefile [optional but recommended]

@@ -271,12 +271,12 @@ module AdLint #:nodoc:
     end
 
     def met_fpath
-      met_fname = @fpath.strip(@strip_num).add_ext(".met.csv")
+      met_fname = @src_fpath.strip(@strip_num).add_ext(".met.csv")
       @output_dpath ? @output_dpath.join(met_fname) : met_fname
     end
 
     def i_fpath
-      i_fname = @fpath.strip(@strip_num).sub_ext(".i")
+      i_fname = @src_fpath.strip(@strip_num).sub_ext(".i")
       @output_dpath ? @output_dpath.join(i_fname) : i_fname
     end
   end

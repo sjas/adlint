@@ -1,3 +1,7 @@
+Fri Apr 12 11:56:59 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/analyzer.rb : Fix abend problem of adlint_chk command.
+
 Thu Apr 12 10:48:11 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* release.ga : 3.0.2

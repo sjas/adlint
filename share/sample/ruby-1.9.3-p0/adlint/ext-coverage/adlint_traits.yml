@@ -52,7 +52,7 @@ project_traits:
   #       - "../bar/baz"
   target_files:
     inclusion_paths:
-        - "../../ruby-1.9.3-p0"
+      - "../../ruby-1.9.3-p0"
     exclusion_paths:
 
   # Pathname of the project specific initial header file.

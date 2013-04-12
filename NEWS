@@ -21,6 +21,16 @@
 
 ++
 
+=== \AdLint 3.0.4 is released (2013-04-12)
+
+==== Changes since the 3.0.2 release
+
+* Fix abend problem of adlint_chk command
+
+See the file
+{ChangeLog}[http://adlint.sourceforge.net/pmwiki/upload.d/Main/ChangeLog]
+for more details.
+
 === \AdLint 3.0.2 is released (2013-04-12)
 
 ==== Changes since the 3.0.0 release
@@ -30,10 +40,6 @@
 * Add missing transparency between a pointer function and a function in
   expression evaluation
 * Clarify W0100 message text
-
-See the file
-{ChangeLog}[http://adlint.sourceforge.net/pmwiki/upload.d/Main/ChangeLog]
-for more details.
 
 === \AdLint 3.0.0 is released (2013-03-27)
 

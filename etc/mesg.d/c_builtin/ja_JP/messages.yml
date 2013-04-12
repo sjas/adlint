@@ -49,7 +49,7 @@
 #         - "ERR:X99"
 #       format: "Your custom message for the error of E9999."
 
-version: "3.0.0"
+version: "3.0.2"
 
 message_definition:
   W0001:
@@ -335,7 +335,7 @@ message_definition:
   W0100:
     classes:
       - "UNC:X99"
-    format: "変数 `%s' は値が変わりません。const 付きで宣言できる可能性があります。"
+    format: "変数 `%s' は初期値を設定後に再代入されません。変数を const 付きで初期値を指定して定義できる可能性があります。"
   W0101:
     classes:
       - "UNC:X99"

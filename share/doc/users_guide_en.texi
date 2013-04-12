@@ -2,7 +2,7 @@
 @setfilename users_guide_en.info
 @documentlanguage en
 @documentencoding utf-8
-@settitle AdLint 3.0.0 User's Guide
+@settitle AdLint 3.0.2 User's Guide
 
 @copying
 Copyright (C) 2010-2013, OGIS-RI Co.,Ltd.
@@ -2457,7 +2457,7 @@ context_line
 * W0093::This expression may cause division-by-zero.
 * W0096::It divided by a constant expression which definitely zero.
 * W0097::This expression must cause division-by-zero.
-* W0100::The value of variable `%s' is not change. It can be declarable with 'const'.
+* W0100::The variable `%s' has not been reassigned since the initial value is assigned. It may be able to be defined as `const' with an initial value.
 * W0101::An address of auto variable is substituted for a pointer which has a longer life. This program is danger.
 * W0102::An address of auto variable is returned via formal argument to functions. This program is danger.
 * W0103::An address of auto variable is returned as return value from a function. This program is danger.
@@ -5646,7 +5646,7 @@ None.
 
 @subsection Message body
 
-The value of variable `%s' is not change. It can be declarable with 'const'.
+The variable `%s' has not been reassigned since the initial value is assigned. It may be able to be defined as `const' with an initial value.
 
 @subsection Content
 

@@ -33,124 +33,125 @@ module AdLint #:nodoc:
 
   module Memoizable
     def memoize(name, *key_indices)
-      var_name = name.to_s.sub("?", "Q")
-      org_name = "_org_#{name}"
-      class_eval <<-EOS
-        alias_method("#{org_name}", "#{name}")
-        private("#{org_name}")
-      EOS
-      if key_indices.empty?
-        if instance_method("#{name}").arity == 0
-          define_cache_manipulator(name, var_name)
-          class_eval <<-EOS
-            define_method("#{name}") do
-              @_cache_of__#{var_name}_initialized ||= false
-              if @_cache_of__#{var_name}_initialized
-                @_cache_of__#{var_name}_forbidden = false
-                @_cache_of__#{var_name}
-              else
-                @_cache_of__#{var_name}_forbidden ||= false
-                if @_cache_of__#{var_name}_forbidden
-                  @_cache_of__#{var_name}_forbidden = false
-                  #{org_name}
-                else
-                  @_cache_of__#{var_name}_initialized = true
-                  @_cache_of__#{var_name} = #{org_name}
-                end
-              end
-            end
-          EOS
-        else
-          define_cache_manipulator(name, var_name, key_indices)
-          class_eval <<-EOS
-            define_method("#{name}") do |*args|
-              @_cache_of__#{var_name}_initialized ||= false
-              if @_cache_of__#{var_name}_initialized
-                @_cache_of__#{var_name}_forbidden = false
-                if @_cache_of__#{var_name}.include?(args)
-                  @_cache_of__#{var_name}[args]
-                else
-                  @_cache_of__#{var_name}[args] = #{org_name}(*args)
-                end
-              else
-                @_cache_of__#{var_name}_forbidden ||= false
-                if @_cache_of__#{var_name}_forbidden
-                  @_cache_of__#{var_name}_forbidden = false
-                  #{org_name}(*args)
-                else
-                  @_cache_of__#{var_name}_initialized = true
-                  @_cache_of__#{var_name} = {}
-                  @_cache_of__#{var_name}[args] = #{org_name}(*args)
-                end
-              end
-            end
-          EOS
-        end
+      if instance_method(name).arity == 0
+        memoize_noarg_method(name)
       else
-        define_cache_manipulator(name, var_name, key_indices)
-        class_eval <<-EOS
-          define_method("#{name}") do |*args|
-            @_cache_of__#{var_name}_initialized ||= false
-            key = args.values_at(#{key_indices.join(',')})
-            if @_cache_of__#{var_name}_initialized
-              @_cache_of__#{var_name}_forbidden = false
-              if @_cache_of__#{var_name}.include?(key)
-                @_cache_of__#{var_name}[key]
-              else
-                @_cache_of__#{var_name}[key] = #{org_name}(*args)
-              end
-            else
-              @_cache_of__#{var_name}_forbidden ||= false
-              if @_cache_of__#{var_name}_forbidden
-                @_cache_of__#{var_name}_forbidden = false
-                #{org_name}(*args)
-              else
-                @_cache_of__#{var_name}_initialized = true
-                @_cache_of__#{var_name} = {}
-                @_cache_of__#{var_name}[key] = #{org_name}(*args)
-              end
-            end
-          end
-        EOS
+        memoize_ordinary_method(name, key_indices)
       end
     end
 
     private
-    def define_cache_manipulator(name, var_name, key_indices = nil)
+    def memoize_noarg_method(name)
+      save_memoizing_method(name)
+      prepare_noarg_method_cache(name)
       class_eval <<-EOS
-        define_method("forbid_once_memo_of__#{name}") do
-          @_cache_of__#{var_name}_forbidden = true
-        end
-        define_method("clear_memo_of__#{name}") do
-          @_cache_of__#{var_name} = nil
-          @_cache_of__#{var_name}_initialized = false
-        end
-      EOS
-      case
-      when key_indices && key_indices.empty?
-        class_eval <<-EOS
-          define_method("forget_memo_of__#{name}") do |*args|
-            if @_cache_of__#{var_name}_initialized
-              @_cache_of__#{var_name}.delete(args)
+        define_method(:#{name}) do
+          if #{cache_name_of(name)}_initialized ||= false
+            #{cache_name_of(name)}_forbidden = false
+            #{cache_name_of(name)}
+          else
+            if #{cache_name_of(name)}_forbidden ||= false
+              #{cache_name_of(name)}_forbidden = false
+              #{org_name_of(name)}
+            else
+              #{cache_name_of(name)}_initialized = true
+              #{cache_name_of(name)} = #{org_name_of(name)}
             end
           end
-        EOS
-      when key_indices
-        class_eval <<-EOS
-          define_method("forget_memo_of__#{name}") do |*args|
-            if @_cache_of__#{var_name}_initialized
-              key = args.values_at(#{key_indices.join(',')})
-              @_cache_of__#{var_name}.delete(key)
+        end
+      EOS
+    end
+
+    def memoize_ordinary_method(name, key_indices)
+      save_memoizing_method(name)
+      prepare_ordinary_method_cache(name, key_indices)
+      class_eval <<-EOS
+        define_method(:#{name}) do |*args|
+          key = __key_for_#{name}(*args)
+          if #{cache_name_of(name)}_initialized ||= false
+            #{cache_name_of(name)}_forbidden = false
+            if #{cache_name_of(name)}.include?(key)
+              #{cache_name_of(name)}[key]
+            else
+              #{cache_name_of(name)}[key] = #{org_name_of(name)}(*args)
             end
+          else
+            if #{cache_name_of(name)}_forbidden ||= false
+              #{cache_name_of(name)}_forbidden = false
+              #{org_name_of(name)}(*args)
+            else
+              #{cache_name_of(name)}_initialized = true
+              #{cache_name_of(name)} = {}
+              #{cache_name_of(name)}[key] = #{org_name_of(name)}(*args)
+            end
+          end
+        end
+      EOS
+    end
+
+    def prepare_noarg_method_cache(name)
+      class_eval <<-EOS
+        define_method(:forbid_once_memo_of__#{name}) do
+          #{cache_name_of(name)}_forbidden = true
+        end
+        define_method(:clear_memo_of__#{name}) do
+          #{cache_name_of(name)} = nil
+          #{cache_name_of(name)}_initialized = false
+        end
+        define_method(:forget_memo_of__#{name}) do
+          clear_memo_of__#{name}
+        end
+      EOS
+    end
+
+    def prepare_ordinary_method_cache(name, key_indices)
+      define_key_generator(name, key_indices)
+      class_eval <<-EOS
+        define_method(:forbid_once_memo_of__#{name}) do
+          #{cache_name_of(name)}_forbidden = true
+        end
+        define_method(:clear_memo_of__#{name}) do
+          #{cache_name_of(name)} = nil
+          #{cache_name_of(name)}_initialized = false
+        end
+        define_method(:forget_memo_of__#{name}) do |*args|
+          if #{cache_name_of(name)}_initialized
+            #{cache_name_of(name)}.delete(__key_for_#{name}(*args))
+          end
+        end
+      EOS
+    end
+
+    def define_key_generator(name, key_indices)
+      if key_indices.empty?
+        class_eval <<-EOS
+          define_method(:__key_for_#{name}) do |*args|
+            args
           end
         EOS
       else
         class_eval <<-EOS
-          define_method("forget_memo_of__#{name}") do
-            clear_memo_of__#{name}
+          define_method(:__key_for_#{name}) do |*args|
+            args.values_at(#{key_indices.join(',')})
           end
         EOS
       end
+      class_eval "private(:__key_for_#{name})"
+    end
+
+    def save_memoizing_method(name)
+      class_eval <<-EOS
+        alias_method(:#{org_name_of(name)}, :#{name})
+        private(:#{org_name_of(name)})
+      EOS
+    end
+
+    def cache_name_of(name)
+      "@__cache_of__#{name.to_s.sub("?", "Q")}"
+    end
+
+    def org_name_of(name)
+      "__org_#{name}"
     end
   end
 

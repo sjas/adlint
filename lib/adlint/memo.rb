@@ -34,16 +34,16 @@ module AdLint #:nodoc:
   module Memoizable
     def memoize(name, *key_indices)
       if instance_method(name).arity == 0
-        memoize_noarg_method(name)
+        memoize_nullary_method(name)
       else
         memoize_ordinary_method(name, key_indices)
       end
     end
 
     private
-    def memoize_noarg_method(name)
+    def memoize_nullary_method(name)
       save_memoizing_method(name)
-      prepare_noarg_method_cache(name)
+      prepare_nullary_method_cache(name)
       class_eval <<-EOS
         define_method(:#{name}) do
           if #{cache_name_of(name)}_initialized ||= false
@@ -89,7 +89,7 @@ module AdLint #:nodoc:
       EOS
     end
 
-    def prepare_noarg_method_cache(name)
+    def prepare_nullary_method_cache(name)
       class_eval <<-EOS
         define_method(:forbid_once_memo_of__#{name}) do
           #{cache_name_of(name)}_forbidden = true

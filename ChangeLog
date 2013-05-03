@@ -1,3 +1,11 @@
+Sat May  4 01:29:26 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/memo.rb : Add `force_nullary' option to Memoizable#memoize
+	  and improve performance of memoized unary method.
+	* lib/adlint/cc1/domain.rb : Ditto.
+	* lib/adlint/ld/object.rb : Ditto.
+	* lib/adlint/location.rb : Ditto.
+
 Fri Apr 12 13:06:31 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* release.ga : 3.0.4

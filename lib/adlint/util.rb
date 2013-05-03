@@ -517,7 +517,7 @@ if $0 == __FILE__
       p "foo"
     end
 
-    extend ::AdLint::Pluggable
+    extend AdLint::Pluggable
 
     def_plugin :on_initialization
 

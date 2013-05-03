@@ -42,57 +42,112 @@ module Cc1 #:nodoc:
     def equal_to(numeric, logical_shr)
       EqualToValueDomain.new(numeric, logical_shr)
     end
-    memoize :equal_to
+    # NOTE: Value of #equal_to depends on the `logical_shr' parameter derived
+    #       from the traits object.
+    #       But the traits object is unique in an AdLint instance.
+    #       So, it is safe to treat this method as unary method for improving
+    #       the performance.
+    memoize :equal_to, key_indices: [0]
 
     def not_equal_to(numeric, logical_shr)
       equal_to(numeric, logical_shr).inversion
     end
-    memoize :not_equal_to
+    # NOTE: Value of #not_equal_to depends on the `logical_shr' parameter
+    #       derived from the traits object.
+    #       But the traits object is unique in an AdLint instance.
+    #       So, it is safe to treat this method as unary method for improving
+    #       the performance.
+    memoize :not_equal_to, key_indices: [0]
 
     def less_than(numeric, logical_shr)
       LessThanValueDomain.new(numeric, logical_shr)
     end
-    memoize :less_than
+    # NOTE: Value of #less_than depends on the `logical_shr' parameter derived
+    #       from the traits object.
+    #       But the traits object is unique in an AdLint instance.
+    #       So, it is safe to treat this method as unary method for improving
+    #       the performance.
+    memoize :less_than, key_indices: [0]
 
     def greater_than(numeric, logical_shr)
       GreaterThanValueDomain.new(numeric, logical_shr)
     end
-    memoize :greater_than
+    # NOTE: Value of #greater_than depends on the `logical_shr' parameter
+    #       derived from the traits object.
+    #       But the traits object is unique in an AdLint instance.
+    #       So, it is safe to treat this method as unary method for improving
+    #       the performance.
+    memoize :greater_than, key_indices: [0]
 
     def less_than_or_equal_to(numeric, logical_shr)
       less_than(numeric, logical_shr).union(equal_to(numeric, logical_shr))
     end
-    memoize :less_than_or_equal_to
+    # NOTE: Value of #less_than_or_equal_to depends on the `logical_shr'
+    #       parameter derived from the traits object.
+    #       But the traits object is unique in an AdLint instance.
+    #       So, it is safe to treat this method as unary method for improving
+    #       the performance.
+    memoize :less_than_or_equal_to, key_indices: [0]
 
     def greater_than_or_equal_to(numeric, logical_shr)
       greater_than(numeric, logical_shr).union(equal_to(numeric, logical_shr))
     end
-    memoize :greater_than_or_equal_to
+    # NOTE: Value of #greater_than_or_equal_to depends on the `logical_shr'
+    #       parameter derived from the traits object.
+    #       But the traits object is unique in an AdLint instance.
+    #       So, it is safe to treat this method as unary method for improving
+    #       the performance.
+    memoize :greater_than_or_equal_to, key_indices: [0]
 
     def of_true(logical_shr)
       not_equal_to(0, logical_shr)
     end
-    memoize :of_true
+    # NOTE: Value of #of_true depends on the `logical_shr' parameter derived
+    #       from the traits object.
+    #       But the traits object is unique in an AdLint instance.
+    #       So, it is safe to treat this method as nullary method for improving
+    #       the performance.
+    memoize :of_true, force_nullary: true
 
     def of_false(logical_shr)
       equal_to(0, logical_shr)
     end
-    memoize :of_false
+    # NOTE: Value of #of_false depends on the `logical_shr' parameter derived
+    #       from the traits object.
+    #       But the traits object is unique in an AdLint instance.
+    #       So, it is safe to treat this method as nullary method for improving
+    #       the performance.
+    memoize :of_false, force_nullary: true
 
     def of_unlimited(logical_shr)
       UnlimitedValueDomain.new(logical_shr)
     end
-    memoize :of_unlimited
+    # NOTE: Value of #of_unlimited depends on the `logical_shr' parameter
+    #       derived from the traits object.
+    #       But the traits object is unique in an AdLint instance.
+    #       So, it is safe to treat this method as nullary method for improving
+    #       the performance.
+    memoize :of_unlimited, force_nullary: true
 
     def of_nil(logical_shr)
       NilValueDomain.new(logical_shr)
     end
-    memoize :of_nil
+    # NOTE: Value of #of_nil depends on the `logical_shr' parameter derived
+    #       from the traits object.
+    #       But the traits object is unique in an AdLint instance.
+    #       So, it is safe to treat this method as nullary method for improving
+    #       the performance.
+    memoize :of_nil, force_nullary: true
 
     def of_nan(logical_shr)
       NaN.new(logical_shr)
     end
-    memoize :of_nan
+    # NOTE: Value of #of_nan depends on the `logical_shr' parameter derived
+    #       from the traits object.
+    #       But the traits object is unique in an AdLint instance.
+    #       So, it is safe to treat this method as nullary method for improving
+    #       the performance.
+    memoize :of_nan, force_nullary: true
 
     def of_intersection(lhs_dom, rhs_dom)
       case lhs_dom
@@ -168,7 +223,12 @@ module Cc1 #:nodoc:
     def of_ambiguous(undefined, logical_shr)
       AmbiguousValueDomain.new(undefined, logical_shr)
     end
-    memoize :of_ambiguous
+    # NOTE: Value of #of_ambiguous depends on the `logical_shr' parameter
+    #       derived from the traits object.
+    #       But the traits object is unique in an AdLint instance.
+    #       So, it is safe to treat this method as unary method for improving
+    #       the performance.
+    memoize :of_ambiguous, key_indices: [0]
 
     def _create_intersection(lhs_dom, rhs_dom)
       expected = lhs_dom.complexity + rhs_dom.complexity

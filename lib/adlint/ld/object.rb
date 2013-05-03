@@ -474,7 +474,7 @@ module Ld #:nodoc:
         end
       end
     end
-    memoize :collect_callers_of, 0
+    memoize :collect_callers_of, key_indices: [0]
   end
 
   class FunctionCallGraphBuilder

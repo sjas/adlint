@@ -32,20 +32,29 @@
 module AdLint #:nodoc:
 
   module Memoizable
-    def memoize(name, *key_indices)
-      if instance_method(name).arity == 0
+    def memoize(name, *opts)
+      force_nullary, key_indices = extract_memoize_options(opts)
+      case
+      when instance_method(name).arity == 0 || force_nullary
         memoize_nullary_method(name)
+      when instance_method(name).arity == 1 || key_indices.size == 1
+        memoize_unary_method(name, key_indices.first || 0)
       else
-        memoize_ordinary_method(name, key_indices)
+        memoize_polynomial_method(name, key_indices)
       end
     end
 
     private
+    def extract_memoize_options(opts)
+      hash = opts.first || {}
+      [hash[:force_nullary], hash[:key_indices] || []]
+    end
+
     def memoize_nullary_method(name)
       save_memoizing_method(name)
       prepare_nullary_method_cache(name)
       class_eval <<-EOS
-        define_method(:#{name}) do
+        define_method(:#{name}) do |*args|
           if #{cache_name_of(name)}_initialized ||= false
             #{cache_name_of(name)}_forbidden = false
             #{cache_name_of(name)}
@@ -55,16 +64,43 @@ module AdLint #:nodoc:
               #{org_name_of(name)}
             else
               #{cache_name_of(name)}_initialized = true
-              #{cache_name_of(name)} = #{org_name_of(name)}
+              #{cache_name_of(name)} = #{org_name_of(name)}(*args)
             end
           end
         end
       EOS
     end
 
-    def memoize_ordinary_method(name, key_indices)
+    def memoize_unary_method(name, key_index)
       save_memoizing_method(name)
-      prepare_ordinary_method_cache(name, key_indices)
+      prepare_unary_method_cache(name, key_index)
+      class_eval <<-EOS
+        define_method(:#{name}) do |*args|
+          key = args[#{key_index}]
+          if #{cache_name_of(name)}_initialized ||= false
+            #{cache_name_of(name)}_forbidden = false
+            if #{cache_name_of(name)}.include?(key)
+              #{cache_name_of(name)}[key]
+            else
+              #{cache_name_of(name)}[key] = #{org_name_of(name)}(*args)
+            end
+          else
+            if #{cache_name_of(name)}_forbidden ||= false
+              #{cache_name_of(name)}_forbidden = false
+              #{org_name_of(name)}(*args)
+            else
+              #{cache_name_of(name)}_initialized = true
+              #{cache_name_of(name)} = {}
+              #{cache_name_of(name)}[key] = #{org_name_of(name)}(*args)
+            end
+          end
+        end
+      EOS
+    end
+
+    def memoize_polynomial_method(name, key_indices)
+      save_memoizing_method(name)
+      prepare_polynomial_method_cache(name, key_indices)
       class_eval <<-EOS
         define_method(:#{name}) do |*args|
           key = __key_for_#{name}(*args)
@@ -104,7 +140,24 @@ module AdLint #:nodoc:
       EOS
     end
 
-    def prepare_ordinary_method_cache(name, key_indices)
+    def prepare_unary_method_cache(name, key_index)
+      class_eval <<-EOS
+        define_method(:forbid_once_memo_of__#{name}) do
+          #{cache_name_of(name)}_forbidden = true
+        end
+        define_method(:clear_memo_of__#{name}) do
+          #{cache_name_of(name)} = nil
+          #{cache_name_of(name)}_initialized = false
+        end
+        define_method(:forget_memo_of__#{name}) do |*args|
+          if #{cache_name_of(name)}_initialized
+            #{cache_name_of(name)}.delete(args[#{key_index}])
+          end
+        end
+      EOS
+    end
+
+    def prepare_polynomial_method_cache(name, key_indices)
       define_key_generator(name, key_indices)
       class_eval <<-EOS
         define_method(:forbid_once_memo_of__#{name}) do

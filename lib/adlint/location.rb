@@ -69,7 +69,12 @@ module AdLint #:nodoc:
         false
       end
     end
-    memoize :in_analysis_target?
+    # NOTE: Value of #in_analysis_target? depends on the `traits' parameter.
+    #       But the `traits' parameter always points the same object in an
+    #       AdLint instance.
+    #       So, it is safe to treat this method as nullary method for improving
+    #       the performance.
+    memoize :in_analysis_target?, force_nullary: true
 
     def ==(rhs)
       self.to_a == rhs.to_a

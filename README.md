@@ -1,9 +1,8 @@
 # AdLint - Advanced Lint
 
-AdLint is a source code static analyzer.
+**AdLint** is a source code static analyzer.
 
 It can point out unreliable or nonportable code fragments, and can measure various quality metrics of the source code.
-
 It (currently) can analyze source code compliant with ANSI C89 / ISO C90 and partly ISO C99.
 
 For more details, visit our project homepage at <http://adlint.sourceforge.net/>.
@@ -12,8 +11,8 @@ For more details, visit our project homepage at <http://adlint.sourceforge.net/>
 
 ### Requirement
 
-* Ruby 1.9.3-p0 or later for normal use [*mandatory*]
-* GNU Make 3 or later to use adlintized Makefile [optional but recommended]
+* Ruby 1.9.3-p0 or later for normal use [**mandatory**]
+* GNU Make 3 or later to use adlintized Makefile [optional _but recommended_]
 * Racc 1.4.7 for development [optional]
 
 ### Installation
@@ -29,7 +28,7 @@ or
 ### Evaluation
 
 Tiny sample C language projects are bundled with AdLint gem.
-You can evaluate AdLint by following instructions.
+You can evaluate AdLint by the following instructions.
 
 First, copy `intro_demo` project into your workspace.
 `adlint --prefix` command prints the prefix pathname of the AdLint installation directory.
@@ -43,13 +42,15 @@ Second, generate configuration files for AdLint.
 
 Following files will be generated.
 
-* `GNUmakefile`       : Automatic analysis Makefile for GNU Make
-* `adlint_traits.yml` : AdLint configuration file
-* `adlint_pinit.h`    : Project specific initial header file
-* `adlint_cinit.h`    : Compiler specific initial header file
-* `adlint_all.sh`     : Automatic analysis shell script
-* `adlint_all.bat`    : Automatic analysis mswin bat file
-* `adlint_files.txt`  : List file for sh script and bat file
+File                   | Description
+-----------------------|--------------------------------------------------------
+`GNUmakefile`          | Automatic analysis makefile for GNU Make
+`adlint_traits.yml`    | AdLint configuration file
+`adlint_pinit.h`       | Project specific initial header file
+`adlint_cinit.h`       | Compiler specific initial header file
+`adlint_all.sh`        | Automatic analysis shell script
+`adlint_all.bat`       | Automatic analysis mswin bat file
+`adlint_files.txt`     | List file for sh script and bat file
 
 Finally, do analysis.
 
@@ -61,13 +62,16 @@ Finally, do analysis.
 
 Following files will be generated.
 
-* `intro_demo.i`         : Preprocessed source of `intro_demo.c`
-* `intro_demo.c.met.csv` : Single module code structure and metric information
-* `intro_demo.c.msg.csv` : Single module warning messages
-* `intro_demo.met.csv`   : Cross module metric information
-* `intro_demo.msg.csv`   : Cross module warning messages
+File                   | Description
+-----------------------|--------------------------------------------------------
+`intro_demo.i`         | Preprocessed source of `intro_demo.c`
+`intro_demo.c.met.csv` | Single module code structure and metric information
+`intro_demo.c.msg.csv` | Single module warning messages
+`intro_demo.met.csv`   | Cross module metric information
+`intro_demo.msg.csv`   | Cross module warning messages
 
-`intro_demo.c.msg.csv` will tell you that the control will never reach to some statements and that division-by-zero will occur in `intro_demo.c`.
+`intro_demo.c.msg.csv` will tell you that the control will never reach to some
+statements and that division-by-zero will occur in `intro_demo.c`.
 
 ## License
 

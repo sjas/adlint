@@ -11,9 +11,9 @@ For more details, visit our project homepage at <http://adlint.sourceforge.net/>
 
 ### Requirement
 
-* Ruby 1.9.3-p0 or later for normal use [**mandatory**]
-* GNU Make 3 or later to use adlintized Makefile [optional _but recommended_]
-* Racc 1.4.7 for development [optional]
+* Ruby 1.9.3-p0 or later for normal use (*mandatory*)
+* GNU Make 3 or later to use adlintized Makefile (optional but recommended)
+* Racc 1.4.7 for development (optional)
 
 ### Installation
 

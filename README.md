@@ -1,3 +1,5 @@
+**This is the current upstream repository of AdLint.**
+
 # AdLint - Advanced Lint
 
 **AdLint** is a source code static analyzer.

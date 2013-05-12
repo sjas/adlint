@@ -1,3 +1,8 @@
+Sat May 12 21:26:44 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/memo.rb : Revise cache name generation rule by the example
+	  of Lisp naming conventions.
+
 Sat May  4 01:29:26 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* lib/adlint/memo.rb : Add `force_nullary' option to Memoizable#memoize

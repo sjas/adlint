@@ -1,4 +1,4 @@
-**This is the current upstream repository of AdLint.**
+_This is the current upstream repository of AdLint._
 
 # AdLint - Advanced Lint
 
@@ -11,7 +11,7 @@ For more details, visit our project homepage at <http://adlint.sourceforge.net/>
 
 ## How to Install
 
-### Requirement
+### Prerequisites
 
 * Ruby 1.9.3-p0 or later for normal use (*mandatory*)
 * GNU Make 3 or later to use adlintized Makefile (optional but recommended)
@@ -20,12 +20,9 @@ For more details, visit our project homepage at <http://adlint.sourceforge.net/>
 ### Installation
 
 Setup your Ruby interpreter.
-Then, you can install AdLint by following instruction.
+Then, you can install AdLint by the following instruction.
 
     % gem install adlint
-or
-
-    % sudo gem install adlint
 
 ### Evaluation
 

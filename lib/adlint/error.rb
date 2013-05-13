@@ -151,6 +151,12 @@ module AdLint #:nodoc:
     end
   end
 
+  class IllformedIncludeDirectiveError < FatalError
+    def initialize(loc, msg_fpath, log_fpath)
+      super("#include expects a filename", loc, msg_fpath, log_fpath)
+    end
+  end
+
   class UnterminatedCommentError < FatalError
     def initialize(loc, msg_fpath, log_fpath)
       super("unterminated comment block found.", loc, msg_fpath, log_fpath)

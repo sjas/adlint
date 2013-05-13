@@ -132,3 +132,7 @@ message_definition:
     classes:
       - "ERR:X99"
     format: "Unfinished comment block is found."
+  E0017:
+    classes:
+      - "ERR:X99"
+    format: "#include expects \"filename\" or <filename>."

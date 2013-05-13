@@ -1,3 +1,11 @@
+Mon May 13 19:19:31 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/cpp/eval.rb : Fix infinite-loop problem of preprocessor
+	  when the #include directive appears with undefined macro.
+	* lib/adlint/error.rb : Ditto.
+	* etc/mesg.d/core/ja_JP/messages.yml : Ditto.
+	* etc/mesg.d/core/en_US/messages.yml : Ditto.
+
 Mon May 13 17:41:41 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* lib/adlint/cpp/lexer.rb : Fix block comment handling in order not to

@@ -363,24 +363,27 @@ module Cpp #:nodoc:
       end
       discard_extra_tokens_until_newline(pp_ctxt)
       PPTokensNormalizer.normalize(pp_toks, pp_ctxt)
-      return nil if pp_toks.tokens.empty?
-      case param = pp_toks.tokens.map { |tok| tok.value }.join
-      when /\A".*"\z/
-        usr_include_line = UserIncludeLine.new(
-          keyword, Token.new(:USR_HEADER_NAME, param,
-                             pp_toks.tokens.first.location),
-          pp_ctxt.include_depth)
-        include_first_user_header(usr_include_line, pp_ctxt)
-        return usr_include_line
-      when /\A<.*>\z/
-        sys_include_line = SystemIncludeLine.new(
-          keyword, Token.new(:SYS_HEADER_NAME, param,
-                             pp_toks.tokens.first.location),
-          pp_ctxt.include_depth)
-        include_first_system_header(sys_include_line, pp_ctxt)
-        return sys_include_line
+      unless pp_toks.tokens.empty?
+        case param = pp_toks.tokens.map { |tok| tok.value }.join
+        when /\A".*"\z/
+          usr_include_line = UserIncludeLine.new(
+            keyword, Token.new(:USR_HEADER_NAME, param,
+                               pp_toks.tokens.first.location),
+                               pp_ctxt.include_depth)
+          include_first_user_header(usr_include_line, pp_ctxt)
+          return usr_include_line
+        when /\A<.*>\z/
+          sys_include_line = SystemIncludeLine.new(
+            keyword, Token.new(:SYS_HEADER_NAME, param,
+                               pp_toks.tokens.first.location),
+                               pp_ctxt.include_depth)
+          include_first_system_header(sys_include_line, pp_ctxt)
+          return sys_include_line
+        end
       end
-      nil
+      E(:E0017, keyword.location)
+      raise IllformedIncludeDirectiveError.new(
+        keyword.location, pp_ctxt.msg_fpath, pp_ctxt.log_fpath)
     end
 
     def macro_include_next_line(pp_ctxt, keyword)
@@ -879,12 +882,15 @@ module Cpp #:nodoc:
     end
 
     def top_token
-      return nil if @lexer_stack.empty?
-      unless tok = @lexer_stack.last.top_token
-        @lexer_stack.pop
-        top_token
+      unless @lexer_stack.empty?
+        unless tok = @lexer_stack.last.top_token
+          @lexer_stack.pop
+          top_token
+        else
+          tok
+        end
       else
-        tok
+        nil
       end
     end
 

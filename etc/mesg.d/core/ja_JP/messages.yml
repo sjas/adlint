@@ -132,3 +132,7 @@ message_definition:
     classes:
       - "ERR:X99"
     format: "終了しないコメントブロックが見つかりました。"
+  E0017:
+    classes:
+      - "ERR:X99"
+    format: "#include ディレクティブに \"ファイル名\" または <ファイル名> が見つかりません。"

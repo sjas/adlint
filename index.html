@@ -1,0 +1,184 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>AdLint by yanoh</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>AdLint</h1>
+        <p>AdLint - Advanced Lint</p>
+
+        <p class="view"><a href="https://github.com/yanoh/adlint">View the Project on GitHub <small>yanoh/adlint</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/yanoh/adlint/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/yanoh/adlint/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/yanoh/adlint">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <p><strong>AdLint</strong> is a source code static analyzer.</p>
+
+<p>It can point out unreliable or nonportable code fragments, and can measure various quality metrics of the source code.
+It (currently) can analyze source code compliant with ANSI C89 / ISO C90 and partly ISO C99.</p>
+
+<p>For more details, visit our project homepage at <a href="http://adlint.sourceforge.net/">http://adlint.sourceforge.net/</a>.</p>
+
+<h2>How to Install</h2>
+
+<h3>Prerequisites</h3>
+
+<ul>
+<li>Ruby 1.9.3-p0 or later for normal use (*mandatory*)</li>
+<li>GNU Make 3 or later to use adlintized Makefile (optional but recommended)</li>
+<li>Racc 1.4.7 for development (optional)</li>
+</ul><h3>Installation</h3>
+
+<p>Setup your Ruby interpreter.
+Then, you can install AdLint by the following instruction.</p>
+
+<pre><code>% gem install adlint
+</code></pre>
+
+<h3>Evaluation</h3>
+
+<p>Tiny sample C language projects are bundled with AdLint gem.
+You can evaluate AdLint by the following instructions.</p>
+
+<p>First, copy <code>intro_demo</code> project into your workspace.
+<code>adlint --prefix</code> command prints the prefix pathname of the AdLint installation directory.</p>
+
+<pre><code>% cp -r `adlint --prefix`/share/demo/intro_demo .
+</code></pre>
+
+<p>Second, generate configuration files for AdLint.</p>
+
+<pre><code>% cd intro_demo
+% adlintize
+</code></pre>
+
+<p>Following files will be generated.</p>
+
+<table>
+<tr>
+<th>File</th>
+<th>Description</th>
+</tr>
+<tr>
+<td><code>GNUmakefile</code></td>
+<td>Automatic analysis makefile for GNU Make</td>
+</tr>
+<tr>
+<td><code>adlint_traits.yml</code></td>
+<td>AdLint configuration file</td>
+</tr>
+<tr>
+<td><code>adlint_pinit.h</code></td>
+<td>Project specific initial header file</td>
+</tr>
+<tr>
+<td><code>adlint_cinit.h</code></td>
+<td>Compiler specific initial header file</td>
+</tr>
+<tr>
+<td><code>adlint_all.sh</code></td>
+<td>Automatic analysis shell script</td>
+</tr>
+<tr>
+<td><code>adlint_all.bat</code></td>
+<td>Automatic analysis mswin bat file</td>
+</tr>
+<tr>
+<td><code>adlint_files.txt</code></td>
+<td>List file for sh script and bat file</td>
+</tr>
+</table><p>Finally, do analysis.</p>
+
+<pre><code>% make verbose-all
+adlint --verbose -t adlint_traits.yml -o . intro_demo.c
+                  intro_demo.c [fin] |============================| 0.401s
+                    intro_demo [fin] |============================| 0.029s
+  1.125s user, 0.765s system, 00:00:01.89 total
+</code></pre>
+
+<p>Following files will be generated.</p>
+
+<table>
+<tr>
+<th>File</th>
+<th>Description</th>
+</tr>
+<tr>
+<td><code>intro_demo.i</code></td>
+<td>Preprocessed source of <code>intro_demo.c</code>
+</td>
+</tr>
+<tr>
+<td><code>intro_demo.c.met.csv</code></td>
+<td>Single module code structure and metric information</td>
+</tr>
+<tr>
+<td><code>intro_demo.c.msg.csv</code></td>
+<td>Single module warning messages</td>
+</tr>
+<tr>
+<td><code>intro_demo.met.csv</code></td>
+<td>Cross module metric information</td>
+</tr>
+<tr>
+<td><code>intro_demo.msg.csv</code></td>
+<td>Cross module warning messages</td>
+</tr>
+</table><p><code>intro_demo.c.msg.csv</code> will tell you that the control will never reach to some
+statements and that division-by-zero will occur in <code>intro_demo.c</code>.</p>
+
+<h2>License</h2>
+
+<p>Copyright (C) 2010-2013, <a href="http://www.ogis-ri.co.jp/">OGIS-RI</a> Co.,Ltd.</p>
+
+<p>AdLint is free software: you can redistribute it and/or modify it under the
+terms of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version.</p>
+
+<p>AdLint is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE.  See the GNU General Public License for more details.</p>
+
+<p>You should have received a copy of the GNU General Public License along with
+AdLint.  If not, see <a href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>.</p>
+
+<h2>Further Reading</h2>
+
+<ul>
+<li><a href="http://adlint.sourceforge.net/pmwiki/upload.d/Main/users_guide_ja.html">User's Guide (in Japanese)</a></li>
+<li><a href="http://adlint.sourceforge.net/pmwiki/upload.d/Main/users_guide_en.html">User's Guide (in English)</a></li>
+<li><a href="http://adlint.sourceforge.net/pmwiki/upload.d/Main/developers_guide_ja.html">Developer's Guide (in Japanese)</a></li>
+</ul><h2>TODO</h2>
+
+<ul>
+<li>Support many more preset build environments</li>
+<li>Implement automatic traits files generator</li>
+<li>Improve accuracy of code checks</li>
+</ul><p>Any contributions are welcome!</p>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/yanoh">yanoh</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>

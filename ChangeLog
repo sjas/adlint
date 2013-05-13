@@ -1,3 +1,9 @@
+Mon May 13 17:41:41 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/cpp/lexer.rb : Fix block comment handling in order not to
+	  dive into nested part when a single slash character appears before
+	  the comment terminator.
+
 Mon May 13 16:29:47 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* lib/adlint/cpp/lexer.rb : Fix bad handling of block comments in order

@@ -172,9 +172,11 @@ module Cpp #:nodoc:
         when nest_depth == 0 && cont.scan(/\/\*/)
           nest_depth = 1
           comment += "/*"
+        when nest_depth > 0 && cont.check(/\/\*\//)
+          comment += cont.scan(/\//)
         when nest_depth > 0 && cont.check(/\/\*/)
           nest_depth += 1
-          comment += cont.scan(/\//)
+          comment += cont.scan(/\/\*/)
           notify_nested_block_comment_found(loc)
         when cont.scan(/\*\//)
           comment += "*/"

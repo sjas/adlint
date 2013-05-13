@@ -165,19 +165,23 @@ module Cpp #:nodoc:
 
     def scan_block_comment(cont)
       comment = ""
-      block_depth = 0
+      nest_depth = 0
       until cont.empty?
         loc = cont.location
         case
-        when cont.scan(/\/\*/)
-          block_depth += 1
+        when nest_depth == 0 && cont.scan(/\/\*/)
+          nest_depth = 1
           comment += "/*"
-          notify_nested_block_comment_found(loc) if block_depth > 1
+        when nest_depth > 0 && cont.check(/\/\*/)
+          nest_depth += 1
+          comment += cont.scan(/\//)
+          notify_nested_block_comment_found(loc)
         when cont.scan(/\*\//)
           comment += "*/"
           break
+        when nest_depth == 0
+          return nil
         else
-          return nil if block_depth == 0
           if scanned = cont.scan(/.*?(?=\/\*|\*\/)/m)
             comment += scanned
           else

@@ -1,4 +1,12 @@
-Sat May 12 21:26:44 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+Mon May 13 16:29:47 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/cpp/lexer.rb : Fix bad handling of block comments in order
+	  not to assume comment terminator as a part of comment content.
+
+	* lib/adlint/cpp/eval.rb : Fix abend problem of preprocessor when a
+	  block comment is not terminated in the translation-unit.
+
+Sun May 12 21:26:44 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* lib/adlint/memo.rb : Revise cache name generation rule by the example
 	  of Lisp naming conventions.

@@ -815,10 +815,10 @@ module Cpp #:nodoc:
       on_extra_tokens_found.invoke(extra_toks)
     end
 
-    def handle_unterminated_block_comment(pp_ctxt, loc)
+    def handle_unterminated_block_comment(loc)
       E(:E0016, loc)
-      raise UnterminatedCommentError.new(loc, pp_ctxt.msg_fpath,
-                                         pp_ctxt.log_fpath)
+      raise UnterminatedCommentError.new(loc, @pp_ctxt.msg_fpath,
+                                         @pp_ctxt.log_fpath)
     end
 
     extend Forwardable

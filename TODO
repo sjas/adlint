@@ -21,8 +21,9 @@
 
 ++
 
+* Support C++ analysis
+* Improve accuracy of code checks
 * Support many more preset build environments
 * Implement automatic traits files generator
-* Improve accuracy of code checks
 
 Any contributions are welcome!

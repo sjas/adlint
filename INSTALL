@@ -21,7 +21,7 @@
 
 ++
 
-=== Requirement
+=== Prerequisites
 
 * Ruby 1.9.3-p0 or later for normal use [*mandatory*]
 * GNU Make 3 or later to use adlintized Makefile [optional but recommended]
@@ -33,8 +33,6 @@ Setup your Ruby interpreter.
 Then, you can install \AdLint by following instruction.
 
  % gem install adlint
-or
- % sudo gem install adlint
 
 === Evaluation
 

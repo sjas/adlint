@@ -34,10 +34,6 @@ partly ISO C99.
 For more details, visit our project homepage at
 <{http\://adlint.sourceforge.net/}[http://adlint.sourceforge.net/]>.
 
-== News
-
-:include:NEWS
-
 == How to Install
 
 :include:INSTALL

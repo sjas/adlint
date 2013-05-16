@@ -1,3 +1,8 @@
+Thu May 16 18:38:40 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* features/code_check/W0580.feature : Add scenario to reproduce a known
+	  bug.
+
 Thu May 16 17:08:41 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* features/code_check/W0422.feature : Add scenario to reproduce a known

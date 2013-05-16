@@ -427,37 +427,6 @@ module Cc1 #:nodoc:
       @options_stack.pop
     end
 
-    def object_to_variable(obj)
-      case
-      when obj.function?
-        function_to_pointer(obj)
-      when obj.variable? && obj.type.array?
-        array_to_pointer(obj)
-      else
-        obj
-      end
-    end
-
-    def function_to_pointer(fun)
-      create_tmpvar(pointer_type(fun.type), pointer_value_of(fun))
-    end
-
-    def array_to_pointer(ary)
-      create_tmpvar(pointer_type(ary.type.base_type), pointer_value_of(ary))
-    end
-
-    def value_of(obj)
-      if obj.type.array? || obj.type.function?
-        pointer_value_of(obj)
-      else
-        obj.value.to_single_value
-      end
-    end
-
-    def pointer_value_of(obj)
-      scalar_value_of(obj.binding.memory.address)
-    end
-
     def quiet?
       cur_opts.include?(QUIET) || cur_opts.include?(QUIET_WITHOUT_SIDE_EFFECT)
     end
@@ -736,9 +705,7 @@ module Cc1 #:nodoc:
     def evaluate_expression(expr, type)
       checkpoint(expr.location)
 
-      obj = interpret(expr)
-      var = object_to_variable(obj)
-      notify_implicit_conv_performed(expr, obj, var) unless var == obj
+      var = object_to_variable(interpret(expr))
 
       if var.type.same_as?(type)
         conved = var
@@ -1246,12 +1213,7 @@ module Cc1 #:nodoc:
         BreakEvent.of_return.throw
       end
 
-      obj = interpret(node.expression)
-      var = object_to_variable(obj)
-      unless var == obj
-        notify_implicit_conv_performed(node.expression, obj, var)
-      end
-
+      var = object_to_variable(interpret(node.expression))
       notify_variable_value_referred(node.expression, var)
 
       if active_fun = interpreter._active_function and

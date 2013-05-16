@@ -44,6 +44,10 @@ module Cc1 #:nodoc:
     def lookup(name_str)
       @enumerators[name_str]
     end
+
+    def designators
+      @enumerators.keys.to_set
+    end
   end
 
 end

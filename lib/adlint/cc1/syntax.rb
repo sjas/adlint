@@ -439,6 +439,18 @@ module Cc1 #:nodoc:
     module_function :collect_constant_specifiers
   end
 
+  module InterpSyntaxBridge
+    # NOTE: InterpreterMediator includes this module to bridge constant
+    #       designator collector to this layer.
+
+    def _interp_syntax_bridge_
+      {
+        enumerator_designators: method(:enumerator_designators),
+        function_designators:   method(:function_designators)
+      }
+    end
+  end
+
   class Expression < SyntaxNode
     def initialize
       super
@@ -470,8 +482,8 @@ module Cc1 #:nodoc:
       subclass_responsibility
     end
 
-    def constant?(enum_tbl)
-      object_specifiers.all? { |os| enum_tbl.lookup(os.identifier.value) }
+    def constant?(interp_bridge)
+      ExpressionConstancy.new(interp_bridge).check(self)
     end
 
     def logical?
@@ -5470,9 +5482,10 @@ module Cc1 #:nodoc:
 
     attr_reader :expressions
 
-    def push_expression(expression)
-      @expressions.push(expression)
+    def push_expression(expr)
+      @expressions.push(expr)
     end
+    private :push_expression
 
     alias :visit_grouped_expression :push_expression
     alias :visit_array_subscript_expression :push_expression
@@ -5505,8 +5518,6 @@ module Cc1 #:nodoc:
     alias :visit_conditional_expression :push_expression
     alias :visit_simple_assignment_expression :push_expression
     alias :visit_compound_assignment_expression :push_expression
-
-    private :push_expression
   end
 
   class ConditionalExpressionExtractor < SyntaxTreeVisitor
@@ -5519,6 +5530,38 @@ module Cc1 #:nodoc:
     def visit_conditional_expression(node)
       @expressions.push(node)
     end
+  end
+
+  class ExpressionConstancy < SyntaxTreeVisitor
+    def initialize(interp_bridge)
+      @interp_bridge = interp_bridge
+    end
+
+    def check(expr)
+      catch(:constancy) { expr.accept(self); true }
+    end
+
+    def visit_object_specifier(node)
+      const_designators = @interp_bridge[:enumerator_designators][] +
+                          @interp_bridge[:function_designators][]
+
+      unless const_designators.include?(node.identifier.value)
+        break_as_inconstant
+      end
+    end
+
+    def break_as_inconstant(*)
+      throw(:constancy, false)
+    end
+    private :break_as_inconstant
+
+    alias :visit_function_call_expression :break_as_inconstant
+    alias :visit_postfix_increment_expression :break_as_inconstant
+    alias :visit_postfix_decrement_expression :break_as_inconstant
+    alias :visit_prefix_increment_expression :break_as_inconstant
+    alias :visit_prefix_decrement_expression :break_as_inconstant
+    alias :visit_simple_assignment_expression :break_as_inconstant
+    alias :visit_compound_assignment_expression :break_as_inconstant
   end
 
 end

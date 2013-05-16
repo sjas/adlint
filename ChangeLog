@@ -1,3 +1,31 @@
+Thu May 16 11:00:07 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* features/code_check/W1047.feature : Add scenario to reproduce a known
+	  bug.
+
+	* lib/adlint/cc1/syntax.rb : Fix bad expression-constancy check in
+	  order to treat an expression derives an address-constant as a
+	  constant-expression.
+
+	* lib/adlint/cc1/interp.rb : Move runtime object manipulation interface
+	  to InterpreterMediator.
+	  Fix over-notification of implicit conversion in order not to check
+	  the natural conversions suck as function to function-pointer
+	  conversion.
+
+	* lib/adlint/cc1/mediator.rb : Add convenient interface for
+	  expression-constancy check and runtime object manipulations.
+	* lib/adlint/cc1/expr.rb : Ditto.
+	* lib/adlint/exam/c_builtin/cc1_check.rb : Ditto.
+
+	* lib/adlint/cc1/enum.rb : Add enumerator name extraction interface for
+	  expression-constancy check.
+
+	* lib/adlint/cc1/object.rb : Move object conversion responsibilities
+	  from Interpreter to TypedObject.
+	  Add function name extraction interface for expression-constancy
+	  check.
+
 Mon May 13 19:19:31 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* lib/adlint/cpp/eval.rb : Fix infinite-loop problem of preprocessor
@@ -135,7 +163,7 @@ Tue Mar 26 17:01:16 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 	    correctly with consecutive case and default labels.
 	  - Fix normalized controlling-expression derivation logic of
 	    switch-statement's case and default clause in order to work
-	    correctly with consecutive case and default labels. 
+	    correctly with consecutive case and default labels.
 	  - Fix W0003 code check not to misunderstand that the switch-statement
 	    has no default clause when the switch-statement contains
 	    consecutive case and default labels.
@@ -180,7 +208,7 @@ Tue Mar 19 11:30:46 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 	    correctly with consecutive case and default labels.
 	  - Fix normalized controlling-expression derivation logic of
 	    switch-statement's case and default clause in order to work
-	    correctly with consecutive case and default labels. 
+	    correctly with consecutive case and default labels.
 	  - Fix W0003 code check not to misunderstand that the switch-statement
 	    has no default clause when the switch-statement contains
 	    consecutive case and default labels.
@@ -192,7 +220,7 @@ Mon Mar 18 16:05:49 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* lib/adlint/cc1/syntax.rb : Fix normalized controlling-expression
 	  derivation logic of switch-statement's case and default clause in
-	  order to work correctly with consecutive case and default labels. 
+	  order to work correctly with consecutive case and default labels.
 
 	* lib/adlint/exam/c_builtin/cc1_check.rb : Fix W0003 code check not to
 	  misunderstand that the switch-statement has no default clause when

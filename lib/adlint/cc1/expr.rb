@@ -724,7 +724,7 @@ module Cc1 #:nodoc:
         #       variable cross-references.
         _notify_variable_value_referred(node, obj)
 
-        ptr = create_tmpvar(pointer_type(obj.type), pointer_value_of(obj))
+        ptr = object_to_pointer(obj)
         notify_address_expr_evaled(node, obj, ptr)
         ptr
       end

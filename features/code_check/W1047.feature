@@ -159,3 +159,63 @@ Feature: W1047
       | W0100 | 22   | 18     |
       | W0551 | 14   | 5      |
       | W0628 | 20   | 5      |
+
+  Scenario: initializing array with address-constant
+    Given a target source named "fixture.c" with:
+      """
+      extern int foo(void);
+      extern int bar(void);
+      extern int baz(void);
+
+      static int (*fun_tbl[])(void) = { foo, bar, baz }; /* OK */
+      """
+    When I successfully run `adlint fixture.c` on noarch
+    Then the output should exactly match with:
+      | mesg  | line | column |
+      | W0118 | 1    | 12     |
+      | W0118 | 2    | 12     |
+      | W0118 | 3    | 12     |
+
+  Scenario: initializing struct with constant-specifier and address-constant
+    Given a target source named "fixture.c" with:
+      """
+      typedef struct handler {
+          int id;
+          int (*ptr)(void);
+      } handler_t;
+
+      extern int foo(void);
+      extern int bar(void);
+      extern int baz(void);
+
+      static handler_t h = { 1, foo }; /* OK */
+      """
+    When I successfully run `adlint fixture.c` on noarch
+    Then the output should exactly match with:
+      | mesg  | line | column |
+      | W0118 | 6    | 12     |
+      | W0118 | 7    | 12     |
+      | W0118 | 8    | 12     |
+
+  Scenario: initializing struct with inconstant expression and address-constant
+    Given a target source named "fixture.c" with:
+      """
+      typedef struct handler {
+          int id;
+          int (*ptr)(void);
+      } handler_t;
+
+      extern int foo(void);
+      extern int bar;
+      extern int baz;
+
+      static handler_t h = { bar + baz, foo }; /* W1047 */
+      """
+    When I successfully run `adlint fixture.c` on noarch
+    Then the output should exactly match with:
+      | mesg  | line | column |
+      | W0118 | 6    | 12     |
+      | W0118 | 7    | 12     |
+      | W0118 | 8    | 12     |
+      | W0723 | 10   | 28     |
+      | W1047 | 10   | 18     |

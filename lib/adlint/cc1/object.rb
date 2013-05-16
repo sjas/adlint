@@ -147,6 +147,18 @@ module Cc1 #:nodoc:
     end
   end
 
+  module InterpObjectBridge
+    # NOTE: InterpreterMediator includes this module to bridge object creation
+    #       functions of temporary variables and scalar values to this layer.
+
+    def _interp_object_bridge_
+      {
+        create_tmpvar:   method(:create_tmpvar),
+        scalar_value_of: method(:scalar_value_of)
+      }
+    end
+  end
+
   class TypedObject < Object
     def initialize(type, dcl_or_def = nil)
       super(dcl_or_def)
@@ -154,6 +166,35 @@ module Cc1 #:nodoc:
     end
 
     attr_reader :type
+
+    def to_variable(interp_bridge)
+      if function? or variable? && @type.array?
+        to_pointer(interp_bridge)
+      else
+        self
+      end
+    end
+
+    def to_pointer(interp_bridge)
+      if @type.array?
+        ptr_type = @type.type_table.pointer_type(@type.base_type)
+      else
+        ptr_type = @type.type_table.pointer_type(@type)
+      end
+      interp_bridge[:create_tmpvar][ptr_type, to_pointer_value(interp_bridge)]
+    end
+
+    def to_value(interp_bridge)
+      if @type.array? || @type.function?
+        to_pointer_value(interp_bridge)
+      else
+        value.to_single_value
+      end
+    end
+
+    def to_pointer_value(interp_bridge)
+      interp_bridge[:scalar_value_of][binding.memory.address]
+    end
   end
 
   # == DESCRIPTION
@@ -850,21 +891,21 @@ module Cc1 #:nodoc:
           when arg.variable? && !arg.type.same_as?(param_type)
             conved = interp.do_conversion(arg, param_type) ||
                      interp.create_tmpvar(param_type)
+            interp.notify_implicit_conv_performed(expr, arg, conved)
           else
             conved = arg
           end
         else
           conved = interp.do_default_argument_promotion(arg)
+          if arg != conved
+            interp.notify_implicit_conv_performed(expr, arg, conved)
+          end
         end
 
         # NOTE: Value of the argument is referred when the assignment to the
         #       parameter is performed.
         if arg.variable? && !arg.type.array?
           interp.notify_variable_value_referred(expr, arg)
-        end
-
-        if conved && arg != conved
-          interp.notify_implicit_conv_performed(expr, arg, conved)
         end
       end
     end
@@ -1044,6 +1085,10 @@ module Cc1 #:nodoc:
         end
       end
       nil
+    end
+
+    def designators
+      @functions.map { |hash| hash.keys }.flatten.to_set
     end
   end
 

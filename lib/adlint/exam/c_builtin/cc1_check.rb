@@ -534,33 +534,35 @@ module CBuiltin #:nodoc:
       @interp.on_indirection_expr_evaled     += T(:check_indirection)
       @interp.on_member_access_expr_evaled   += T(:check_member_access)
       @interp.on_array_subscript_expr_evaled += T(:check_array_subscript)
-      @enum_tbl = @interp.environment.enumerator_table
     end
 
     private
     def check_indirection(expr, var, *)
-      return unless expr.operand.constant?(@enum_tbl)
-      if var.value.scalar? &&
-          var.value.must_be_equal_to?(@interp.scalar_value_of(0))
-        W(expr.location)
+      if @interp.constant_expression?(expr.operand)
+        if var.value.scalar? &&
+            var.value.must_be_equal_to?(@interp.scalar_value_of(0))
+          W(expr.location)
+        end
       end
     end
 
     def check_member_access(expr, outer_var, *)
       return unless outer_var.type.pointer?
-      return unless expr.expression.constant?(@enum_tbl)
-      if outer_var.value.scalar? &&
-          outer_var.value.must_be_equal_to?(@interp.scalar_value_of(0))
-        W(expr.location)
+      if @interp.constant_expression?(expr.expression)
+        if outer_var.value.scalar? &&
+            outer_var.value.must_be_equal_to?(@interp.scalar_value_of(0))
+          W(expr.location)
+        end
       end
     end
 
     def check_array_subscript(expr, ptr_var, *)
       return unless ptr_var.type.pointer?
-      return unless expr.expression.constant?(@enum_tbl)
-      if ptr_var.value.scalar? &&
-          ptr_var.value.must_be_equal_to?(@interp.scalar_value_of(0))
-        W(expr.location)
+      if @interp.constant_expression?(expr.expression)
+        if ptr_var.value.scalar? &&
+            ptr_var.value.must_be_equal_to?(@interp.scalar_value_of(0))
+          W(expr.location)
+        end
       end
     end
   end
@@ -585,7 +587,6 @@ module CBuiltin #:nodoc:
       @interp.on_postfix_increment_expr_evaled += T(:check_unary_postfix)
       @interp.on_prefix_decrement_expr_evaled  += T(:check_unary_prefix)
       @interp.on_postfix_decrement_expr_evaled += T(:check_unary_postfix)
-      @enum_tbl = @interp.environment.enumerator_table
     end
 
     private
@@ -593,12 +594,12 @@ module CBuiltin #:nodoc:
       lhs_type, lhs_val = lhs_var.type, lhs_var.value
       rhs_type, rhs_val = rhs_var.type, rhs_var.value
 
-      if expr.lhs_operand.constant?(@enum_tbl) && lhs_type.pointer? &&
+      if @interp.constant_expression?(expr.lhs_operand) && lhs_type.pointer? &&
           lhs_val.must_be_equal_to?(@interp.scalar_value_of(0))
         W(expr.lhs_operand.location)
       end
 
-      if expr.rhs_operand.constant?(@enum_tbl) && rhs_type.pointer? &&
+      if @interp.constant_expression?(expr.rhs_operand) && rhs_type.pointer? &&
           rhs_val.must_be_equal_to?(@interp.scalar_value_of(0))
         W(expr.rhs_operand.location)
       end
@@ -607,7 +608,7 @@ module CBuiltin #:nodoc:
     def check_unary_prefix(expr, ope_var, org_val)
       type, val = ope_var.type, org_val
 
-      if expr.operand.constant?(@enum_tbl) && type.pointer? &&
+      if @interp.constant_expression?(expr.operand) && type.pointer? &&
           val.must_be_equal_to?(@interp.scalar_value_of(0))
         W(expr.operand.location)
       end
@@ -616,7 +617,7 @@ module CBuiltin #:nodoc:
     def check_unary_postfix(expr, ope_var, *)
       type, val = ope_var.type, ope_var.value
 
-      if expr.operand.constant?(@enum_tbl) && type.pointer? &&
+      if @interp.constant_expression?(expr.operand) && type.pointer? &&
           val.must_be_equal_to?(@interp.scalar_value_of(0))
         W(expr.operand.location)
       end
@@ -2028,13 +2029,12 @@ module CBuiltin #:nodoc:
       super
       @interp = phase_ctxt[:cc1_interpreter]
       @interp.on_multiplicative_expr_evaled += T(:check)
-      @enum_tbl = @interp.environment.enumerator_table
     end
 
     private
     def check(expr, lhs_var, rhs_var, *)
       return if expr.operator.type == "*"
-      return if expr.rhs_operand.constant?(@enum_tbl)
+      return if @interp.constant_expression?(expr.rhs_operand)
 
       return unless rhs_var.type.scalar? && rhs_var.value.scalar?
       return if rhs_var.value.must_be_equal_to?(@interp.scalar_value_of(0))
@@ -2056,13 +2056,12 @@ module CBuiltin #:nodoc:
       super
       @interp = phase_ctxt[:cc1_interpreter]
       @interp.on_multiplicative_expr_evaled += T(:check)
-      @enum_tbl = @interp.environment.enumerator_table
     end
 
     private
     def check(expr, lhs_var, rhs_var, *)
       return if expr.operator.type == "*"
-      return unless expr.rhs_operand.constant?(@enum_tbl)
+      return unless @interp.constant_expression?(expr.rhs_operand)
 
       return unless rhs_var.type.scalar? && rhs_var.value.scalar?
 
@@ -2083,13 +2082,12 @@ module CBuiltin #:nodoc:
       super
       @interp = phase_ctxt[:cc1_interpreter]
       @interp.on_multiplicative_expr_evaled += T(:check)
-      @enum_tbl = @interp.environment.enumerator_table
     end
 
     private
     def check(expr, lhs_var, rhs_var, *)
       return if expr.operator.type == "*"
-      return if expr.rhs_operand.constant?(@enum_tbl)
+      return if @interp.constant_expression?(expr.rhs_operand)
 
       return unless rhs_var.type.scalar? && rhs_var.value.scalar?
 
@@ -8265,33 +8263,35 @@ module CBuiltin #:nodoc:
       @interp.on_indirection_expr_evaled     += T(:check_indirection)
       @interp.on_member_access_expr_evaled   += T(:check_member_access)
       @interp.on_array_subscript_expr_evaled += T(:check_array_subscript)
-      @enum_tbl = @interp.environment.enumerator_table
     end
 
     private
     def check_indirection(expr, ptr_var, *)
-      return if expr.operand.constant?(@enum_tbl)
-      if ptr_var.value.scalar? &&
-          ptr_var.value.must_be_equal_to?(@interp.scalar_value_of(0))
-        W(expr.location)
+      unless @interp.constant_expression?(expr.operand)
+        if ptr_var.value.scalar? &&
+            ptr_var.value.must_be_equal_to?(@interp.scalar_value_of(0))
+          W(expr.location)
+        end
       end
     end
 
     def check_member_access(expr, outer_var, *)
       return unless outer_var.type.pointer?
-      return if expr.expression.constant?(@enum_tbl)
-      if outer_var.value.scalar? &&
-          outer_var.value.must_be_equal_to?(@interp.scalar_value_of(0))
-        W(expr.location)
+      unless @interp.constant_expression?(expr.expression)
+        if outer_var.value.scalar? &&
+            outer_var.value.must_be_equal_to?(@interp.scalar_value_of(0))
+          W(expr.location)
+        end
       end
     end
 
     def check_array_subscript(expr, ary_or_ptr, *)
       return unless ary_or_ptr.type.pointer?
-      return if expr.expression.constant?(@enum_tbl)
-      if ary_or_ptr.value.scalar? &&
-          ary_or_ptr.value.must_be_equal_to?(@interp.scalar_value_of(0))
-        W(expr.location)
+      unless @interp.constant_expression?(expr.expression)
+        if ary_or_ptr.value.scalar? &&
+            ary_or_ptr.value.must_be_equal_to?(@interp.scalar_value_of(0))
+          W(expr.location)
+        end
       end
     end
   end
@@ -8309,12 +8309,11 @@ module CBuiltin #:nodoc:
       @interp.on_indirection_expr_evaled     += T(:check_indirection)
       @interp.on_member_access_expr_evaled   += T(:check_member_access)
       @interp.on_array_subscript_expr_evaled += T(:check_array_subscript)
-      @enum_tbl = @interp.environment.enumerator_table
     end
 
     private
     def check_indirection(expr, ptr_var, *)
-      return if expr.operand.constant?(@enum_tbl)
+      return if @interp.constant_expression?(expr.operand)
       return unless ptr_var.value.scalar?
 
       if !ptr_var.value.must_be_equal_to?(@interp.scalar_value_of(0)) &&
@@ -8325,7 +8324,7 @@ module CBuiltin #:nodoc:
 
     def check_member_access(expr, outer_var, *)
       return unless outer_var.type.pointer?
-      return if expr.expression.constant?(@enum_tbl)
+      return if @interp.constant_expression?(expr.expression)
       return unless outer_var.value.scalar?
 
       if !outer_var.value.must_be_equal_to?(@interp.scalar_value_of(0)) &&
@@ -8336,7 +8335,7 @@ module CBuiltin #:nodoc:
 
     def check_array_subscript(expr, ary_or_ptr, *)
       return unless ary_or_ptr.type.pointer?
-      return if expr.expression.constant?(@enum_tbl)
+      return if @interp.constant_expression?(expr.expression)
       return unless ary_or_ptr.value.scalar?
 
       if !ary_or_ptr.value.must_be_equal_to?(@interp.scalar_value_of(0)) &&
@@ -12918,7 +12917,6 @@ module CBuiltin #:nodoc:
       super
       @interp = phase_ctxt[:cc1_interpreter]
       @interp.on_shift_expr_evaled += T(:check)
-      @enum_tbl = @interp.environment.enumerator_table
     end
 
     private
@@ -12926,7 +12924,7 @@ module CBuiltin #:nodoc:
       op = expr.operator.type
       return unless op == "<<" || op == "<<="
 
-      return unless expr.lhs_operand.constant?(@enum_tbl)
+      return unless @interp.constant_expression?(expr.lhs_operand)
       return unless lhs_var.type.signed?
 
       if lhs_var.value.must_be_less_than?(@interp.scalar_value_of(0)) or
@@ -12954,7 +12952,6 @@ module CBuiltin #:nodoc:
       super
       @interp = phase_ctxt[:cc1_interpreter]
       @interp.on_shift_expr_evaled += T(:check)
-      @enum_tbl = @interp.environment.enumerator_table
     end
 
     private
@@ -12962,7 +12959,7 @@ module CBuiltin #:nodoc:
       op = expr.operator.type
       return unless op == "<<" || op == "<<="
 
-      return if expr.lhs_operand.constant?(@enum_tbl)
+      return if @interp.constant_expression?(expr.lhs_operand)
       return unless lhs_var.type.signed?
 
       if lhs_var.value.must_be_less_than?(@interp.scalar_value_of(0)) or
@@ -12990,7 +12987,6 @@ module CBuiltin #:nodoc:
       super
       @interp = phase_ctxt[:cc1_interpreter]
       @interp.on_shift_expr_evaled += T(:check)
-      @enum_tbl = @interp.environment.enumerator_table
     end
 
     private
@@ -12998,7 +12994,7 @@ module CBuiltin #:nodoc:
       op = expr.operator.type
       return unless op == "<<" || op == "<<="
 
-      return if expr.lhs_operand.constant?(@enum_tbl)
+      return if @interp.constant_expression?(expr.lhs_operand)
       return unless lhs_var.type.signed?
 
       if !lhs_var.value.must_be_less_than?(@interp.scalar_value_of(0)) &&
@@ -13351,7 +13347,6 @@ module CBuiltin #:nodoc:
       @interp = phase_ctxt[:cc1_interpreter]
       @interp.on_function_call_expr_evaled  += T(:call_function)
       @interp.on_explicit_function_declared += T(:check)
-      @enum_tbl = @interp.environment.enumerator_table
       @funcalls = Hash.new { |hash, key| hash[key] = [] }
     end
 
@@ -13366,7 +13361,8 @@ module CBuiltin #:nodoc:
         if args.size == param_types.size
           types = args.map { |ary| ary.first }.zip(param_types)
           conformed = types.each_with_index.all? { |(atype, ptype), idx|
-            funcall_expr.argument_expressions[idx].constant?(@enum_tbl) &&
+            arg_expr = funcall_expr.argument_expressions[idx]
+            @interp.constant_expression?(arg_expr) &&
               untyped_pointer_conversion?(atype, ptype, args[idx].last) or
             atype.convertible?(ptype)
           }
@@ -13405,7 +13401,6 @@ module CBuiltin #:nodoc:
       @interp = phase_ctxt[:cc1_interpreter]
       @interp.on_function_call_expr_evaled += T(:call_function)
       @interp.on_explicit_function_defined += T(:check)
-      @enum_tbl = @interp.environment.enumerator_table
       @funcalls = Hash.new { |hash, key| hash[key] = [] }
     end
 
@@ -13420,7 +13415,8 @@ module CBuiltin #:nodoc:
         if args.size == param_types.size
           types = args.map { |ary| ary.first }.zip(param_types)
           conformed = types.each_with_index.all? { |(atype, ptype), idx|
-            funcall_expr.argument_expressions[idx].constant?(@enum_tbl) &&
+            arg_expr = funcall_expr.argument_expressions[idx]
+            @interp.constant_expression?(arg_expr) &&
               untyped_pointer_conversion?(atype, ptype, args[idx].last) or
             atype.convertible?(ptype)
           }
@@ -13458,7 +13454,6 @@ module CBuiltin #:nodoc:
       super
       @interp = phase_ctxt[:cc1_interpreter]
       @interp.on_function_call_expr_evaled += T(:check)
-      @enum_tbl = @interp.environment.enumerator_table
     end
 
     private
@@ -13474,7 +13469,7 @@ module CBuiltin #:nodoc:
 
       args.zip(param_types).each_with_index do |(arg, ptype), idx|
         arg_expr = funcall_expr.argument_expressions[idx]
-        if arg_expr.constant?(@enum_tbl)
+        if @interp.constant_expression?(arg_expr)
           next if untyped_pointer_conversion?(arg.first, ptype, arg.last)
         end
 
@@ -14073,7 +14068,7 @@ module CBuiltin #:nodoc:
 
     def check(*)
       if ctrlexpr = @iter_stmts.last.ctrlexpr
-        unless ctrlexpr.constant?(@interp.environment.enumerator_table)
+        unless @interp.constant_expression?(ctrlexpr)
           ctrlexpr_val = @iter_stmts.last.ctrlexpr_val
           ctrl_vars = @iter_stmts.last.ctrl_vars
           if ctrlexpr_val && ctrlexpr_val.must_be_true? and
@@ -14095,16 +14090,15 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      interp = phase_ctxt[:cc1_interpreter]
-      interp.on_if_ctrlexpr_evaled      += T(:check)
-      interp.on_if_else_ctrlexpr_evaled += T(:check)
-      @enum_tbl = interp.environment.enumerator_table
+      @interp = phase_ctxt[:cc1_interpreter]
+      @interp.on_if_ctrlexpr_evaled      += T(:check)
+      @interp.on_if_else_ctrlexpr_evaled += T(:check)
     end
 
     private
     def check(selection_stmt, ctrlexpr_val)
       if ctrlexpr = selection_stmt.expression
-        unless ctrlexpr.constant?(@enum_tbl)
+        unless @interp.constant_expression?(ctrlexpr)
           W(ctrlexpr.location) if ctrlexpr_val.must_be_true?
         end
       end
@@ -14173,14 +14167,13 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      interp = phase_ctxt[:cc1_interpreter]
-      interp.on_do_ctrlexpr_evaled += T(:check)
-      @enum_tbl = interp.environment.enumerator_table
+      @interp = phase_ctxt[:cc1_interpreter]
+      @interp.on_do_ctrlexpr_evaled += T(:check)
     end
 
     private
     def check(do_stmt, ctrlexpr_val)
-      unless do_stmt.expression.constant?(@enum_tbl)
+      unless @interp.constant_expression?(do_stmt.expression)
         if ctrlexpr_val.must_be_false?
           W(do_stmt.expression.location)
         end
@@ -14845,12 +14838,11 @@ module CBuiltin #:nodoc:
       super
       @interp = phase_ctxt[:cc1_interpreter]
       @interp.on_shift_expr_evaled += T(:check)
-      @enum_tbl = @interp.environment.enumerator_table
     end
 
     private
     def check(expr, lhs_var, rhs_var, *)
-      if expr.rhs_operand.constant?(@enum_tbl)
+      if @interp.constant_expression?(expr.rhs_operand)
         if rhs_var.value.must_be_less_than?(@interp.scalar_value_of(0))
           W(expr.location)
         end
@@ -14869,12 +14861,11 @@ module CBuiltin #:nodoc:
       super
       @interp = phase_ctxt[:cc1_interpreter]
       @interp.on_shift_expr_evaled += T(:check)
-      @enum_tbl = @interp.environment.enumerator_table
     end
 
     private
     def check(expr, lhs_var, rhs_var, *)
-      if expr.rhs_operand.constant?(@enum_tbl)
+      if @interp.constant_expression?(expr.rhs_operand)
         promoted_type = lhs_var.type.integer_promoted_type
         promoted_bit_size = @interp.scalar_value_of(promoted_type.bit_size)
         if rhs_var.value.must_be_equal_to?(promoted_bit_size) ||
@@ -15872,14 +15863,13 @@ module CBuiltin #:nodoc:
       @interp = phase_ctxt[:cc1_interpreter]
       @interp.on_array_subscript_expr_evaled += T(:check_array_subscript)
       @interp.on_indirection_expr_evaled     += T(:check_indirection)
-      @enum_tbl = @interp.environment.enumerator_table
     end
 
     private
     def check_array_subscript(expr, ary_or_ptr, subs, ary, *)
       return unless ary
 
-      unless expr.array_subscript.constant?(@enum_tbl)
+      unless @interp.constant_expression?(expr.array_subscript)
         warn_array_oob_access(expr.array_subscript, ary, subs)
       end
     end
@@ -15888,7 +15878,7 @@ module CBuiltin #:nodoc:
       ary, subs_expr = extract_array_and_subscript(expr.operand)
       return unless ary
 
-      unless subs_expr.constant?(@enum_tbl)
+      unless @interp.constant_expression?(subs_expr)
         subs = @interp.interpret(subs_expr, QUIET_WITHOUT_SIDE_EFFECT)
         warn_array_oob_access(expr.operand, ary, subs)
       end
@@ -16191,14 +16181,13 @@ module CBuiltin #:nodoc:
       @interp = phase_ctxt[:cc1_interpreter]
       @interp.on_array_subscript_expr_evaled += T(:check_array_subscript)
       @interp.on_indirection_expr_evaled     += T(:check_indirection)
-      @enum_tbl = @interp.environment.enumerator_table
     end
 
     private
     def check_array_subscript(expr, ary_or_ptr, subs, ary, *)
       return unless ary
 
-      if expr.array_subscript.constant?(@enum_tbl)
+      if @interp.constant_expression?(expr.array_subscript)
         warn_array_oob_access(expr.array_subscript, ary, subs)
       end
     end
@@ -16207,7 +16196,7 @@ module CBuiltin #:nodoc:
       ary, subs_expr = extract_array_and_subscript(expr.operand)
       return unless ary
 
-      if subs_expr.constant?(@enum_tbl)
+      if @interp.constant_expression?(subs_expr)
         # NOTE: A constant-expression has no side-effects.
         subs = @interp.interpret(subs_expr, QUIET)
         warn_array_oob_access(expr.operand, ary, subs)
@@ -16636,12 +16625,11 @@ module CBuiltin #:nodoc:
       super
       @interp = phase_ctxt[:cc1_interpreter]
       @interp.on_shift_expr_evaled += T(:check)
-      @enum_tbl = @interp.environment.enumerator_table
     end
 
     private
     def check(expr, lhs_var, rhs_var, *)
-      if expr.rhs_operand.constant?(@enum_tbl)
+      if @interp.constant_expression?(expr.rhs_operand)
         underlying_type     = lhs_var.type
         underlying_bit_size = @interp.scalar_value_of(underlying_type.bit_size)
         promoted_type       = lhs_var.type.integer_promoted_type
@@ -16836,9 +16824,8 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      interp = phase_ctxt[:cc1_interpreter]
-      interp.on_function_call_expr_evaled += T(:check)
-      @enum_tbl = interp.environment.enumerator_table
+      @interp = phase_ctxt[:cc1_interpreter]
+      @interp.on_function_call_expr_evaled += T(:check)
     end
 
     private
@@ -16848,10 +16835,10 @@ module CBuiltin #:nodoc:
         next unless param_type && param_type.enum?
 
         arg_expr = expr.argument_expressions[idx]
-        next unless arg_expr.constant?(@enum_tbl)
-
-        if arg_var.type.enum?
-          W(arg_expr.location) unless arg_var.type.same_as?(param_type)
+        if @interp.constant_expression?(arg_expr)
+          if arg_var.type.enum?
+            W(arg_expr.location) unless arg_var.type.same_as?(param_type)
+          end
         end
       end
     end
@@ -16866,18 +16853,17 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      interp = phase_ctxt[:cc1_interpreter]
-      interp.on_assignment_expr_evaled += T(:check)
-      @enum_tbl = interp.environment.enumerator_table
+      @interp = phase_ctxt[:cc1_interpreter]
+      @interp.on_assignment_expr_evaled += T(:check)
     end
 
     private
     def check(expr, lhs_var, rhs_var)
       return unless lhs_var.type.enum?
-      return unless expr.rhs_operand.constant?(@enum_tbl)
-
-      if rhs_var.type.enum? && !lhs_var.type.same_as?(rhs_var.type)
-        W(expr.location)
+      if @interp.constant_expression?(expr.rhs_operand)
+        if rhs_var.type.enum? && !lhs_var.type.same_as?(rhs_var.type)
+          W(expr.location)
+        end
       end
     end
   end
@@ -16891,11 +16877,10 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      interp = phase_ctxt[:cc1_interpreter]
-      interp.on_function_started   += T(:start_function)
-      interp.on_function_ended     += T(:end_function)
-      interp.on_return_stmt_evaled += T(:check)
-      @enum_tbl = interp.environment.enumerator_table
+      @interp = phase_ctxt[:cc1_interpreter]
+      @interp.on_function_started   += T(:start_function)
+      @interp.on_function_ended     += T(:end_function)
+      @interp.on_return_stmt_evaled += T(:check)
       @cur_fun = nil
     end
 
@@ -16910,13 +16895,13 @@ module CBuiltin #:nodoc:
 
     def check(retn_stmt, retn_var)
       return unless @cur_fun && retn_var
-
       return unless retn_type = @cur_fun.type.return_type
       return unless retn_type.enum?
-      return unless retn_stmt.expression.constant?(@enum_tbl)
 
-      if retn_var.type.enum? && !retn_type.same_as?(retn_var.type)
-        W(retn_stmt.expression.location)
+      if @interp.constant_expression?(retn_stmt.expression)
+        if retn_var.type.enum? && !retn_type.same_as?(retn_var.type)
+          W(retn_stmt.expression.location)
+        end
       end
     end
   end
@@ -17041,7 +17026,6 @@ module CBuiltin #:nodoc:
       super
       @interp = phase_ctxt[:cc1_interpreter]
       @interp.on_implicit_conv_performed += T(:check)
-      @enum_tbl = @interp.environment.enumerator_table
     end
 
     private
@@ -17055,7 +17039,7 @@ module CBuiltin #:nodoc:
         expr = init_or_expr
       end
 
-      return unless expr.constant?(@enum_tbl)
+      return unless @interp.constant_expression?(expr)
 
       org_type = org_var.type
       res_type = res_var.type
@@ -17085,15 +17069,14 @@ module CBuiltin #:nodoc:
       super
       @interp = phase_ctxt[:cc1_interpreter]
       @interp.on_additive_expr_evaled += T(:check)
-      @enum_tbl = @interp.environment.enumerator_table
     end
 
     private
     def check(expr, lhs_var, rhs_var, res_var)
       return unless expr.operator.type == "-"
 
-      return unless expr.lhs_operand.constant?(@enum_tbl)
-      return unless expr.rhs_operand.constant?(@enum_tbl)
+      return unless @interp.constant_expression?(expr.lhs_operand)
+      return unless @interp.constant_expression?(expr.rhs_operand)
 
       return unless lhs_var.type.scalar? && lhs_var.type.unsigned?
       return unless rhs_var.type.scalar? && rhs_var.type.unsigned?
@@ -17118,15 +17101,14 @@ module CBuiltin #:nodoc:
       super
       @interp = phase_ctxt[:cc1_interpreter]
       @interp.on_additive_expr_evaled += T(:check)
-      @enum_tbl = @interp.environment.enumerator_table
     end
 
     private
     def check(expr, lhs_var, rhs_var, res_var)
       return unless expr.operator.type == "+"
 
-      return unless expr.lhs_operand.constant?(@enum_tbl)
-      return unless expr.rhs_operand.constant?(@enum_tbl)
+      return unless @interp.constant_expression?(expr.lhs_operand)
+      return unless @interp.constant_expression?(expr.rhs_operand)
 
       return unless lhs_var.type.scalar? && lhs_var.type.unsigned?
       return unless rhs_var.type.scalar? && rhs_var.type.unsigned?
@@ -17151,15 +17133,14 @@ module CBuiltin #:nodoc:
       super
       @interp = phase_ctxt[:cc1_interpreter]
       @interp.on_multiplicative_expr_evaled += T(:check)
-      @enum_tbl = @interp.environment.enumerator_table
     end
 
     private
     def check(expr, lhs_var, rhs_var, res_var)
       return unless expr.operator.type == "*"
 
-      return unless expr.lhs_operand.constant?(@enum_tbl)
-      return unless expr.rhs_operand.constant?(@enum_tbl)
+      return unless @interp.constant_expression?(expr.lhs_operand)
+      return unless @interp.constant_expression?(expr.rhs_operand)
 
       return unless lhs_var.type.scalar? && lhs_var.type.unsigned?
       return unless rhs_var.type.scalar? && rhs_var.type.unsigned?
@@ -17184,7 +17165,6 @@ module CBuiltin #:nodoc:
       super
       @interp = phase_ctxt[:cc1_interpreter]
       @interp.on_implicit_conv_performed += T(:check)
-      @enum_tbl = @interp.environment.enumerator_table
     end
 
     private
@@ -17200,7 +17180,7 @@ module CBuiltin #:nodoc:
         expr = init_or_expr
       end
 
-      if expr && expr.constant?(@enum_tbl) &&
+      if expr && @interp.constant_expression?(expr) &&
           org_var.value.must_be_less_than?(@interp.scalar_value_of(0))
         W(expr.location)
       end
@@ -17218,7 +17198,6 @@ module CBuiltin #:nodoc:
       super
       @interp = phase_ctxt[:cc1_interpreter]
       @interp.on_implicit_conv_performed += T(:check)
-      @enum_tbl = @interp.environment.enumerator_table
     end
 
     private
@@ -17232,7 +17211,7 @@ module CBuiltin #:nodoc:
         expr = init_or_expr
       end
 
-      return unless expr.constant?(@enum_tbl)
+      return unless @interp.constant_expression?(expr)
 
       org_type = org_var.type
       res_type = res_var.type
@@ -17263,47 +17242,46 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      interp = phase_ctxt[:cc1_interpreter]
-      interp.on_if_ctrlexpr_evaled      += T(:check_if_statement)
-      interp.on_if_else_ctrlexpr_evaled += T(:check_if_else_statement)
-      interp.on_while_ctrlexpr_evaled   += T(:check_while_statement)
-      interp.on_for_ctrlexpr_evaled     += T(:check_for_statement)
-      interp.on_c99_for_ctrlexpr_evaled += T(:check_c99_for_statement)
-      @enum_tbl = interp.environment.enumerator_table
+      @interp = phase_ctxt[:cc1_interpreter]
+      @interp.on_if_ctrlexpr_evaled      += T(:check_if_statement)
+      @interp.on_if_else_ctrlexpr_evaled += T(:check_if_else_statement)
+      @interp.on_while_ctrlexpr_evaled   += T(:check_while_statement)
+      @interp.on_for_ctrlexpr_evaled     += T(:check_for_statement)
+      @interp.on_c99_for_ctrlexpr_evaled += T(:check_c99_for_statement)
     end
 
     private
     def check_if_statement(if_stmt, ctrlexpr_val)
       ctrlexpr = if_stmt.expression
-      if ctrlexpr.constant?(@enum_tbl) && ctrlexpr_val.must_be_false?
+      if @interp.constant_expression?(ctrlexpr) && ctrlexpr_val.must_be_false?
         W(ctrlexpr.location)
       end
     end
 
     def check_if_else_statement(if_else_stmt, ctrlexpr_val)
       ctrlexpr = if_else_stmt.expression
-      if ctrlexpr.constant?(@enum_tbl) && ctrlexpr_val.must_be_false?
+      if @interp.constant_expression?(ctrlexpr) && ctrlexpr_val.must_be_false?
         W(ctrlexpr.location)
       end
     end
 
     def check_while_statement(while_stmt, ctrlexpr_val)
       ctrlexpr = while_stmt.expression
-      if ctrlexpr.constant?(@enum_tbl) && ctrlexpr_val.must_be_false?
+      if @interp.constant_expression?(ctrlexpr) && ctrlexpr_val.must_be_false?
         W(ctrlexpr.location)
       end
     end
 
     def check_for_statement(for_stmt, ctrlexpr_val)
       ctrlexpr = for_stmt.condition_statement.expression
-      if ctrlexpr.constant?(@enum_tbl) && ctrlexpr_val.must_be_false?
+      if @interp.constant_expression?(ctrlexpr) && ctrlexpr_val.must_be_false?
         W(ctrlexpr.location)
       end
     end
 
     def check_c99_for_statement(c99_for_stmt, ctrlexpr_val)
       ctrlexpr = c99_for_stmt.condition_statement.expression
-      if ctrlexpr.constant?(@enum_tbl) && ctrlexpr_val.must_be_false?
+      if @interp.constant_expression?(ctrlexpr) && ctrlexpr_val.must_be_false?
         W(ctrlexpr.location)
       end
     end
@@ -17324,14 +17302,13 @@ module CBuiltin #:nodoc:
       @interp = phase_ctxt[:cc1_interpreter]
       @interp.on_array_subscript_expr_evaled += T(:check_array_subscript)
       @interp.on_indirection_expr_evaled     += T(:check_indirection)
-      @enum_tbl = @interp.environment.enumerator_table
     end
 
     private
     def check_array_subscript(expr, ary_or_ptr, subs, ary, *)
       return unless ary
 
-      unless expr.array_subscript.constant?(@enum_tbl)
+      unless @interp.constant_expression?(expr.array_subscript)
         warn_array_oob_access(expr.array_subscript, ary, subs)
       end
     end
@@ -17340,7 +17317,7 @@ module CBuiltin #:nodoc:
       ary, subs_expr = extract_array_and_subscript(expr.operand)
       return unless ary
 
-      unless subs_expr.constant?(@enum_tbl)
+      unless @interp.constant_expression?(subs_expr)
         subs = @interp.interpret(subs_expr, QUIET_WITHOUT_SIDE_EFFECT)
         warn_array_oob_access(expr.operand, ary, subs)
       end
@@ -18211,7 +18188,6 @@ module CBuiltin #:nodoc:
       super
       @interp = phase_ctxt[:cc1_interpreter]
       @interp.on_shift_expr_evaled += T(:check)
-      @enum_tbl = @interp.environment.enumerator_table
     end
 
     private
@@ -18219,7 +18195,7 @@ module CBuiltin #:nodoc:
       op = expr.operator.type
       return unless op == "<<" || op == "<<="
 
-      if lhs_var.type.unsigned? && expr.constant?(@enum_tbl)
+      if lhs_var.type.unsigned? && @interp.constant_expression?(expr)
         if must_overflow?(lhs_var, rhs_var)
           W(expr.location)
         end
@@ -18719,16 +18695,15 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      interp = phase_ctxt[:cc1_interpreter]
-      interp.on_shift_expr_evaled += T(:check)
-      @enum_tbl = interp.environment.enumerator_table
+      @interp = phase_ctxt[:cc1_interpreter]
+      @interp.on_shift_expr_evaled += T(:check)
     end
 
     private
     def check(expr, lhs_var, *)
       case expr.operator.type
       when "<<", "<<="
-        unless expr.lhs_operand.constant?(@enum_tbl)
+        unless @interp.constant_expression?(expr.lhs_operand)
           W(expr.location) if lhs_var.type.signed?
         end
       end
@@ -19650,9 +19625,8 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      interp = phase_ctxt[:cc1_interpreter]
-      interp.on_variable_initialized += T(:check)
-      @enum_tbl = interp.environment.enumerator_table
+      @interp = phase_ctxt[:cc1_interpreter]
+      @interp.on_variable_initialized += T(:check)
     end
 
     private
@@ -19661,7 +19635,7 @@ module CBuiltin #:nodoc:
       if type.struct? || type.union? || type.array?
         if init = var_def.initializer
           obj_specs = collect_object_specifiers(init)
-          if obj_specs.any? { |os| !@enum_tbl.lookup(os.identifier.value) }
+          if obj_specs.any? { |os| !@interp.constant_expression?(os) }
             W(var_def.location)
           end
         end
@@ -19830,9 +19804,8 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      interp = phase_ctxt[:cc1_interpreter]
-      interp.on_function_call_expr_evaled += T(:check)
-      @enum_tbl = interp.environment.enumerator_table
+      @interp = phase_ctxt[:cc1_interpreter]
+      @interp.on_function_call_expr_evaled += T(:check)
     end
 
     private
@@ -19842,9 +19815,9 @@ module CBuiltin #:nodoc:
         next unless param_type && param_type.enum?
 
         arg_expr = expr.argument_expressions[idx]
-        next unless arg_expr.constant?(@enum_tbl)
-
-        W(arg_expr.location) unless arg_var.type.enum?
+        if @interp.constant_expression?(arg_expr)
+          W(arg_expr.location) unless arg_var.type.enum?
+        end
       end
     end
   end
@@ -19913,9 +19886,8 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      interp = phase_ctxt[:cc1_interpreter]
-      interp.on_function_call_expr_evaled += T(:check)
-      @enum_tbl = interp.environment.enumerator_table
+      @interp = phase_ctxt[:cc1_interpreter]
+      @interp.on_function_call_expr_evaled += T(:check)
     end
 
     private
@@ -19925,11 +19897,9 @@ module CBuiltin #:nodoc:
         next unless param_type && param_type.enum?
 
         arg_expr = expr.argument_expressions[idx]
-        next if arg_expr.constant?(@enum_tbl)
-
-        if arg_var.type.enum?
-          unless arg_var.type.same_as?(param_type)
-            W(arg_expr.location)
+        unless @interp.constant_expression?(arg_expr)
+          if arg_var.type.enum?
+            W(arg_expr.location) unless arg_var.type.same_as?(param_type)
           end
         end
       end
@@ -19945,16 +19915,15 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      interp = phase_ctxt[:cc1_interpreter]
-      interp.on_assignment_expr_evaled += T(:check)
-      @enum_tbl = interp.environment.enumerator_table
+      @interp = phase_ctxt[:cc1_interpreter]
+      @interp.on_assignment_expr_evaled += T(:check)
     end
 
     private
     def check(expr, lhs_var, rhs_var)
       return unless lhs_var.type.enum?
 
-      if rhs_var.type.enum? && !expr.rhs_operand.constant?(@enum_tbl)
+      if rhs_var.type.enum? && !@interp.constant_expression?(expr.rhs_operand)
         unless lhs_var.type.same_as?(rhs_var.type)
           W(expr.location)
         end
@@ -19971,11 +19940,10 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      interp = phase_ctxt[:cc1_interpreter]
-      interp.on_function_started   += T(:start_function)
-      interp.on_function_ended     += T(:end_function)
-      interp.on_return_stmt_evaled += T(:check)
-      @enum_tbl = interp.environment.enumerator_table
+      @interp = phase_ctxt[:cc1_interpreter]
+      @interp.on_function_started   += T(:start_function)
+      @interp.on_function_ended     += T(:end_function)
+      @interp.on_return_stmt_evaled += T(:check)
       @cur_fun  = nil
     end
 
@@ -19990,7 +19958,7 @@ module CBuiltin #:nodoc:
 
     def check(retn_stmt, retn_var)
       return unless @cur_fun && retn_var
-      return if retn_stmt.expression.constant?(@enum_tbl)
+      return if @interp.constant_expression?(retn_stmt.expression)
 
       if retn_type = @cur_fun.type.return_type and retn_type.enum?
         if retn_var.type.enum? && !retn_type.same_as?(retn_var.type)
@@ -20011,7 +19979,6 @@ module CBuiltin #:nodoc:
       super
       interp = phase_ctxt[:cc1_interpreter]
       interp.on_function_call_expr_evaled += T(:check)
-      @enum_tbl = interp.environment.enumerator_table
     end
 
     private
@@ -20038,7 +20005,6 @@ module CBuiltin #:nodoc:
       interp.on_function_started   += T(:start_function)
       interp.on_function_ended     += T(:end_function)
       interp.on_return_stmt_evaled += T(:check)
-      @enum_tbl = interp.environment.enumerator_table
       @cur_fun  = nil
     end
 
@@ -20069,9 +20035,8 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      interp = phase_ctxt[:cc1_interpreter]
-      interp.on_function_call_expr_evaled += T(:check)
-      @enum_tbl = interp.environment.enumerator_table
+      @interp = phase_ctxt[:cc1_interpreter]
+      @interp.on_function_call_expr_evaled += T(:check)
     end
 
     private
@@ -20081,7 +20046,7 @@ module CBuiltin #:nodoc:
         next unless param_type && param_type.enum?
 
         arg_expr = expr.argument_expressions[idx]
-        unless arg_expr.constant?(@enum_tbl)
+        unless @interp.constant_expression?(arg_expr)
           unless arg_var.type.same_as?(param_type)
             W(arg_expr.location)
           end
@@ -20099,14 +20064,13 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      interp = phase_ctxt[:cc1_interpreter]
-      interp.on_assignment_expr_evaled += T(:check)
-      @enum_tbl = interp.environment.enumerator_table
+      @interp = phase_ctxt[:cc1_interpreter]
+      @interp.on_assignment_expr_evaled += T(:check)
     end
 
     private
     def check(expr, lhs_var, rhs_var)
-      if lhs_var.type.enum? && !expr.rhs_operand.constant?(@enum_tbl)
+      if lhs_var.type.enum? && !@interp.constant_expression?(expr.rhs_operand)
         unless lhs_var.type.same_as?(rhs_var.type)
           W(expr.location)
         end
@@ -20123,11 +20087,10 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      interp = phase_ctxt[:cc1_interpreter]
-      interp.on_function_started   += T(:start_function)
-      interp.on_function_ended     += T(:end_function)
-      interp.on_return_stmt_evaled += T(:check)
-      @enum_tbl = interp.environment.enumerator_table
+      @interp = phase_ctxt[:cc1_interpreter]
+      @interp.on_function_started   += T(:start_function)
+      @interp.on_function_ended     += T(:end_function)
+      @interp.on_return_stmt_evaled += T(:check)
       @cur_fun  = nil
     end
 
@@ -20144,7 +20107,7 @@ module CBuiltin #:nodoc:
       return unless @cur_fun && retn_var
 
       if retn_type = @cur_fun.type.return_type and retn_type.enum?
-        unless retn_stmt.expression.constant?(@enum_tbl)
+        unless @interp.constant_expression?(retn_stmt.expression)
           unless retn_var.type.same_as?(retn_type)
             W(retn_stmt.expression.location)
           end
@@ -20477,7 +20440,6 @@ module CBuiltin #:nodoc:
       super
       @interp = phase_ctxt[:cc1_interpreter]
       @interp.on_implicit_conv_performed += T(:check)
-      @enum_tbl = @interp.environment.enumerator_table
     end
 
     private
@@ -20492,13 +20454,14 @@ module CBuiltin #:nodoc:
 
       case init_or_expr
       when Cc1::Initializer
-        if expr = init_or_expr.expression and expr.constant?(@enum_tbl)
+        expr = init_or_expr.expression
+        if expr && @interp.constant_expression?(expr)
           if untyped_pointer_conversion?(from_type, to_type, org_var.value)
             return
           end
         end
       when Cc1::Expression
-        if init_or_expr.constant?(@enum_tbl)
+        if @interp.constant_expression?(init_or_expr)
           if untyped_pointer_conversion?(from_type, to_type, org_var.value)
             return
           end

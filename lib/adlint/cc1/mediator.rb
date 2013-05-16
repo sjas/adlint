@@ -114,6 +114,7 @@ module Cc1 #:nodoc:
     extend Forwardable
 
     def_delegator :function_table, :lookup, :function_named
+    def_delegator :function_table, :designators, :function_designators
 
     def declare_explicit_function(fun_dcl)
       function_table.declare_explicitly(fun_dcl)
@@ -145,6 +146,7 @@ module Cc1 #:nodoc:
 
     def_delegator :enumerator_table, :lookup, :enumerator_named
     def_delegator :enumerator_table, :define, :define_enumerator
+    def_delegator :enumerator_table, :designators, :enumerator_designators
   end
 
   module NotifierMediator
@@ -239,6 +241,9 @@ module Cc1 #:nodoc:
     include EnumeratorTableMediator
     include ArithmeticAccessor
 
+    include InterpObjectBridge
+    include InterpSyntaxBridge
+
     def interpret(node, *opts)
       interpreter.execute(node, *opts)
     end
@@ -246,12 +251,6 @@ module Cc1 #:nodoc:
     def reset_environment
       environment.reset
     end
-
-    extend Forwardable
-
-    def_delegator :interpreter, :object_to_variable
-    def_delegator :interpreter, :value_of
-    def_delegator :interpreter, :pointer_value_of
 
     def scalar_value_of(numeric)
       ScalarValue.of(numeric, logical_right_shift?)
@@ -267,6 +266,26 @@ module Cc1 #:nodoc:
 
     def scalar_value_of_arbitrary
       ScalarValue.of_arbitrary(logical_right_shift?)
+    end
+
+    def constant_expression?(expr)
+      expr.constant?(_interp_syntax_bridge_)
+    end
+
+    def object_to_variable(obj)
+      obj.to_variable(_interp_object_bridge_)
+    end
+
+    def object_to_pointer(obj)
+      obj.to_pointer(_interp_object_bridge_)
+    end
+
+    def value_of(obj)
+      obj.to_value(_interp_object_bridge_)
+    end
+
+    def pointer_value_of(obj)
+      obj.to_pointer_value(_interp_object_bridge_)
     end
 
     private

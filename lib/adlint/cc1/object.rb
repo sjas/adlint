@@ -148,8 +148,8 @@ module Cc1 #:nodoc:
   end
 
   module InterpObjectBridge
-    # NOTE: InterpreterMediator includes this module to bridge object creation
-    #       functions of temporary variables and scalar values to this layer.
+    # NOTE: InterpreterMediator includes this module to bridge runtime object
+    #       creator to this layer.
 
     def _interp_object_bridge_
       {

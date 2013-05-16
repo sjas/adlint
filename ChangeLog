@@ -1,3 +1,12 @@
+Thu May 16 17:08:41 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* features/code_check/W0422.feature : Add scenario to reproduce a known
+	  bug.
+
+	* lib/adlint/cc1/interp.rb : Fix bad variable defining behavor in order
+	  to correctly evaluate sizeof-expression that refers defining variable
+	  in the initializer.
+
 Thu May 16 11:00:07 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* features/code_check/W1047.feature : Add scenario to reproduce a known

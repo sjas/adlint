@@ -1,3 +1,11 @@
+Fri May 17 17:42:35 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* features/code_check/W0610.feature : Add scenario to reproduce a known
+	  bug.
+
+	* lib/adlint/cc1/interp.rb : Fix bad value domain management of the
+	  variable whose storage duration is static.
+
 Fri May 17 15:42:42 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* share/doc/users_guide_ja.texi : Revise description of W0642 message.

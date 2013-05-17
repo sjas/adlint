@@ -1,3 +1,8 @@
+Fri May 17 09:35:36 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/cc1/interp.rb : Fix bad variable defining behavor in order
+	  not to predefine a variable of incomplete type.
+
 Thu May 16 18:38:40 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* features/code_check/W0580.feature : Add scenario to reproduce a known

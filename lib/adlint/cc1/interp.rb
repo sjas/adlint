@@ -561,12 +561,19 @@ module Cc1 #:nodoc:
       end
 
       if node.initializer
-        # NOTE: Define variable first in order to correctly evaluate
-        #       sizeof-expression that refers defining variable in the
-        #       initializer.
-        var = define_variable(node)
-        init_var, init_conved = evaluate_initializer(node)
-        var.assign!(init_conved.value.to_defined_value)
+        if node.type.incomplete?
+          # NOTE: Unable to define variable of incomplete type such as an array
+          #       without length.
+          init_var, init_conved = evaluate_initializer(node)
+          var = define_variable(node, init_conved.value.to_defined_value)
+        else
+          # NOTE: Define variable first in order to correctly evaluate
+          #       sizeof-expression that refers to the defining variable in the
+          #       initializer.
+          var = define_variable(node)
+          init_var, init_conved = evaluate_initializer(node)
+          var.assign!(init_conved.value.to_defined_value)
+        end
 
         notify_variable_value_referred(node, init_var)
         notify_variable_defined(node, var)

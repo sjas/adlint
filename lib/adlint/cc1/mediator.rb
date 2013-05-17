@@ -176,6 +176,7 @@ module Cc1 #:nodoc:
     def_delegator :interpreter, :notify_sizeof_type_expr_evaled
     def_delegator :interpreter, :notify_explicit_conv_performed
     def_delegator :interpreter, :notify_implicit_conv_performed
+    def_delegator :interpreter, :notify_address_derivation_performed
     def_delegator :interpreter, :notify_array_subscript_expr_evaled
     def_delegator :interpreter, :notify_function_call_expr_evaled
     def_delegator :interpreter, :notify_unary_arithmetic_expr_evaled
@@ -274,20 +275,16 @@ module Cc1 #:nodoc:
 
     def object_to_variable(obj, init_or_expr = nil)
       obj.to_variable(_interp_object_bridge_).tap do |var|
-        if init_or_expr && obj.declared_as_register? && var.type.pointer?
-          # NOTE: To detect that address of the object declared as `register'
-          #       is derived.
-          notify_implicit_conv_performed(init_or_expr, obj, var)
+        if init_or_expr && !obj.type.pointer? && var.type.pointer?
+          notify_address_derivation_performed(init_or_expr, obj, var)
         end
       end
     end
 
     def object_to_pointer(obj, init_or_expr = nil)
-      obj.to_pointer(_interp_object_bridge_).tap do |var|
-        if init_or_expr && obj.declared_as_register?
-          # NOTE: To detect that address of the object declared as `register'
-          #       is derived.
-          notify_implicit_conv_performed(init_or_expr, obj, var)
+      obj.to_pointer(_interp_object_bridge_).tap do |ptr|
+        if init_or_expr
+          notify_address_derivation_performed(init_or_expr, obj, ptr)
         end
       end
     end

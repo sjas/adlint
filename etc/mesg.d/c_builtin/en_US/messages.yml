@@ -2107,7 +2107,7 @@ message_definition:
   W0642:
     classes:
       - "UNC:X99"
-    format: "It is impossible to get the array's address which declared with 'register'."
+    format: "Address derivation from the object declared as `register' is prohibited."
   W0643:
     classes:
       - "UNC:X99"

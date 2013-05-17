@@ -269,3 +269,25 @@ Feature: W9003
       | W0105 | 1    | 23     |
       | W0629 | 1    | 13     |
       | W0628 | 1    | 13     |
+
+  Scenario: no implicit convertion of register variable
+    Given a target source named "fixture.c" with:
+      """
+      static void foo(void)
+      {
+          register char a[3];
+          char *p;
+          p = &a[0]; /* OK */
+      }
+      """
+    When I successfully run `adlint fixture.c` on noarch
+    Then the output should exactly match with:
+      | mesg  | line | column |
+      | W1076 | 1    | 13     |
+      | W0459 | 5    | 9      |
+      | W0642 | 5    | 9      |
+      | W0100 | 3    | 19     |
+      | W0100 | 4    | 11     |
+      | W0629 | 1    | 13     |
+      | W0950 | 3    | 21     |
+      | W0628 | 1    | 13     |

@@ -1,4 +1,18 @@
-Fri May 17 10:35:38 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+Fri May 17 15:00:25 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* features/code_check/W9003.feature : Add scenario to reproduce a known
+	  bug.
+
+	* lib/adlint/exam/c_builtin/cc1_check.rb : Revise specification of
+	  W0642 code check in order to warn about all the illegal address
+	  derivation from the object declared as `register'.
+	* etc/mesg.d/c_builtin/ja_JP/messages.yml : Ditto.
+	* etc/mesg.d/c_builtin/en_US/messages.yml : Ditto.
+
+	* lib/adlint/exam/c_builtin/cc1_check.rb : Add notification about
+	  object address derivation.
+
+Fri May 17 12:55:38 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* features/code_check/W0642.feature : Add scenario to reproduce a known
 	  bug.

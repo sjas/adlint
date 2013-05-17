@@ -14769,21 +14769,12 @@ module CBuiltin #:nodoc:
     def initialize(phase_ctxt)
       super
       interp = phase_ctxt[:cc1_interpreter]
-      interp.on_address_expr_evaled     += T(:check_address_expression)
-      interp.on_implicit_conv_performed += T(:check_conversion)
+      interp.on_address_derivation_performed += T(:check)
     end
 
     private
-    def check_address_expression(expr, obj, *)
-      if obj.type.array? && obj.declared_as_register?
-        W(expr.location)
-      end
-    end
-
-    def check_conversion(expr, org_var, *)
-      if org_var.type.array? && org_var.declared_as_register?
-        W(expr.location)
-      end
+    def check(expr, obj, *)
+      W(expr.location) if obj.declared_as_register?
     end
   end
 

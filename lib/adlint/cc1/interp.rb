@@ -191,10 +191,16 @@ module Cc1 #:nodoc:
     # NOTE: Notified when the interpreter evaluates a cast-expression.
     def_plugin_and_notifier :explicit_conv_performed, :expr, :org_var, :res_var
 
-    # NOTE: Notified when the interpreter performs an implicit type conversion
-    #       while evaluating an expression.
+    # NOTE: Notified when the interpreter performs an implicit conversion while
+    #       evaluating an expression.
     def_plugin_and_notifier :implicit_conv_performed,
                             :init_or_expr, :org_var, :res_var
+
+    # NOTE: Notified when the interpreter performs an address derivation while
+    #       address-expression evaluation and array or function address
+    #       derivation.
+    def_plugin_and_notifier :address_derivation_performed,
+                            :init_or_expr, :obj, :ptr
 
     # NOTE: Notified when the interpreter evaluates an
     #       array-subscript-expression.

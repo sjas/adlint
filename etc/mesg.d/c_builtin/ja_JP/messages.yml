@@ -2107,7 +2107,7 @@ message_definition:
   W0642:
     classes:
       - "UNC:X99"
-    format: "register 付きで宣言された配列のアドレスを得ることは不可能です。"
+    format: "register 指定で宣言されたオブジェクトのアドレスを得ることは不可能です。"
   W0643:
     classes:
       - "UNC:X99"

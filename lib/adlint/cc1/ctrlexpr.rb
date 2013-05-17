@@ -682,10 +682,10 @@ module Cc1 #:nodoc:
     private
     def do_narrowing
       @lhs_manip.execute!
-      lhs_var = object_to_variable(@lhs_manip.result)
+      lhs_var = object_to_variable(@lhs_manip.result, @node.lhs_operand)
 
       @rhs_manip.execute!
-      rhs_var = object_to_variable(@rhs_manip.result)
+      rhs_var = object_to_variable(@rhs_manip.result, @node.rhs_operand)
 
       unless lhs_var.type.scalar? && rhs_var.type.scalar?
         return create_tmpvar(int_t)
@@ -754,7 +754,7 @@ module Cc1 #:nodoc:
     def do_narrowing
       @lhs_manip.execute!
       @lhs_manip.ensure_result_equal_to(scalar_value_of_true)
-      lhs_var = object_to_variable(@lhs_manip.result)
+      lhs_var = object_to_variable(@lhs_manip.result, @node.lhs_operand)
 
       # NOTE: The ISO C99 standard says;
       #
@@ -772,7 +772,7 @@ module Cc1 #:nodoc:
       @rhs_manip.load_original_values!(@lhs_manip)
       @rhs_manip.execute!
       @rhs_manip.ensure_result_equal_to(scalar_value_of_true)
-      rhs_var = object_to_variable(@rhs_manip.result)
+      rhs_var = object_to_variable(@rhs_manip.result, @node.rhs_operand)
 
       notify_sequence_point_reached(SequencePoint.new(@node.rhs_operand))
 
@@ -811,7 +811,7 @@ module Cc1 #:nodoc:
     def do_narrowing
       @lhs_manip.execute!
       @lhs_manip.ensure_result_equal_to(scalar_value_of_true)
-      lhs_var = object_to_variable(@lhs_manip.result)
+      lhs_var = object_to_variable(@lhs_manip.result, @node.lhs_operand)
 
       # NOTE: The ISO C99 standard says;
       #
@@ -830,7 +830,7 @@ module Cc1 #:nodoc:
       #        the LHS condition is false.
       @rhs_manip.execute!
       @rhs_manip.ensure_result_equal_to(scalar_value_of_true)
-      rhs_var = object_to_variable(@rhs_manip.result)
+      rhs_var = object_to_variable(@rhs_manip.result, @node.rhs_operand)
 
       notify_sequence_point_reached(SequencePoint.new(@node.rhs_operand))
 

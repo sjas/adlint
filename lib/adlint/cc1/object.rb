@@ -878,35 +878,29 @@ module Cc1 #:nodoc:
     private
     def assign_arguments_to_parameters(interp, args)
       args.zip(type.parameter_types).each do |(arg, expr), param_type|
+        arg_var = interp.object_to_variable(arg, expr)
+
         if param_type
           case
-          when arg.type.array? && param_type.pointer?
-            conved = interp.create_tmpvar(param_type,
-                                          interp.pointer_value_of(arg))
-          when arg.type.pointer? && param_type.array?
-            conved = interp.pointee_of(arg)
-          when arg.type.function? && param_type.pointer?
-            conved = interp.create_tmpvar(param_type,
-                                          interp.pointer_value_of(arg))
-          when arg.variable? && !arg.type.same_as?(param_type)
-            conved = interp.do_conversion(arg, param_type) ||
+          when arg_var.type.pointer? && param_type.array?
+            conved = interp.pointee_of(arg_var)
+          when !arg_var.type.same_as?(param_type)
+            conved = interp.do_conversion(arg_var, param_type) ||
                      interp.create_tmpvar(param_type)
-            interp.notify_implicit_conv_performed(expr, arg, conved)
+            interp.notify_implicit_conv_performed(expr, arg_var, conved)
           else
-            conved = arg
+            conved = arg_var
           end
         else
-          conved = interp.do_default_argument_promotion(arg)
-          if arg != conved
-            interp.notify_implicit_conv_performed(expr, arg, conved)
+          conved = interp.do_default_argument_promotion(arg_var)
+          if arg_var != conved
+            interp.notify_implicit_conv_performed(expr, arg_var, conved)
           end
         end
 
         # NOTE: Value of the argument is referred when the assignment to the
         #       parameter is performed.
-        if arg.variable? && !arg.type.array?
-          interp.notify_variable_value_referred(expr, arg)
-        end
+        interp.notify_variable_value_referred(expr, arg_var)
       end
     end
 

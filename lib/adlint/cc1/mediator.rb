@@ -272,12 +272,24 @@ module Cc1 #:nodoc:
       expr.constant?(_interp_syntax_bridge_)
     end
 
-    def object_to_variable(obj)
-      obj.to_variable(_interp_object_bridge_)
+    def object_to_variable(obj, init_or_expr = nil)
+      obj.to_variable(_interp_object_bridge_).tap do |var|
+        if init_or_expr && obj.declared_as_register? && var.type.pointer?
+          # NOTE: To detect that address of the object declared as `register'
+          #       is derived.
+          notify_implicit_conv_performed(init_or_expr, obj, var)
+        end
+      end
     end
 
-    def object_to_pointer(obj)
-      obj.to_pointer(_interp_object_bridge_)
+    def object_to_pointer(obj, init_or_expr = nil)
+      obj.to_pointer(_interp_object_bridge_).tap do |var|
+        if init_or_expr && obj.declared_as_register?
+          # NOTE: To detect that address of the object declared as `register'
+          #       is derived.
+          notify_implicit_conv_performed(init_or_expr, obj, var)
+        end
+      end
     end
 
     def value_of(obj)

@@ -1,3 +1,21 @@
+Fri May 17 10:35:38 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* features/code_check/W0642.feature : Add scenario to reproduce a known
+	  bug.
+
+	* lib/adlint/exam/c_builtin/cc1_check.rb : Fix W0642 code check in
+	  order to warn only when the original object of implicit conversion is
+	  an array.
+
+	* lib/adlint/cc1/mediator.rb : Add implicit conversion notification in
+	  object conversion methods to notify illegal conversions.
+	* lib/adlint/cc1/interp.rb : Ditto.
+	* lib/adlint/cc1/expr.rb : Ditto.
+	* lib/adlint/cc1/ctrlexpr.rb : Ditto.
+
+	* lib/adlint/cc1/object.rb : Fix argument to parameter assignment
+	  behavior in order to notify illegal conversions correctly.
+
 Fri May 17 09:35:36 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* lib/adlint/cc1/interp.rb : Fix bad variable defining behavor in order

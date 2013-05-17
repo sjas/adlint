@@ -717,7 +717,7 @@ module Cc1 #:nodoc:
     def evaluate_expression(expr, type)
       checkpoint(expr.location)
 
-      var = object_to_variable(interpret(expr))
+      var = object_to_variable(interpret(expr), expr)
 
       if var.type.same_as?(type)
         conved = var
@@ -948,7 +948,7 @@ module Cc1 #:nodoc:
 
       node.executed = true
       ctrlexpr = node.expression
-      ctrlexpr_var = object_to_variable(interpret(ctrlexpr, QUIET))
+      ctrlexpr_var = object_to_variable(interpret(ctrlexpr, QUIET), ctrlexpr)
       notify_case_ctrlexpr_evaled(node, ctrlexpr_var)
 
       interpret(node.statement)
@@ -996,7 +996,8 @@ module Cc1 #:nodoc:
         ctrlexpr_val = scalar_value_of_arbitrary
         ctrlexpr = nil
       else
-        ctrlexpr_var = object_to_variable(interpret(org_ctrlexpr))
+        ctrlexpr_var = object_to_variable(interpret(org_ctrlexpr),
+                                          org_ctrlexpr)
         ctrlexpr_val = value_of(ctrlexpr_var)
         notify_variable_value_referred(org_ctrlexpr, ctrlexpr_var)
         notify_sequence_point_reached(SequencePoint.new(org_ctrlexpr))
@@ -1029,7 +1030,8 @@ module Cc1 #:nodoc:
         ctrlexpr_val = scalar_value_of_arbitrary
         ctrlexpr = nil
       else
-        ctrlexpr_var = object_to_variable(interpret(org_ctrlexpr))
+        ctrlexpr_var = object_to_variable(interpret(org_ctrlexpr),
+                                          org_ctrlexpr)
         ctrlexpr_val = value_of(ctrlexpr_var)
         notify_variable_value_referred(org_ctrlexpr, ctrlexpr_var)
         notify_sequence_point_reached(SequencePoint.new(org_ctrlexpr))
@@ -1067,7 +1069,8 @@ module Cc1 #:nodoc:
 
       widen_varying_variable_value_domain(node)
 
-      ctrlexpr_var = object_to_variable(interpret(node.expression))
+      ctrlexpr_var = object_to_variable(interpret(node.expression),
+                                        node.expression)
       ctrlexpr_val = value_of(ctrlexpr_var)
       notify_variable_value_referred(node.expression, ctrlexpr_var)
       notify_sequence_point_reached(SequencePoint.new(node.expression))
@@ -1118,7 +1121,8 @@ module Cc1 #:nodoc:
         leave_iteration_statement(org_ctrlexpr)
       end
 
-      ctrlexpr_var = object_to_variable(interpret(node.expression))
+      ctrlexpr_var = object_to_variable(interpret(node.expression),
+                                        node.expression)
       ctrlexpr_val = value_of(ctrlexpr_var)
       notify_variable_value_referred(node.expression, ctrlexpr_var)
       notify_sequence_point_reached(SequencePoint.new(node.expression))
@@ -1140,7 +1144,8 @@ module Cc1 #:nodoc:
 
       node.condition_statement.executed = true
       if explicit_ctrlexpr = node.condition_statement.expression
-        ctrlexpr_var = object_to_variable(interpret(explicit_ctrlexpr))
+        ctrlexpr_var = object_to_variable(interpret(explicit_ctrlexpr),
+                                          explicit_ctrlexpr)
         ctrlexpr_val = value_of(ctrlexpr_var)
         notify_variable_value_referred(explicit_ctrlexpr, ctrlexpr_var)
         notify_sequence_point_reached(SequencePoint.new(explicit_ctrlexpr))
@@ -1173,7 +1178,8 @@ module Cc1 #:nodoc:
 
         node.condition_statement.executed = true
         if explicit_ctrlexpr = node.condition_statement.expression
-          ctrlexpr_var = object_to_variable(interpret(explicit_ctrlexpr))
+          ctrlexpr_var = object_to_variable(interpret(explicit_ctrlexpr),
+                                            explicit_ctrlexpr)
           ctrlexpr_val = value_of(ctrlexpr_var)
           notify_variable_value_referred(explicit_ctrlexpr, ctrlexpr_var)
           notify_sequence_point_reached(SequencePoint.new(explicit_ctrlexpr))
@@ -1225,7 +1231,7 @@ module Cc1 #:nodoc:
         BreakEvent.of_return.throw
       end
 
-      var = object_to_variable(interpret(node.expression))
+      var = object_to_variable(interpret(node.expression), node.expression)
       notify_variable_value_referred(node.expression, var)
 
       if active_fun = interpreter._active_function and
@@ -1270,7 +1276,8 @@ module Cc1 #:nodoc:
           #        causes "logical-expression must be false" warnings about a
           #        one-time-for-loop.  To avoid this, now, workarounds are in
           #        builtin code checks W0609 and W0610.
-          var = object_to_variable(interpret(explicit_ctrlexpr))
+          var = object_to_variable(interpret(explicit_ctrlexpr),
+                                   explicit_ctrlexpr)
           notify_variable_value_referred(explicit_ctrlexpr, var)
           notify_sequence_point_reached(SequencePoint.new(explicit_ctrlexpr))
         end
@@ -1414,7 +1421,7 @@ module Cc1 #:nodoc:
       notify_switch_stmt_started(node)
 
       ctrlexpr = node.expression
-      ctrlexpr_var = object_to_variable(interpret(ctrlexpr))
+      ctrlexpr_var = object_to_variable(interpret(ctrlexpr), ctrlexpr)
       notify_switch_ctrlexpr_evaled(node, ctrlexpr_var)
       notify_variable_value_referred(ctrlexpr, ctrlexpr_var)
 
@@ -1667,7 +1674,7 @@ module Cc1 #:nodoc:
       checkpoint(node.location)
 
       ctrlexpr = node.condition
-      ctrlexpr_var = object_to_variable(interpret(ctrlexpr))
+      ctrlexpr_var = object_to_variable(interpret(ctrlexpr), ctrlexpr)
       ctrlexpr_val = value_of(ctrlexpr_var)
       notify_variable_value_referred(ctrlexpr, ctrlexpr_var)
       notify_sequence_point_reached(ctrlexpr.subsequent_sequence_point)
@@ -1676,14 +1683,16 @@ module Cc1 #:nodoc:
       then_var = nil
       if ctrlexpr_val.may_be_true?
         branched_eval(ctrlexpr, NARROWING, IMPLICIT_COND) do
-          then_var = object_to_variable(interpret(node.then_expression))
+          then_var = object_to_variable(interpret(node.then_expression),
+                                        node.then_expression)
         end
       end
 
       else_var = nil
       if ctrlexpr_val.may_be_false?
         branched_eval(nil, NARROWING, FINAL, COMPLETE) do
-          else_var = object_to_variable(interpret(node.else_expression))
+          else_var = object_to_variable(interpret(node.else_expression),
+                                        node.else_expression)
         end
       else
         branched_eval(nil, NARROWING, FINAL, COMPLETE) {}

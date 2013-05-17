@@ -14775,11 +14775,15 @@ module CBuiltin #:nodoc:
 
     private
     def check_address_expression(expr, obj, *)
-      W(expr.location) if obj.declared_as_register?
+      if obj.type.array? && obj.declared_as_register?
+        W(expr.location)
+      end
     end
 
     def check_conversion(expr, org_var, *)
-      W(expr.location) if org_var.declared_as_register?
+      if org_var.type.array? && org_var.declared_as_register?
+        W(expr.location)
+      end
     end
   end
 

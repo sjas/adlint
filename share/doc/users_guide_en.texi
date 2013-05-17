@@ -2898,7 +2898,7 @@ context_line
 * W0639::%sth conversion specifier doesn't match with corresponding type of actual argument.
 * W0640::The actual argument of scanf function have to pass the object pointer to store the data.
 * W0641::Floating-point number type cast to pointer to object and vice versa.
-* W0642::It is impossible to get the array's address which declared with 'register'.
+* W0642::Address derivation from the object declared as `register' is prohibited.
 * W0643::This string literal constituted by a macro is illegal form unenclosed by `"'. `#'operator may apply to actual argument which has '\' at the end.
 * W0644::A value in void statement is going to use. 'void' statement doesn't have a value.
 * W0645::'void' type cannot use in the type of formal argument.
@@ -26538,7 +26538,7 @@ None.
 
 @subsection Message body
 
-It is impossible to get the array's address which declared with 'register'.
+Address derivation from the object declared as `register' is prohibited.
 
 @subsection Content
 
@@ -26591,7 +26591,7 @@ const char *str = MACRO(foo\); /* W0643 */
 @subsection Related message
 
 @itemize
-@item @ref{W0642} It is impossible to get the array's address which declared with 'register'.
+@item @ref{W0642} Address derivation from the object declared as `register' is prohibited.
 @item @ref{W0644} A value in void statement is going to use. 'void' statement doesn't have a value.
 @item @ref{W0645} 'void' type cannot use in the type of formal argument.
 @item @ref{W0646} A normal string literal and a wide string literal are contiguous.
@@ -26627,7 +26627,7 @@ int bar(void)
 @subsection Related message
 
 @itemize
-@item @ref{W0642} It is impossible to get the array's address which declared with 'register'.
+@item @ref{W0642} Address derivation from the object declared as `register' is prohibited.
 @item @ref{W0643} This string literal constituted by a macro is illegal form unenclosed by `"'. `#'operator may apply to actual argument which has '\' at the end.
 @item @ref{W0645} 'void' type cannot use in the type of formal argument.
 @item @ref{W0646} A normal string literal and a wide string literal are contiguous.
@@ -26661,7 +26661,7 @@ void a;
 @subsection Related message
 
 @itemize
-@item @ref{W0642} It is impossible to get the array's address which declared with 'register'.
+@item @ref{W0642} Address derivation from the object declared as `register' is prohibited.
 @item @ref{W0643} This string literal constituted by a macro is illegal form unenclosed by `"'. `#'operator may apply to actual argument which has '\' at the end.
 @item @ref{W0644} A value in void statement is going to use. 'void' statement doesn't have a value.
 @item @ref{W0646} A normal string literal and a wide string literal are contiguous.
@@ -26692,7 +26692,7 @@ static const char *str = "foo" L"bar"; /* W0646 */
 @subsection Related message
 
 @itemize
-@item @ref{W0642} It is impossible to get the array's address which declared with 'register'.
+@item @ref{W0642} Address derivation from the object declared as `register' is prohibited.
 @item @ref{W0643} This string literal constituted by a macro is illegal form unenclosed by `"'. `#'operator may apply to actual argument which has '\' at the end.
 @item @ref{W0644} A value in void statement is going to use. 'void' statement doesn't have a value.
 @item @ref{W0645} 'void' type cannot use in the type of formal argument.

@@ -1,3 +1,8 @@
+Fri May 17 15:42:42 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* share/doc/users_guide_ja.texi : Revise description of W0642 message.
+	* share/doc/users_guide_en.texi : Ditto.
+
 Fri May 17 15:00:25 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* features/code_check/W9003.feature : Add scenario to reproduce a known

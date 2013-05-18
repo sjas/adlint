@@ -19627,11 +19627,15 @@ module CBuiltin #:nodoc:
     private
     def check(var_def, *)
       type = var_def.type
-      if type.struct? || type.union? || type.array?
-        if init = var_def.initializer
-          obj_specs = collect_object_specifiers(init)
-          if obj_specs.any? { |os| !@interp.constant_expression?(os) }
+      return unless type.struct? || type.union? || type.array?
+
+      if init = var_def.initializer
+        Cc1::ExpressionExtractor.new.tap { |extr|
+          init.accept(extr)
+        }.expressions.each do |expr|
+          unless @interp.constant_expression?(expr)
             W(var_def.location)
+            break
           end
         end
       end

@@ -5487,6 +5487,11 @@ module Cc1 #:nodoc:
     end
     private :push_expression
 
+    alias :visit_error_expression :push_expression
+    alias :visit_object_specifier :push_expression
+    alias :visit_constant_specifier :push_expression
+    alias :visit_string_literal_specifier :push_expression
+    alias :visit_null_constant_specifier :push_expression
     alias :visit_grouped_expression :push_expression
     alias :visit_array_subscript_expression :push_expression
     alias :visit_function_call_expression :push_expression
@@ -5503,7 +5508,9 @@ module Cc1 #:nodoc:
     alias :visit_indirection_expression :push_expression
     alias :visit_unary_arithmetic_expression :push_expression
     alias :visit_sizeof_expression :push_expression
+    alias :visit_sizeof_type_expression :push_expression
     alias :visit_alignof_expression :push_expression
+    alias :visit_alignof_type_expression :push_expression
     alias :visit_cast_expression :push_expression
     alias :visit_multiplicative_expression :push_expression
     alias :visit_additive_expression :push_expression
@@ -5548,6 +5555,10 @@ module Cc1 #:nodoc:
       unless const_designators.include?(node.identifier.value)
         break_as_inconstant
       end
+    end
+
+    def visit_address_expression(node)
+      # NOTE: To treat address of variables as an address-constant.
     end
 
     def break_as_inconstant(*)

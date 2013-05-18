@@ -1,3 +1,14 @@
+Sat May 18 15:25:51 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* features/code_check/W1047.feature : Add scenario to reproduce a known
+	  bug.
+
+	* lib/adlint/cc1/syntax.rb : Fix bad expression-constancy check in
+	  order to treat an address-expression as a constant-expression.
+
+	* lib/adlint/exam/c_builtin/cc1_check.rb : Fix W1047 code check to
+	  check expression constancy by the newly added unified interface.
+
 Fri May 17 17:42:35 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* features/code_check/W0610.feature : Add scenario to reproduce a known

@@ -369,14 +369,14 @@ module Cpp #:nodoc:
           usr_include_line = UserIncludeLine.new(
             keyword, Token.new(:USR_HEADER_NAME, param,
                                pp_toks.tokens.first.location),
-                               pp_ctxt.include_depth)
+            pp_ctxt.include_depth)
           include_first_user_header(usr_include_line, pp_ctxt)
           return usr_include_line
         when /\A<.*>\z/
           sys_include_line = SystemIncludeLine.new(
             keyword, Token.new(:SYS_HEADER_NAME, param,
                                pp_toks.tokens.first.location),
-                               pp_ctxt.include_depth)
+            pp_ctxt.include_depth)
           include_first_system_header(sys_include_line, pp_ctxt)
           return sys_include_line
         end

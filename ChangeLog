@@ -1,3 +1,8 @@
+Tue May 21 19:34:10 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/cc1/parser.y : Fix abend problem in parsing unnamed
+	  bit-field declaration.
+
 Sat May 18 15:25:51 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* features/code_check/W1047.feature : Add scenario to reproduce a known

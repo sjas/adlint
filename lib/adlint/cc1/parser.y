@@ -877,6 +877,7 @@ struct_declaration
       struct_declarator_list ";"
       {
         checkpoint(val[0].location)
+        @lexer.start_identifier_translation
         result = StructDeclaration.new(val[0], val[2])
         result.head_token = val[0].head_token
         result.tail_token = val[3]

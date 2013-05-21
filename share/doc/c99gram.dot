@@ -1,0 +1,502 @@
+strict digraph "ISO C99 Grammer" {
+    //
+    // terminal nodes
+    //
+    node [shape=box];
+    IDENTIFIER;
+    TYPEDEF_NAME;
+    CONSTANT;
+    STRING_LITERAL;
+    SIZEOF;
+    TYPEDEF;
+    EXTERN;
+    STATIC;
+    AUTO;
+    REGISTER;
+    INLINE;
+    RESTRICT;
+    CHAR;
+    SHORT;
+    INT;
+    LONG;
+    SIGNED;
+    UNSIGNED;
+    FLOAT;
+    DOUBLE;
+    CONST;
+    VOLATILE;
+    VOID;
+    BOOL;
+    COMPLEX;
+    IMAGINARY;
+    STRUCT;
+    UNION;
+    ENUM;
+    CASE;
+    DEFAULT;
+    IF;
+    ELSE;
+    SWITCH;
+    WHILE;
+    DO;
+    FOR;
+    GOTO;
+    CONTINUE;
+    BREAK;
+    RETURN;
+    NULL;
+    TYPEOF;
+    ALIGNOF;
+    "!";
+    "!=";
+    "%";
+    "%=";
+    "&";
+    "&&";
+    "&=";
+    "(";
+    ")";
+    "*";
+    "*=";
+    "+";
+    "++";
+    "+=";
+    ",";
+    "-";
+    "--";
+    "-=";
+    "->";
+    ".";
+    "...";
+    "/";
+    "/=";
+    ":";
+    ";";
+    "<";
+    "<<";
+    "<<=";
+    "<=";
+    "=";
+    "==";
+    ">";
+    ">=";
+    ">>";
+    ">>=";
+    "?";
+    "[";
+    "]";
+    "^";
+    "^=";
+    "{";
+    "|";
+    "|=";
+    "||";
+    "}";
+    "~";
+
+    //
+    // non-terminal nodes
+    //
+    node [shape=ellipse];
+    primary_expression;
+    postfix_expression;
+    argument_expression_list;
+    unary_expression;
+    unary_arithmetic_operator;
+    cast_expression;
+    multiplicative_expression;
+    additive_expression;
+    shift_expression;
+    relational_expression;
+    equality_expression;
+    and_expression;
+    exclusive_or_expression;
+    inclusive_or_expression;
+    logical_and_expression;
+    logical_or_expression;
+    conditional_expression;
+    assignment_expression;
+    compound_assignment_operator;
+    expression;
+    constant_expression;
+    declaration;
+    global_declaration;
+    declaration_specifiers;
+    init_declarator_list;
+    init_declarator;
+    storage_class_specifier;
+    type_specifier;
+    struct_or_union_specifier;
+    struct_declaration_list;
+    struct_declaration;
+    specifier_qualifier_list;
+    struct_declarator_list;
+    struct_declarator;
+    enum_specifier;
+    enumerator_list;
+    enumerator;
+    type_qualifier;
+    function_specifier;
+    declarator;
+    direct_declarator;
+    pointer;
+    type_qualifier_list;
+    parameter_type_list;
+    parameter_list;
+    parameter_declaration;
+    identifier_list;
+    type_name;
+    abstract_declarator;
+    direct_abstract_declarator;
+    initializer;
+    initializer_list;
+    designation;
+    designator_list;
+    designator;
+    statement;
+    labeled_statement;
+    compound_statement;
+    block_item_list;
+    block_item;
+    expression_statement;
+    selection_statement;
+    iteration_statement;
+    jump_statement;
+    translation_unit;
+    external_declaration;
+    function_definition;
+    local_function_definition;
+    declaration_list;
+
+    //
+    // edges
+    //
+    primary_expression -> IDENTIFIER;
+    primary_expression -> CONSTANT;
+    primary_expression -> STRING_LITERAL;
+    primary_expression -> NULL;
+    primary_expression -> "("; primary_expression -> expression; primary_expression -> ")";
+    primary_expression -> "("; primary_expression -> compound_statement; primary_expression -> ")";
+
+    postfix_expression -> primary_expression;
+    postfix_expression -> postfix_expression; postfix_expression -> "["; postfix_expression -> expression; postfix_expression -> "]";
+    postfix_expression -> postfix_expression; postfix_expression -> "("; postfix_expression -> ")";
+    postfix_expression -> postfix_expression; postfix_expression -> "("; postfix_expression -> argument_expression_list; postfix_expression -> ")";
+    postfix_expression -> postfix_expression; postfix_expression -> "."; postfix_expression -> IDENTIFIER;
+    postfix_expression -> postfix_expression; postfix_expression -> "->"; postfix_expression -> IDENTIFIER;
+    postfix_expression -> postfix_expression; postfix_expression -> "."; postfix_expression -> CONSTANT;
+    postfix_expression -> postfix_expression; postfix_expression -> "->"; postfix_expression -> CONSTANT;
+    postfix_expression -> postfix_expression; postfix_expression -> "++";
+    postfix_expression -> postfix_expression; postfix_expression -> "--";
+    postfix_expression -> "("; postfix_expression -> type_name; postfix_expression -> ")"; postfix_expression -> "{"; postfix_expression -> initializer_list; postfix_expression -> "}";
+    postfix_expression -> "("; postfix_expression -> type_name; postfix_expression -> ")"; postfix_expression -> "{"; postfix_expression -> initializer_list; postfix_expression -> ","; postfix_expression -> "}";
+
+    argument_expression_list -> assignment_expression;
+    argument_expression_list -> argument_expression_list; argument_expression_list -> ","; argument_expression_list -> assignment_expression;
+
+    unary_expression -> postfix_expression;
+    unary_expression -> "++"; unary_expression -> unary_expression;
+    unary_expression -> "--"; unary_expression -> unary_expression;
+    unary_expression -> "&"; unary_expression -> cast_expression;
+    unary_expression -> "*"; unary_expression -> cast_expression;
+    unary_expression -> unary_arithmetic_operator; unary_expression -> cast_expression;
+    unary_expression -> SIZEOF; unary_expression -> unary_expression;
+    unary_expression -> SIZEOF; unary_expression -> "("; unary_expression -> type_name; unary_expression -> ")";
+    unary_expression -> ALIGNOF; unary_expression -> unary_expression;
+    unary_expression -> ALIGNOF; unary_expression -> "("; unary_expression -> type_name; unary_expression -> ")";
+    unary_expression -> "&&"; unary_expression -> unary_expression;
+
+    unary_arithmetic_operator -> "+";
+    unary_arithmetic_operator -> "-";
+    unary_arithmetic_operator -> "~";
+    unary_arithmetic_operator -> "!";
+
+    cast_expression -> unary_expression;
+    cast_expression -> "("; cast_expression -> type_name; cast_expression -> ")"; cast_expression -> cast_expression;
+
+    multiplicative_expression -> cast_expression;
+    multiplicative_expression -> multiplicative_expression; multiplicative_expression -> "*"; multiplicative_expression -> cast_expression;
+    multiplicative_expression -> multiplicative_expression; multiplicative_expression -> "/"; multiplicative_expression -> cast_expression;
+    multiplicative_expression -> multiplicative_expression; multiplicative_expression -> "%"; multiplicative_expression -> cast_expression;
+
+    additive_expression -> multiplicative_expression;
+    additive_expression -> additive_expression; additive_expression -> "+"; additive_expression -> multiplicative_expression;
+    additive_expression -> additive_expression; additive_expression -> "-"; additive_expression -> multiplicative_expression;
+
+    shift_expression -> additive_expression;
+    shift_expression -> shift_expression; shift_expression -> "<<"; shift_expression -> additive_expression;
+    shift_expression -> shift_expression; shift_expression -> ">>"; shift_expression -> additive_expression;
+
+    relational_expression -> shift_expression;
+    relational_expression -> relational_expression; relational_expression -> "<"; relational_expression -> shift_expression;
+    relational_expression -> relational_expression; relational_expression -> ">"; relational_expression -> shift_expression;
+    relational_expression -> relational_expression; relational_expression -> "<="; relational_expression -> shift_expression;
+    relational_expression -> relational_expression; relational_expression -> ">="; relational_expression -> shift_expression;
+
+    equality_expression -> relational_expression;
+    equality_expression -> equality_expression; equality_expression -> "=="; equality_expression -> relational_expression;
+    equality_expression -> equality_expression; equality_expression -> "!="; equality_expression -> relational_expression;
+
+    and_expression -> equality_expression;
+    and_expression -> and_expression; and_expression -> "&"; and_expression -> equality_expression;
+
+    exclusive_or_expression -> and_expression;
+    exclusive_or_expression -> exclusive_or_expression; exclusive_or_expression -> "^"; exclusive_or_expression -> and_expression;
+
+    inclusive_or_expression -> exclusive_or_expression;
+    inclusive_or_expression -> inclusive_or_expression; inclusive_or_expression -> "|"; inclusive_or_expression -> exclusive_or_expression;
+
+    logical_and_expression -> inclusive_or_expression;
+    logical_and_expression -> logical_and_expression; logical_and_expression -> "&&"; logical_and_expression -> inclusive_or_expression;
+
+    logical_or_expression -> logical_and_expression;
+    logical_or_expression -> logical_or_expression; logical_or_expression -> "||"; logical_or_expression -> logical_and_expression;
+
+    conditional_expression -> logical_or_expression;
+    conditional_expression -> logical_or_expression; conditional_expression -> "?"; conditional_expression -> expression; conditional_expression -> ":"; conditional_expression -> conditional_expression;
+
+    assignment_expression -> conditional_expression;
+    assignment_expression -> cast_expression; assignment_expression -> "="; assignment_expression -> assignment_expression;
+    assignment_expression -> cast_expression; assignment_expression -> compound_assignment_operator; assignment_expression -> assignment_expression;
+
+    compound_assignment_operator -> "*=";
+    compound_assignment_operator -> "/=";
+    compound_assignment_operator -> "%=";
+    compound_assignment_operator -> "+=";
+    compound_assignment_operator -> "-=";
+    compound_assignment_operator -> "<<=";
+    compound_assignment_operator -> ">>=";
+    compound_assignment_operator -> "&=";
+    compound_assignment_operator -> "^=";
+    compound_assignment_operator -> "|=";
+
+    expression -> assignment_expression;
+    expression -> expression; expression -> ","; expression -> assignment_expression;
+
+    constant_expression -> conditional_expression;
+
+    declaration -> declaration_specifiers; declaration -> ";";
+    declaration -> declaration_specifiers; declaration -> init_declarator_list; declaration -> ";";
+
+    global_declaration -> declaration;
+    global_declaration -> init_declarator_list; global_declaration -> ";";
+
+    declaration_specifiers -> storage_class_specifier;
+    declaration_specifiers -> declaration_specifiers; declaration_specifiers -> storage_class_specifier;
+    declaration_specifiers -> type_specifier;
+    declaration_specifiers -> declaration_specifiers; declaration_specifiers -> type_specifier;
+    declaration_specifiers -> type_qualifier;
+    declaration_specifiers -> declaration_specifiers; declaration_specifiers -> type_qualifier;
+    declaration_specifiers -> function_specifier;
+    declaration_specifiers -> declaration_specifiers; declaration_specifiers -> function_specifier;
+
+    init_declarator_list -> init_declarator;
+    init_declarator_list -> init_declarator_list; init_declarator_list -> ","; init_declarator_list -> init_declarator;
+
+    init_declarator -> declarator;
+    init_declarator -> declarator; init_declarator -> "="; init_declarator -> initializer;
+
+    storage_class_specifier -> TYPEDEF;
+    storage_class_specifier -> EXTERN;
+    storage_class_specifier -> STATIC;
+    storage_class_specifier -> AUTO;
+    storage_class_specifier -> REGISTER;
+
+    type_specifier -> VOID;
+    type_specifier -> CHAR;
+    type_specifier -> SHORT;
+    type_specifier -> INT;
+    type_specifier -> LONG;
+    type_specifier -> FLOAT;
+    type_specifier -> DOUBLE;
+    type_specifier -> SIGNED;
+    type_specifier -> UNSIGNED;
+    type_specifier -> BOOL;
+    type_specifier -> COMPLEX;
+    type_specifier -> IMAGINARY;
+    type_specifier -> TYPEDEF_NAME;
+    type_specifier -> struct_or_union_specifier;
+    type_specifier -> enum_specifier;
+    type_specifier -> TYPEOF; type_specifier -> "("; type_specifier -> constant_expression; type_specifier -> ")";
+    type_specifier -> TYPEOF; type_specifier -> "("; type_specifier -> type_name; type_specifier -> ")";
+
+    struct_or_union_specifier -> STRUCT; struct_or_union_specifier -> IDENTIFIER; struct_or_union_specifier -> "{"; struct_or_union_specifier -> struct_declaration_list; struct_or_union_specifier -> "}";
+    struct_or_union_specifier -> STRUCT; struct_or_union_specifier -> IDENTIFIER; struct_or_union_specifier -> "{"; struct_or_union_specifier -> "}";
+    struct_or_union_specifier -> UNION; struct_or_union_specifier -> IDENTIFIER; struct_or_union_specifier -> "{"; struct_or_union_specifier -> struct_declaration_list; struct_or_union_specifier -> "}";
+    struct_or_union_specifier -> UNION; struct_or_union_specifier -> IDENTIFIER; struct_or_union_specifier -> "{"; struct_or_union_specifier -> "}";
+    struct_or_union_specifier -> STRUCT; struct_or_union_specifier -> "{"; struct_or_union_specifier -> struct_declaration_list; struct_or_union_specifier -> "}";
+    struct_or_union_specifier -> STRUCT; struct_or_union_specifier -> "{"; struct_or_union_specifier -> "}";
+    struct_or_union_specifier -> UNION; struct_or_union_specifier -> "{"; struct_or_union_specifier -> struct_declaration_list; struct_or_union_specifier -> "}";
+    struct_or_union_specifier -> UNION; struct_or_union_specifier -> "{"; struct_or_union_specifier -> "}";
+    struct_or_union_specifier -> STRUCT; struct_or_union_specifier -> IDENTIFIER;
+    struct_or_union_specifier -> UNION; struct_or_union_specifier -> IDENTIFIER;
+
+    struct_declaration_list -> struct_declaration;
+    struct_declaration_list -> struct_declaration_list; struct_declaration_list -> struct_declaration;
+
+    struct_declaration -> specifier_qualifier_list; struct_declaration -> ";";
+    struct_declaration -> specifier_qualifier_list; struct_declaration -> struct_declarator_list; struct_declarator_list -> ";";
+
+    specifier_qualifier_list -> specifier_qualifier_list; specifier_qualifier_list -> type_specifier;
+    specifier_qualifier_list -> type_specifier;
+    specifier_qualifier_list -> specifier_qualifier_list; specifier_qualifier_list -> type_qualifier;
+    specifier_qualifier_list -> type_qualifier;
+
+    struct_declarator_list -> struct_declarator;
+    struct_declarator_list -> struct_declarator_list; struct_declarator_list -> ","; struct_declarator_list -> struct_declarator;
+
+    struct_declarator -> declarator;
+    struct_declarator -> ":"; struct_declarator -> constant_expression;
+    struct_declarator -> declarator; struct_declarator -> ":"; struct_declarator -> constant_expression;
+
+    enum_specifier -> ENUM; enum_specifier -> "{"; enum_specifier -> enumerator_list; enum_specifier -> "}";
+    enum_specifier -> ENUM; enum_specifier -> IDENTIFIER; enum_specifier -> "{"; enum_specifier -> enumerator_list; enum_specifier -> "}";
+    enum_specifier -> ENUM; enum_specifier -> "{"; enum_specifier -> enumerator_list; enum_specifier -> ","; enum_specifier -> "}";
+    enum_specifier -> ENUM; enum_specifier -> IDENTIFIER; enum_specifier -> "{"; enum_specifier -> enumerator_list; enum_specifier -> ","; enum_specifier -> "}";
+    enum_specifier -> ENUM; enum_specifier -> IDENTIFIER;
+
+    enumerator_list -> enumerator;
+    enumerator_list -> enumerator_list; enumerator_list -> ","; enumerator_list -> enumerator;
+
+    enumerator -> IDENTIFIER;
+    enumerator -> IDENTIFIER; enumerator -> "="; enumerator -> constant_expression;
+
+    type_qualifier -> CONST;
+    type_qualifier -> VOLATILE;
+    type_qualifier -> RESTRICT;
+
+    function_specifier -> INLINE;
+
+    declarator -> pointer; declarator -> direct_declarator;
+    declarator -> direct_declarator;
+
+    direct_declarator -> IDENTIFIER;
+    direct_declarator -> "("; direct_declarator -> declarator; direct_declarator -> ")";
+    direct_declarator -> direct_declarator; direct_declarator -> "["; direct_declarator -> type_qualifier_list; direct_declarator -> assignment_expression; direct_declarator -> "]";
+    direct_declarator -> direct_declarator; direct_declarator -> "["; direct_declarator -> type_qualifier_list; direct_declarator -> "]";
+    direct_declarator -> direct_declarator; direct_declarator -> "["; direct_declarator -> assignment_expression; direct_declarator -> "]";
+    direct_declarator -> direct_declarator; direct_declarator -> "["; direct_declarator -> STATIC; direct_declarator -> type_qualifier_list; direct_declarator -> assignment_expression; direct_declarator -> "]";
+    direct_declarator -> direct_declarator; direct_declarator -> "["; direct_declarator -> type_qualifier_list; direct_declarator -> STATIC; direct_declarator -> assignment_expression; direct_declarator -> "]";
+    direct_declarator -> direct_declarator; direct_declarator -> "["; direct_declarator -> type_qualifier_list; direct_declarator -> "*"; direct_declarator -> "]";
+    direct_declarator -> direct_declarator; direct_declarator -> "["; direct_declarator -> "*"; direct_declarator -> "]";
+    direct_declarator -> direct_declarator; direct_declarator -> "["; direct_declarator -> "]";
+    direct_declarator -> direct_declarator; direct_declarator -> "("; direct_declarator -> parameter_type_list; direct_declarator -> ")";
+    direct_declarator -> direct_declarator; direct_declarator -> "("; direct_declarator -> identifier_list; direct_declarator -> ")";
+    direct_declarator -> direct_declarator; direct_declarator -> "("; direct_declarator -> ")";
+
+    pointer -> "*";
+    pointer -> "*"; pointer -> type_qualifier_list;
+    pointer -> "*"; pointer -> pointer;
+    pointer -> "*"; pointer -> type_qualifier_list; pointer -> pointer;
+
+    type_qualifier_list -> type_qualifier;
+    type_qualifier_list -> type_qualifier_list; type_qualifier_list -> type_qualifier;
+
+    parameter_type_list -> parameter_list;
+    parameter_type_list -> parameter_list; parameter_type_list -> ","; parameter_type_list -> "...";
+
+    parameter_list -> parameter_declaration;
+    parameter_list -> parameter_list; parameter_list -> ","; parameter_list -> parameter_declaration;
+
+    parameter_declaration -> declaration_specifiers; parameter_declaration -> declarator;
+    parameter_declaration -> declaration_specifiers; parameter_declaration -> abstract_declarator;
+    parameter_declaration -> declaration_specifiers;
+
+    identifier_list -> IDENTIFIER;
+    identifier_list -> identifier_list; identifier_list -> ","; identifier_list -> IDENTIFIER;
+
+    type_name -> specifier_qualifier_list;
+    type_name -> specifier_qualifier_list; type_name -> abstract_declarator;
+
+    abstract_declarator -> pointer;
+    abstract_declarator -> pointer; abstract_declarator -> direct_abstract_declarator;
+    abstract_declarator -> direct_abstract_declarator;
+
+    direct_abstract_declarator -> "("; direct_abstract_declarator -> abstract_declarator; direct_abstract_declarator -> ")";
+    direct_abstract_declarator -> "["; direct_abstract_declarator -> "]";
+    direct_abstract_declarator -> "["; direct_abstract_declarator -> assignment_expression; direct_abstract_declarator -> "]";
+    direct_abstract_declarator -> direct_abstract_declarator; direct_abstract_declarator -> "["; direct_abstract_declarator -> "]";
+    direct_abstract_declarator -> direct_abstract_declarator; direct_abstract_declarator -> "["; direct_abstract_declarator -> assignment_expression; direct_abstract_declarator -> "]";
+    direct_abstract_declarator -> "["; direct_abstract_declarator -> "*"; direct_abstract_declarator -> "]";
+    direct_abstract_declarator -> direct_abstract_declarator; direct_abstract_declarator -> "["; direct_abstract_declarator -> "*"; direct_abstract_declarator -> "]";
+    direct_abstract_declarator -> "("; direct_abstract_declarator -> ")";
+    direct_abstract_declarator -> "("; direct_abstract_declarator -> parameter_type_list; direct_abstract_declarator -> ")";
+    direct_abstract_declarator -> direct_abstract_declarator; direct_abstract_declarator -> "("; direct_abstract_declarator -> ")";
+    direct_abstract_declarator -> direct_abstract_declarator; direct_abstract_declarator -> "("; direct_abstract_declarator -> parameter_type_list; direct_abstract_declarator -> ")";
+
+    initializer -> assignment_expression;
+    initializer -> "{"; initializer -> "}";
+    initializer -> "{"; initializer -> initializer_list; initializer -> "}";
+    initializer -> "{"; initializer -> initializer_list; initializer -> ","; initializer -> "}";
+
+    initializer_list -> initializer;
+    initializer_list -> designation; initializer_list -> initializer;
+    initializer_list -> initializer_list; initializer_list -> ","; initializer_list -> initializer;
+    initializer_list -> initializer_list; initializer_list -> ","; initializer_list -> designation; initializer_list -> initializer;
+
+    designation -> designator_list; designation -> "=";
+
+    designator_list -> designator;
+    designator_list -> designator_list; designator_list -> designator;
+
+    designator -> "["; designator -> constant_expression; designator -> "]";
+    designator -> "."; designator -> IDENTIFIER;
+
+    statement -> labeled_statement;
+    statement -> compound_statement;
+    statement -> expression_statement;
+    statement -> selection_statement;
+    statement -> iteration_statement;
+    statement -> jump_statement;
+
+    labeled_statement -> IDENTIFIER; labeled_statement -> ":"; labeled_statement -> statement;
+    labeled_statement -> CASE; labeled_statement -> constant_expression; labeled_statement -> ":"; labeled_statement -> statement;
+    labeled_statement -> DEFAULT; labeled_statement -> ":"; labeled_statement -> statement;
+
+    compound_statement -> "{"; compound_statement -> "}";
+    compound_statement -> "{"; compound_statement -> block_item_list; compound_statement -> "}";
+
+    block_item_list -> block_item;
+    block_item_list -> block_item_list; block_item_list -> block_item;
+
+    block_item -> declaration;
+    block_item -> statement;
+    block_item -> local_function_definition;
+
+    expression_statement -> ";";
+    expression_statement -> expression; expression_statement -> ";";
+
+    selection_statement -> IF; selection_statement -> "("; selection_statement -> expression; selection_statement -> ")"; selection_statement -> statement;
+    selection_statement -> IF; selection_statement -> "("; selection_statement -> expression; selection_statement -> ")"; selection_statement -> statement; selection_statement -> ELSE; selection_statement -> statement;
+    selection_statement -> SWITCH; selection_statement -> "("; selection_statement -> expression; selection_statement -> ")"; selection_statement -> statement;
+
+    iteration_statement -> WHILE; iteration_statement -> "("; iteration_statement -> expression; iteration_statement -> ")"; iteration_statement -> statement;
+    iteration_statement -> DO; iteration_statement -> statement; iteration_statement -> WHILE; iteration_statement -> "("; iteration_statement -> expression; iteration_statement -> ")"; iteration_statement -> ";";
+    iteration_statement -> FOR; iteration_statement -> "("; iteration_statement -> expression_statement; iteration_statement -> expression_statement; iteration_statement -> ")"; iteration_statement -> statement;
+    iteration_statement -> FOR; iteration_statement -> "("; iteration_statement -> expression_statement; iteration_statement -> expression_statement; iteration_statement -> expression; iteration_statement -> ")"; iteration_statement -> statement;
+    iteration_statement -> FOR; iteration_statement -> "("; iteration_statement -> declaration; iteration_statement -> expression_statement; iteration_statement -> ")"; iteration_statement -> statement;
+    iteration_statement -> FOR; iteration_statement -> "("; iteration_statement -> declaration; iteration_statement -> expression_statement; iteration_statement -> expression; iteration_statement -> ")"; iteration_statement -> statement;
+
+    jump_statement -> GOTO; jump_statement -> IDENTIFIER; jump_statement -> ";";
+    jump_statement -> GOTO; jump_statement -> "*"; jump_statement -> expression; jump_statement -> ";";
+    jump_statement -> CONTINUE; jump_statement -> ";";
+    jump_statement -> BREAK; jump_statement -> ";";
+    jump_statement -> RETURN; jump_statement -> ";";
+    jump_statement -> RETURN; jump_statement -> expression; jump_statement -> ";";
+
+    translation_unit -> translation_unit; translation_unit -> external_declaration;
+
+    external_declaration -> function_definition;
+    external_declaration -> global_declaration;
+
+    function_definition -> declaration_specifiers; function_definition -> declarator; function_definition -> declaration_list; function_definition -> compound_statement;
+    function_definition -> declaration_specifiers; function_definition -> declarator; function_definition -> compound_statement;
+    function_definition -> declarator; function_definition -> declaration_list; function_definition -> compound_statement;
+    function_definition -> declarator; function_definition -> compound_statement;
+
+    local_function_definition -> declaration_specifiers; local_function_definition -> declarator; local_function_definition -> declaration_list; local_function_definition -> compound_statement;
+    local_function_definition -> declaration_specifiers; local_function_definition -> declarator; local_function_definition -> compound_statement;
+
+    declaration_list -> declaration;
+    declaration_list -> declaration_list; declaration_list -> declaration;
+}

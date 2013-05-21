@@ -556,6 +556,8 @@ share/doc/adlint_on_eclipse_en.png
 share/doc/adlint_on_eclipse_ja.png
 share/doc/adlint_on_vim_en.png
 share/doc/adlint_on_vim_ja.png
+share/doc/c99gram.dot
+share/doc/c99gram.pdf
 share/doc/developers_guide_ja.html
 share/doc/developers_guide_ja.texi
 share/doc/gen_mesg_sections.rb

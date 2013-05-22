@@ -1,3 +1,12 @@
+Wed May 22 13:12:48 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* features/code_check/W0786.feature : Add scenario to reproduce a known
+	  bug.
+
+	* lib/adlint/exam/c_builtin/cc1_check.rb : Fix W0786 code check in
+	  order not to warn when a typedefed type which is same as signed or
+	  unsigned int is specified as a base of the bit-field.
+
 Tue May 21 19:34:10 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* lib/adlint/cc1/parser.y : Fix abend problem in parsing unnamed

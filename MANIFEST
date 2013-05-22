@@ -294,6 +294,7 @@ features/code_check/W0769.feature
 features/code_check/W0780.feature
 features/code_check/W0781.feature
 features/code_check/W0783.feature
+features/code_check/W0786.feature
 features/code_check/W0787.feature
 features/code_check/W0792.feature
 features/code_check/W0793.feature

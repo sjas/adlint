@@ -18281,10 +18281,9 @@ module CBuiltin #:nodoc:
           type = memb_dcl.type
           next unless type.scalar? && type.integer? && type.bitfield?
 
-          case type.base_type
-          when @interp.int_t, @interp.unsigned_int_t, @interp.signed_int_t
-            next
-          else
+          unless type.base_type.same_as?(@interp.int_t) ||
+              type.base_type.same_as?(@interp.unsigned_int_t) ||
+              type.base_type.same_as?(@interp.signed_int_t)
             W(node.location)
             return
           end

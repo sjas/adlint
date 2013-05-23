@@ -547,7 +547,6 @@ declaration
     : declaration_specifiers ";"
       {
         checkpoint(val[0].location)
-        @lexer.start_identifier_translation
         result = Declaration.new(val[0], [], @sym_tbl)
         result.head_token = val[0].head_token
         result.tail_token = val[1]
@@ -598,7 +597,6 @@ declaration_specifiers
     | type_specifier
       {
         checkpoint(val[0].location)
-        @lexer.stop_identifier_translation
         result = DeclarationSpecifiers.new
         result.type_specifiers.push(val[0])
         result.head_token = val[0].head_token
@@ -607,7 +605,6 @@ declaration_specifiers
     | declaration_specifiers type_specifier
       {
         checkpoint(val[0].location)
-        @lexer.stop_identifier_translation
         result = val[0]
         result.type_specifiers.push(val[1])
         result.tail_token = val[1].tail_token
@@ -865,19 +862,17 @@ struct_declaration_list
     ;
 
 struct_declaration
-    : specifier_qualifier_list ";"
+    : specifier_qualifier_list { @lexer.start_identifier_translation } ";"
       {
         checkpoint(val[0].location)
-        @lexer.start_identifier_translation
         result = StructDeclaration.new(val[0], [])
         result.head_token = val[0].head_token
-        result.tail_token = val[1]
+        result.tail_token = val[2]
       }
-    | specifier_qualifier_list { @lexer.stop_identifier_translation }
+    | specifier_qualifier_list { @lexer.start_identifier_translation }
       struct_declarator_list ";"
       {
         checkpoint(val[0].location)
-        @lexer.start_identifier_translation
         result = StructDeclaration.new(val[0], val[2])
         result.head_token = val[0].head_token
         result.tail_token = val[3]
@@ -888,7 +883,9 @@ specifier_qualifier_list
     : specifier_qualifier_list type_specifier
       {
         checkpoint(val[0].location)
-        @lexer.stop_identifier_translation
+        if val[1].kind_of?(TypedefTypeSpecifier)
+          @lexer.stop_identifier_translation
+        end
         result = val[0]
         result.type_specifiers.push(val[1])
         result.tail_token = val[1].tail_token
@@ -896,7 +893,9 @@ specifier_qualifier_list
     | type_specifier
       {
         checkpoint(val[0].location)
-        @lexer.stop_identifier_translation
+        if val[0].kind_of?(TypedefTypeSpecifier)
+          @lexer.stop_identifier_translation
+        end
         result = SpecifierQualifierList.new
         result.type_specifiers.push(val[0])
         result.head_token = val[0].head_token
@@ -1059,7 +1058,6 @@ direct_declarator
     : IDENTIFIER
       {
         checkpoint(val[0].location)
-        @lexer.start_identifier_translation
         result = IdentifierDeclarator.new(val[0])
         result.head_token = result.tail_token = val[0]
       }
@@ -1239,7 +1237,6 @@ parameter_declaration
     | declaration_specifiers
       {
         checkpoint(val[0].location)
-        @lexer.start_identifier_translation
         result = ParameterDeclaration.new(val[0], nil)
         result.head_token = val[0].head_token
         result.tail_token = val[0].tail_token
@@ -1268,12 +1265,13 @@ type_name
         result.head_token = val[0].head_token
         result.tail_token = val[0].tail_token
       }
-    | specifier_qualifier_list abstract_declarator
+    | specifier_qualifier_list { @lexer.start_identifier_translation }
+      abstract_declarator
       {
         checkpoint(val[0].location)
-        result = TypeName.new(val[0], val[1], @sym_tbl)
+        result = TypeName.new(val[0], val[2], @sym_tbl)
         result.head_token = val[0].head_token
-        result.tail_token = val[1].tail_token
+        result.tail_token = val[2].tail_token
       }
     ;
 
@@ -1281,7 +1279,6 @@ abstract_declarator
     : pointer
       {
         checkpoint(val[0].first.location)
-        @lexer.start_identifier_translation
         result = PointerAbstractDeclarator.new(nil, val[0])
         result.head_token = val[0].first
         result.tail_token = val[0].last
@@ -1307,7 +1304,6 @@ direct_abstract_declarator
     : "(" abstract_declarator ")"
       {
         checkpoint(val[0].location)
-        @lexer.start_identifier_translation
         result = GroupedAbstractDeclarator.new(val[1])
         result.head_token = val[0]
         result.tail_token = val[2]
@@ -1315,7 +1311,6 @@ direct_abstract_declarator
     | "[" "]"
       {
         checkpoint(val[0].location)
-        @lexer.start_identifier_translation
         result = ArrayAbstractDeclarator.new(nil, nil)
         result.head_token = val[0]
         result.tail_token = val[1]
@@ -1323,7 +1318,6 @@ direct_abstract_declarator
     | "[" assignment_expression "]"
       {
         checkpoint(val[0].location)
-        @lexer.start_identifier_translation
         val[1].full = true
         result = ArrayAbstractDeclarator.new(nil, val[1])
         result.head_token = val[0]
@@ -1347,7 +1341,6 @@ direct_abstract_declarator
     | "[" "*" "]"
       {
         checkpoint(val[0].location)
-        @lexer.start_identifier_translation
         result = ArrayAbstractDeclarator.new(nil, nil)
         result.head_token = val[0]
         result.tail_token = val[2]
@@ -1362,22 +1355,20 @@ direct_abstract_declarator
     | "(" ")"
       {
         checkpoint(val[0].location)
-        @lexer.start_identifier_translation
         result = FunctionAbstractDeclarator.new(nil, nil)
         result.head_token = val[0]
         result.tail_token = val[1]
       }
-    | "(" { @lexer.start_identifier_translation } parameter_type_list ")"
+    | "(" parameter_type_list ")"
       {
         checkpoint(val[0].location)
-        result = FunctionAbstractDeclarator.new(nil, val[2])
+        result = FunctionAbstractDeclarator.new(nil, val[1])
         result.head_token = val[0]
-        result.tail_token = val[3]
+        result.tail_token = val[2]
       }
     | direct_abstract_declarator "(" ")"
       {
         checkpoint(val[0].location)
-        @lexer.start_identifier_translation
         result = FunctionAbstractDeclarator.new(val[0], nil)
         result.head_token = val[0].head_token
         result.tail_token = val[2]
@@ -1473,7 +1464,7 @@ statement
     ;
 
 labeled_statement
-    : IDENTIFIER ":" statement
+    : label_name ":" statement
       {
         checkpoint(val[0].location)
         result = GenericLabeledStatement.new(val[0], val[2])
@@ -1494,6 +1485,14 @@ labeled_statement
         result = DefaultLabeledStatement.new(val[2])
         result.head_token = val[0]
         result.tail_token = val[2].tail_token
+      }
+    ;
+
+label_name
+    : IDENTIFIER
+    | TYPEDEF_NAME
+      {
+        result = val[0].class.new(:IDENTIFIER, val[0].value, val[0].location)
       }
     ;
 
@@ -1628,7 +1627,7 @@ iteration_statement
     ;
 
 jump_statement
-    : GOTO IDENTIFIER ";"
+    : GOTO label_name ";"
       {
         checkpoint(val[0].location)
         result = GotoStatement.new(val[1])

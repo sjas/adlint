@@ -1,3 +1,13 @@
+Thu May 23 19:10:38 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* features/code_check/W0492.feature : Add scenario to reproduce abend
+	  problem of parsing the same name in different namespaces.
+
+	* lib/adlint/cc1/parser.y : Fix incomplete identifier to typedef-name
+	  translation.
+
+	* lib/adlint/cc1/lexer.rb : Add note about namespaces of identifiers.
+
 Wed May 22 13:12:48 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* features/code_check/W0786.feature : Add scenario to reproduce a known

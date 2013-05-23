@@ -205,6 +205,7 @@ features/code_check/W0483.feature
 features/code_check/W0488.feature
 features/code_check/W0489.feature
 features/code_check/W0490.feature
+features/code_check/W0492.feature
 features/code_check/W0495.feature
 features/code_check/W0496.feature
 features/code_check/W0497.feature

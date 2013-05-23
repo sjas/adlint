@@ -173,8 +173,8 @@ module CBuiltin #:nodoc:
       var_traversal = phase_ctxt[:ld_variable_traversal]
       fun_traversal.on_declaration += T(:check_function_declaration)
       fun_traversal.on_definition  += T(:check_function_definition)
-      var_traversal.on_declaration  += T(:check_variable)
-      var_traversal.on_definition   += T(:check_variable)
+      var_traversal.on_declaration += T(:check_variable)
+      var_traversal.on_definition  += T(:check_variable)
     end
 
     private

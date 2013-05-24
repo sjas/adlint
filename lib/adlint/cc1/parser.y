@@ -891,17 +891,16 @@ struct_declaration_list
     ;
 
 struct_declaration
-    : specifier_qualifier_list { @lexer.enable_identifier_translation } ";"
+    : specifier_qualifier_list ";"
       {
         checkpoint(val[0].location)
         result = StructDeclaration.new(val[0], [])
         result.head_token = val[0].head_token
-        result.tail_token = val[2]
+        result.tail_token = val[1]
       }
     | specifier_qualifier_list struct_declarator_list ";"
       {
         checkpoint(val[0].location)
-        @lexer.enable_identifier_translation
         result = StructDeclaration.new(val[0], val[1])
         result.head_token = val[0].head_token
         result.tail_token = val[2]

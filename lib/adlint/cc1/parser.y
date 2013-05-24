@@ -852,30 +852,31 @@ struct_declaration_list
     : struct_declaration
       {
         checkpoint(val[0].location)
+        @lexer.enable_identifier_translation
         result = val
       }
     | struct_declaration_list struct_declaration
       {
         checkpoint(val[0].first.location)
+        @lexer.enable_identifier_translation
         result = val[0].push(val[1])
       }
     ;
 
 struct_declaration
-    : specifier_qualifier_list { @lexer.start_identifier_translation } ";"
+    : specifier_qualifier_list { @lexer.enable_identifier_translation } ";"
       {
         checkpoint(val[0].location)
         result = StructDeclaration.new(val[0], [])
         result.head_token = val[0].head_token
         result.tail_token = val[2]
       }
-    | specifier_qualifier_list { @lexer.start_identifier_translation }
-      struct_declarator_list ";"
+    | specifier_qualifier_list struct_declarator_list ";"
       {
         checkpoint(val[0].location)
-        result = StructDeclaration.new(val[0], val[2])
+        result = StructDeclaration.new(val[0], val[1])
         result.head_token = val[0].head_token
-        result.tail_token = val[3]
+        result.tail_token = val[2]
       }
     ;
 
@@ -884,7 +885,7 @@ specifier_qualifier_list
       {
         checkpoint(val[0].location)
         if val[1].kind_of?(TypedefTypeSpecifier)
-          @lexer.stop_identifier_translation
+          @lexer.disable_identifier_translation
         end
         result = val[0]
         result.type_specifiers.push(val[1])
@@ -894,7 +895,7 @@ specifier_qualifier_list
       {
         checkpoint(val[0].location)
         if val[0].kind_of?(TypedefTypeSpecifier)
-          @lexer.stop_identifier_translation
+          @lexer.disable_identifier_translation
         end
         result = SpecifierQualifierList.new
         result.type_specifiers.push(val[0])
@@ -1058,6 +1059,7 @@ direct_declarator
     : IDENTIFIER
       {
         checkpoint(val[0].location)
+        @lexer.enable_identifier_translation
         result = IdentifierDeclarator.new(val[0])
         result.head_token = result.tail_token = val[0]
       }
@@ -1260,12 +1262,12 @@ type_name
     : specifier_qualifier_list
       {
         checkpoint(val[0].location)
-        @lexer.start_identifier_translation
+        @lexer.enable_identifier_translation
         result = TypeName.new(val[0], nil, @sym_tbl)
         result.head_token = val[0].head_token
         result.tail_token = val[0].tail_token
       }
-    | specifier_qualifier_list { @lexer.start_identifier_translation }
+    | specifier_qualifier_list { @lexer.enable_identifier_translation }
       abstract_declarator
       {
         checkpoint(val[0].location)

@@ -14,21 +14,21 @@ Feature: W0492
           return baz;
       }
 
-      struct foo { foo foo, (*bar)(foo); };
-      union bar { foo foo, (*bar)(foo (*baz)(foo)); };
+      struct foo { foo foo, (*bar)(foo); }; /* W0492 */
+      union bar { foo foo, (*bar)(foo (*baz)(foo)); }; /* W0492 */
       enum baz { baz };
 
       struct {
           foo    :1;
-          foo foo:1;
+          foo foo:1; /* W0492 */
           foo    :1;
-          foo bar:1;
+          foo bar:1; /* W0492 */
           foo    :1;
       } qux;
 
       struct qux {
           foo;
-          union bar bar;
+          union bar bar; /* W0492 */
       };
 
       int const long volatile unsigned cv_ulong;

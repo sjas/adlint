@@ -69,11 +69,11 @@ module Cc1 #:nodoc:
       @object_names.leave_scope
     end
 
-    def start_identifier_translation
+    def enable_identifier_translation
       @identifier_translation = true
     end
 
-    def stop_identifier_translation
+    def disable_identifier_translation
       @identifier_translation = false
     end
 

@@ -1138,13 +1138,12 @@ direct_declarator
         result.head_token = val[0].head_token
         result.tail_token = val[4]
       }
-    | direct_declarator "(" { @lexer.enable_identifier_translation }
-      identifier_list ")"
+    | direct_declarator "(" identifier_list ")"
       {
         checkpoint(val[0].location)
-        result = KandRFunctionDeclarator.new(val[0], val[3])
+        result = KandRFunctionDeclarator.new(val[0], val[2])
         result.head_token = val[0].head_token
-        result.tail_token = val[4]
+        result.tail_token = val[3]
       }
     | direct_declarator "(" ")"
       {
@@ -1284,6 +1283,7 @@ abstract_declarator
     : pointer
       {
         checkpoint(val[0].first.location)
+        @lexer.enable_identifier_translation
         result = PointerAbstractDeclarator.new(nil, val[0])
         result.head_token = val[0].first
         result.tail_token = val[0].last
@@ -1292,6 +1292,7 @@ abstract_declarator
     | pointer direct_abstract_declarator
       {
         checkpoint(val[0].first.location)
+        @lexer.enable_identifier_translation
         result = PointerAbstractDeclarator.new(val[1], val[0])
         result.head_token = val[0].first
         result.tail_token = val[1].tail_token

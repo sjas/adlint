@@ -1,3 +1,11 @@
+Fri May 24 13:47:47 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* features/code_check/W0491.feature : Add scenario to reproduce abend
+	  problem of parser.
+
+	* lib/adlint/cc1/parser.y : Fix bad state management of the identifier
+	  translation.
+
 Fri May 24 12:32:54 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* features/code_check/W0491.feature : Add scenario to reproduce abend

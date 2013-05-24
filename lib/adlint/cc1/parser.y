@@ -547,6 +547,7 @@ declaration
     : declaration_specifiers ";"
       {
         checkpoint(val[0].location)
+        @lexer.enable_identifier_translation
         result = Declaration.new(val[0], [], @sym_tbl)
         result.head_token = val[0].head_token
         result.tail_token = val[1]
@@ -554,6 +555,7 @@ declaration
     | declaration_specifiers init_declarator_list ";"
       {
         checkpoint(val[0].location)
+        @lexer.enable_identifier_translation
         result = Declaration.new(val[0], val[1], @sym_tbl)
         result.head_token = val[0].head_token
         result.tail_token = val[2]
@@ -753,6 +755,7 @@ type_specifier
     | TYPEDEF_NAME
       {
         checkpoint(val[0].location)
+        @lexer.disable_identifier_translation
         result = TypedefTypeSpecifier.new(val[0])
         result.head_token = result.tail_token = val[0]
       }
@@ -874,6 +877,7 @@ struct_declaration
     | specifier_qualifier_list struct_declarator_list ";"
       {
         checkpoint(val[0].location)
+        @lexer.enable_identifier_translation
         result = StructDeclaration.new(val[0], val[1])
         result.head_token = val[0].head_token
         result.tail_token = val[2]
@@ -884,9 +888,6 @@ specifier_qualifier_list
     : specifier_qualifier_list type_specifier
       {
         checkpoint(val[0].location)
-        if val[1].kind_of?(TypedefTypeSpecifier)
-          @lexer.disable_identifier_translation
-        end
         result = val[0]
         result.type_specifiers.push(val[1])
         result.tail_token = val[1].tail_token
@@ -894,9 +895,6 @@ specifier_qualifier_list
     | type_specifier
       {
         checkpoint(val[0].location)
-        if val[0].kind_of?(TypedefTypeSpecifier)
-          @lexer.disable_identifier_translation
-        end
         result = SpecifierQualifierList.new
         result.type_specifiers.push(val[0])
         result.head_token = val[0].head_token
@@ -1132,19 +1130,21 @@ direct_declarator
         result.head_token = val[0].head_token
         result.tail_token = val[2]
       }
-    | direct_declarator "(" parameter_type_list ")"
+    | direct_declarator "(" { @lexer.enable_identifier_translation }
+      parameter_type_list ")"
       {
         checkpoint(val[0].location)
-        result = AnsiFunctionDeclarator.new(val[0], val[2])
+        result = AnsiFunctionDeclarator.new(val[0], val[3])
         result.head_token = val[0].head_token
-        result.tail_token = val[3]
+        result.tail_token = val[4]
       }
-    | direct_declarator "(" identifier_list ")"
+    | direct_declarator "(" { @lexer.enable_identifier_translation }
+      identifier_list ")"
       {
         checkpoint(val[0].location)
-        result = KandRFunctionDeclarator.new(val[0], val[2])
+        result = KandRFunctionDeclarator.new(val[0], val[3])
         result.head_token = val[0].head_token
-        result.tail_token = val[3]
+        result.tail_token = val[4]
       }
     | direct_declarator "(" ")"
       {
@@ -1225,6 +1225,7 @@ parameter_declaration
     : declaration_specifiers declarator
       {
         checkpoint(val[0].location)
+        @lexer.enable_identifier_translation
         result = ParameterDeclaration.new(val[0], val[1])
         result.head_token = val[0].head_token
         result.tail_token = val[1].tail_token
@@ -1232,6 +1233,7 @@ parameter_declaration
     | declaration_specifiers abstract_declarator
       {
         checkpoint(val[0].location)
+        @lexer.enable_identifier_translation
         result = ParameterDeclaration.new(val[0], val[1])
         result.head_token = val[0].head_token
         result.tail_token = val[1].tail_token
@@ -1239,6 +1241,7 @@ parameter_declaration
     | declaration_specifiers
       {
         checkpoint(val[0].location)
+        @lexer.enable_identifier_translation
         result = ParameterDeclaration.new(val[0], nil)
         result.head_token = val[0].head_token
         result.tail_token = val[0].tail_token
@@ -1267,13 +1270,13 @@ type_name
         result.head_token = val[0].head_token
         result.tail_token = val[0].tail_token
       }
-    | specifier_qualifier_list { @lexer.enable_identifier_translation }
-      abstract_declarator
+    | specifier_qualifier_list abstract_declarator
       {
         checkpoint(val[0].location)
-        result = TypeName.new(val[0], val[2], @sym_tbl)
+        @lexer.enable_identifier_translation
+        result = TypeName.new(val[0], val[1], @sym_tbl)
         result.head_token = val[0].head_token
-        result.tail_token = val[2].tail_token
+        result.tail_token = val[1].tail_token
       }
     ;
 
@@ -1361,12 +1364,12 @@ direct_abstract_declarator
         result.head_token = val[0]
         result.tail_token = val[1]
       }
-    | "(" parameter_type_list ")"
+    | "(" { @lexer.enable_identifier_translation } parameter_type_list ")"
       {
         checkpoint(val[0].location)
-        result = FunctionAbstractDeclarator.new(nil, val[1])
+        result = FunctionAbstractDeclarator.new(nil, val[2])
         result.head_token = val[0]
-        result.tail_token = val[2]
+        result.tail_token = val[3]
       }
     | direct_abstract_declarator "(" ")"
       {
@@ -1375,12 +1378,13 @@ direct_abstract_declarator
         result.head_token = val[0].head_token
         result.tail_token = val[2]
       }
-    | direct_abstract_declarator "(" parameter_type_list ")"
+    | direct_abstract_declarator "(" { @lexer.enable_identifier_translation }
+      parameter_type_list ")"
       {
         checkpoint(val[0].location)
-        result = FunctionAbstractDeclarator.new(val[0], val[2])
+        result = FunctionAbstractDeclarator.new(val[0], val[3])
         result.head_token = val[0].head_token
-        result.tail_token = val[3]
+        result.tail_token = val[4]
       }
     ;
 

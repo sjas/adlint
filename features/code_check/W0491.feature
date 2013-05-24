@@ -12,6 +12,9 @@ Feature: W0491
       typedef struct code_props {
           named_ref *named_ref; /* W0492 */
       } code_props; /* W0491 */
+
+      void func(named_ref *named_ref);
+      void bar(int, named_ref *, named_ref *);
       """
     When I successfully run `adlint fixture.c` on noarch
     Then the output should exactly match with:
@@ -23,3 +26,5 @@ Feature: W0491
       | C0001 | 1    | 16     |
       | W0491 | 7    | 3      |
       | C0001 | 5    | 16     |
+      | W0118 | 9    | 6      |
+      | W0118 | 10   | 6      |

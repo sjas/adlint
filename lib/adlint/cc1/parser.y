@@ -683,72 +683,84 @@ type_specifier
     : VOID
       {
         checkpoint(val[0].location)
+        @lexer.disable_identifier_translation
         result = StandardTypeSpecifier.new(val[0])
         result.head_token = result.tail_token = val[0]
       }
     | CHAR
       {
         checkpoint(val[0].location)
+        @lexer.disable_identifier_translation
         result = StandardTypeSpecifier.new(val[0])
         result.head_token = result.tail_token = val[0]
       }
     | SHORT
       {
         checkpoint(val[0].location)
+        @lexer.disable_identifier_translation
         result = StandardTypeSpecifier.new(val[0])
         result.head_token = result.tail_token = val[0]
       }
     | INT
       {
         checkpoint(val[0].location)
+        @lexer.disable_identifier_translation
         result = StandardTypeSpecifier.new(val[0])
         result.head_token = result.tail_token = val[0]
       }
     | LONG
       {
         checkpoint(val[0].location)
+        @lexer.disable_identifier_translation
         result = StandardTypeSpecifier.new(val[0])
         result.head_token = result.tail_token = val[0]
       }
     | FLOAT
       {
         checkpoint(val[0].location)
+        @lexer.disable_identifier_translation
         result = StandardTypeSpecifier.new(val[0])
         result.head_token = result.tail_token = val[0]
       }
     | DOUBLE
       {
         checkpoint(val[0].location)
+        @lexer.disable_identifier_translation
         result = StandardTypeSpecifier.new(val[0])
         result.head_token = result.tail_token = val[0]
       }
     | SIGNED
       {
         checkpoint(val[0].location)
+        @lexer.disable_identifier_translation
         result = StandardTypeSpecifier.new(val[0])
         result.head_token = result.tail_token = val[0]
       }
     | UNSIGNED
       {
         checkpoint(val[0].location)
+        @lexer.disable_identifier_translation
         result = StandardTypeSpecifier.new(val[0])
         result.head_token = result.tail_token = val[0]
       }
     | BOOL
       {
         checkpoint(val[0].location)
+        @lexer.disable_identifier_translation
         result = StandardTypeSpecifier.new(val[0])
         result.head_token = result.tail_token = val[0]
       }
     | COMPLEX
       {
         checkpoint(val[0].location)
+        @lexer.disable_identifier_translation
         result = StandardTypeSpecifier.new(val[0])
         result.head_token = result.tail_token = val[0]
       }
     | IMAGINARY
       {
         checkpoint(val[0].location)
+        @lexer.disable_identifier_translation
         result = StandardTypeSpecifier.new(val[0])
         result.head_token = result.tail_token = val[0]
       }
@@ -760,10 +772,21 @@ type_specifier
         result.head_token = result.tail_token = val[0]
       }
     | struct_or_union_specifier
+      {
+        checkpoint(val[0].location)
+        @lexer.disable_identifier_translation
+        result = val[0]
+      }
     | enum_specifier
+      {
+        checkpoint(val[0].location)
+        @lexer.disable_identifier_translation
+        result = val[0]
+      }
     | TYPEOF "(" constant_expression ")"
       {
         checkpoint(val[0].location)
+        @lexer.disable_identifier_translation
         val[2].full = true
         result = TypeofTypeSpecifier.new(val[2], nil)
         result.head_token = val[0]
@@ -772,6 +795,7 @@ type_specifier
     | TYPEOF "(" type_name ")"
       {
         checkpoint(val[0].location)
+        @lexer.disable_identifier_translation
         result = TypeofTypeSpecifier.new(nil, val[2])
         result.head_token = val[0]
         result.tail_token = val[3]

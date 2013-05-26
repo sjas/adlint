@@ -214,9 +214,9 @@ Fri Apr 12 11:56:59 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 Thu Apr 12 10:48:11 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* release.ga : 3.0.2
-	  - Add missing transparency between a pointer to array and an array
-	    variable in expression evaluation.
-	  - Add missing transparency between a pointer function and a function
+	  - Add missing transparency between an array and a pointer to its
+	    first element in expression evaluation.
+	  - Add missing transparency between a function and a function pointer
 	    in expression evaluation.
 	  - Clarify W0100 message text.
 	  - Refactor memoizing utility in preparation for performance tuning.
@@ -229,9 +229,9 @@ Wed Apr 10 17:18:42 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 Tue Apr  2 17:22:02 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* release.rc : 3.0.1
-	  - Add missing transparency between a pointer to array and an array
-	    variable in expression evaluation.
-	  - Add missing transparency between a pointer function and a function
+	  - Add missing transparency between an array and a pointer to its
+	    first element in expression evaluation.
+	  - Add missing transparency between a function and a function pointer
 	    in expression evaluation.
 	  - Clarify W0100 message text.
 
@@ -242,14 +242,14 @@ Tue Apr  2 16:50:12 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 Mon Apr  1 15:55:03 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
-	* lib/adlint/cc1/expr.rb : Add missing transparency between a pointer
-	  function and a function in expression evaluation.
+	* lib/adlint/cc1/expr.rb : Add missing transparency between a function
+	  and a function pointer in expression evaluation.
 	* lib/adlint/cc1/interp.rb : Ditto.
 
 Thu Apr  1 10:08:45 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
-	* lib/adlint/cc1/expr.rb : Add missing transparency between a pointer
-	  to array and an array variable in expression evaluation.
+	* lib/adlint/cc1/expr.rb : Add missing transparency between an array
+	  and a pointer to its first element in expression evaluation.
 	* lib/adlint/cc1/interp.rb : Ditto.
 
 Tue Mar 26 17:01:16 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>

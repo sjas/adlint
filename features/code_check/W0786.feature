@@ -7,7 +7,7 @@ Feature: W0786
     Given a target source named "fixture.c" with:
       """
       typedef unsigned long base_t;
-      
+
       static struct { /* W0786 */
           base_t    :1; /* bit padding */
           base_t foo:1;
@@ -25,7 +25,7 @@ Feature: W0786
     Given a target source named "fixture.c" with:
       """
       typedef unsigned int base_t;
-      
+
       static struct { /* OK */
           base_t    :1; /* bit padding */
           base_t foo:1;

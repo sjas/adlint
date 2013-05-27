@@ -792,17 +792,17 @@ module CBuiltin #:nodoc:
 
       TypeDeclExtraction,
       GVarDeclExtraction,
-      FuncDeclExtraction,
+      FunDclExtraction,
       VarDefExtraction,
-      FuncDefExtraction,
+      FunDefExtraction,
       LabelDefExtraction,
       InitializationExtraction,
       AssignmentExtraction,
-      FuncCallExtraction,
+      FunCallExtraction,
       CrossRefExtraction,
       LiteralExtraction,
-      ObjectLikeMacroExtraction,
-      FuncLikeMacroExtraction,
+      ObjLikeMacroExtraction,
+      FunLikeMacroExtraction,
       IncludeDirectiveExtraction,
       DirectiveExtraction
     ]

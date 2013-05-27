@@ -123,7 +123,7 @@ module AdLint #:nodoc:
 
   # == DESCRIPTION
   # Function declaration information.
-  class FuncDcl < CodeStructure
+  class FunDcl < CodeStructure
     # === DESCRIPTION
     # Constructs the function declaration information.
     #
@@ -188,7 +188,7 @@ module AdLint #:nodoc:
 
   # == DESCRIPTION
   # Function definition information.
-  class FuncDef < CodeStructure
+  class FunDef < CodeStructure
     # === DESCRIPTION
     # Constructs the function definition information.
     #
@@ -350,7 +350,7 @@ module AdLint #:nodoc:
 
   # == DESCRIPTION
   # Function call information.
-  class Call < CodeStructure
+  class FunCall < CodeStructure
     # === DESCRIPTION
     # Constructs the function call informatin.
     #
@@ -404,7 +404,7 @@ module AdLint #:nodoc:
     end
   end
 
-  class XRefFunc < CodeStructure
+  class XRefFun < CodeStructure
     # === DESCRIPTION
     # Constructs the cross reference information.
     #

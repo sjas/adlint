@@ -96,7 +96,7 @@ module CBuiltin #:nodoc:
     end
   end
 
-  class FuncDeclExtraction < CodeExtraction
+  class FunDclExtraction < CodeExtraction
     def_registrant_phase Cc1::Prepare2Phase
 
     def initialize(phase_ctxt)
@@ -115,22 +115,22 @@ module CBuiltin #:nodoc:
 
     def extract_explicit_dcl(fun_dcl, fun)
       if fun.declared_as_extern?
-        FUNCDCL(fun_dcl.identifier.location, "X",
-                @block_level == 0 ? "F" : "B", "E",
-                FunctionId.new(fun_dcl.identifier.value,
-                               fun_dcl.signature.to_s))
+        FUNDCL(fun_dcl.identifier.location, "X",
+               @block_level == 0 ? "F" : "B", "E",
+               FunctionId.new(fun_dcl.identifier.value,
+                              fun_dcl.signature.to_s))
       else
-        FUNCDCL(fun_dcl.identifier.location, "I",
-                @block_level == 0 ? "F" : "B", "E",
-                FunctionId.new(fun_dcl.identifier.value,
-                               fun_dcl.signature.to_s))
+        FUNDCL(fun_dcl.identifier.location, "I",
+               @block_level == 0 ? "F" : "B", "E",
+               FunctionId.new(fun_dcl.identifier.value,
+                              fun_dcl.signature.to_s))
       end
     end
 
     def extract_implicit_dcl(expr, fun)
       if fun.named?
-        FUNCDCL(expr.location, "X", "F", "I",
-                FunctionId.new(fun.name, fun.signature.to_s))
+        FUNDCL(expr.location, "X", "F", "I",
+               FunctionId.new(fun.name, fun.signature.to_s))
       end
     end
 
@@ -217,7 +217,7 @@ module CBuiltin #:nodoc:
     end
   end
 
-  class FuncDefExtraction < CodeExtraction
+  class FunDefExtraction < CodeExtraction
     def_registrant_phase Cc1::Prepare2Phase
 
     def initialize(phase_ctxt)
@@ -234,9 +234,9 @@ module CBuiltin #:nodoc:
       fun_id = FunctionId.new(fun_def.identifier.value, fun_def.signature.to_s)
       case
       when fun.declared_as_extern?
-        FUNCDEF(fun_def.identifier.location, "X", "F", fun_id, fun_def.lines)
+        FUNDEF(fun_def.identifier.location, "X", "F", fun_id, fun_def.lines)
       when fun.declared_as_static?
-        FUNCDEF(fun_def.identifier.location, "I", "F", fun_id, fun_def.lines)
+        FUNDEF(fun_def.identifier.location, "I", "F", fun_id, fun_def.lines)
       end
     end
   end
@@ -304,7 +304,7 @@ module CBuiltin #:nodoc:
     end
   end
 
-  class FuncCallExtraction < CodeExtraction
+  class FunCallExtraction < CodeExtraction
     def_registrant_phase Cc1::Prepare2Phase
 
     def initialize(phase_ctxt)
@@ -325,9 +325,9 @@ module CBuiltin #:nodoc:
 
     def extract_function_call(funcall_expr, fun, *)
       if @caller && fun.named?
-        CALL(funcall_expr.location,
-             FunctionId.new(@caller.name, @caller.signature.to_s),
-             FunctionId.new(fun.name, fun.signature.to_s))
+        FUNCALL(funcall_expr.location,
+                FunctionId.new(@caller.name, @caller.signature.to_s),
+                FunctionId.new(fun.name, fun.signature.to_s))
       end
     end
   end

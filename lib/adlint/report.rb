@@ -248,7 +248,7 @@ module AdLint #:nodoc:
     # Writes a function declaration information on the report.
     #
     # Abbreviation below is available.
-    #  write_funcdcl(...) => FUNCDCL(...)
+    #  write_fundcl(...) => FUNDCL(...)
     #
     # === PARAMETER
     # _loc_:: Location -- Location where the declaration appears.
@@ -259,11 +259,10 @@ module AdLint #:nodoc:
     #
     # === RETURN VALUE
     # None.
-    def write_funcdcl(loc, linkage, scope_type, dcl_type, fun_id)
-      write_code_struct(FuncDcl.new(loc, linkage, scope_type, dcl_type,
-                                    fun_id))
+    def write_fundcl(loc, linkage, scope_type, dcl_type, fun_id)
+      write_code_struct(FunDcl.new(loc, linkage, scope_type, dcl_type, fun_id))
     end
-    alias :FUNCDCL :write_funcdcl
+    alias :FUNDCL :write_fundcl
 
     # === DESCRIPTION
     # Writes a variable definition information on the report.
@@ -291,7 +290,7 @@ module AdLint #:nodoc:
     # Writes a function definition information on the report.
     #
     # Abbreviation below is available.
-    #  write_funcdef(...) => FUNCDEF(...)
+    #  write_fundef(...) => FUNDEF(...)
     #
     # === PARAMETER
     # _loc_:: Location -- Location where the definition appears.
@@ -302,10 +301,10 @@ module AdLint #:nodoc:
     #
     # === RETURN VALUE
     # None.
-    def write_funcdef(loc, linkage, scope_type, fun_id, lines)
-      write_code_struct(FuncDef.new(loc, linkage, scope_type, fun_id, lines))
+    def write_fundef(loc, linkage, scope_type, fun_id, lines)
+      write_code_struct(FunDef.new(loc, linkage, scope_type, fun_id, lines))
     end
-    alias :FUNCDEF :write_funcdef
+    alias :FUNDEF :write_fundef
 
     # === DESCRIPTION
     # Writes a macro definition information on the report.
@@ -399,16 +398,16 @@ module AdLint #:nodoc:
     # Writes a function call information on the report.
     #
     # Abbreviation below is available.
-    #  write_call(...) => CALL(...)
+    #  write_funcall(...) => FUNCALL(...)
     #
     # === PARAMETER
     # _loc_:: Location -- Location where the function call appears.
     # _caller_fun_:: FunctionId -- Calling function identifier.
     # _callee_fun_:: FunctionId -- Called function identifier.
-    def write_call(loc, caller_fun, callee_fun)
-      write_code_struct(Call.new(loc, caller_fun, callee_fun))
+    def write_funcall(loc, caller_fun, callee_fun)
+      write_code_struct(FunCall.new(loc, caller_fun, callee_fun))
     end
-    alias :CALL :write_call
+    alias :FUNCALL :write_funcall
 
     # === DESCRIPTION
     # Writes a variable cross reference information on the report.
@@ -444,7 +443,7 @@ module AdLint #:nodoc:
     # === RETURN VALUE
     # None.
     def write_xref_function(loc, referrer, ref_type, fun)
-      write_code_struct(XRefFunc.new(loc, referrer, ref_type, fun))
+      write_code_struct(XRefFun.new(loc, referrer, ref_type, fun))
     end
     alias :XREF_FUNC :write_xref_function
 

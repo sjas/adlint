@@ -37,7 +37,7 @@ module AdLint #:nodoc:
 module Exam #:nodoc:
 module CBuiltin #:nodoc:
 
-  class ObjectLikeMacroExtraction < CodeExtraction
+  class ObjLikeMacroExtraction < CodeExtraction
     def_registrant_phase Cpp::Prepare2Phase
 
     def initialize(phase_ctxt)
@@ -55,7 +55,7 @@ module CBuiltin #:nodoc:
     end
   end
 
-  class FuncLikeMacroExtraction < CodeExtraction
+  class FunLikeMacroExtraction < CodeExtraction
     def_registrant_phase Cpp::Prepare2Phase
 
     def initialize(phase_ctxt)

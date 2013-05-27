@@ -460,8 +460,8 @@ module AdLint #:nodoc:
   end
 
   class FunctionId
-    def initialize(name, sig)
-      @name, @signature = name, sig
+    def initialize(name, sig_str)
+      @name, @signature = name, sig_str
     end
 
     attr_reader :name

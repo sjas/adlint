@@ -43,11 +43,11 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_typedef_declaration     += T(:extract_typedef)
-      visitor.enter_struct_type_declaration += T(:extract_struct)
-      visitor.enter_union_type_declaration  += T(:extract_union)
-      visitor.enter_enum_type_declaration   += T(:extract_enum)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_typedef_declaration     += T(:extract_typedef)
+      traversal.enter_struct_type_declaration += T(:extract_struct)
+      traversal.enter_union_type_declaration  += T(:extract_union)
+      traversal.enter_enum_type_declaration   += T(:extract_enum)
     end
 
     private
@@ -246,8 +246,8 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_generic_labeled_statement += T(:extract)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_generic_labeled_statement += T(:extract)
     end
 
     private
@@ -264,8 +264,8 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_variable_definition += T(:extract)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_variable_definition += T(:extract)
     end
 
     private
@@ -285,9 +285,9 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_simple_assignment_expression   += T(:extract)
-      visitor.enter_compound_assignment_expression += T(:extract)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_simple_assignment_expression   += T(:extract)
+      traversal.enter_compound_assignment_expression += T(:extract)
     end
 
     private
@@ -359,36 +359,47 @@ module CBuiltin #:nodoc:
     end
 
     def extract_variable_read(expr, var)
-      if @accessor && var.scope.global? && var.named?
-        # NOTE: When a value of the inner-variable of array or composite object
-        #       is referred, dependency record of only outmost-variable access
-        #       should be output.
-        var = var.owner while var.inner?
-        XREF_VAR(expr.location,
-                 FunctionId.new(@accessor.name, @accessor.signature.to_s),
-                 "R", var.name)
+      # NOTE: When a value of the inner-variable of array or composite object
+      #       is referred, dependency record of only outmost-variable access
+      #       should be output.
+      var = var.owner while var.inner?
+
+      if var.scope.global? && var.named?
+        if @accessor
+          referrer = FunctionId.new(@accessor.name, @accessor.signature.to_s)
+        else
+          referrer = FunctionId.of_ctors_section
+        end
+        XREF_VAR(expr.location, referrer, "R", var.name)
       end
     end
 
     def extract_variable_write(expr, var)
-      if @accessor && var.scope.global? && var.named?
-        unless var.inner?
-          # NOTE: When a value of the inner-variable of array or composite
-          #       object is updated, dependency record of the inner-variable
-          #       access should not be output and the outer variable's value
-          #       will also be notified later.
-          XREF_VAR(expr.location,
-                   FunctionId.new(@accessor.name, @accessor.signature.to_s),
-                   "W", var.name)
+      # NOTE: When a value of the inner-variable of array or composite
+      #       object is updated, dependency record of the inner-variable
+      #       access should not be output and the outer variable's value
+      #       will also be notified later.
+      return if var.inner?
+
+      if var.scope.global? && var.named?
+        if @accessor
+          referrer = FunctionId.new(@accessor.name, @accessor.signature.to_s)
+        else
+          referrer = FunctionId.of_ctors_section
         end
+        XREF_VAR(expr.location, referrer, "W", var.name)
       end
     end
 
     def extract_function_reference(expr, fun)
-      if @accessor && fun.named?
-        XREF_FUNC(expr.location,
-                  FunctionId.new(@accessor.name, @accessor.signature.to_s),
-                  "R", FunctionId.new(fun.name, fun.signature.to_s))
+      if fun.named?
+        if @accessor
+          referrer = FunctionId.new(@accessor.name, @accessor.signature.to_s)
+        else
+          referrer = FunctionId.of_ctors_section
+        end
+        XREF_FUNC(expr.location, referrer, "R",
+                  FunctionId.new(fun.name, fun.signature.to_s))
       end
     end
   end
@@ -398,9 +409,9 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_constant_specifier       += T(:extract_constant)
-      visitor.enter_string_literal_specifier += T(:extract_string_literal)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_constant_specifier       += T(:extract_constant)
+      traversal.enter_string_literal_specifier += T(:extract_string_literal)
     end
 
     private

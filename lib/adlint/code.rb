@@ -460,12 +460,22 @@ module AdLint #:nodoc:
   end
 
   class FunctionId
+    def self.of_ctors_section
+      # NOTE: To represent an object referrer of non-function in case of global
+      #       function table initialization.
+      self.new(nil, nil)
+    end
+
     def initialize(name, sig_str)
       @name, @signature = name, sig_str
     end
 
     attr_reader :name
     attr_reader :signature
+
+    def named?
+      !@name.nil?
+    end
 
     def to_a
       [@name, @signature]

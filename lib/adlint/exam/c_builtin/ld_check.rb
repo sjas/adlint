@@ -84,10 +84,12 @@ module CBuiltin #:nodoc:
     private
     def check_function(fun)
       if fun.extern?
-        refs = @xref_graph.direct_referrers_of(fun)
-        if refs.size == 1 and ref_fun = refs.first.function
-          if ref_fun.location.fpath == fun.location.fpath
-            W(fun.location, fun.signature, ref_fun.signature)
+        ref_funs = @xref_graph.direct_referrers_of(fun).map { |ref|
+          ref_fun = ref.function and ref_fun
+        }.compact.uniq
+        if ref_funs.size == 1
+          if ref_funs.first.location.fpath == fun.location.fpath
+            W(fun.location, fun.signature, ref_funs.first.signature)
           end
         end
       end
@@ -95,10 +97,12 @@ module CBuiltin #:nodoc:
 
     def check_variable(var)
       if var.extern?
-        refs = @xref_graph.direct_referrers_of(var)
-        if refs.size == 1 and ref_fun = refs.first.function
-          if ref_fun.location.fpath == var.location.fpath
-            W(var.location, var.name, ref_fun.signature)
+        ref_funs = @xref_graph.direct_referrers_of(var).map { |ref|
+          ref_fun = ref.function and ref_fun
+        }.compact.uniq
+        if ref_funs.size == 1
+          if ref_funs.first.location.fpath == var.location.fpath
+            W(var.location, var.name, ref_funs.first.signature)
           end
         end
       end

@@ -1,3 +1,10 @@
+Tue May 28 20:59:27 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/exam/c_builtin/ld_check.rb : Fix W0589 code check in order
+	  to warn when only one function which is defined in the same
+	  translation-unit refers to the object but the function refers to that
+	  twice or more.
+
 Tue May 28 19:08:41 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* lib/adlint/exam/c_builtin/ld_check.rb : Fix incomplete object

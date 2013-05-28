@@ -42,12 +42,13 @@ module CBuiltin #:nodoc:
     def initialize(phase_ctxt)
       super
       phase_ctxt[:ld_function_traversal].on_definition += T(:check)
+      @call_graph = phase_ctxt[:ld_call_graph]
     end
 
     private
     def check(fun)
-      call_graph = @phase_ctxt[:ld_function_call_graph]
-      if call_graph.indirect_callers_of(fun).include?(fun)
+      refs = @call_graph.indirect_callers_of(fun)
+      if refs.any? { |ref| caller_fun = ref.function and caller_fun == fun }
         W(fun.location)
       end
     end
@@ -59,12 +60,12 @@ module CBuiltin #:nodoc:
     def initialize(phase_ctxt)
       super
       phase_ctxt[:ld_typedef_traversal].on_declaration += T(:check)
+      @map = phase_ctxt[:ld_typedef_map]
     end
 
     private
     def check(typedef)
-      mapping = @phase_ctxt[:ld_typedef_mapping]
-      if mapping.lookup(typedef.name).any? { |td| td != typedef }
+      if @map.lookup(typedef.name).any? { |td| td != typedef }
         W(typedef.location, typedef.name)
       end
     end
@@ -77,26 +78,29 @@ module CBuiltin #:nodoc:
       super
       phase_ctxt[:ld_function_traversal].on_definition += T(:check_function)
       phase_ctxt[:ld_variable_traversal].on_definition += T(:check_variable)
+      @xref_graph = phase_ctxt[:ld_xref_graph]
     end
 
     private
     def check_function(fun)
-      return unless fun.extern?
-      call_graph = @phase_ctxt[:ld_function_call_graph]
-      direct_callers = call_graph.direct_callers_of(fun)
-      if direct_callers.size == 1 &&
-          direct_callers.first.location.fpath == fun.location.fpath
-        W(fun.location, fun.signature, direct_callers.first.signature)
+      if fun.extern?
+        refs = @xref_graph.direct_referrers_of(fun)
+        if refs.size == 1 and ref_fun = refs.first.function
+          if ref_fun.location.fpath == fun.location.fpath
+            W(fun.location, fun.signature, ref_fun.signature)
+          end
+        end
       end
     end
 
     def check_variable(var)
-      return unless var.extern?
-      ref_graph = @phase_ctxt[:ld_variable_reference_graph]
-      direct_referrers = ref_graph.direct_referrers_of(var)
-      if direct_referrers.size == 1 &&
-          direct_referrers.first.location.fpath == var.location.fpath
-        W(var.location, var.name, direct_referrers.first.signature)
+      if var.extern?
+        refs = @xref_graph.direct_referrers_of(var)
+        if refs.size == 1 and ref_fun = refs.first.function
+          if ref_fun.location.fpath == var.location.fpath
+            W(var.location, var.name, ref_fun.signature)
+          end
+        end
       end
     end
   end
@@ -107,16 +111,17 @@ module CBuiltin #:nodoc:
     def initialize(phase_ctxt)
       super
       phase_ctxt[:ld_function_traversal].on_definition += T(:check)
+      @xref_graph = phase_ctxt[:ld_xref_graph]
     end
 
     private
     def check(fun)
-      return unless fun.extern?
-      call_graph = @phase_ctxt[:ld_function_call_graph]
-      direct_callers = call_graph.direct_callers_of(fun)
-      if !direct_callers.empty? &&
-          direct_callers.all? { |f| f.location.fpath == fun.location.fpath }
-        W(fun.location, fun.signature)
+      if fun.extern?
+        direct_refs = @xref_graph.direct_referrers_of(fun)
+        if !direct_refs.empty? &&
+            direct_refs.all? { |ref| ref.location.fpath == fun.location.fpath }
+          W(fun.location, fun.signature)
+        end
       end
     end
   end
@@ -127,16 +132,17 @@ module CBuiltin #:nodoc:
     def initialize(phase_ctxt)
       super
       phase_ctxt[:ld_variable_traversal].on_definition += T(:check)
+      @xref_graph = phase_ctxt[:ld_xref_graph]
     end
 
     private
     def check(var)
-      return unless var.extern?
-      ref_graph = @phase_ctxt[:ld_variable_reference_graph]
-      direct_referrers = ref_graph.direct_referrers_of(var)
-      if !direct_referrers.empty? &&
-          direct_referrers.all? { |f| f.location.fpath == var.location.fpath }
-        W(var.location, var.name)
+      if var.extern?
+        direct_refs = @xref_graph.direct_referrers_of(var)
+        if !direct_refs.empty? &&
+            direct_refs.all? { |ref| ref.location.fpath == var.location.fpath }
+          W(var.location, var.name)
+        end
       end
     end
   end
@@ -147,13 +153,13 @@ module CBuiltin #:nodoc:
     def initialize(phase_ctxt)
       super
       phase_ctxt[:ld_function_traversal].on_definition += T(:check)
+      @xref_graph = phase_ctxt[:ld_xref_graph]
     end
 
     private
     def check(fun)
-      call_graph = @phase_ctxt[:ld_function_call_graph]
       unless fun.name == "main"
-        if call_graph.direct_callers_of(fun).empty?
+        if @xref_graph.direct_referrers_of(fun).empty?
           W(fun.location, fun.signature)
         end
       end
@@ -170,11 +176,13 @@ module CBuiltin #:nodoc:
     def initialize(phase_ctxt)
       super
       fun_traversal = phase_ctxt[:ld_function_traversal]
-      var_traversal = phase_ctxt[:ld_variable_traversal]
       fun_traversal.on_declaration += T(:check_function_declaration)
       fun_traversal.on_definition  += T(:check_function_definition)
+      @fun_map = phase_ctxt[:ld_function_map]
+      var_traversal = phase_ctxt[:ld_variable_traversal]
       var_traversal.on_declaration += T(:check_variable)
       var_traversal.on_definition  += T(:check_variable)
+      @var_map = phase_ctxt[:ld_variable_map]
     end
 
     private
@@ -191,31 +199,26 @@ module CBuiltin #:nodoc:
     end
 
     def check_function(fun)
-      mapping = @phase_ctxt[:ld_function_mapping]
       similar_dcls =
-        mapping.lookup_function_declarations(fun.name).select { |fun_dcl|
+        @fun_map.lookup_function_declarations(fun.name).select { |fun_dcl|
           fun_dcl.explicit?
         }
 
       if similar_dcls.size > 1
-        W(fun.location, fun.signature, *similar_dcls.map { |pair_dcl|
-          next if pair_dcl == fun
-          C(:C0001, pair_dcl.location, pair_dcl.signature)
+        W(fun.location, fun.signature, *similar_dcls.map { |pair|
+          C(:C0001, pair.location, pair.signature) unless pair == fun
         }.compact)
       end
     end
 
     def check_variable(var)
-      return unless var.extern?
-
-      mapping = @phase_ctxt[:ld_variable_mapping]
-      similar_dcls = mapping.lookup_variable_declarations(var.name)
-
-      if similar_dcls.size > 1
-        W(var.location, var.name, *similar_dcls.map { |pair_dcl|
-          next if pair_dcl == var
-          C(:C0001, pair_dcl.location, pair_dcl.name)
-        }.compact)
+      if var.extern?
+        similar_dcls = @var_map.lookup_variable_declarations(var.name)
+        if similar_dcls.size > 1
+          W(var.location, var.name, *similar_dcls.map { |pair|
+            C(:C0001, pair.location, pair.name) unless pair == var
+          }.compact)
+        end
       end
     end
   end
@@ -231,34 +234,30 @@ module CBuiltin #:nodoc:
       super
       phase_ctxt[:ld_function_traversal].on_definition += T(:check_function)
       phase_ctxt[:ld_variable_traversal].on_definition += T(:check_variable)
+      @fun_map = phase_ctxt[:ld_function_map]
+      @var_map = phase_ctxt[:ld_variable_map]
     end
 
     private
     def check_function(fun)
-      return unless fun.extern?
-
-      mapping = @phase_ctxt[:ld_function_mapping]
-      similar_funs = mapping.lookup_functions(fun.name)
-
-      if similar_funs.size > 1
-        W(fun.location, fun.signature, *similar_funs.map { |pair_fun|
-          next if pair_fun == fun
-          C(:C0001, pair_fun.location, pair_fun.signature)
-        }.compact)
+      if fun.extern?
+        similar_funs = @fun_map.lookup_functions(fun.name)
+        if similar_funs.size > 1
+          W(fun.location, fun.signature, *similar_funs.map { |pair|
+            C(:C0001, pair.location, pair.signature) unless pair == fun
+          }.compact)
+        end
       end
     end
 
     def check_variable(var)
-      return unless var.extern?
-
-      mapping = @phase_ctxt[:ld_variable_mapping]
-      similar_vars = mapping.lookup_variables(var.name)
-
-      if similar_vars.size > 1
-        W(var.location, var.name, *similar_vars.map { |pair_var|
-          next if pair_var == var
-          C(:C0001, pair_var.location, pair_var.name)
-        }.compact)
+      if var.extern?
+        similar_vars = @var_map.lookup_variables(var.name)
+        if similar_vars.size > 1
+          W(var.location, var.name, *similar_vars.map { |pair|
+            C(:C0001, pair.location, pair.name) unless pair == var
+          }.compact)
+        end
       end
     end
   end
@@ -273,11 +272,13 @@ module CBuiltin #:nodoc:
     def initialize(phase_ctxt)
       super
       fun_traversal = phase_ctxt[:ld_function_traversal]
-      var_traversal = phase_ctxt[:ld_variable_traversal]
       fun_traversal.on_declaration += T(:check_function_declaration)
       fun_traversal.on_definition  += T(:check_function_definition)
+      @fun_map = phase_ctxt[:ld_function_map]
+      var_traversal = phase_ctxt[:ld_variable_traversal]
       var_traversal.on_declaration += T(:check_variable)
       var_traversal.on_definition  += T(:check_variable)
+      @var_map = phase_ctxt[:ld_variable_map]
     end
 
     private
@@ -290,36 +291,34 @@ module CBuiltin #:nodoc:
     end
 
     def check_function(fun)
-      mapping = @phase_ctxt[:ld_function_mapping]
       similar_dcls_or_funs =
-        mapping.lookup_function_declarations(fun.name).select { |dcl|
+        @fun_map.lookup_function_declarations(fun.name).select { |dcl|
           dcl.explicit? && dcl.extern? && dcl.signature != fun.signature
-        } + mapping.lookup_functions(fun.name).select { |mapped_fun|
+        } + @fun_map.lookup_functions(fun.name).select { |mapped_fun|
           mapped_fun.extern? && mapped_fun.signature != fun.signature
         }
 
       unless similar_dcls_or_funs.empty?
         W(fun.location, fun.signature,
-          *similar_dcls_or_funs.map { |pair_dcl_or_fun|
-            C(:C0001, pair_dcl_or_fun.location, pair_dcl_or_fun.signature)
+          *similar_dcls_or_funs.map { |pair|
+            C(:C0001, pair.location, pair.signature)
           })
       end
     end
 
     def check_variable(var)
-      return unless var.extern?
+      if var.extern?
+        dcls_or_vars = @var_map.lookup_variable_declarations(var.name) +
+                       @var_map.lookup_variables(var.name)
+        similar_dcls_or_vars = dcls_or_vars.select { |dcl_or_var|
+          dcl_or_var.extern? && dcl_or_var.type != var.type
+        }
 
-      mapping = @phase_ctxt[:ld_variable_mapping]
-      similar_dcls_or_vars =
-        (mapping.lookup_variable_declarations(var.name) +
-         mapping.lookup_variables(var.name)).select { |dcl_or_var|
-           dcl_or_var.extern? && dcl_or_var.type != var.type
-         }
-
-      unless similar_dcls_or_vars.empty?
-        W(var.location, var.name, *similar_dcls_or_vars.map { |pair_dcl_or_var|
-          C(:C0001, pair_dcl_or_var.location, pair_dcl_or_var.name)
-        })
+        unless similar_dcls_or_vars.empty?
+          W(var.location, var.name, *similar_dcls_or_vars.map { |pair|
+            C(:C0001, pair.location, pair.name)
+          })
+        end
       end
     end
   end

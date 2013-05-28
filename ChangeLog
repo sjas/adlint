@@ -1,3 +1,12 @@
+Tue May 28 19:08:41 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/exam/c_builtin/ld_check.rb : Fix incomplete object
+	  cross-reference graph and function call graph in order to correctly
+	  warn about useless objects.
+	* lib/adlint/exam/c_builtin/ld_metric.rb : Ditto.
+	* lib/adlint/ld/phase.rb : Ditto.
+	* lib/adlint/ld/util.rb : Ditto.
+
 Tue May 28 16:28:11 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* lib/adlint/ld/object.rb : Rewrite object cross-reference graph and

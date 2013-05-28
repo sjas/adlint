@@ -39,21 +39,25 @@ module Ld #:nodoc:
         map_fname = Pathname.new("#{proj_name}.map")
         map_fpath = map_fname.expand_path(phase_ctxt.msg_fpath.dirname)
 
-        mapping = phase_ctxt[:ld_function_mapping]
-        call_graph = phase_ctxt[:ld_function_call_graph]
-        return unless mapping && call_graph
+        map = phase_ctxt[:ld_function_map]
+        call_graph = phase_ctxt[:ld_call_graph]
+        return unless map && call_graph
 
         File.open(map_fpath, "w") do |io|
           io.puts("-- Function Call Graph --")
-          mapping.all_functions.each do |callee|
+          map.all_functions.each do |callee|
             io.puts("DC of #{callee.signature}")
-            call_graph.direct_callers_of(callee).each do |fun|
-              io.puts(" #{fun.signature}")
+            call_graph.direct_callers_of(callee).each do |ref|
+              if fun = ref.function
+                io.puts(" #{fun.signature}")
+              end
             end
             io.puts
             io.puts("IC of #{callee.signature}")
-            call_graph.indirect_callers_of(callee).each do |fun|
-              io.puts(" #{fun.signature}")
+            call_graph.indirect_callers_of(callee).each do |ref|
+              if fun = ref.function
+                io.puts(" #{fun.signature}")
+              end
             end
             io.puts
           end
@@ -68,21 +72,25 @@ module Ld #:nodoc:
         map_fname = Pathname.new("#{proj_name}.map")
         map_fpath = map_fname.expand_path(phase_ctxt.msg_fpath.dirname)
 
-        mapping = phase_ctxt[:ld_variable_mapping]
-        ref_graph = phase_ctxt[:ld_variable_reference_graph]
-        return unless mapping && ref_graph
+        map = phase_ctxt[:ld_variable_map]
+        ref_graph = phase_ctxt[:ld_xref_graph]
+        return unless map && ref_graph
 
         File.open(map_fpath, "a") do |io|
           io.puts("-- Variable Reference Graph --")
-          mapping.all_variables.each do |accessee|
+          map.all_variables.each do |accessee|
             io.puts("DR of #{accessee.name}")
-            ref_graph.direct_referrers_of(accessee).each do |fun|
-              io.puts(" #{fun.signature}")
+            ref_graph.direct_referrers_of(accessee).each do |ref|
+              if fun = ref.function
+                io.puts(" #{fun.signature}")
+              end
             end
             io.puts
-            io.puts("IR or #{accessee.signature}")
-            ref_graph.indirect_referrers_of(accessee).each do |fun|
-              io.puts(" #{fun.signature}")
+            io.puts("IR or #{accessee.name}")
+            ref_graph.indirect_referrers_of(accessee).each do |ref|
+              if fun = ref.function
+                io.puts(" #{fun.signature}")
+              end
             end
             io.puts
           end

@@ -57,7 +57,7 @@ module Ld #:nodoc:
         mapper.execute(fpath)
         monitor.progress += 1.0 / phase_ctxt[:metric_fpaths].size
       end
-      phase_ctxt[:ld_typedef_mapping] = mapper.result
+      phase_ctxt[:ld_typedef_map] = mapper.map
     end
   end
 
@@ -73,7 +73,7 @@ module Ld #:nodoc:
         mapper.execute(fpath)
         monitor.progress += 1.0 / phase_ctxt[:metric_fpaths].size
       end
-      phase_ctxt[:ld_function_mapping] = mapper.result
+      phase_ctxt[:ld_function_map] = mapper.map
     end
   end
 
@@ -89,43 +89,43 @@ module Ld #:nodoc:
         mapper.execute(fpath)
         monitor.progress += 1.0 / phase_ctxt[:metric_fpaths].size
       end
-      phase_ctxt[:ld_variable_mapping] = mapper.result
+      phase_ctxt[:ld_variable_map] = mapper.map
     end
   end
 
-  class LinkFunctionPhase < LdPhase
+  class BuildCallGraphPhase < LdPhase
     def initialize(phase_ctxt)
-      super(phase_ctxt, "lfn")
+      super(phase_ctxt, "ld1")
     end
 
     private
     def do_execute(phase_ctxt, monitor)
-      builder = FunctionCallGraphBuilder.new(phase_ctxt[:ld_function_mapping])
+      builder = FunctionCallGraphBuilder.new(phase_ctxt[:ld_function_map])
       phase_ctxt[:metric_fpaths].each do |fpath|
         builder.execute(fpath)
         monitor.progress += 1.0 / phase_ctxt[:metric_fpaths].size
       end
-      phase_ctxt[:ld_function_call_graph] = builder.result
+      phase_ctxt[:ld_call_graph] = builder.graph
     ensure
       DebugUtil.dump_function_call_graph(phase_ctxt)
     end
   end
 
-  class LinkVariablePhase < LdPhase
+  class BuildXRefGraphPhase < LdPhase
     def initialize(phase_ctxt)
-      super(phase_ctxt, "lvr")
+      super(phase_ctxt, "ld2")
     end
 
     private
     def do_execute(phase_ctxt, monitor)
-      builder = VariableReferenceGraphBuilder.new(
-        phase_ctxt[:ld_variable_mapping], phase_ctxt[:ld_function_mapping],
-        phase_ctxt[:ld_function_call_graph])
+      builder = ObjectXRefGraphBuilder.new(
+        phase_ctxt[:ld_variable_map], phase_ctxt[:ld_function_map],
+        phase_ctxt[:ld_call_graph])
       phase_ctxt[:metric_fpaths].each do |fpath|
         builder.execute(fpath)
         monitor.progress += 1.0 / phase_ctxt[:metric_fpaths].size
       end
-      phase_ctxt[:ld_variable_reference_graph] = builder.result
+      phase_ctxt[:ld_xref_graph] = builder.graph
     ensure
       DebugUtil.dump_variable_reference_graph(phase_ctxt)
     end
@@ -140,11 +140,11 @@ module Ld #:nodoc:
     def do_execute(phase_ctxt, *)
       collect_annotations
       phase_ctxt[:ld_typedef_traversal] =
-        TypedefTraversal.new(phase_ctxt[:ld_typedef_mapping])
+        TypedefTraversal.new(phase_ctxt[:ld_typedef_map])
       phase_ctxt[:ld_function_traversal] =
-        FunctionTraversal.new(phase_ctxt[:ld_function_mapping])
+        FunctionTraversal.new(phase_ctxt[:ld_function_map])
       phase_ctxt[:ld_variable_traversal] =
-        VariableTraversal.new(phase_ctxt[:ld_variable_mapping])
+        VariableTraversal.new(phase_ctxt[:ld_variable_map])
     end
 
     def collect_annotations
@@ -160,9 +160,9 @@ module Ld #:nodoc:
     end
 
     def composing_fpaths
-      @phase_ctxt[:ld_function_mapping].composing_fpaths +
-      @phase_ctxt[:ld_variable_mapping].composing_fpaths +
-      @phase_ctxt[:ld_typedef_mapping].composing_fpaths
+      @phase_ctxt[:ld_function_map].composing_fpaths +
+        @phase_ctxt[:ld_variable_map].composing_fpaths +
+        @phase_ctxt[:ld_typedef_map].composing_fpaths
     end
 
     def parse_annotation(comment, loc)

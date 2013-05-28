@@ -42,8 +42,8 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      @phase_ctxt = phase_ctxt
-      @phase_ctxt[:ld_function_traversal].on_definition += T(:measure)
+      phase_ctxt[:ld_function_traversal].on_definition += T(:measure)
+      @call_graph = phase_ctxt[:ld_call_graph]
     end
 
     private
@@ -51,9 +51,8 @@ module CBuiltin #:nodoc:
     def do_execute(*) end
 
     def measure(fun)
-      call_graph = @phase_ctxt[:ld_function_call_graph]
       FN_CALL(FunctionId.new(fun.name, fun.signature),
-              fun.location, call_graph.all_callers_of(fun).size)
+              fun.location, @call_graph.all_callers_of(fun).size)
     end
   end
 

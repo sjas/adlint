@@ -56,9 +56,9 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_grouped_expression += T(:enter_grouped_expression)
-      visitor.leave_grouped_expression += T(:leave_grouped_expression)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_grouped_expression += T(:enter_grouped_expression)
+      traversal.leave_grouped_expression += T(:leave_grouped_expression)
       @group_depth = 0
     end
 
@@ -82,8 +82,8 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_kandr_function_definition += T(:check)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_kandr_function_definition += T(:check)
     end
 
     private
@@ -101,8 +101,8 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_switch_statement += T(:check)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_switch_statement += T(:check)
     end
 
     private
@@ -138,8 +138,8 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_switch_statement += T(:enter_switch_statement)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_switch_statement += T(:enter_switch_statement)
     end
 
     private
@@ -199,8 +199,8 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_conditional_expression += T(:check)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_conditional_expression += T(:check)
     end
 
     private
@@ -221,8 +221,8 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_continue_statement += T(:check)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_continue_statement += T(:check)
     end
 
     private
@@ -765,13 +765,13 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_init_declarator           += T(:check_init_decl)
-      visitor.enter_struct_declarator         += T(:check_struct_decl)
-      visitor.enter_parameter_declaration     += T(:check_parameter_decl)
-      visitor.enter_kandr_function_definition += T(:check_kandr_fundef)
-      visitor.enter_ansi_function_definition  += T(:check_ansi_fundef)
-      visitor.enter_type_name                 += T(:check_type_name)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_init_declarator           += T(:check_init_decl)
+      traversal.enter_struct_declarator         += T(:check_struct_decl)
+      traversal.enter_parameter_declaration     += T(:check_parameter_decl)
+      traversal.enter_kandr_function_definition += T(:check_kandr_fundef)
+      traversal.enter_ansi_function_definition  += T(:check_ansi_fundef)
+      traversal.enter_type_name                 += T(:check_type_name)
     end
 
     private
@@ -893,11 +893,11 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_struct_specifier += T(:enter_struct_specifier)
-      visitor.leave_struct_specifier += T(:leave_struct_specifier)
-      visitor.enter_union_specifier  += T(:enter_union_specifier)
-      visitor.leave_union_specifier  += T(:leave_union_specifier)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_struct_specifier += T(:enter_struct_specifier)
+      traversal.leave_struct_specifier += T(:leave_struct_specifier)
+      traversal.enter_union_specifier  += T(:enter_union_specifier)
+      traversal.leave_union_specifier  += T(:leave_union_specifier)
       @nest_level = 0
     end
 
@@ -930,8 +930,8 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_variable_definition += T(:check)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_variable_definition += T(:check)
     end
 
     private
@@ -951,12 +951,12 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_compound_statement   += T(:enter_block)
-      visitor.leave_compound_statement   += T(:leave_block)
-      visitor.enter_variable_definition  += T(:add_identifier)
-      visitor.enter_variable_declaration += T(:add_identifier)
-      visitor.enter_typedef_declaration  += T(:add_identifier)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_compound_statement   += T(:enter_block)
+      traversal.leave_compound_statement   += T(:leave_block)
+      traversal.enter_variable_definition  += T(:add_identifier)
+      traversal.enter_variable_declaration += T(:add_identifier)
+      traversal.enter_typedef_declaration  += T(:add_identifier)
       @block_stack = [0]
     end
 
@@ -984,9 +984,9 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_struct_type_declaration += T(:check)
-      visitor.enter_union_type_declaration  += T(:check)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_struct_type_declaration += T(:check)
+      traversal.enter_union_type_declaration  += T(:check)
     end
 
     private
@@ -1013,9 +1013,9 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_struct_type_declaration += T(:check_struct)
-      visitor.enter_union_type_declaration  += T(:check_union)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_struct_type_declaration += T(:check_struct)
+      traversal.enter_union_type_declaration  += T(:check_union)
     end
 
     private
@@ -1045,8 +1045,8 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_enum_type_declaration += T(:check)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_enum_type_declaration += T(:check)
     end
 
     private
@@ -1066,8 +1066,8 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_variable_definition += T(:enter_variable_definition)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_variable_definition += T(:enter_variable_definition)
     end
 
     private
@@ -1181,19 +1181,19 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_if_statement      += T(:enter_if_statement)
-      visitor.leave_if_statement      += T(:leave_if_statement)
-      visitor.enter_switch_statement  += T(:enter_switch_statement)
-      visitor.leave_switch_statement  += T(:leave_switch_statement)
-      visitor.enter_while_statement   += T(:enter_while_statement)
-      visitor.leave_while_statement   += T(:leave_while_statement)
-      visitor.enter_do_statement      += T(:enter_do_statement)
-      visitor.leave_do_statement      += T(:leave_do_statement)
-      visitor.enter_for_statement     += T(:enter_for_statement)
-      visitor.leave_for_statement     += T(:leave_for_statement)
-      visitor.enter_c99_for_statement += T(:enter_c99_for_statement)
-      visitor.leave_c99_for_statement += T(:leave_c99_for_statement)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_if_statement      += T(:enter_if_statement)
+      traversal.leave_if_statement      += T(:leave_if_statement)
+      traversal.enter_switch_statement  += T(:enter_switch_statement)
+      traversal.leave_switch_statement  += T(:leave_switch_statement)
+      traversal.enter_while_statement   += T(:enter_while_statement)
+      traversal.leave_while_statement   += T(:leave_while_statement)
+      traversal.enter_do_statement      += T(:enter_do_statement)
+      traversal.leave_do_statement      += T(:leave_do_statement)
+      traversal.enter_for_statement     += T(:enter_for_statement)
+      traversal.leave_for_statement     += T(:leave_for_statement)
+      traversal.enter_c99_for_statement += T(:enter_c99_for_statement)
+      traversal.leave_c99_for_statement += T(:leave_c99_for_statement)
       @ctrl_stmt_level = 0
     end
 
@@ -1262,10 +1262,10 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_switch_statement       += T(:enter_switch_statement)
-      visitor.leave_switch_statement       += T(:leave_switch_statement)
-      visitor.enter_case_labeled_statement += T(:check)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_switch_statement       += T(:enter_switch_statement)
+      traversal.leave_switch_statement       += T(:leave_switch_statement)
+      traversal.enter_case_labeled_statement += T(:check)
       @label_num_stack = []
     end
 
@@ -1400,8 +1400,8 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_string_literal_specifier += T(:check)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_string_literal_specifier += T(:check)
     end
 
     private
@@ -1421,8 +1421,8 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_typeof_type_specifier += T(:check)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_typeof_type_specifier += T(:check)
     end
 
     private
@@ -1440,9 +1440,9 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_alignof_expression      += T(:check)
-      visitor.enter_alignof_type_expression += T(:check)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_alignof_expression      += T(:check)
+      traversal.enter_alignof_type_expression += T(:check)
     end
 
     private
@@ -1479,8 +1479,8 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_simple_assignment_expression += T(:check)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_simple_assignment_expression += T(:check)
     end
 
     private
@@ -1500,9 +1500,9 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_ansi_function_definition  += T(:check_ansi_function)
-      visitor.enter_kandr_function_definition += T(:check_kandr_function)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_ansi_function_definition  += T(:check_ansi_function)
+      traversal.enter_kandr_function_definition += T(:check_kandr_function)
       @interp = phase_ctxt[:cc1_interpreter]
     end
 
@@ -1580,9 +1580,9 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_bit_access_by_value_expression   += T(:check)
-      visitor.enter_bit_access_by_pointer_expression += T(:check)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_bit_access_by_value_expression   += T(:check)
+      traversal.enter_bit_access_by_pointer_expression += T(:check)
     end
 
     private
@@ -1691,8 +1691,8 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_function_declaration += T(:check)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_function_declaration += T(:check)
     end
 
     private
@@ -1710,8 +1710,8 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_variable_definition += T(:check)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_variable_definition += T(:check)
       @interp = phase_ctxt[:cc1_interpreter]
     end
 
@@ -1721,9 +1721,9 @@ module CBuiltin #:nodoc:
 
       if node.type.array? && node.type.base_type.same_as?(@interp.char_t)
         if len = node.type.length
-          visitor = StringLiteralSpecifierFinder.new
-          node.initializer.expression.accept(visitor)
-          if str_lit = visitor.result
+          finder = StringLiteralSpecifierFinder.new
+          node.initializer.expression.accept(finder)
+          if str_lit = finder.result
             str = unquote_string_literal(str_lit)
             W(node.location) if len <= str.length
           end
@@ -1847,8 +1847,8 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_comma_separated_expression += T(:check)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_comma_separated_expression += T(:check)
     end
 
     private
@@ -1872,7 +1872,7 @@ module CBuiltin #:nodoc:
     def do_prepare(phase_ctxt) end
 
     def do_execute(phase_ctxt)
-      phase_ctxt[:cc1_syntax_tree].accept(Visitor.new(phase_ctxt))
+      phase_ctxt[:cc1_ast].accept(Visitor.new(phase_ctxt))
     end
 
     class Visitor < Cc1::SyntaxTreeVisitor
@@ -1926,8 +1926,8 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_conditional_expression += T(:check)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_conditional_expression += T(:check)
     end
 
     private
@@ -1950,14 +1950,14 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_simple_assignment_expression   += T(:enter_assignment)
-      visitor.leave_simple_assignment_expression   += T(:leave_assignment)
-      visitor.enter_compound_assignment_expression += T(:enter_assignment)
-      visitor.leave_compound_assignment_expression += T(:leave_assignment)
-      visitor.enter_function_call_expression       += T(:enter_assignment)
-      visitor.leave_function_call_expression       += T(:leave_assignment)
-      visitor.enter_comma_separated_expression     += T(:check)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_simple_assignment_expression   += T(:enter_assignment)
+      traversal.leave_simple_assignment_expression   += T(:leave_assignment)
+      traversal.enter_compound_assignment_expression += T(:enter_assignment)
+      traversal.leave_compound_assignment_expression += T(:leave_assignment)
+      traversal.enter_function_call_expression       += T(:enter_assignment)
+      traversal.leave_function_call_expression       += T(:leave_assignment)
+      traversal.enter_comma_separated_expression     += T(:check)
       @assignment_depth = 0
     end
 
@@ -2509,7 +2509,7 @@ module CBuiltin #:nodoc:
     def do_prepare(phase_ctxt) end
 
     def do_execute(phase_ctxt)
-      phase_ctxt[:cc1_syntax_tree].accept(Visitor.new(phase_ctxt))
+      phase_ctxt[:cc1_ast].accept(Visitor.new(phase_ctxt))
     end
 
     class Visitor < Cc1::SyntaxTreeVisitor
@@ -2730,7 +2730,7 @@ module CBuiltin #:nodoc:
     def do_prepare(phase_ctxt) end
 
     def do_execute(phase_ctxt)
-      phase_ctxt[:cc1_syntax_tree].accept(Visitor.new(phase_ctxt))
+      phase_ctxt[:cc1_ast].accept(Visitor.new(phase_ctxt))
     end
 
     class Visitor < Cc1::SyntaxTreeVisitor
@@ -8086,8 +8086,8 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_enum_type_declaration += T(:check)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_enum_type_declaration += T(:check)
     end
 
     private
@@ -8111,13 +8111,13 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_if_statement      += T(:check_if_statement)
-      visitor.enter_if_else_statement += T(:check_if_else_statement)
-      visitor.enter_while_statement   += T(:check_while_statement)
-      visitor.enter_do_statement      += T(:check_do_statement)
-      visitor.enter_for_statement     += T(:check_for_statement)
-      visitor.enter_c99_for_statement += T(:check_for_statement)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_if_statement      += T(:check_if_statement)
+      traversal.enter_if_else_statement += T(:check_if_else_statement)
+      traversal.enter_while_statement   += T(:check_while_statement)
+      traversal.enter_do_statement      += T(:check_do_statement)
+      traversal.enter_for_statement     += T(:check_for_statement)
+      traversal.enter_c99_for_statement += T(:check_for_statement)
     end
 
     private
@@ -8185,13 +8185,13 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_if_statement      += T(:check_if_statement)
-      visitor.enter_if_else_statement += T(:check_if_else_statement)
-      visitor.enter_while_statement   += T(:check_while_statement)
-      visitor.enter_do_statement      += T(:check_do_statement)
-      visitor.enter_for_statement     += T(:check_for_statement)
-      visitor.enter_c99_for_statement += T(:check_for_statement)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_if_statement      += T(:check_if_statement)
+      traversal.enter_if_else_statement += T(:check_if_else_statement)
+      traversal.enter_while_statement   += T(:check_while_statement)
+      traversal.enter_do_statement      += T(:check_do_statement)
+      traversal.enter_for_statement     += T(:check_for_statement)
+      traversal.enter_c99_for_statement += T(:check_for_statement)
     end
 
     private
@@ -8472,7 +8472,7 @@ module CBuiltin #:nodoc:
     def do_prepare(phase_ctxt) end
 
     def do_execute(phase_ctxt)
-      phase_ctxt[:cc1_syntax_tree].accept(Visitor.new(phase_ctxt))
+      phase_ctxt[:cc1_ast].accept(Visitor.new(phase_ctxt))
     end
 
     class Visitor < Cc1::SyntaxTreeVisitor
@@ -8680,8 +8680,9 @@ module CBuiltin #:nodoc:
     private
     def do_prepare(phase_ctxt)
       fpath = phase_ctxt[:sources].first.fpath
-      tok_ary = phase_ctxt[:cc1_token_array]
-      @tokens = tok_ary.select { |tok| tok.location.fpath == fpath }
+      @tokens = phase_ctxt[:cc1_tokens].select { |tok|
+        tok.location.fpath == fpath
+      }
       @index = 0
       @indent_level = 0
       @indent_widths = Hash.new(0)
@@ -8883,8 +8884,9 @@ module CBuiltin #:nodoc:
     private
     def do_prepare(phase_ctxt)
       fpath = phase_ctxt[:sources].first.fpath
-      tok_ary = phase_ctxt[:cc1_token_array]
-      @tokens = tok_ary.select { |tok| tok.location.fpath == fpath }
+      @tokens = phase_ctxt[:cc1_tokens].select { |tok|
+        tok.location.fpath == fpath
+      }
       @index  = 0
       @indent_level = 0
       @indent_width = indent_width
@@ -9110,8 +9112,8 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_compound_statement += T(:check)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_compound_statement += T(:check)
     end
 
     private
@@ -9160,7 +9162,7 @@ module CBuiltin #:nodoc:
     def do_prepare(phase_ctxt) end
 
     def do_execute(phase_ctxt)
-      phase_ctxt[:cc1_syntax_tree].accept(Visitor.new(phase_ctxt))
+      phase_ctxt[:cc1_ast].accept(Visitor.new(phase_ctxt))
     end
 
     class Visitor < Cc1::SyntaxTreeVisitor
@@ -9264,12 +9266,12 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_comma_separated_expression += T(:check)
-      visitor.enter_for_statement              += T(:enter_for_statement)
-      visitor.leave_for_statement              += T(:leave_for_statement)
-      visitor.enter_c99_for_statement          += T(:enter_for_statement)
-      visitor.leave_c99_for_statement          += T(:leave_for_statement)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_comma_separated_expression += T(:check)
+      traversal.enter_for_statement              += T(:enter_for_statement)
+      traversal.leave_for_statement              += T(:leave_for_statement)
+      traversal.enter_c99_for_statement          += T(:enter_for_statement)
+      traversal.leave_c99_for_statement          += T(:leave_for_statement)
       @in_for_stmt = false
     end
 
@@ -9329,10 +9331,10 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_function_declaration      += T(:check_function)
-      visitor.enter_ansi_function_definition  += T(:check_function)
-      visitor.enter_kandr_function_definition += T(:check_function)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_function_declaration      += T(:check_function)
+      traversal.enter_ansi_function_definition  += T(:check_function)
+      traversal.enter_kandr_function_definition += T(:check_function)
     end
 
     private
@@ -9350,10 +9352,10 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_variable_declaration += T(:check_variable)
-      visitor.enter_variable_definition  += T(:check_variable)
-      visitor.enter_parameter_definition += T(:check_variable)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_variable_declaration += T(:check_variable)
+      traversal.enter_variable_definition  += T(:check_variable)
+      traversal.enter_parameter_definition += T(:check_variable)
     end
 
     private
@@ -9483,17 +9485,17 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_initializer          += T(:check_initializer)
-      visitor.enter_expression_statement += T(:check_expr_statement)
-      visitor.enter_if_statement         += T(:check_selection_statement)
-      visitor.enter_if_else_statement    += T(:check_selection_statement)
-      visitor.enter_switch_statement     += T(:check_selection_statement)
-      visitor.enter_while_statement      += T(:check_iteration_statement)
-      visitor.enter_do_statement         += T(:check_iteration_statement)
-      visitor.enter_for_statement        += T(:check_iteration_statement)
-      visitor.enter_c99_for_statement    += T(:check_iteration_statement)
-      visitor.enter_return_statement     += T(:check_return_statement)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_initializer          += T(:check_initializer)
+      traversal.enter_expression_statement += T(:check_expr_statement)
+      traversal.enter_if_statement         += T(:check_selection_statement)
+      traversal.enter_if_else_statement    += T(:check_selection_statement)
+      traversal.enter_switch_statement     += T(:check_selection_statement)
+      traversal.enter_while_statement      += T(:check_iteration_statement)
+      traversal.enter_do_statement         += T(:check_iteration_statement)
+      traversal.enter_for_statement        += T(:check_iteration_statement)
+      traversal.enter_c99_for_statement    += T(:check_iteration_statement)
+      traversal.enter_return_statement     += T(:check_return_statement)
     end
 
     private
@@ -9658,17 +9660,17 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_initializer          += T(:check_initializer)
-      visitor.enter_expression_statement += T(:check_expr_statement)
-      visitor.enter_if_statement         += T(:check_selection_statement)
-      visitor.enter_if_else_statement    += T(:check_selection_statement)
-      visitor.enter_switch_statement     += T(:check_selection_statement)
-      visitor.enter_while_statement      += T(:check_iteration_statement)
-      visitor.enter_do_statement         += T(:check_iteration_statement)
-      visitor.enter_for_statement        += T(:check_iteration_statement)
-      visitor.enter_c99_for_statement    += T(:check_iteration_statement)
-      visitor.enter_return_statement     += T(:check_return_statement)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_initializer          += T(:check_initializer)
+      traversal.enter_expression_statement += T(:check_expr_statement)
+      traversal.enter_if_statement         += T(:check_selection_statement)
+      traversal.enter_if_else_statement    += T(:check_selection_statement)
+      traversal.enter_switch_statement     += T(:check_selection_statement)
+      traversal.enter_while_statement      += T(:check_iteration_statement)
+      traversal.enter_do_statement         += T(:check_iteration_statement)
+      traversal.enter_for_statement        += T(:check_iteration_statement)
+      traversal.enter_c99_for_statement    += T(:check_iteration_statement)
+      traversal.enter_return_statement     += T(:check_return_statement)
     end
 
     private
@@ -9844,17 +9846,17 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_initializer          += T(:check_initializer)
-      visitor.enter_expression_statement += T(:check_expr_statement)
-      visitor.enter_if_statement         += T(:check_selection_statement)
-      visitor.enter_if_else_statement    += T(:check_selection_statement)
-      visitor.enter_switch_statement     += T(:check_selection_statement)
-      visitor.enter_while_statement      += T(:check_iteration_statement)
-      visitor.enter_do_statement         += T(:check_iteration_statement)
-      visitor.enter_for_statement        += T(:check_iteration_statement)
-      visitor.enter_c99_for_statement    += T(:check_iteration_statement)
-      visitor.enter_return_statement     += T(:check_return_statement)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_initializer          += T(:check_initializer)
+      traversal.enter_expression_statement += T(:check_expr_statement)
+      traversal.enter_if_statement         += T(:check_selection_statement)
+      traversal.enter_if_else_statement    += T(:check_selection_statement)
+      traversal.enter_switch_statement     += T(:check_selection_statement)
+      traversal.enter_while_statement      += T(:check_iteration_statement)
+      traversal.enter_do_statement         += T(:check_iteration_statement)
+      traversal.enter_for_statement        += T(:check_iteration_statement)
+      traversal.enter_c99_for_statement    += T(:check_iteration_statement)
+      traversal.enter_return_statement     += T(:check_return_statement)
     end
 
     private
@@ -10421,17 +10423,17 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_initializer          += T(:check_initializer)
-      visitor.enter_expression_statement += T(:check_expr_statement)
-      visitor.enter_if_statement         += T(:check_selection_statement)
-      visitor.enter_if_else_statement    += T(:check_selection_statement)
-      visitor.enter_switch_statement     += T(:check_selection_statement)
-      visitor.enter_while_statement      += T(:check_iteration_statement)
-      visitor.enter_do_statement         += T(:check_iteration_statement)
-      visitor.enter_for_statement        += T(:check_iteration_statement)
-      visitor.enter_c99_for_statement    += T(:check_iteration_statement)
-      visitor.enter_return_statement     += T(:check_return_statement)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_initializer          += T(:check_initializer)
+      traversal.enter_expression_statement += T(:check_expr_statement)
+      traversal.enter_if_statement         += T(:check_selection_statement)
+      traversal.enter_if_else_statement    += T(:check_selection_statement)
+      traversal.enter_switch_statement     += T(:check_selection_statement)
+      traversal.enter_while_statement      += T(:check_iteration_statement)
+      traversal.enter_do_statement         += T(:check_iteration_statement)
+      traversal.enter_for_statement        += T(:check_iteration_statement)
+      traversal.enter_c99_for_statement    += T(:check_iteration_statement)
+      traversal.enter_return_statement     += T(:check_return_statement)
     end
 
     private
@@ -10596,17 +10598,17 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_initializer          += T(:check_initializer)
-      visitor.enter_expression_statement += T(:check_expr_statement)
-      visitor.enter_if_statement         += T(:check_selection_statement)
-      visitor.enter_if_else_statement    += T(:check_selection_statement)
-      visitor.enter_switch_statement     += T(:check_selection_statement)
-      visitor.enter_while_statement      += T(:check_iteration_statement)
-      visitor.enter_do_statement         += T(:check_iteration_statement)
-      visitor.enter_for_statement        += T(:check_iteration_statement)
-      visitor.enter_c99_for_statement    += T(:check_iteration_statement)
-      visitor.enter_return_statement     += T(:check_return_statement)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_initializer          += T(:check_initializer)
+      traversal.enter_expression_statement += T(:check_expr_statement)
+      traversal.enter_if_statement         += T(:check_selection_statement)
+      traversal.enter_if_else_statement    += T(:check_selection_statement)
+      traversal.enter_switch_statement     += T(:check_selection_statement)
+      traversal.enter_while_statement      += T(:check_iteration_statement)
+      traversal.enter_do_statement         += T(:check_iteration_statement)
+      traversal.enter_for_statement        += T(:check_iteration_statement)
+      traversal.enter_c99_for_statement    += T(:check_iteration_statement)
+      traversal.enter_return_statement     += T(:check_return_statement)
     end
 
     private
@@ -10714,17 +10716,17 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_initializer          += T(:check_initializer)
-      visitor.enter_expression_statement += T(:check_expr_statement)
-      visitor.enter_if_statement         += T(:check_selection_statement)
-      visitor.enter_if_else_statement    += T(:check_selection_statement)
-      visitor.enter_switch_statement     += T(:check_selection_statement)
-      visitor.enter_while_statement      += T(:check_iteration_statement)
-      visitor.enter_do_statement         += T(:check_iteration_statement)
-      visitor.enter_for_statement        += T(:check_iteration_statement)
-      visitor.enter_c99_for_statement    += T(:check_iteration_statement)
-      visitor.enter_return_statement     += T(:check_return_statement)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_initializer          += T(:check_initializer)
+      traversal.enter_expression_statement += T(:check_expr_statement)
+      traversal.enter_if_statement         += T(:check_selection_statement)
+      traversal.enter_if_else_statement    += T(:check_selection_statement)
+      traversal.enter_switch_statement     += T(:check_selection_statement)
+      traversal.enter_while_statement      += T(:check_iteration_statement)
+      traversal.enter_do_statement         += T(:check_iteration_statement)
+      traversal.enter_for_statement        += T(:check_iteration_statement)
+      traversal.enter_c99_for_statement    += T(:check_iteration_statement)
+      traversal.enter_return_statement     += T(:check_return_statement)
     end
 
     private
@@ -10903,17 +10905,17 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_initializer          += T(:check_initializer)
-      visitor.enter_expression_statement += T(:check_expr_statement)
-      visitor.enter_if_statement         += T(:check_selection_statement)
-      visitor.enter_if_else_statement    += T(:check_selection_statement)
-      visitor.enter_switch_statement     += T(:check_selection_statement)
-      visitor.enter_while_statement      += T(:check_iteration_statement)
-      visitor.enter_do_statement         += T(:check_iteration_statement)
-      visitor.enter_for_statement        += T(:check_iteration_statement)
-      visitor.enter_c99_for_statement    += T(:check_iteration_statement)
-      visitor.enter_return_statement     += T(:check_return_statement)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_initializer          += T(:check_initializer)
+      traversal.enter_expression_statement += T(:check_expr_statement)
+      traversal.enter_if_statement         += T(:check_selection_statement)
+      traversal.enter_if_else_statement    += T(:check_selection_statement)
+      traversal.enter_switch_statement     += T(:check_selection_statement)
+      traversal.enter_while_statement      += T(:check_iteration_statement)
+      traversal.enter_do_statement         += T(:check_iteration_statement)
+      traversal.enter_for_statement        += T(:check_iteration_statement)
+      traversal.enter_c99_for_statement    += T(:check_iteration_statement)
+      traversal.enter_return_statement     += T(:check_return_statement)
     end
 
     private
@@ -11067,17 +11069,17 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_initializer          += T(:check_initializer)
-      visitor.enter_expression_statement += T(:check_expr_statement)
-      visitor.enter_if_statement         += T(:check_selection_statement)
-      visitor.enter_if_else_statement    += T(:check_selection_statement)
-      visitor.enter_switch_statement     += T(:check_selection_statement)
-      visitor.enter_while_statement      += T(:check_iteration_statement)
-      visitor.enter_do_statement         += T(:check_iteration_statement)
-      visitor.enter_for_statement        += T(:check_iteration_statement)
-      visitor.enter_c99_for_statement    += T(:check_iteration_statement)
-      visitor.enter_return_statement     += T(:check_return_statement)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_initializer          += T(:check_initializer)
+      traversal.enter_expression_statement += T(:check_expr_statement)
+      traversal.enter_if_statement         += T(:check_selection_statement)
+      traversal.enter_if_else_statement    += T(:check_selection_statement)
+      traversal.enter_switch_statement     += T(:check_selection_statement)
+      traversal.enter_while_statement      += T(:check_iteration_statement)
+      traversal.enter_do_statement         += T(:check_iteration_statement)
+      traversal.enter_for_statement        += T(:check_iteration_statement)
+      traversal.enter_c99_for_statement    += T(:check_iteration_statement)
+      traversal.enter_return_statement     += T(:check_return_statement)
     end
 
     private
@@ -11268,17 +11270,17 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_initializer          += T(:check_initializer)
-      visitor.enter_expression_statement += T(:check_expr_statement)
-      visitor.enter_if_statement         += T(:check_selection_statement)
-      visitor.enter_if_else_statement    += T(:check_selection_statement)
-      visitor.enter_switch_statement     += T(:check_selection_statement)
-      visitor.enter_while_statement      += T(:check_iteration_statement)
-      visitor.enter_do_statement         += T(:check_iteration_statement)
-      visitor.enter_for_statement        += T(:check_iteration_statement)
-      visitor.enter_c99_for_statement    += T(:check_iteration_statement)
-      visitor.enter_return_statement     += T(:check_return_statement)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_initializer          += T(:check_initializer)
+      traversal.enter_expression_statement += T(:check_expr_statement)
+      traversal.enter_if_statement         += T(:check_selection_statement)
+      traversal.enter_if_else_statement    += T(:check_selection_statement)
+      traversal.enter_switch_statement     += T(:check_selection_statement)
+      traversal.enter_while_statement      += T(:check_iteration_statement)
+      traversal.enter_do_statement         += T(:check_iteration_statement)
+      traversal.enter_for_statement        += T(:check_iteration_statement)
+      traversal.enter_c99_for_statement    += T(:check_iteration_statement)
+      traversal.enter_return_statement     += T(:check_return_statement)
     end
 
     private
@@ -11432,17 +11434,17 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_initializer          += T(:check_initializer)
-      visitor.enter_expression_statement += T(:check_expr_statement)
-      visitor.enter_if_statement         += T(:check_selection_statement)
-      visitor.enter_if_else_statement    += T(:check_selection_statement)
-      visitor.enter_switch_statement     += T(:check_selection_statement)
-      visitor.enter_while_statement      += T(:check_iteration_statement)
-      visitor.enter_do_statement         += T(:check_iteration_statement)
-      visitor.enter_for_statement        += T(:check_iteration_statement)
-      visitor.enter_c99_for_statement    += T(:check_iteration_statement)
-      visitor.enter_return_statement     += T(:check_return_statement)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_initializer          += T(:check_initializer)
+      traversal.enter_expression_statement += T(:check_expr_statement)
+      traversal.enter_if_statement         += T(:check_selection_statement)
+      traversal.enter_if_else_statement    += T(:check_selection_statement)
+      traversal.enter_switch_statement     += T(:check_selection_statement)
+      traversal.enter_while_statement      += T(:check_iteration_statement)
+      traversal.enter_do_statement         += T(:check_iteration_statement)
+      traversal.enter_for_statement        += T(:check_iteration_statement)
+      traversal.enter_c99_for_statement    += T(:check_iteration_statement)
+      traversal.enter_return_statement     += T(:check_return_statement)
     end
 
     private
@@ -11606,17 +11608,17 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_initializer          += T(:check_initializer)
-      visitor.enter_expression_statement += T(:check_expr_statement)
-      visitor.enter_if_statement         += T(:check_selection_statement)
-      visitor.enter_if_else_statement    += T(:check_selection_statement)
-      visitor.enter_switch_statement     += T(:check_selection_statement)
-      visitor.enter_while_statement      += T(:check_iteration_statement)
-      visitor.enter_do_statement         += T(:check_iteration_statement)
-      visitor.enter_for_statement        += T(:check_iteration_statement)
-      visitor.enter_c99_for_statement    += T(:check_iteration_statement)
-      visitor.enter_return_statement     += T(:check_return_statement)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_initializer          += T(:check_initializer)
+      traversal.enter_expression_statement += T(:check_expr_statement)
+      traversal.enter_if_statement         += T(:check_selection_statement)
+      traversal.enter_if_else_statement    += T(:check_selection_statement)
+      traversal.enter_switch_statement     += T(:check_selection_statement)
+      traversal.enter_while_statement      += T(:check_iteration_statement)
+      traversal.enter_do_statement         += T(:check_iteration_statement)
+      traversal.enter_for_statement        += T(:check_iteration_statement)
+      traversal.enter_c99_for_statement    += T(:check_iteration_statement)
+      traversal.enter_return_statement     += T(:check_return_statement)
     end
 
     private
@@ -11856,9 +11858,9 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_logical_and_expression += T(:check)
-      visitor.enter_logical_or_expression  += T(:check)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_logical_and_expression += T(:check)
+      traversal.enter_logical_or_expression  += T(:check)
     end
 
     private
@@ -11876,13 +11878,13 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_expression_statement         += T(:enter_expr_stmt)
-      visitor.leave_expression_statement         += T(:leave_expr_stmt)
-      visitor.enter_postfix_increment_expression += T(:check)
-      visitor.enter_postfix_decrement_expression += T(:check)
-      visitor.enter_prefix_increment_expression  += T(:check)
-      visitor.enter_prefix_decrement_expression  += T(:check)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_expression_statement         += T(:enter_expr_stmt)
+      traversal.leave_expression_statement         += T(:leave_expr_stmt)
+      traversal.enter_postfix_increment_expression += T(:check)
+      traversal.enter_postfix_decrement_expression += T(:check)
+      traversal.enter_prefix_increment_expression  += T(:check)
+      traversal.enter_prefix_decrement_expression  += T(:check)
       @cur_stmt = nil
     end
 
@@ -11913,8 +11915,8 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_member_declaration += T(:check)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_member_declaration += T(:check)
     end
 
     private
@@ -11935,8 +11937,8 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_constant_specifier += T(:check)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_constant_specifier += T(:check)
     end
 
     private
@@ -11956,9 +11958,9 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_constant_specifier       += T(:check_constant)
-      visitor.enter_string_literal_specifier += T(:check_string_literal)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_constant_specifier       += T(:check_constant)
+      traversal.enter_string_literal_specifier += T(:check_string_literal)
     end
 
     private
@@ -11984,8 +11986,8 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_switch_statement += T(:check_switch_statement)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_switch_statement += T(:check_switch_statement)
     end
 
     private
@@ -12105,12 +12107,12 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_comma_separated_expression += T(:check)
-      visitor.enter_for_statement              += T(:enter_for_statement)
-      visitor.leave_for_statement              += T(:leave_for_statement)
-      visitor.enter_c99_for_statement          += T(:enter_for_statement)
-      visitor.leave_c99_for_statement          += T(:leave_for_statement)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_comma_separated_expression += T(:check)
+      traversal.enter_for_statement              += T(:enter_for_statement)
+      traversal.leave_for_statement              += T(:leave_for_statement)
+      traversal.enter_c99_for_statement          += T(:enter_for_statement)
+      traversal.leave_c99_for_statement          += T(:leave_for_statement)
       @in_for_stmt = false
     end
 
@@ -12137,8 +12139,8 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_switch_statement += T(:check)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_switch_statement += T(:check)
     end
 
     private
@@ -12193,8 +12195,8 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_ansi_function_definition += T(:check)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_ansi_function_definition += T(:check)
     end
 
     private
@@ -12214,8 +12216,8 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_function_declaration += T(:check)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_function_declaration += T(:check)
     end
 
     private
@@ -12275,8 +12277,8 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_ansi_function_definition += T(:check)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_ansi_function_definition += T(:check)
       @interp = phase_ctxt[:cc1_interpreter]
     end
 
@@ -12362,8 +12364,8 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_switch_statement += T(:check)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_switch_statement += T(:check)
     end
 
     private
@@ -12465,8 +12467,8 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_union_type_declaration += T(:check)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_union_type_declaration += T(:check)
     end
 
     private
@@ -12562,8 +12564,8 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_unary_arithmetic_expression += T(:check)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_unary_arithmetic_expression += T(:check)
     end
 
     private
@@ -12608,8 +12610,8 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_unary_arithmetic_expression += T(:check)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_unary_arithmetic_expression += T(:check)
     end
 
     private
@@ -12664,8 +12666,8 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_expression_statement += T(:check)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_expression_statement += T(:check)
     end
 
     private
@@ -12689,8 +12691,8 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_variable_definition += T(:check)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_variable_definition += T(:check)
     end
 
     private
@@ -12732,10 +12734,10 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_compound_statement        += T(:enter_block)
-      visitor.leave_compound_statement        += T(:leave_block)
-      visitor.enter_generic_labeled_statement += T(:check)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_compound_statement        += T(:enter_block)
+      traversal.leave_compound_statement        += T(:leave_block)
+      traversal.enter_generic_labeled_statement += T(:check)
       @blocks = []
     end
 
@@ -12777,10 +12779,10 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_compound_statement        += T(:enter_block)
-      visitor.leave_compound_statement        += T(:leave_block)
-      visitor.enter_generic_labeled_statement += T(:check)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_compound_statement        += T(:enter_block)
+      traversal.leave_compound_statement        += T(:leave_block)
+      traversal.enter_generic_labeled_statement += T(:check)
       @blocks = []
     end
 
@@ -13769,18 +13771,18 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_break_statement   += T(:check)
-      visitor.enter_switch_statement  += T(:enter_breakable_statement)
-      visitor.leave_switch_statement  += T(:leave_breakable_statement)
-      visitor.enter_while_statement   += T(:enter_breakable_statement)
-      visitor.leave_while_statement   += T(:leave_breakable_statement)
-      visitor.enter_do_statement      += T(:enter_breakable_statement)
-      visitor.leave_do_statement      += T(:leave_breakable_statement)
-      visitor.enter_for_statement     += T(:enter_breakable_statement)
-      visitor.leave_for_statement     += T(:leave_breakable_statement)
-      visitor.enter_c99_for_statement += T(:enter_breakable_statement)
-      visitor.leave_c99_for_statement += T(:leave_breakable_statement)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_break_statement   += T(:check)
+      traversal.enter_switch_statement  += T(:enter_breakable_statement)
+      traversal.leave_switch_statement  += T(:leave_breakable_statement)
+      traversal.enter_while_statement   += T(:enter_breakable_statement)
+      traversal.leave_while_statement   += T(:leave_breakable_statement)
+      traversal.enter_do_statement      += T(:enter_breakable_statement)
+      traversal.leave_do_statement      += T(:leave_breakable_statement)
+      traversal.enter_for_statement     += T(:enter_breakable_statement)
+      traversal.leave_for_statement     += T(:leave_breakable_statement)
+      traversal.enter_c99_for_statement += T(:enter_breakable_statement)
+      traversal.leave_c99_for_statement += T(:leave_breakable_statement)
       @breakable_stmts = []
     end
 
@@ -14256,11 +14258,11 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_ansi_function_definition  += T(:check)
-      visitor.enter_kandr_function_definition += T(:check)
-      @dires = collect_define_lines(phase_ctxt[:cpp_syntax_tree]) +
-               collect_undef_lines(phase_ctxt[:cpp_syntax_tree])
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_ansi_function_definition  += T(:check)
+      traversal.enter_kandr_function_definition += T(:check)
+      @dires = collect_define_lines(phase_ctxt[:cpp_ast]) +
+               collect_undef_lines(phase_ctxt[:cpp_ast])
     end
 
     private
@@ -14336,9 +14338,9 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_constant_specifier       += T(:check_constant)
-      visitor.enter_string_literal_specifier += T(:check_string_literal)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_constant_specifier       += T(:check_constant)
+      traversal.enter_string_literal_specifier += T(:check_string_literal)
     end
 
     private
@@ -14360,21 +14362,21 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_compound_statement   += T(:enter_block)
-      visitor.leave_compound_statement   += T(:leave_block)
-      visitor.enter_expression_statement += T(:enter_expression_statement)
-      visitor.enter_if_statement         += T(:update_last_statement)
-      visitor.enter_if_else_statement    += T(:update_last_statement)
-      visitor.enter_switch_statement     += T(:update_last_statement)
-      visitor.enter_while_statement      += T(:update_last_statement)
-      visitor.enter_do_statement         += T(:update_last_statement)
-      visitor.enter_for_statement        += T(:enter_for_statement)
-      visitor.enter_c99_for_statement    += T(:enter_for_statement)
-      visitor.enter_goto_statement       += T(:update_last_statement)
-      visitor.enter_continue_statement   += T(:update_last_statement)
-      visitor.enter_break_statement      += T(:update_last_statement)
-      visitor.enter_return_statement     += T(:update_last_statement)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_compound_statement   += T(:enter_block)
+      traversal.leave_compound_statement   += T(:leave_block)
+      traversal.enter_expression_statement += T(:enter_expression_statement)
+      traversal.enter_if_statement         += T(:update_last_statement)
+      traversal.enter_if_else_statement    += T(:update_last_statement)
+      traversal.enter_switch_statement     += T(:update_last_statement)
+      traversal.enter_while_statement      += T(:update_last_statement)
+      traversal.enter_do_statement         += T(:update_last_statement)
+      traversal.enter_for_statement        += T(:enter_for_statement)
+      traversal.enter_c99_for_statement    += T(:enter_for_statement)
+      traversal.enter_goto_statement       += T(:update_last_statement)
+      traversal.enter_continue_statement   += T(:update_last_statement)
+      traversal.enter_break_statement      += T(:update_last_statement)
+      traversal.enter_return_statement     += T(:update_last_statement)
       @last_stmts = []
       @expected_stmts = Set.new
     end
@@ -18268,9 +18270,9 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_struct_type_declaration += T(:check)
-      visitor.enter_union_type_declaration  += T(:check)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_struct_type_declaration += T(:check)
+      traversal.enter_union_type_declaration  += T(:check)
       @interp = phase_ctxt[:cc1_interpreter]
     end
 
@@ -18927,10 +18929,10 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_if_statement      += T(:enter_outer_if_stmt)
-      visitor.leave_if_statement      += T(:leave_outer_if_stmt)
-      visitor.enter_if_else_statement += T(:check_inner_if_else_stmt)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_if_statement      += T(:enter_outer_if_stmt)
+      traversal.leave_if_statement      += T(:leave_outer_if_stmt)
+      traversal.enter_if_else_statement += T(:check_inner_if_else_stmt)
       @if_stmt_stack = []
     end
 
@@ -18960,8 +18962,8 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_variable_definition += T(:enter_variable_definition)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_variable_definition += T(:enter_variable_definition)
     end
 
     private
@@ -19005,8 +19007,8 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_variable_definition += T(:enter_variable_definition)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_variable_definition += T(:enter_variable_definition)
     end
 
     private
@@ -19052,8 +19054,8 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_enum_specifier += T(:check)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_enum_specifier += T(:check)
     end
 
     private
@@ -19095,17 +19097,17 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_member_declaration        += T(:check_member_decl)
-      visitor.enter_typedef_declaration       += T(:check_declspec_holder)
-      visitor.enter_function_declaration      += T(:check_declspec_holder)
-      visitor.enter_parameter_declaration     += T(:check_declspec_holder)
-      visitor.enter_variable_declaration      += T(:check_declspec_holder)
-      visitor.enter_variable_definition       += T(:check_declspec_holder)
-      visitor.enter_ansi_function_definition  += T(:check_declspec_holder)
-      visitor.enter_kandr_function_definition += T(:check_declspec_holder)
-      visitor.enter_parameter_definition      += T(:check_declspec_holder)
-      visitor.enter_type_name                 += T(:check_type_name)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_member_declaration        += T(:check_member_decl)
+      traversal.enter_typedef_declaration       += T(:check_declspec_holder)
+      traversal.enter_function_declaration      += T(:check_declspec_holder)
+      traversal.enter_parameter_declaration     += T(:check_declspec_holder)
+      traversal.enter_variable_declaration      += T(:check_declspec_holder)
+      traversal.enter_variable_definition       += T(:check_declspec_holder)
+      traversal.enter_ansi_function_definition  += T(:check_declspec_holder)
+      traversal.enter_kandr_function_definition += T(:check_declspec_holder)
+      traversal.enter_parameter_definition      += T(:check_declspec_holder)
+      traversal.enter_type_name                 += T(:check_type_name)
     end
 
     private
@@ -19197,8 +19199,8 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_string_literal_specifier += T(:check)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_string_literal_specifier += T(:check)
     end
 
     private
@@ -19216,8 +19218,8 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_constant_specifier += T(:check)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_constant_specifier += T(:check)
     end
 
     private
@@ -19239,8 +19241,8 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_struct_declarator += T(:check)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_struct_declarator += T(:check)
       @interp = Cc1::Interpreter.new(phase_ctxt[:cc1_type_table])
     end
 
@@ -19276,8 +19278,8 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_variable_definition += T(:check)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_variable_definition += T(:check)
     end
 
     private
@@ -19510,10 +19512,10 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_function_declaration += T(:check)
-      visitor.enter_compound_statement   += T(:enter_block)
-      visitor.leave_compound_statement   += T(:leave_block)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_function_declaration += T(:check)
+      traversal.enter_compound_statement   += T(:enter_block)
+      traversal.leave_compound_statement   += T(:leave_block)
       @block_level = 0
     end
 
@@ -20260,8 +20262,8 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_sizeof_expression += T(:check)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_sizeof_expression += T(:check)
     end
 
     private
@@ -20397,23 +20399,23 @@ module CBuiltin #:nodoc:
     def initialize(phase_ctxt)
       super
       @fpath = phase_ctxt[:sources].first.fpath
-      visitor = phase_ctxt[:cc1_visitor]
-      visitor.enter_error_statement           += T(:check)
-      visitor.enter_generic_labeled_statement += T(:check)
-      visitor.enter_case_labeled_statement    += T(:check)
-      visitor.enter_default_labeled_statement += T(:check)
-      visitor.enter_expression_statement      += T(:check)
-      visitor.enter_if_statement              += T(:check)
-      visitor.enter_if_else_statement         += T(:check)
-      visitor.enter_switch_statement          += T(:check)
-      visitor.enter_while_statement           += T(:check)
-      visitor.enter_do_statement              += T(:check)
-      visitor.enter_for_statement             += T(:check)
-      visitor.enter_c99_for_statement         += T(:check)
-      visitor.enter_goto_statement            += T(:check)
-      visitor.enter_continue_statement        += T(:check)
-      visitor.enter_break_statement           += T(:check)
-      visitor.enter_return_statement          += T(:check)
+      traversal = phase_ctxt[:cc1_ast_traversal]
+      traversal.enter_error_statement           += T(:check)
+      traversal.enter_generic_labeled_statement += T(:check)
+      traversal.enter_case_labeled_statement    += T(:check)
+      traversal.enter_default_labeled_statement += T(:check)
+      traversal.enter_expression_statement      += T(:check)
+      traversal.enter_if_statement              += T(:check)
+      traversal.enter_if_else_statement         += T(:check)
+      traversal.enter_switch_statement          += T(:check)
+      traversal.enter_while_statement           += T(:check)
+      traversal.enter_do_statement              += T(:check)
+      traversal.enter_for_statement             += T(:check)
+      traversal.enter_c99_for_statement         += T(:check)
+      traversal.enter_goto_statement            += T(:check)
+      traversal.enter_continue_statement        += T(:check)
+      traversal.enter_break_statement           += T(:check)
+      traversal.enter_return_statement          += T(:check)
     end
 
     private

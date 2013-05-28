@@ -53,7 +53,7 @@ module Cc1 #:nodoc:
 
     private
     def do_execute(phase_ctxt, *)
-      phase_ctxt[:cc1_visitor] = SyntaxTreeMulticastVisitor.new
+      phase_ctxt[:cc1_ast_traversal] = SyntaxTreeMulticastVisitor.new
       phase_ctxt[:cc1_parser]  = Parser.new(phase_ctxt)
     end
   end
@@ -65,9 +65,9 @@ module Cc1 #:nodoc:
 
     private
     def do_execute(phase_ctxt, *)
-      phase_ctxt[:cc1_syntax_tree] = phase_ctxt[:cc1_parser].execute
+      phase_ctxt[:cc1_ast] = phase_ctxt[:cc1_parser].execute
     ensure
-      phase_ctxt[:cc1_token_array] = phase_ctxt[:cc1_parser].token_array
+      phase_ctxt[:cc1_tokens] = phase_ctxt[:cc1_parser].token_array
       DebugUtil.dump_token_array(phase_ctxt)
     end
   end
@@ -80,8 +80,7 @@ module Cc1 #:nodoc:
     private
     def do_execute(phase_ctxt, *)
       resolver = StaticTypeResolver.new(TypeTable.new(traits, monitor, logger))
-      phase_ctxt[:cc1_type_table] =
-        resolver.resolve(phase_ctxt[:cc1_syntax_tree])
+      phase_ctxt[:cc1_type_table] = resolver.resolve(phase_ctxt[:cc1_ast])
     end
   end
 
@@ -104,8 +103,7 @@ module Cc1 #:nodoc:
 
     private
     def do_execute(phase_ctxt, *)
-      Program.new(phase_ctxt[:cc1_interpreter],
-                  phase_ctxt[:cc1_syntax_tree]).execute
+      Program.new(phase_ctxt[:cc1_interpreter], phase_ctxt[:cc1_ast]).execute
       ValueDomain.clear_memos
     ensure
       DebugUtil.dump_syntax_tree(phase_ctxt)
@@ -119,7 +117,7 @@ module Cc1 #:nodoc:
 
     private
     def do_execute(phase_ctxt, *)
-      phase_ctxt[:cc1_syntax_tree].accept(phase_ctxt[:cc1_visitor])
+      phase_ctxt[:cc1_ast].accept(phase_ctxt[:cc1_ast_traversal])
     end
   end
 

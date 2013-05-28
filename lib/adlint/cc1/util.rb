@@ -72,8 +72,8 @@ module Cc1 #:nodoc:
         ast_fpath = ast_fname.expand_path(phase_ctxt.msg_fpath.dirname)
 
         File.open(ast_fpath, "w") do |io|
-          if phase_ctxt[:cc1_syntax_tree]
-            PP.pp(phase_ctxt[:cc1_syntax_tree], io)
+          if phase_ctxt[:cc1_ast]
+            PP.pp(phase_ctxt[:cc1_ast], io)
           end
         end
       end
@@ -86,8 +86,8 @@ module Cc1 #:nodoc:
         tok_fpath = tok_fname.expand_path(phase_ctxt.msg_fpath.dirname)
 
         File.open(tok_fpath, "w") do |io|
-          if phase_ctxt[:cc1_token_array]
-            phase_ctxt[:cc1_token_array].each { |tok| io.puts(tok.inspect) }
+          if phase_ctxt[:cc1_tokens]
+            phase_ctxt[:cc1_tokens].each { |tok| io.puts(tok.inspect) }
           end
         end
       end

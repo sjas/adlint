@@ -52,10 +52,10 @@ module Cpp #:nodoc:
     private
     def do_execute(phase_ctxt, *)
       root_src = phase_ctxt[:sources].first
-      phase_ctxt[:cc1_source]      = PreprocessedSource.new(root_src)
-      phase_ctxt[:cpp_macro_table] = MacroTable.new
-      phase_ctxt[:cpp_interpreter] = Preprocessor.new
-      phase_ctxt[:cpp_visitor]     = SyntaxTreeMulticastVisitor.new
+      phase_ctxt[:cc1_source]        = PreprocessedSource.new(root_src)
+      phase_ctxt[:cpp_macro_table]   = MacroTable.new
+      phase_ctxt[:cpp_interpreter]   = Preprocessor.new
+      phase_ctxt[:cpp_ast_traversal] = SyntaxTreeMulticastVisitor.new
       register_annotation_parser
     end
 
@@ -105,7 +105,7 @@ module Cpp #:nodoc:
       else
         init_header = EmptySource.new
       end
-      phase_ctxt[:cpp_syntax_tree] =
+      phase_ctxt[:cpp_ast] =
         phase_ctxt[:cpp_interpreter].execute(pp_ctxt, init_header)
     end
 
@@ -116,13 +116,13 @@ module Cpp #:nodoc:
       else
         init_header = EmptySource.new
       end
-      phase_ctxt[:cpp_syntax_tree].concat(
+      phase_ctxt[:cpp_ast].concat(
         phase_ctxt[:cpp_interpreter].execute(pp_ctxt, init_header))
     end
 
     def process_target_source(phase_ctxt, pp_ctxt)
       root_src = phase_ctxt[:sources].first
-      phase_ctxt[:cpp_syntax_tree].concat(
+      phase_ctxt[:cpp_ast].concat(
         phase_ctxt[:cpp_interpreter].execute(pp_ctxt, root_src))
     end
   end
@@ -145,7 +145,7 @@ module Cpp #:nodoc:
 
     private
     def do_execute(phase_ctxt, *)
-      phase_ctxt[:cpp_syntax_tree].accept(phase_ctxt[:cpp_visitor])
+      phase_ctxt[:cpp_ast].accept(phase_ctxt[:cpp_ast_traversal])
     end
   end
 

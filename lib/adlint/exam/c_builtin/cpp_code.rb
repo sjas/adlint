@@ -102,23 +102,23 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      visitor = phase_ctxt[:cpp_visitor]
-      visitor.enter_if_statement                 += T(:extract_if)
-      visitor.enter_ifdef_statement              += T(:extract_ifdef)
-      visitor.enter_ifndef_statement             += T(:extract_ifndef)
-      visitor.enter_elif_statement               += T(:extract_elif)
-      visitor.enter_else_statement               += T(:extract_else)
-      visitor.enter_endif_line                   += T(:extract_endif)
-      visitor.enter_user_include_line            += T(:extract_user_include)
-      visitor.enter_system_include_line          += T(:extract_system_include)
-      visitor.enter_object_like_define_line      += T(:extract_define)
-      visitor.enter_function_like_define_line    += T(:extract_define)
-      visitor.enter_va_function_like_define_line += T(:extract_define)
-      visitor.enter_undef_line                   += T(:extract_undef)
-      visitor.enter_line_line                    += T(:extract_line)
-      visitor.enter_error_line                   += T(:extract_error)
-      visitor.enter_pragma_line                  += T(:extract_pragma)
-      visitor.enter_null_directive               += T(:extract_null)
+      traversal = phase_ctxt[:cpp_ast_traversal]
+      traversal.enter_if_statement                 += T(:extract_if)
+      traversal.enter_ifdef_statement              += T(:extract_ifdef)
+      traversal.enter_ifndef_statement             += T(:extract_ifndef)
+      traversal.enter_elif_statement               += T(:extract_elif)
+      traversal.enter_else_statement               += T(:extract_else)
+      traversal.enter_endif_line                   += T(:extract_endif)
+      traversal.enter_user_include_line            += T(:extract_usr_include)
+      traversal.enter_system_include_line          += T(:extract_sys_include)
+      traversal.enter_object_like_define_line      += T(:extract_define)
+      traversal.enter_function_like_define_line    += T(:extract_define)
+      traversal.enter_va_function_like_define_line += T(:extract_define)
+      traversal.enter_undef_line                   += T(:extract_undef)
+      traversal.enter_line_line                    += T(:extract_line)
+      traversal.enter_error_line                   += T(:extract_error)
+      traversal.enter_pragma_line                  += T(:extract_pragma)
+      traversal.enter_null_directive               += T(:extract_null)
     end
 
     private
@@ -153,12 +153,12 @@ module CBuiltin #:nodoc:
       PP_DIRECTIVE(endif_line.location, endif_line.keyword.value, nil)
     end
 
-    def extract_user_include(usr_include_line)
+    def extract_usr_include(usr_include_line)
       PP_DIRECTIVE(usr_include_line.location, usr_include_line.keyword.value,
                    usr_include_line.header_name.value)
     end
 
-    def extract_system_include(sys_include_line)
+    def extract_sys_include(sys_include_line)
       PP_DIRECTIVE(sys_include_line.location, sys_include_line.keyword.value,
                    sys_include_line.header_name.value)
     end

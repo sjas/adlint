@@ -1,3 +1,9 @@
+Tue May 28 21:47:56 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/exam/c_builtin/ld_metric.rb : Fix FN_CALL measurement to
+	  count a number of caller functions instead of a number of function
+	  calls.
+
 Tue May 28 20:59:27 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* lib/adlint/exam/c_builtin/ld_check.rb : Fix W0589 code check in order

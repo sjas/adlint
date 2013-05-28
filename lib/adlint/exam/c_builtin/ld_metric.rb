@@ -51,8 +51,9 @@ module CBuiltin #:nodoc:
     def do_execute(*) end
 
     def measure(fun)
-      FN_CALL(FunctionId.new(fun.name, fun.signature),
-              fun.location, @call_graph.all_callers_of(fun).size)
+      refs = @call_graph.all_callers_of(fun)
+      FN_CALL(FunctionId.new(fun.name, fun.signature), fun.location,
+              refs.map { |ref| ref.function }.compact.uniq.size)
     end
   end
 

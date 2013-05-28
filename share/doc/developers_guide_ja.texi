@@ -211,6 +211,7 @@ qualified              -> qualed
 error                  -> err
 project                -> proj
 temporary              -> tmp
+referrer-function      -> ref_fun
 @end verbatim
 
 

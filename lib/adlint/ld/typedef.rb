@@ -57,7 +57,7 @@ module Ld #:nodoc:
     end
   end
 
-  class TypedefMapping
+  class TypedefMap
     def initialize
       @name_index = Hash.new { |hash, key| hash[key] = Set.new }
       @composing_fpaths = Set.new
@@ -83,10 +83,10 @@ module Ld #:nodoc:
 
   class TypedefMapper
     def initialize
-      @result = TypedefMapping.new
+      @map = TypedefMap.new
     end
 
-    attr_reader :result
+    attr_reader :map
 
     def execute(met_fpath)
       sma_wd = Pathname.pwd
@@ -96,15 +96,15 @@ module Ld #:nodoc:
         when rec.version?
           sma_wd = Pathname.new(rec.exec_working_directory)
         when rec.typedef_declaration?
-          @result.add(Typedef.new(rec.type_name, rec.location))
+          @map.add(Typedef.new(rec.type_name, rec.location))
         end
       end
     end
   end
 
   class TypedefTraversal
-    def initialize(typedef_mapping)
-      @typedef_mapping = typedef_mapping
+    def initialize(typedef_map)
+      @map = typedef_map
     end
 
     extend Pluggable
@@ -112,7 +112,7 @@ module Ld #:nodoc:
     def_plugin :on_declaration
 
     def execute
-      @typedef_mapping.all_typedefs.each { |tdef| on_declaration.invoke(tdef) }
+      @map.all_typedefs.each { |tdef| on_declaration.invoke(tdef) }
     end
   end
 

@@ -104,7 +104,7 @@ module Ld #:nodoc:
     end
   end
 
-  class VariableMapping
+  class VariableMap
     def initialize
       @def_index = Hash.new { |hash, key| hash[key] = Set.new }
       @dcl_index = Hash.new { |hash, key| hash[key] = Set.new }
@@ -142,10 +142,10 @@ module Ld #:nodoc:
 
   class VariableMapper
     def initialize
-      @result = VariableMapping.new
+      @map = VariableMap.new
     end
 
-    attr_reader :result
+    attr_reader :map
 
     def execute(met_fpath)
       sma_wd = Pathname.pwd
@@ -156,103 +156,18 @@ module Ld #:nodoc:
           sma_wd = Pathname.new(rec.exec_working_directory)
         when rec.variable_definition?
           if rec.variable_linkage_type == "X"
-            @result.add_variable(Variable.new(rec))
+            @map.add_variable(Variable.new(rec))
           end
         when rec.global_variable_declaration?
-          @result.add_variable_declaration(VariableDeclaration.new(rec))
-        end
-      end
-    end
-  end
-
-  class VariableReference
-    include LocationHolder
-
-    def initialize(fun, var, loc)
-      @function = fun
-      @variable = var
-      @location = loc
-    end
-
-    attr_reader :function
-    attr_reader :variable
-    attr_reader :location
-
-    def eql?(rhs)
-      to_a == rhs.to_a
-    end
-
-    alias :== :eql?
-
-    def hash
-      to_a.hash
-    end
-
-    def to_a
-      [@function, @variable, @location]
-    end
-  end
-
-  class VariableReferenceGraph
-    def initialize(funcall_graph)
-      @funcall_graph = funcall_graph
-      @ref_index = Hash.new { |hash, key| hash[key] = Set.new }
-      @var_index = Hash.new { |hash, key| hash[key] = Set.new }
-    end
-
-    def add(var_ref)
-      @ref_index[var_ref.function].add(var_ref)
-      @var_index[var_ref.variable].add(var_ref)
-    end
-
-    def all_referrers_of(var)
-      direct_referrers_of(var) + indirect_referrers_of(var)
-    end
-
-    def direct_referrers_of(var)
-      @var_index[var].map { |var_ref| var_ref.function }.to_set
-    end
-
-    def indirect_referrers_of(var)
-      direct_referrers = direct_referrers_of(var)
-      direct_referrers.reduce(Set.new) do |result, fun|
-        result + @funcall_graph.all_callers_of(fun)
-      end
-    end
-  end
-
-  class VariableReferenceGraphBuilder
-    def initialize(var_mapping, fun_mapping, funcall_graph)
-      @variable_mapping = var_mapping
-      @function_mapping = fun_mapping
-      @result = VariableReferenceGraph.new(funcall_graph)
-    end
-
-    attr_reader :result
-
-    def execute(met_fpath)
-      sma_wd = Pathname.pwd
-      CSV.foreach(met_fpath) do |csv_row|
-        rec = MetricRecord.of(csv_row, sma_wd)
-        case
-        when rec.version?
-          sma_wd = Pathname.new(rec.exec_working_directory)
-        when rec.variable_xref?
-          fun = @function_mapping.lookup_functions(
-            rec.accessor_function.name).first
-          var = @variable_mapping.lookup_variables(rec.accessee_variable).first
-
-          if fun && var
-            @result.add(VariableReference.new(fun, var, rec.location))
-          end
+          @map.add_variable_declaration(VariableDeclaration.new(rec))
         end
       end
     end
   end
 
   class VariableTraversal
-    def initialize(var_mapping)
-      @variable_mapping = var_mapping
+    def initialize(var_map)
+      @map = var_map
     end
 
     extend Pluggable
@@ -261,11 +176,11 @@ module Ld #:nodoc:
     def_plugin :on_definition
 
     def execute
-      @variable_mapping.all_variable_declarations.each do |var_dcl|
+      @map.all_variable_declarations.each do |var_dcl|
         on_declaration.invoke(var_dcl)
       end
 
-      @variable_mapping.all_variables.each do |var_def|
+      @map.all_variables.each do |var_def|
         on_definition.invoke(var_def)
       end
     end
@@ -347,7 +262,7 @@ module Ld #:nodoc:
     end
   end
 
-  class FunctionMapping
+  class FunctionMap
     def initialize
       @def_index = Hash.new { |hash, key| hash[key] = Set.new }
       @dcl_index = Hash.new { |hash, key| hash[key] = Set.new }
@@ -385,10 +300,10 @@ module Ld #:nodoc:
 
   class FunctionMapper
     def initialize
-      @result = FunctionMapping.new
+      @map = FunctionMap.new
     end
 
-    attr_reader :result
+    attr_reader :map
 
     def execute(met_fpath)
       sma_wd = Pathname.pwd
@@ -398,22 +313,93 @@ module Ld #:nodoc:
         when rec.version?
           sma_wd = Pathname.new(rec.exec_working_directory)
         when rec.function_definition?
-          @result.add_function(Function.new(rec))
+          @map.add_function(Function.new(rec))
         when rec.function_declaration?
-          @result.add_function_declaration(FunctionDeclaration.new(rec))
+          @map.add_function_declaration(FunctionDeclaration.new(rec))
         end
       end
     end
   end
 
-  class FunctionCall
-    def initialize(caller_fun, callee_fun)
-      @caller_function = caller_fun
-      @callee_function = callee_fun
+  class FunctionTraversal
+    def initialize(fun_map)
+      @map = fun_map
     end
 
-    attr_reader :caller_function
-    attr_reader :callee_function
+    extend Pluggable
+
+    def_plugin :on_declaration
+    def_plugin :on_definition
+
+    def execute
+      @map.all_function_declarations.each do |fun_dcl|
+        on_declaration.invoke(fun_dcl)
+      end
+
+      @map.all_functions.each do |fun_def|
+        on_definition.invoke(fun_def)
+      end
+    end
+  end
+
+  class ObjectReferrer
+    class << self
+      def of_function(fun)
+        Function.new(fun)
+      end
+
+      def of_ctors_section(ref_loc)
+        CtorsSection.new(ref_loc)
+      end
+    end
+
+    def location
+      subclass_responsibility
+    end
+
+    def function
+      subclass_responsibility
+    end
+
+    class Function < ObjectReferrer
+      def initialize(fun)
+        @function = fun
+      end
+
+      attr_reader :function
+
+      def location
+        @function.location
+      end
+    end
+    private_constant :Function
+
+    class CtorsSection < ObjectReferrer
+      def initialize(ref_loc)
+        @location = ref_loc
+      end
+
+      attr_reader :location
+
+      def function
+        nil
+      end
+    end
+    private_constant :CtorsSection
+  end
+
+  class ObjectReference
+    include LocationHolder
+
+    def initialize(ref, obj, loc)
+      @referrer = ref
+      @object   = obj
+      @location = loc
+    end
+
+    attr_reader :referrer
+    attr_reader :object
+    attr_reader :location
 
     def eql?(rhs)
       to_a == rhs.to_a
@@ -426,51 +412,160 @@ module Ld #:nodoc:
     end
 
     def to_a
-      [@caller_function, @callee_function]
+      [@referrer, @object, @location]
+    end
+  end
+
+  class ObjectXRefGraph
+    def initialize(funcall_graph)
+      @funcall_graph = funcall_graph
+      @obj_index = Hash.new { |hash, key| hash[key] = Set.new }
+    end
+
+    def add(obj_ref)
+      @obj_index[obj_ref.object].add(obj_ref)
+    end
+
+    def all_referrers_of(obj)
+      direct_referrers_of(obj) + indirect_referrers_of(obj)
+    end
+
+    def direct_referrers_of(obj)
+      @obj_index[obj].map { |obj_ref| obj_ref.referrer }.to_set
+    end
+
+    def indirect_referrers_of(obj)
+      direct_referrers_of(obj).reduce(Set.new) do |res, ref|
+        if fun = ref.function
+          res + @funcall_graph.all_callers_of(fun)
+        else
+          res
+        end
+      end
+    end
+  end
+
+  class ObjectXRefGraphBuilder
+    def initialize(var_map, fun_map, funcall_graph)
+      @var_map, @fun_map = var_map, fun_map
+      @graph = ObjectXRefGraph.new(funcall_graph)
+    end
+
+    attr_reader :graph
+
+    def execute(met_fpath)
+      sma_wd = Pathname.pwd
+      CSV.foreach(met_fpath) do |csv_row|
+        rec = MetricRecord.of(csv_row, sma_wd)
+        case
+        when rec.version?
+          sma_wd = Pathname.new(rec.exec_working_directory)
+        when rec.variable_xref?
+          var = @var_map.lookup_variables(rec.accessee_variable).first
+          fun_id = rec.accessor_function
+          if fun_id.named?
+            fun = @fun_map.lookup_functions(fun_id.name).first
+            ref = ObjectReferrer.of_function(fun)
+          else
+            ref = ObjectReferrer.of_ctors_section(rec.location)
+          end
+          @graph.add(ObjectReference.new(ref, var, rec.location)) if var
+        when rec.function_xref?
+          ref, fun = lookup_referrer_and_function_by_xref(rec)
+          @graph.add(ObjectReference.new(ref, fun, rec.location)) if ref && fun
+        end
+      end
+    end
+
+    private
+    def lookup_referrer_and_function_by_xref(fun_xref)
+      caller_id = fun_xref.accessor_function
+      if caller_id.named?
+        caller_fun = @fun_map.lookup_functions(caller_id.name).find { |fun|
+          fun.location.fpath == fun_xref.location.fpath
+        }
+        return nil, nil unless caller_fun
+        ref = ObjectReferrer.of_function(caller_fun)
+      else
+        ref = ObjectReferrer.of_ctors_section(fun_xref.location)
+      end
+
+      callee_funs = @fun_map.lookup_functions(fun_xref.accessee_function.name)
+      callee_fun = callee_funs.find { |fun|
+        fun.location.fpath == ref.location.fpath
+      } || callee_funs.first
+
+      return ref, callee_fun
+    end
+  end
+
+  class FunctionCall
+    def initialize(caller_ref, callee_fun)
+      @caller = caller_ref
+      @callee = callee_fun
+    end
+
+    attr_reader :caller
+    attr_reader :callee
+
+    def eql?(rhs)
+      to_a == rhs.to_a
+    end
+
+    alias :== :eql?
+
+    def hash
+      to_a.hash
+    end
+
+    def to_a
+      [@caller, @callee]
     end
   end
 
   class FunctionCallGraph
     def initialize
-      @caller_index = Hash.new { |hash, key| hash[key] = Set.new }
       @callee_index = Hash.new { |hash, key| hash[key] = Set.new }
     end
 
     def add(funcall)
-      @caller_index[funcall.caller_function].add(funcall)
-      @callee_index[funcall.callee_function].add(funcall)
+      @callee_index[funcall.callee].add(funcall)
     end
 
-    def all_callers_of(callee_fun)
-      direct_callers_of(callee_fun) + indirect_callers_of(callee_fun)
+    def all_callers_of(fun)
+      direct_callers_of(fun) + indirect_callers_of(fun)
     end
     memoize :all_callers_of
 
-    def direct_callers_of(callee_fun)
-      @callee_index[callee_fun].map { |funcall|
-        funcall.caller_function
-      }.to_set
+    def direct_callers_of(fun)
+      @callee_index[fun].map { |funcall| funcall.caller }.to_set
     end
     memoize :direct_callers_of
 
-    def indirect_callers_of(callee_fun)
-      direct_callers = direct_callers_of(callee_fun)
-      direct_callers.reduce(Set.new) do |all_callers, fun|
-        all_callers + collect_callers_of(fun, all_callers)
+    def indirect_callers_of(fun)
+      direct_callers_of(fun).reduce(Set.new) do |res, ref|
+        if fun = ref.function
+          res + collect_callers_of(fun, res)
+        else
+          res
+        end
       end
     end
     memoize :indirect_callers_of
 
     private
-    def collect_callers_of(callee_fun, exclusion_list)
-      direct_callers = direct_callers_of(callee_fun)
-
-      direct_callers.reduce(Set.new) do |all_callers, fun|
-        if exclusion_list.include?(fun)
-          all_callers.add(fun)
+    def collect_callers_of(fun, exclusions)
+      direct_callers_of(fun).reduce(Set.new) do |res, ref|
+        if caller_fun = ref.function
+          if exclusions.include?(caller_fun)
+            res.add(ref)
+          else
+            res.add(ref) +
+              collect_callers_of(caller_fun, exclusions +
+                                 res.map(&:function).compact.to_set)
+          end
         else
-          all_callers.add(fun) +
-            collect_callers_of(fun, exclusion_list + all_callers)
+          res.add(ref)
         end
       end
     end
@@ -478,12 +573,12 @@ module Ld #:nodoc:
   end
 
   class FunctionCallGraphBuilder
-    def initialize(fun_mapping)
-      @function_mapping = fun_mapping
-      @result = FunctionCallGraph.new
+    def initialize(fun_map)
+      @fun_map = fun_map
+      @graph = FunctionCallGraph.new
     end
 
-    attr_reader :result
+    attr_reader :graph
 
     def execute(met_fpath)
       sma_wd = Pathname.pwd
@@ -493,80 +588,65 @@ module Ld #:nodoc:
         when rec.version?
           sma_wd = Pathname.new(rec.exec_working_directory)
         when rec.function_call?
-          caller_fun, callee_fun = lookup_functions_by_call(rec)
-          if caller_fun && callee_fun
-            @result.add(FunctionCall.new(caller_fun, callee_fun))
-          end
+          caller_ref, callee_fun = lookup_functions_by_call(rec)
         when rec.function_xref?
-          caller_fun, callee_fun = lookup_functions_by_xref(rec)
-          if caller_fun && callee_fun
-            @result.add(FunctionCall.new(caller_fun, callee_fun))
-          end
+          caller_ref, callee_fun = lookup_functions_by_xref(rec)
+        end
+        if caller_ref && callee_fun
+          @graph.add(FunctionCall.new(caller_ref, callee_fun))
         end
       end
     end
 
+    private
     def lookup_functions_by_call(funcall_rec)
-      caller_fun = @function_mapping.lookup_functions(
+      caller_fun = @fun_map.lookup_functions(
         funcall_rec.caller_function.name).find { |fun|
           fun.location.fpath == funcall_rec.location.fpath
       }
-      return nil, nil unless caller_fun
+      if caller_fun
+        caller_ref = ObjectReferrer.of_function(caller_fun)
+      else
+        return nil, nil
+      end
 
-      callee_funs = @function_mapping.lookup_functions(
-        funcall_rec.callee_function.name)
+      callee_funs = @fun_map.lookup_functions(funcall_rec.callee_function.name)
 
       callee_fun = callee_funs.first
       callee_funs.each do |fun|
-        if fun.location.fpath == caller_fun.location.fpath
+        if fun.location.fpath == caller_ref.location.fpath
           callee_fun = fun
           break
         end
       end
 
-      return caller_fun, callee_fun
+      return caller_ref, callee_fun
     end
 
     def lookup_functions_by_xref(fun_xref_rec)
-      caller_fun = @function_mapping.lookup_functions(
+      caller_fun = @fun_map.lookup_functions(
         fun_xref_rec.accessor_function.name).find { |fun|
           fun.location.fpath == fun_xref_rec.location.fpath
-      }
-      return nil, nil unless caller_fun
+        }
 
-      callee_funs = @function_mapping.lookup_functions(
+      if caller_fun
+        caller_ref = ObjectReferrer.of_function(caller_fun)
+      else
+        caller_ref = ObjectReferrer.of_ctors_section(fun_xref_rec.location)
+      end
+
+      callee_funs = @fun_map.lookup_functions(
         fun_xref_rec.accessee_function.name)
 
       callee_fun = callee_funs.first
       callee_funs.each do |fun|
-        if fun.location.fpath == caller_fun.location.fpath
+        if fun.location.fpath == caller_ref.location.fpath
           callee_fun = fun
           break
         end
       end
 
-      return caller_fun, callee_fun
-    end
-  end
-
-  class FunctionTraversal
-    def initialize(fun_mapping)
-      @function_mapping = fun_mapping
-    end
-
-    extend Pluggable
-
-    def_plugin :on_declaration
-    def_plugin :on_definition
-
-    def execute
-      @function_mapping.all_function_declarations.each do |fun_dcl|
-        on_declaration.invoke(fun_dcl)
-      end
-
-      @function_mapping.all_functions.each do |fun_def|
-        on_definition.invoke(fun_def)
-      end
+      return caller_ref, callee_fun
     end
   end
 

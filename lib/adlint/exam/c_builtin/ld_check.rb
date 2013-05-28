@@ -84,9 +84,8 @@ module CBuiltin #:nodoc:
     private
     def check_function(fun)
       if fun.extern?
-        ref_funs = @xref_graph.direct_referrers_of(fun).map { |ref|
-          ref_fun = ref.function and ref_fun
-        }.compact.uniq
+        refs = @xref_graph.direct_referrers_of(fun)
+        ref_funs = refs.map { |ref| ref.function }.compact.uniq
         if ref_funs.size == 1
           if ref_funs.first.location.fpath == fun.location.fpath
             W(fun.location, fun.signature, ref_funs.first.signature)
@@ -97,9 +96,8 @@ module CBuiltin #:nodoc:
 
     def check_variable(var)
       if var.extern?
-        ref_funs = @xref_graph.direct_referrers_of(var).map { |ref|
-          ref_fun = ref.function and ref_fun
-        }.compact.uniq
+        refs = @xref_graph.direct_referrers_of(var)
+        ref_funs = refs.map { |ref| ref.function }.compact.uniq
         if ref_funs.size == 1
           if ref_funs.first.location.fpath == var.location.fpath
             W(var.location, var.name, ref_funs.first.signature)

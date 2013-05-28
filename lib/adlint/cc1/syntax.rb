@@ -2333,9 +2333,9 @@ module Cc1 #:nodoc:
       type_dcls = []
 
       dcl_specs.type_specifiers.each do |type_spec|
-        visitor = TypeDeclarationBuilder.new(sym_tbl)
-        type_spec.accept(visitor)
-        type_dcls.concat(visitor.type_declarations)
+        builder = TypeDeclarationBuilder.new(sym_tbl)
+        type_spec.accept(builder)
+        type_dcls.concat(builder.type_declarations)
       end
 
       if sc = dcl_specs.storage_class_specifier and sc.type == :TYPEDEF
@@ -4003,10 +4003,10 @@ module Cc1 #:nodoc:
     def build_type_declaration(dcl_specs, sym_tbl)
       return nil unless dcl_specs
       dcl_specs.type_specifiers.each do |type_spec|
-        visitor = TypeDeclarationBuilder.new(sym_tbl)
-        type_spec.accept(visitor)
-        unless visitor.type_declarations.empty?
-          return visitor.type_declarations.first
+        builder = TypeDeclarationBuilder.new(sym_tbl)
+        type_spec.accept(builder)
+        unless builder.type_declarations.empty?
+          return builder.type_declarations.first
         end
       end
       nil
@@ -4203,10 +4203,10 @@ module Cc1 #:nodoc:
     private
     def build_type_declaration(spec_qual_list, sym_tbl)
       spec_qual_list.type_specifiers.each do |type_spec|
-        visitor = TypeDeclarationBuilder.new(sym_tbl)
-        type_spec.accept(visitor)
-        unless visitor.type_declarations.empty?
-          return visitor.type_declarations.first
+        builder = TypeDeclarationBuilder.new(sym_tbl)
+        type_spec.accept(builder)
+        unless builder.type_declarations.empty?
+          return builder.type_declarations.first
         end
       end
       nil

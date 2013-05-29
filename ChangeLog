@@ -1,3 +1,13 @@
+Wed May 29 18:31:55 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* features/code_check/W0422.feature : Add scenario to reproduce a known
+	  bug.
+
+	* lib/adlint/cc1/ctrlexpr.rb : Fix controlling expression evaluation in
+	  order not to install implicit functions when the effective
+	  controlling expression is not a regular one and the controlling
+	  variable is declared in the iteration body.
+
 Wed May 29 13:26:20 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* features/code_check/W0830.feature : Add scenario to reproduce bad

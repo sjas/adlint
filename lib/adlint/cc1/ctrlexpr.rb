@@ -669,6 +669,27 @@ module Cc1 #:nodoc:
 
     def_delegator :@manipulator, :interpreter
     private :interpreter
+
+    alias :_org_interpret :interpret
+    def interpret(node)
+      case node
+      when ObjectSpecifier
+        if safely_evaluable_object_specifier?(node)
+          _org_interpret(node)
+        else
+          # NOTE: Nothing to do with an undeclared object.
+          create_tmpvar
+        end
+      else
+        _org_interpret(node)
+      end
+    end
+
+    def safely_evaluable_object_specifier?(obj_spec)
+      variable_named(obj_spec.identifier.value) ||
+        function_named(obj_spec.identifier.value) ||
+        enumerator_named(obj_spec.identifier.value)
+    end
   end
 
   class ValueComparison < ValueDomainNarrowing

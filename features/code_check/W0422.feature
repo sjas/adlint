@@ -61,3 +61,40 @@ Feature: W0422
       | W0117 | 3    | 6      |
       | W0114 | 7    | 9      |
       | W0628 | 3    | 6      |
+
+  Scenario: pointer variable as a part of controlling expression is declared in
+            the iteration body
+    Given a target source named "fixture.c" with:
+      """
+      static int *bar(void);
+
+      void foo(void)
+      {
+          if (1) {
+              int *p1;
+              p1 = bar();
+              while (1) {
+                  int *p2;
+                  p2 = p1;
+                  while (*p2 != 3) { /* W0422 */
+                      p2++;
+                  }
+                  if (*p2 == 4) {
+                      break;
+                  }
+                  else {
+                      p1 = bar();
+                  }
+              }
+          }
+      }
+      """
+    When I successfully run `adlint fixture.c` on noarch
+    Then the output should exactly match with:
+      | mesg  | line | column |
+      | W0117 | 3    | 6      |
+      | W0422 | 11   | 20     |
+      | W0024 | 12   | 19     |
+      | W0114 | 5    | 5      |
+      | W0114 | 8    | 9      |
+      | W0628 | 3    | 6      |

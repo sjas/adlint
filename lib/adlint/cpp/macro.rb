@@ -343,26 +343,53 @@ module Cpp #:nodoc:
       #   order of evaluation of ## operators is unspecified.
 
       if lhs = res_toks.pop
-        if rhs = arg_toks.first
+        unless arg_toks.empty?
           # NOTE: To avoid syntax error when the concatenated token can be
           #       retokenize to two or more tokens.
-          new_toks = StringToPPTokensLexer.new(lhs.value + rhs.value).execute
+          unlexed_arg = unlex_tokens(arg_toks)
+          new_toks = StringToPPTokensLexer.new(lhs.value + unlexed_arg).execute
           new_toks.map! do |tok|
             ReplacedToken.new(tok.type, tok.value, expansion_loc,
                               tok.type_hint, false)
           end
           res_toks.concat(new_toks)
-          res_toks.concat(arg_toks[1..-1].map { |tok|
-            ReplacedToken.new(tok.type, tok.value, expansion_loc,
-                              tok.type_hint, false)
-          })
+
+          macro_tbl.notify_sharpsharp_operator_evaled(
+            lhs, Token.new(:MACRO_ARG, unlexed_arg, arg_toks.first.location),
+            new_toks)
         else
           new_toks = [ReplacedToken.new(lhs.type, lhs.value, expansion_loc,
                                         lhs.type_hint, false)]
           res_toks.concat(new_toks)
         end
+      end
+    end
 
-        macro_tbl.notify_sharpsharp_operator_evaled(lhs, rhs, new_toks)
+    def unlex_tokens(arg_toks)
+      # NOTE: To regenerate source string from pp_tokens in preparation for
+      #       the argument substitution.
+
+      # 6.10.3 Macro replacement
+      #
+      # Semantics
+      #
+      # 11 The sequence of preprocessing tokens bounded by the outside-most
+      #    matching parentheses forms the list of arguments for the
+      #    function-like macro.  The individual arguments within the list are
+      #    separated by comma preprocessing tokens, but comma preprocessing
+      #    tokens between matching inner parentheses do not separate arguments.
+      #    If there are sequences of preprocessing tokens within the list of
+      #    arguments that would otherwise act as preprocessing directives, the
+      #    behavior is undefined.
+
+      arg_toks.each_cons(2).reduce(arg_toks.first.value) do |str, (lhs, rhs)|
+        lhs_loc, rhs_loc = lhs.location, rhs.location
+        if lhs_loc.line_no == rhs_loc.line_no
+          tok_gap = rhs_loc.column_no - lhs_loc.column_no - lhs.value.length
+          str + " " * [tok_gap, 0].max + rhs.value
+        else
+          "#{str} #{rhs.value}"
+        end
       end
     end
   end

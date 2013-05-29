@@ -1,3 +1,11 @@
+Wed May 29 13:26:20 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* features/code_check/W0830.feature : Add scenario to reproduce bad
+	  macro replacement problem.
+
+	* lib/adlint/cpp/macro.rb : Fix bad `##' operator evaluation in order
+	  to comply with the ISO C99 standard.
+
 Tue May 28 21:47:56 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* lib/adlint/exam/c_builtin/ld_metric.rb : Fix FN_CALL measurement to

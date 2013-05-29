@@ -34,3 +34,30 @@ Feature: W0422
       | W0629 | 10   | 12     |
       | W0628 | 4    | 12     |
       | W0628 | 10   | 12     |
+
+  Scenario: pointer variable as a part of controlling expression
+    Given a target source named "fixture.c" with:
+      """
+      struct node { struct node *prev; };
+
+      void foo(const struct node *list)
+      {
+          if (list != NULL)
+          {
+              while (1)
+              {
+                  list = list->prev; /* OK */
+                  if (list == NULL)
+                  {
+                      break;
+                  }
+              }
+          }
+      }
+      """
+    When I successfully run `adlint fixture.c` on noarch
+    Then the output should exactly match with:
+      | mesg  | line | column |
+      | W0117 | 3    | 6      |
+      | W0114 | 7    | 9      |
+      | W0628 | 3    | 6      |

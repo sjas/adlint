@@ -49,7 +49,7 @@
 #         - "ERR:X99"
 #       format: "Your custom message for the error of E9999."
 
-version: "3.0.4"
+version: "3.0.5"
 
 message_definition:
   X0001:

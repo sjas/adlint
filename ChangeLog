@@ -1,3 +1,15 @@
+Thu May 30 21:05:44 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* release.rc : 3.0.7
+	  - Fix function call extraction in order to output function calls
+	    within the global scope.
+	  - Improve performance of FN_CALL metric measurement.
+	  - Fix bad function call graph calculation.
+	  - Fix bad expression-constancy check in order not to misunderstand
+	    that an expression contains object-specifier which designates a
+	    variable is constant-expression when a function of the same name
+	    has been declared.
+
 Thu May 30 20:07:56 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* lib/adlint/cc1/syntax.rb : Fix bad expression-constancy check in

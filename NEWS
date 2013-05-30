@@ -21,15 +21,46 @@
 
 ++
 
+=== \AdLint 3.0.8 is released (2013-05-31)
+
+==== Changes since the 3.0.4 release
+
+* Fix bad handling of block comments in order not to assume comment terminator
+  as a part of comment content
+* Fix abend problem of preprocessor when a block comment is not terminated in
+  the translation-unit
+* Fix block comment handling in order not to dive into nested part when a
+  single slash character appears before the comment terminator
+* Fix infinite-loop problem of preprocessor when the #include directive appears
+  with undefined macro
+* Fix bad expression-constancy check in order to treat an expression derives an
+  address-constant as a constant-expression
+* Fix bad variable defining behavor in order to correctly evaluate
+  sizeof-expression that refers defining variable in the initializer
+* Fix W0642 code check in order to warn only when the original object of
+  implicit conversion is an array
+* Revise specification of W0642 code check in order to warn about all the
+  illegal address derivation from the object declared as `register'
+* Fix bad value domain management of the variable whose storage duration is
+  static
+* Fix abend problem in parsing unnamed bit-field declaration
+* Fix W0786 code check in order not to warn when a typedefed type which is same
+  as signed or unsigned int is specified as a base of the bit-field
+* Fix incomplete object cross-reference extraction in order to record object
+  references within global scope in case of global function table
+  initialization
+* Fix incomplete object cross-reference graph and function call graph in order
+  to correctly warn about useless objects
+
+See the file
+{ChangeLog}[http://adlint.sourceforge.net/pmwiki/upload.d/Main/ChangeLog]
+for more details.
+
 === \AdLint 3.0.4 is released (2013-04-12)
 
 ==== Changes since the 3.0.2 release
 
 * Fix abend problem of adlint_chk command
-
-See the file
-{ChangeLog}[http://adlint.sourceforge.net/pmwiki/upload.d/Main/ChangeLog]
-for more details.
 
 === \AdLint 3.0.2 is released (2013-04-12)
 

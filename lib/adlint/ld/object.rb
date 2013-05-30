@@ -361,6 +361,14 @@ module Ld #:nodoc:
       subclass_responsibility
     end
 
+    def hash
+      subclass_responsibility
+    end
+
+    def eql?(rhs)
+      subclass_responsibility
+    end
+
     class Function < ObjectReferrer
       def initialize(fun)
         @function = fun
@@ -370,6 +378,19 @@ module Ld #:nodoc:
 
       def location
         @function.location
+      end
+
+      def hash
+        @function.hash
+      end
+
+      def eql?(rhs)
+        case rhs
+        when Function
+          @function == rhs.function
+        else
+          false
+        end
       end
     end
     private_constant :Function
@@ -383,6 +404,19 @@ module Ld #:nodoc:
 
       def function
         nil
+      end
+
+      def hash
+        @location.fpath.hash
+      end
+
+      def eql?(rhs)
+        case rhs
+        when CtorsSection
+          @location.fpath == rhs.location.fpath
+        else
+          false
+        end
       end
     end
     private_constant :CtorsSection
@@ -556,14 +590,11 @@ module Ld #:nodoc:
     private
     def collect_callers_of(fun, exclusions)
       direct_callers_of(fun).reduce(Set.new) do |res, ref|
-        if caller_fun = ref.function
-          if exclusions.include?(caller_fun)
-            res.add(ref)
-          else
-            res.add(ref) +
-              collect_callers_of(caller_fun, exclusions +
-                                 res.map(&:function).compact.to_set)
-          end
+        case
+        when exclusions.include?(ref)
+          res.add(ref)
+        when caller_fun = ref.function
+          res.add(ref) + collect_callers_of(caller_fun, exclusions + res)
         else
           res.add(ref)
         end
@@ -589,11 +620,9 @@ module Ld #:nodoc:
           sma_wd = Pathname.new(rec.exec_working_directory)
         when rec.function_call?
           caller_ref, callee_fun = lookup_functions_by_call(rec)
-        when rec.function_xref?
-          caller_ref, callee_fun = lookup_functions_by_xref(rec)
-        end
-        if caller_ref && callee_fun
-          @graph.add(FunctionCall.new(caller_ref, callee_fun))
+          if caller_ref && callee_fun
+            @graph.add(FunctionCall.new(caller_ref, callee_fun))
+          end
         end
       end
     end
@@ -611,32 +640,6 @@ module Ld #:nodoc:
       end
 
       callee_funs = @fun_map.lookup_functions(funcall_rec.callee_function.name)
-
-      callee_fun = callee_funs.first
-      callee_funs.each do |fun|
-        if fun.location.fpath == caller_ref.location.fpath
-          callee_fun = fun
-          break
-        end
-      end
-
-      return caller_ref, callee_fun
-    end
-
-    def lookup_functions_by_xref(fun_xref_rec)
-      caller_fun = @fun_map.lookup_functions(
-        fun_xref_rec.accessor_function.name).find { |fun|
-          fun.location.fpath == fun_xref_rec.location.fpath
-        }
-
-      if caller_fun
-        caller_ref = ObjectReferrer.of_function(caller_fun)
-      else
-        caller_ref = ObjectReferrer.of_ctors_section(fun_xref_rec.location)
-      end
-
-      callee_funs = @fun_map.lookup_functions(
-        fun_xref_rec.accessee_function.name)
 
       callee_fun = callee_funs.first
       callee_funs.each do |fun|

@@ -1,3 +1,17 @@
+Thu May 30 13:54:20 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/exam/c_builtin/cc1_code.rb : Fix function call extraction
+	  in order to output function calls within the global scope.
+
+	* lib/adlint/exam/c_builtin/ld_metric.rb : Improve performance of
+	  FN_CALL metric measurement.
+
+	* lib/adlint/ld/object.rb : Fix bad function call graph calculation.
+
+	* lib/adlint/exam/c_builtin.rb : Fix bad abbreviations of class names.
+	* lib/adlint/code.rb : Ditto.
+	* lib/adlint/report.rb : Ditto.
+
 Wed May 29 18:48:01 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* release.rc : 3.0.5

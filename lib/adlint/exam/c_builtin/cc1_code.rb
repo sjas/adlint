@@ -304,13 +304,14 @@ module CBuiltin #:nodoc:
     end
   end
 
-  class FunCallExtraction < CodeExtraction
+  class FuncallExtraction < CodeExtraction
     def_registrant_phase Cc1::Prepare2Phase
 
     def initialize(phase_ctxt)
       super
       @interp = phase_ctxt[:cc1_interpreter]
       @interp.on_function_started          += T(:update_caller)
+      @interp.on_function_ended            += T(:clear_caller)
       @interp.on_function_call_expr_evaled += T(:extract_function_call)
       @caller = nil
     end
@@ -323,16 +324,24 @@ module CBuiltin #:nodoc:
       @caller = fun
     end
 
+    def clear_caller(*)
+      @caller = nil
+    end
+
     def extract_function_call(funcall_expr, fun, *)
-      if @caller && fun.named?
-        FUNCALL(funcall_expr.location,
-                FunctionId.new(@caller.name, @caller.signature.to_s),
+      if fun.named?
+        if @caller
+          referrer = FunctionId.new(@caller.name, @caller.signature.to_s)
+        else
+          referrer = FunctionId.of_ctors_section
+        end
+        FUNCALL(funcall_expr.location, referrer,
                 FunctionId.new(fun.name, fun.signature.to_s))
       end
     end
   end
 
-  class CrossRefExtraction < CodeExtraction
+  class XRefExtraction < CodeExtraction
     def_registrant_phase Cc1::Prepare2Phase
 
     def initialize(phase_ctxt)
@@ -359,12 +368,12 @@ module CBuiltin #:nodoc:
     end
 
     def extract_variable_read(expr, var)
-      # NOTE: When a value of the inner-variable of array or composite object
-      #       is referred, dependency record of only outmost-variable access
-      #       should be output.
-      var = var.owner while var.inner?
-
       if var.scope.global? && var.named?
+        # NOTE: When a value of the inner-variable of array or composite object
+        #       is referred, dependency record of only outmost-variable access
+        #       should be output.
+        var = var.owner while var.inner?
+
         if @accessor
           referrer = FunctionId.new(@accessor.name, @accessor.signature.to_s)
         else

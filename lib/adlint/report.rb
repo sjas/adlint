@@ -405,7 +405,7 @@ module AdLint #:nodoc:
     # _caller_fun_:: FunctionId -- Calling function identifier.
     # _callee_fun_:: FunctionId -- Called function identifier.
     def write_funcall(loc, caller_fun, callee_fun)
-      write_code_struct(FunCall.new(loc, caller_fun, callee_fun))
+      write_code_struct(Funcall.new(loc, caller_fun, callee_fun))
     end
     alias :FUNCALL :write_funcall
 

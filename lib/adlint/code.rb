@@ -350,7 +350,7 @@ module AdLint #:nodoc:
 
   # == DESCRIPTION
   # Function call information.
-  class FunCall < CodeStructure
+  class Funcall < CodeStructure
     # === DESCRIPTION
     # Constructs the function call informatin.
     #

@@ -97,6 +97,7 @@ module Cc1 #:nodoc:
     def_delegator :variable_table, :declare, :declare_variable
     def_delegator :variable_table, :define, :define_variable
     def_delegator :variable_table, :storage_duration_of
+    def_delegator :variable_table, :designators, :variable_designators
 
     def local_variables
       variable_table.all_named_variables.select { |var| var.scope.local? }

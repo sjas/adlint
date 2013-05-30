@@ -446,7 +446,8 @@ module Cc1 #:nodoc:
     def _interp_syntax_bridge_
       {
         enumerator_designators: method(:enumerator_designators),
-        function_designators:   method(:function_designators)
+        function_designators:   method(:function_designators),
+        variable_designators:   method(:variable_designators)
       }
     end
   end
@@ -5549,10 +5550,8 @@ module Cc1 #:nodoc:
     end
 
     def visit_object_specifier(node)
-      const_designators = @interp_bridge[:enumerator_designators][] +
-                          @interp_bridge[:function_designators][]
-
-      unless const_designators.include?(node.identifier.value)
+      var_designators = @interp_bridge[:variable_designators][]
+      if var_designators.include?(node.identifier.value)
         break_as_inconstant
       end
     end

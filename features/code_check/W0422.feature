@@ -98,3 +98,31 @@ Feature: W0422
       | W0114 | 5    | 5      |
       | W0114 | 8    | 9      |
       | W0628 | 3    | 6      |
+
+  Scenario: pointer variable has the same name with previously declared
+            function
+    Given a target source named "fixture.c" with:
+      """
+      extern void instr(void);
+
+      void foo(char *instr)
+      {
+          if (instr[0] == '*') { /* W0422 */
+              return;
+          }
+      }
+      """
+    When I successfully run `adlint fixture.c` on noarch
+    Then the output should exactly match with:
+      | mesg  | line | column |
+      | W0118 | 1    | 13     |
+      | W0117 | 3    | 6      |
+      | W0704 | 3    | 16     |
+      | C0001 | 1    | 13     |
+      | W0422 | 5    | 14     |
+      | W0123 | 5    | 14     |
+      | W0104 | 3    | 16     |
+      | W0105 | 3    | 16     |
+      | W1071 | 3    | 6      |
+      | W0948 | 5    | 21     |
+      | W0628 | 3    | 6      |

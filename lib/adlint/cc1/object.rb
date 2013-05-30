@@ -684,6 +684,10 @@ module Cc1 #:nodoc:
       nil
     end
 
+    def designators
+      @named_variables.map { |hash| hash.keys }.flatten.to_set
+    end
+
     def enter_variables_value_versioning_group
       @named_variables.each do |hash|
         hash.each_value { |var| var.enter_value_versioning_group }

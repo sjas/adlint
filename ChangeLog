@@ -1,3 +1,15 @@
+Thu May 30 20:07:56 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/cc1/syntax.rb : Fix bad expression-constancy check in
+	  order not to misunderstand that an expression contains
+	  object-specifier which designates a variable is constant-expression
+	  when a function of the same name has been declared.
+	* lib/adlint/cc1/mediator.rb : Ditto.
+	* lib/adlint/cc1/object.rb : Ditto.
+
+	* features/code_check/W0422.feature : Add scenario to reproduce a known
+	  bug.
+
 Thu May 30 13:54:20 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* lib/adlint/exam/c_builtin/cc1_code.rb : Fix function call extraction

@@ -345,6 +345,8 @@ features/code_check/W1076.feature
 features/code_check/W1077.feature
 features/code_check/W9001.feature
 features/code_check/W9003.feature
+features/code_extraction/TODO
+features/metric_measurement/TODO
 features/step_definitions/code_check_steps.rb
 features/support/env.rb
 lib/adlint.rb

@@ -25,8 +25,6 @@
 
 ==== Changes since the 3.0.4 release
 
-* Fix bad handling of block comments in order not to assume comment terminator
-  as a part of comment content
 * Fix abend problem of preprocessor when a block comment is not terminated in
   the translation-unit
 * Fix block comment handling in order not to dive into nested part when a
@@ -37,12 +35,8 @@
   address-constant as a constant-expression
 * Fix bad variable defining behavor in order to correctly evaluate
   sizeof-expression that refers defining variable in the initializer
-* Fix W0642 code check in order to warn only when the original object of
-  implicit conversion is an array
 * Revise specification of W0642 code check in order to warn about all the
   illegal address derivation from the object declared as `register'
-* Fix bad value domain management of the variable whose storage duration is
-  static
 * Fix abend problem in parsing unnamed bit-field declaration
 * Fix W0786 code check in order not to warn when a typedefed type which is same
   as signed or unsigned int is specified as a base of the bit-field
@@ -51,6 +45,7 @@
   initialization
 * Fix incomplete object cross-reference graph and function call graph in order
   to correctly warn about useless objects
+* Fix bad `##' operator evaluation in order to comply with the ISO C99 standard
 
 See the file
 {ChangeLog}[http://adlint.sourceforge.net/pmwiki/upload.d/Main/ChangeLog]

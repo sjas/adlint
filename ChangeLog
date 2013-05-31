@@ -1,3 +1,32 @@
+Fri May 31 10:54:11 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* release.ga : 3.0.8
+	  - Fix abend problem of preprocessor when a block comment is not
+	    terminated in the translation-unit.
+	  - Fix block comment handling in order not to dive into nested part
+	    when a single slash character appears before the comment
+	    terminator.
+	  - Fix infinite-loop problem of preprocessor when the #include
+	    directive appears with undefined macro.
+	  - Fix bad expression-constancy check in order to treat an expression
+	    derives an address-constant as a constant-expression.
+	  - Fix bad variable defining behavor in order to correctly evaluate
+	    sizeof-expression that refers defining variable in the initializer.
+	  - Revise specification of W0642 code check in order to warn about all
+	    the illegal address derivation from the object declared as
+	    `register'.
+	  - Fix abend problem in parsing unnamed bit-field declaration.
+	  - Fix W0786 code check in order not to warn when a typedefed type
+	    which is same as signed or unsigned int is specified as a base of
+	    the bit-field.
+	  - Fix incomplete object cross-reference extraction in order to record
+	    object references within global scope in case of global function
+	    table initialization.
+	  - Fix incomplete object cross-reference graph and function call graph
+	    in order to correctly warn about useless objects.
+	  - Fix bad `##' operator evaluation in order to comply with the ISO
+	    C99 standard.
+
 Thu May 30 21:05:44 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* release.rc : 3.0.7
@@ -39,8 +68,6 @@ Thu May 30 13:54:20 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 Wed May 29 18:48:01 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* release.rc : 3.0.5
-	  - Fix bad handling of block comments in order not to assume comment
-	    terminator as a part of comment content.
 	  - Fix abend problem of preprocessor when a block comment is not
 	    terminated in the translation-unit.
 	  - Fix block comment handling in order not to dive into nested part
@@ -52,13 +79,9 @@ Wed May 29 18:48:01 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 	    derives an address-constant as a constant-expression.
 	  - Fix bad variable defining behavor in order to correctly evaluate
 	    sizeof-expression that refers defining variable in the initializer.
-	  - Fix W0642 code check in order to warn only when the original object
-	    of implicit conversion is an array.
 	  - Revise specification of W0642 code check in order to warn about all
 	    the illegal address derivation from the object declared as
 	    `register'.
-	  - Fix bad value domain management of the variable whose storage
-	    duration is static.
 	  - Fix abend problem in parsing unnamed bit-field declaration.
 	  - Fix W0786 code check in order not to warn when a typedefed type
 	    which is same as signed or unsigned int is specified as a base of
@@ -68,6 +91,8 @@ Wed May 29 18:48:01 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 	    table initialization.
 	  - Fix incomplete object cross-reference graph and function call graph
 	    in order to correctly warn about useless objects.
+	  - Fix bad `##' operator evaluation in order to comply with the ISO
+	    C99 standard.
 
 Wed May 29 18:31:55 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 

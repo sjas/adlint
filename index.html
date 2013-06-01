@@ -4,40 +4,30 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <title>AdLint by yanoh</title>
+
     <link rel="stylesheet" href="stylesheets/styles.css">
     <link rel="stylesheet" href="stylesheets/pygment_trac.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-    <script src="javascripts/respond.js"></script>
-    <!--[if lt IE 9]>
-      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-    <!--[if lt IE 8]>
-    <link rel="stylesheet" href="stylesheets/ie.css">
-    <![endif]-->
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
   </head>
   <body>
-      <div id="header">
-        <nav>
-          <li class="fork"><a href="https://github.com/yanoh/adlint">View On GitHub</a></li>
-          <li class="downloads"><a href="https://github.com/yanoh/adlint/zipball/master">ZIP</a></li>
-          <li class="downloads"><a href="https://github.com/yanoh/adlint/tarball/master">TAR</a></li>
-          <li class="title">DOWNLOADS</li>
-        </nav>
-      </div><!-- end header -->
-
     <div class="wrapper">
+      <header>
+        <h1>AdLint</h1>
+        <p>Advanced Lint</p>
 
+        <p class="view"><a href="https://github.com/yanoh/adlint">View the Project on GitHub <small>yanoh/adlint</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/yanoh/adlint/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/yanoh/adlint/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/yanoh/adlint">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
       <section>
-        <div id="title">
-          <h1>AdLint</h1>
-          <p>Advanced Lint</p>
-          <hr>
-          <span class="credits left">Project maintained by <a href="https://github.com/yanoh">yanoh</a></span>
-          <span class="credits right">Hosted on GitHub Pages &mdash; Theme by <a href="http://twitter.com/#!/michigangraham">mattgraham</a></span>
-        </div>
-
         <p><strong>AdLint</strong> is a source code static analyzer.</p>
 
 <p>It can point out unreliable or nonportable code fragments, and can measure various quality metrics of the source code.
@@ -45,15 +35,18 @@ It (currently) can analyze source code compliant with ANSI C89 / ISO C90 and par
 
 <p>You can easily evaluate AdLint at <a href="http://adlint-pad.herokuapp.com/">AdLint PAD</a>.</p>
 
-<h2>How to Install</h2>
+<h2>
+<a name="how-to-install" class="anchor" href="#how-to-install"><span class="octicon octicon-link"></span></a>How to Install</h2>
 
-<h3>Prerequisites</h3>
+<h3>
+<a name="prerequisites" class="anchor" href="#prerequisites"><span class="octicon octicon-link"></span></a>Prerequisites</h3>
 
 <ul>
 <li>Ruby 1.9.3-p0 or later for normal use (*mandatory*)</li>
 <li>GNU Make 3 or later to use adlintized Makefile (optional but recommended)</li>
 <li>Racc 1.4.7 for development (optional)</li>
-</ul><h3>Installation</h3>
+</ul><h3>
+<a name="installation" class="anchor" href="#installation"><span class="octicon octicon-link"></span></a>Installation</h3>
 
 <p>Setup your Ruby interpreter.
 Then, you can install AdLint by the following instruction.</p>
@@ -61,7 +54,8 @@ Then, you can install AdLint by the following instruction.</p>
 <pre><code>% gem install adlint
 </code></pre>
 
-<h3>Evaluation</h3>
+<h3>
+<a name="evaluation" class="anchor" href="#evaluation"><span class="octicon octicon-link"></span></a>Evaluation</h3>
 
 <p>Tiny sample C language projects are bundled with AdLint gem.
 You can evaluate AdLint by the following instructions.</p>
@@ -153,7 +147,8 @@ adlint --verbose -t adlint_traits.yml -o . intro_demo.c
 </table><p><code>intro_demo.c.msg.csv</code> will tell you that the control will never reach to some
 statements and that division-by-zero will occur in <code>intro_demo.c</code>.</p>
 
-<h2>License</h2>
+<h2>
+<a name="license" class="anchor" href="#license"><span class="octicon octicon-link"></span></a>License</h2>
 
 <p>Copyright (C) 2010-2013, <a href="http://www.ogis-ri.co.jp/">OGIS-RI</a> Co.,Ltd.</p>
 
@@ -169,13 +164,15 @@ PARTICULAR PURPOSE.  See the GNU General Public License for more details.</p>
 <p>You should have received a copy of the GNU General Public License along with
 AdLint.  If not, see <a href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>.</p>
 
-<h2>Further Reading</h2>
+<h2>
+<a name="further-reading" class="anchor" href="#further-reading"><span class="octicon octicon-link"></span></a>Further Reading</h2>
 
 <ul>
 <li><a href="http://adlint.sourceforge.net/pmwiki/upload.d/Main/users_guide_ja.html">User's Guide (in Japanese)</a></li>
 <li><a href="http://adlint.sourceforge.net/pmwiki/upload.d/Main/users_guide_en.html">User's Guide (in English)</a></li>
 <li><a href="http://adlint.sourceforge.net/pmwiki/upload.d/Main/developers_guide_ja.html">Developer's Guide (in Japanese)</a></li>
-</ul><h2>TODO</h2>
+</ul><h2>
+<a name="todo" class="anchor" href="#todo"><span class="octicon octicon-link"></span></a>TODO</h2>
 
 <ul>
 <li>Support C++ analysis</li>
@@ -184,9 +181,12 @@ AdLint.  If not, see <a href="http://www.gnu.org/licenses/">http://www.gnu.org/l
 <li>Implement automatic traits files generator</li>
 </ul><p>Any contributions are welcome!</p>
       </section>
-
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/yanoh">yanoh</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
     </div>
-    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+    <script src="javascripts/scale.fix.js"></script>
     
   </body>
 </html>

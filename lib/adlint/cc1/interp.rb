@@ -183,18 +183,19 @@ module Cc1 #:nodoc:
     def_plugin_and_notifier :implicit_function_declared, :obj_spec, :fun
 
     # NOTE: Notified when the interpreter evaluates a sizeof-expression.
-    def_plugin_and_notifier :sizeof_expr_evaled, :expr, :ope_var, :res_var
+    def_plugin_and_notifier :sizeof_expr_evaled, :expr, :ope_var, :rslt_var
 
     # NOTE: Notified when the interpreter evaluates a sizeof-type-expression.
-    def_plugin_and_notifier :sizeof_type_expr_evaled, :expr, :type, :res_var
+    def_plugin_and_notifier :sizeof_type_expr_evaled, :expr, :type, :rslt_var
 
     # NOTE: Notified when the interpreter evaluates a cast-expression.
-    def_plugin_and_notifier :explicit_conv_performed, :expr, :org_var, :res_var
+    def_plugin_and_notifier :explicit_conv_performed,
+                            :expr, :orig_var, :rslt_var
 
     # NOTE: Notified when the interpreter performs an implicit conversion while
     #       evaluating an expression.
     def_plugin_and_notifier :implicit_conv_performed,
-                            :init_or_expr, :org_var, :res_var
+                            :init_or_expr, :orig_var, :rslt_var
 
     # NOTE: Notified when the interpreter performs an address derivation while
     #       address-expression evaluation and array or function address
@@ -205,62 +206,62 @@ module Cc1 #:nodoc:
     # NOTE: Notified when the interpreter evaluates an
     #       array-subscript-expression.
     def_plugin_and_notifier :array_subscript_expr_evaled,
-                            :expr, :ary_or_ptr, :subs, :ary_var, :res_var
+                            :expr, :ary_or_ptr, :subs, :ary_var, :rslt_var
 
     # NOTE: Notified when the interpreter evaluates a function-call-expression.
     def_plugin_and_notifier :function_call_expr_evaled,
-                            :expr, :fun, :arg_vars, :res_var
+                            :expr, :fun, :arg_vars, :rslt_var
 
     # NOTE: Notified when the interpreter evaluates an
     #       unary-arithmetic-expression.
     def_plugin_and_notifier :unary_arithmetic_expr_evaled,
-                            :expr, :ope_var, :res_var
+                            :expr, :ope_var, :rslt_var
 
     # NOTE: Notified when the interpreter evaluates a
     #       multiplicative-expression.
     def_plugin_and_notifier :multiplicative_expr_evaled,
-                            :expr, :lhs_var, :rhs_var, :res_var
+                            :expr, :lhs_var, :rhs_var, :rslt_var
 
     # NOTE: Notified when the interpreter evaluates an additive-expression.
     def_plugin_and_notifier :additive_expr_evaled,
-                            :expr, :lhs_var, :rhs_var, :res_var
+                            :expr, :lhs_var, :rhs_var, :rslt_var
 
     # NOTE: Notified when the interpreter evaluates a shift-expression.
     def_plugin_and_notifier :shift_expr_evaled,
-                            :expr, :lhs_var, :rhs_var, :res_var
+                            :expr, :lhs_var, :rhs_var, :rslt_var
 
     # NOTE: Notified when the interpreter evaluates a relational-expression.
     def_plugin_and_notifier :relational_expr_evaled,
-                            :expr, :lhs_var, :rhs_var, :res_var
+                            :expr, :lhs_var, :rhs_var, :rslt_var
 
     # NOTE: Notified when the interpreter evaluates an equality-expression.
     def_plugin_and_notifier :equality_expr_evaled,
-                            :expr, :lhs_var, :rhs_var, :res_var
+                            :expr, :lhs_var, :rhs_var, :rslt_var
 
     # NOTE: Notified when the interpreter evaluates a bitwise and-expression.
     def_plugin_and_notifier :and_expr_evaled,
-                            :expr, :lhs_var, :rhs_var, :res_var
+                            :expr, :lhs_var, :rhs_var, :rslt_var
 
     # NOTE: Notified when the interpreter evaluates an exclusive-or-expression.
     def_plugin_and_notifier :exclusive_or_expr_evaled,
-                            :expr, :lhs_var, :rhs_var, :res_var
+                            :expr, :lhs_var, :rhs_var, :rslt_var
 
     # NOTE: Notified when the interpreter evaluates a bitwise
     #       inclusive-or-expression.
     def_plugin_and_notifier :inclusive_or_expr_evaled,
-                            :expr, :lhs_var, :rhs_var, :res_var
+                            :expr, :lhs_var, :rhs_var, :rslt_var
 
     # NOTE: Notified when the interpreter evaluates a logical-and-expression.
     def_plugin_and_notifier :logical_and_expr_evaled,
-                            :expr, :lhs_var, :rhs_var, :res_var
+                            :expr, :lhs_var, :rhs_var, :rslt_var
 
     # NOTE: Notified when the interpreter evaluates a logical-or-expression.
     def_plugin_and_notifier :logical_or_expr_evaled,
-                            :expr, :lhs_var, :rhs_var, :res_var
+                            :expr, :lhs_var, :rhs_var, :rslt_var
 
     # NOTE: Notified when the interpreter evaluates a conditional-expression.
     def_plugin_and_notifier :conditional_expr_evaled,
-                            :expr, :ctrlexpr_var, :res_var
+                            :expr, :ctrlexpr_var, :rslt_var
 
     # NOTE: Notified when the interpreter evaluates an address-expression.
     def_plugin_and_notifier :address_expr_evaled, :expr, :obj, :ptr_var
@@ -278,22 +279,22 @@ module Cc1 #:nodoc:
     # NOTE: Notified when the interpreter evaluates a
     #       prefix-increment-expression.
     def_plugin_and_notifier :prefix_increment_expr_evaled,
-                            :expr, :ope_var, :org_val
+                            :expr, :ope_var, :orig_val
 
     # NOTE: Notified when the interpreter evaluates a
     #       postfix-increment-expression.
     def_plugin_and_notifier :postfix_increment_expr_evaled,
-                            :expr, :ope_var, :res_var
+                            :expr, :ope_var, :rslt_var
 
     # NOTE: Notified when the interpreter evaluates a
     #       prefix-decrement-expression.
     def_plugin_and_notifier :prefix_decrement_expr_evaled,
-                            :expr, :ope_var, :org_val
+                            :expr, :ope_var, :orig_val
 
     # NOTE: Notified when the interpreter evaluates a
     #       postfix-decrement-expression.
     def_plugin_and_notifier :postfix_decrement_expr_evaled,
-                            :expr, :ope_var, :res_var
+                            :expr, :ope_var, :rslt_var
 
     # NOTE: Notified when the interpreter evaluates a
     #       simple-assignment-expression or a compound-assignment-expression.
@@ -419,16 +420,16 @@ module Cc1 #:nodoc:
     def execute(node, *opts)
       @options_stack.push(cur_opts + opts)
       if quiet_without_side_effect?
-        result = nil
+        rslt = nil
         branched_eval(nil, FINAL) do
-          result = node.accept(interpreter_for(node))
+          rslt = node.accept(interpreter_for(node))
           # NOTE: To rollback latest variable value versions.
           BreakEvent.of_return.throw
         end
       else
-        result = node.accept(interpreter_for(node))
+        rslt = node.accept(interpreter_for(node))
       end
-      result
+      rslt
     ensure
       @options_stack.pop
     end
@@ -815,14 +816,14 @@ module Cc1 #:nodoc:
       end
     end
 
-    def deduct_array_length_from_initializers(org_ary_type, inits)
-      unless org_ary_type.length
-        if org_ary_type.user?
-          org_ary_type = org_ary_type.dup
+    def deduct_array_length_from_initializers(orig_ary_type, inits)
+      unless orig_ary_type.length
+        if orig_ary_type.user?
+          orig_ary_type = orig_ary_type.dup
         end
-        org_ary_type.length = inits.size
+        orig_ary_type.length = inits.size
       end
-      org_ary_type
+      orig_ary_type
     end
 
     def interpreter
@@ -997,17 +998,17 @@ module Cc1 #:nodoc:
 
       node.executed = true
 
-      org_ctrlexpr = node.expression
-      if org_ctrlexpr == effective_ctrlexpr
+      orig_ctrlexpr = node.expression
+      if orig_ctrlexpr == effective_ctrlexpr
         ctrlexpr_val = scalar_value_of_arbitrary
         ctrlexpr = nil
       else
-        ctrlexpr_var = object_to_variable(interpret(org_ctrlexpr),
-                                          org_ctrlexpr)
+        ctrlexpr_var = object_to_variable(interpret(orig_ctrlexpr),
+                                          orig_ctrlexpr)
         ctrlexpr_val = value_of(ctrlexpr_var)
-        notify_variable_value_referred(org_ctrlexpr, ctrlexpr_var)
-        notify_sequence_point_reached(SequencePoint.new(org_ctrlexpr))
-        ctrlexpr = org_ctrlexpr.to_normalized_logical
+        notify_variable_value_referred(orig_ctrlexpr, ctrlexpr_var)
+        notify_sequence_point_reached(SequencePoint.new(orig_ctrlexpr))
+        ctrlexpr = orig_ctrlexpr.to_normalized_logical
       end
       notify_if_ctrlexpr_evaled(node, ctrlexpr_val)
 
@@ -1031,17 +1032,17 @@ module Cc1 #:nodoc:
 
       node.executed = true
 
-      org_ctrlexpr = node.expression
-      if org_ctrlexpr == effective_ctrlexpr
+      orig_ctrlexpr = node.expression
+      if orig_ctrlexpr == effective_ctrlexpr
         ctrlexpr_val = scalar_value_of_arbitrary
         ctrlexpr = nil
       else
-        ctrlexpr_var = object_to_variable(interpret(org_ctrlexpr),
-                                          org_ctrlexpr)
+        ctrlexpr_var = object_to_variable(interpret(orig_ctrlexpr),
+                                          orig_ctrlexpr)
         ctrlexpr_val = value_of(ctrlexpr_var)
-        notify_variable_value_referred(org_ctrlexpr, ctrlexpr_var)
-        notify_sequence_point_reached(SequencePoint.new(org_ctrlexpr))
-        ctrlexpr = org_ctrlexpr.to_normalized_logical
+        notify_variable_value_referred(orig_ctrlexpr, ctrlexpr_var)
+        notify_sequence_point_reached(SequencePoint.new(orig_ctrlexpr))
+        ctrlexpr = orig_ctrlexpr.to_normalized_logical
       end
       notify_if_else_ctrlexpr_evaled(node, ctrlexpr_val)
 
@@ -1082,26 +1083,26 @@ module Cc1 #:nodoc:
       notify_sequence_point_reached(SequencePoint.new(node.expression))
       notify_while_ctrlexpr_evaled(node, ctrlexpr_val)
 
-      org_ctrlexpr, ctrlexpr = node.deduct_controlling_expression
+      orig_ctrlexpr, ctrlexpr = node.deduct_controlling_expression
 
       case
       when ctrlexpr_val.must_be_true?
         begin
-          enter_iteration_statement(org_ctrlexpr)
+          enter_iteration_statement(orig_ctrlexpr)
           branched_eval(ctrlexpr, NARROWING, FINAL, IMPLICIT_COND, COMPLETE) do
             interpret(node.statement)
           end
         ensure
-          leave_iteration_statement(org_ctrlexpr)
+          leave_iteration_statement(orig_ctrlexpr)
         end
       when ctrlexpr_val.may_be_true?
         begin
-          enter_iteration_statement(org_ctrlexpr)
+          enter_iteration_statement(orig_ctrlexpr)
           branched_eval(ctrlexpr, NARROWING, FINAL, IMPLICIT_COND) do
             interpret(node.statement)
           end
         ensure
-          leave_iteration_statement(org_ctrlexpr)
+          leave_iteration_statement(orig_ctrlexpr)
         end
       end
     ensure
@@ -1116,15 +1117,15 @@ module Cc1 #:nodoc:
 
       widen_varying_variable_value_domain(node)
 
-      org_ctrlexpr, ctrlexpr = node.deduct_controlling_expression
+      orig_ctrlexpr, ctrlexpr = node.deduct_controlling_expression
 
       begin
-        enter_iteration_statement(org_ctrlexpr)
+        enter_iteration_statement(orig_ctrlexpr)
         branched_eval(ctrlexpr, NARROWING, FINAL, IMPLICIT_COND, COMPLETE) do
           interpret(node.statement)
         end
       ensure
-        leave_iteration_statement(org_ctrlexpr)
+        leave_iteration_statement(orig_ctrlexpr)
       end
 
       ctrlexpr_var = object_to_variable(interpret(node.expression),
@@ -1146,7 +1147,7 @@ module Cc1 #:nodoc:
       node.initial_statement.accept(self)
 
       widen_varying_variable_value_domain(node)
-      org_ctrlexpr, ctrlexpr = node.deduct_controlling_expression
+      orig_ctrlexpr, ctrlexpr = node.deduct_controlling_expression
 
       node.condition_statement.executed = true
       if explicit_ctrlexpr = node.condition_statement.expression
@@ -1162,9 +1163,9 @@ module Cc1 #:nodoc:
 
       case
       when ctrlexpr_val.must_be_true?
-        interpret_for_body_statement(node, org_ctrlexpr, ctrlexpr, true)
+        interpret_for_body_statement(node, orig_ctrlexpr, ctrlexpr, true)
       when ctrlexpr_val.may_be_true?
-        interpret_for_body_statement(node, org_ctrlexpr, ctrlexpr, false)
+        interpret_for_body_statement(node, orig_ctrlexpr, ctrlexpr, false)
       end
     ensure
       notify_for_stmt_ended(node)
@@ -1180,7 +1181,7 @@ module Cc1 #:nodoc:
         notify_c99_for_stmt_started(node)
 
         widen_varying_variable_value_domain(node)
-        org_ctrlexpr, ctrlexpr = node.deduct_controlling_expression
+        orig_ctrlexpr, ctrlexpr = node.deduct_controlling_expression
 
         node.condition_statement.executed = true
         if explicit_ctrlexpr = node.condition_statement.expression
@@ -1196,9 +1197,9 @@ module Cc1 #:nodoc:
 
         case
         when ctrlexpr_val.must_be_true?
-          interpret_for_body_statement(node, org_ctrlexpr, ctrlexpr, true)
+          interpret_for_body_statement(node, orig_ctrlexpr, ctrlexpr, true)
         when ctrlexpr_val.may_be_true?
-          interpret_for_body_statement(node, org_ctrlexpr, ctrlexpr, false)
+          interpret_for_body_statement(node, orig_ctrlexpr, ctrlexpr, false)
         end
       end
     ensure
@@ -1258,8 +1259,8 @@ module Cc1 #:nodoc:
     end
 
     private
-    def interpret_for_body_statement(node, org_ctrlexpr, ctrlexpr, complete)
-      enter_iteration_statement(org_ctrlexpr)
+    def interpret_for_body_statement(node, orig_ctrlexpr, ctrlexpr, complete)
+      enter_iteration_statement(orig_ctrlexpr)
 
       if complete
         branch_opts = [NARROWING, FINAL, IMPLICIT_COND, COMPLETE]
@@ -1289,7 +1290,7 @@ module Cc1 #:nodoc:
         end
       end
     ensure
-      leave_iteration_statement(org_ctrlexpr)
+      leave_iteration_statement(orig_ctrlexpr)
     end
 
     def uninitialize_block_local_variables(generic_labeled_stmt)
@@ -1322,12 +1323,12 @@ module Cc1 #:nodoc:
         end
       end
 
-      varying_vars.each do |var, org_val|
+      varying_vars.each do |var, orig_val|
         case deduct_variable_varying_path(var, iteration_stmt)
         when :increase
-          var.narrow_value_domain!(Operator::GE, org_val)
+          var.narrow_value_domain!(Operator::GE, orig_val)
         when :decrease
-          var.narrow_value_domain!(Operator::LE, org_val)
+          var.narrow_value_domain!(Operator::LE, orig_val)
         end
       end
     end
@@ -1706,8 +1707,8 @@ module Cc1 #:nodoc:
 
       case
       when then_var && else_var
-        res_val = then_var.value.single_value_unified_with(else_var.value)
-        res_var = create_tmpvar(then_var.type, res_val)
+        rslt_val = then_var.value.single_value_unified_with(else_var.value)
+        rslt_var = create_tmpvar(then_var.type, rslt_val)
         # FIXME: Not to over-warn about discarding a function return value.
         #        Because the unified result is a new temporary variable, it is
         #        impossible to relate a reference of the unified result and a
@@ -1715,17 +1716,17 @@ module Cc1 #:nodoc:
         notify_variable_value_referred(node, then_var)
         notify_variable_value_referred(node, else_var)
       when then_var
-        res_var = then_var
+        rslt_var = then_var
       when else_var
-        res_var = else_var
+        rslt_var = else_var
       else
         # FIXME: Nevertheless, the then-expression is not reachable, the branch
         #        execution check may fail in evaluation of the else branch.
-        res_var = create_tmpvar
+        rslt_var = create_tmpvar
       end
 
-      notify_conditional_expr_evaled(node, ctrlexpr_var, res_var)
-      res_var
+      notify_conditional_expr_evaled(node, ctrlexpr_var, rslt_var)
+      rslt_var
     ensure
       if seqp = node.subsequent_sequence_point
         notify_sequence_point_reached(seqp)

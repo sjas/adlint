@@ -35,55 +35,55 @@ module Cc1 #:nodoc:
   module Conversion
     # NOTE: Host class of this module must include InterpreterMediator.
 
-    def do_conversion(org_var, to_type)
-      if org_var.type.coercible?(to_type)
+    def do_conversion(orig_var, to_type)
+      if orig_var.type.coercible?(to_type)
         # NOTE: Value will be coerced into the destination type in
         #       VariableTableMediator#create_tmpvar.
-        create_tmpvar(to_type, wrap_around_value(org_var, to_type))
+        create_tmpvar(to_type, wrap_around_value(orig_var, to_type))
       else
         nil
       end
     end
 
-    def do_integer_promotion(org_var)
-      return org_var unless org_var.type.integer?
+    def do_integer_promotion(orig_var)
+      return orig_var unless orig_var.type.integer?
 
-      promoted_type = org_var.type.integer_promoted_type
-      if org_var.type.same_as?(promoted_type)
-        org_var
+      promoted_type = orig_var.type.integer_promoted_type
+      if orig_var.type.same_as?(promoted_type)
+        orig_var
       else
-        do_conversion(org_var, promoted_type) || org_var
+        do_conversion(orig_var, promoted_type) || orig_var
       end
     end
 
-    def do_usual_arithmetic_conversion(lhs_org, rhs_org)
-      if lhs_org.type.pointer? && rhs_org.type.pointer?
-        return lhs_org, rhs_org
+    def do_usual_arithmetic_conversion(lhs_orig, rhs_orig)
+      if lhs_orig.type.pointer? && rhs_orig.type.pointer?
+        return lhs_orig, rhs_orig
       end
 
-      arith_type = lhs_org.type.arithmetic_type_with(rhs_org.type)
+      arith_type = lhs_orig.type.arithmetic_type_with(rhs_orig.type)
 
-      if lhs_org.type.same_as?(arith_type)
-        lhs_conved = lhs_org
+      if lhs_orig.type.same_as?(arith_type)
+        lhs_conved = lhs_orig
       else
-        lhs_conved = do_conversion(lhs_org, arith_type) || lhs_org
+        lhs_conved = do_conversion(lhs_orig, arith_type) || lhs_orig
       end
 
-      if rhs_org.type.same_as?(arith_type)
-        rhs_conved = rhs_org
+      if rhs_orig.type.same_as?(arith_type)
+        rhs_conved = rhs_orig
       else
-        rhs_conved = do_conversion(rhs_org, arith_type) || rhs_org
+        rhs_conved = do_conversion(rhs_orig, arith_type) || rhs_orig
       end
 
       return lhs_conved, rhs_conved
     end
 
-    def do_default_argument_promotion(org_var)
-      promoted_type = org_var.type.argument_promoted_type
-      if org_var.type.same_as?(promoted_type)
-        org_var
+    def do_default_argument_promotion(orig_var)
+      promoted_type = orig_var.type.argument_promoted_type
+      if orig_var.type.same_as?(promoted_type)
+        orig_var
       else
-        do_conversion(org_var, promoted_type) || org_var
+        do_conversion(orig_var, promoted_type) || orig_var
       end
     end
 
@@ -115,23 +115,23 @@ module Cc1 #:nodoc:
     end
 
     private
-    def wrap_around_value(org_var, to_type)
-      return org_var.value unless org_var.type.scalar? && to_type.scalar?
+    def wrap_around_value(orig_var, to_type)
+      return orig_var.value unless orig_var.type.scalar? && to_type.scalar?
 
       case
-      when org_var.type.signed? && to_type.unsigned?
+      when orig_var.type.signed? && to_type.unsigned?
         min_val = scalar_value_of(to_type.min)
-        if (org_var.value < min_val).may_be_true?
-          return min_val - org_var.value + scalar_value_of(1)
+        if (orig_var.value < min_val).may_be_true?
+          return min_val - orig_var.value + scalar_value_of(1)
         end
-      when org_var.type.unsigned? && to_type.signed?
+      when orig_var.type.unsigned? && to_type.signed?
         max_val = scalar_value_of(to_type.max)
-        if (org_var.value > max_val).may_be_true?
-          return max_val - org_var.value + scalar_value_of(1)
+        if (orig_var.value > max_val).may_be_true?
+          return max_val - orig_var.value + scalar_value_of(1)
         end
       end
 
-      org_var.value
+      orig_var.value
     end
 
     def void_pointer?(type)

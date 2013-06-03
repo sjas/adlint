@@ -2846,9 +2846,9 @@ module Cc1 #:nodoc:
         # NOTE: The `-' character in the scanset causes implementation-defined
         #       behavior.  So, AdLint treats the `-' character as an ordinary
         #       character in the scanset.
-        org_set = scanset.chop.chars.to_a
-        uniq_set = org_set.uniq
-        org_set.size == uniq_set.size
+        orig_set = scanset.chop.chars.to_a
+        uniq_set = orig_set.uniq
+        orig_set.size == uniq_set.size
       end
     end
     private_constant :Conversion_bracket

@@ -797,13 +797,13 @@ module CBuiltin #:nodoc:
     end
 
     private
-    def check(*, org_var, res_var)
-      if @rvalues && org_var.type.floating?
-        case expr = @rvalues[org_var]
-        when Cc1::AdditiveExpression, Cc1::MultiplicativeExpression
-          if org_var.type.same_as?(from_type) && res_var.type.same_as?(to_type)
-            W(expr.location)
-          end
+    def check(*, orig_var, rslt_var)
+      return unless @rvalues && orig_var.type.floating?
+
+      case expr = @rvalues[orig_var]
+      when Cc1::AdditiveExpression, Cc1::MultiplicativeExpression
+        if orig_var.type.same_as?(from_type) && rslt_var.type.same_as?(to_type)
+          W(expr.location)
         end
       end
     end
@@ -812,13 +812,13 @@ module CBuiltin #:nodoc:
       @rvalues = {}
     end
 
-    def handle_additive(expr, *, res_var)
-      memorize_rvalue_derivation(res_var, expr)
+    def handle_additive(expr, *, rslt_var)
+      memorize_rvalue_derivation(rslt_var, expr)
     end
 
-    def handle_multiplicative(expr, *, res_var)
+    def handle_multiplicative(expr, *, rslt_var)
       unless expr.operator.type == "%"
-        memorize_rvalue_derivation(res_var, expr)
+        memorize_rvalue_derivation(rslt_var, expr)
       end
     end
 

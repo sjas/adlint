@@ -82,15 +82,15 @@ module Cpp #:nodoc:
 
       if repl_list = self.replacement_list
         loc = toks.first.location
-        res_toks = repl_list.tokens.map { |tok|
+        rslt_toks = repl_list.tokens.map { |tok|
           ReplacedToken.new(tok.type, tok.value, loc, tok.type_hint, false)
         }
       else
-        res_toks = []
+        rslt_toks = []
       end
 
-      macro_tbl.notify_object_like_macro_replacement(self, toks, res_toks)
-      res_toks
+      macro_tbl.notify_object_like_macro_replacement(self, toks, rslt_toks)
+      rslt_toks
     end
 
     def function_like?; false end
@@ -131,11 +131,11 @@ module Cpp #:nodoc:
           hash[param] = arg
         }
 
-      res_toks = expand_replacement_list(args_hash, toks.first.location,
-                                         macro_tbl, repl_ctxt)
+      rslt_toks = expand_replacement_list(args_hash, toks.first.location,
+                                          macro_tbl, repl_ctxt)
       macro_tbl.notify_function_like_macro_replacement(self, toks, args,
-                                                       res_toks)
-      res_toks
+                                                       rslt_toks)
+      rslt_toks
     end
 
     def function_like?; true end
@@ -200,44 +200,44 @@ module Cpp #:nodoc:
         return []
       end
 
-      res_toks = []
+      rslt_toks = []
       idx = 0
       while cur_tok = repl_list.tokens[idx]
         nxt_tok = repl_list.tokens[idx + 1]
 
         case
         when arg = args[cur_tok.value]
-          substitute_argument(cur_tok, nxt_tok, arg, loc, res_toks, macro_tbl,
+          substitute_argument(cur_tok, nxt_tok, arg, loc, rslt_toks, macro_tbl,
                               repl_ctxt)
         when cur_tok.value == "#"
           if nxt_tok
             tok = stringize_argument(args[nxt_tok.value], loc, macro_tbl)
-            res_toks.push(tok)
+            rslt_toks.push(tok)
             idx += 1
           end
         when cur_tok.value == "##" && nxt_tok.value == "#"
           if nxt_nxt_tok = repl_list.tokens[idx + 2]
             tok = stringize_argument(args[nxt_nxt_tok.value], loc, macro_tbl)
-            concat_with_last_token([tok], loc, res_toks, macro_tbl)
+            concat_with_last_token([tok], loc, rslt_toks, macro_tbl)
             idx += 2
           end
         when cur_tok.value == "##"
           if nxt_tok and arg = args[nxt_tok.value]
-            concat_with_last_token(arg, loc, res_toks, macro_tbl)
+            concat_with_last_token(arg, loc, rslt_toks, macro_tbl)
           else
-            concat_with_last_token([nxt_tok], loc, res_toks, macro_tbl)
+            concat_with_last_token([nxt_tok], loc, rslt_toks, macro_tbl)
           end
           idx += 1
         else
-          res_toks.push(ReplacedToken.new(cur_tok.type, cur_tok.value, loc,
-                                          cur_tok.type_hint, false))
+          rslt_toks.push(ReplacedToken.new(cur_tok.type, cur_tok.value, loc,
+                                           cur_tok.type_hint, false))
         end
         idx += 1
       end
-      res_toks
+      rslt_toks
     end
 
-    def substitute_argument(param_tok, nxt_tok, arg, loc, res_toks, macro_tbl,
+    def substitute_argument(param_tok, nxt_tok, arg, loc, rslt_toks, macro_tbl,
                             repl_ctxt)
       # NOTE: The ISO C99 standard says;
       #
@@ -253,12 +253,12 @@ module Cpp #:nodoc:
       #   the preprocessing file; no other preprocessing tokens are available.
 
       if nxt_tok && nxt_tok.value == "##"
-        res_toks.concat(arg.map { |tok|
+        rslt_toks.concat(arg.map { |tok|
           ReplacedToken.new(tok.type, tok.value, loc, tok.type_hint, false)
         })
       else
         macro_tbl.replace(arg, repl_ctxt)
-        res_toks.concat(arg.map { |tok|
+        rslt_toks.concat(arg.map { |tok|
           ReplacedToken.new(tok.type, tok.value, loc, tok.type_hint, true)
         })
       end
@@ -310,7 +310,7 @@ module Cpp #:nodoc:
                         expansion_loc, :STRING_LITERAL, false)
     end
 
-    def concat_with_last_token(arg_toks, expansion_loc, res_toks, macro_tbl)
+    def concat_with_last_token(arg_toks, expansion_loc, rslt_toks, macro_tbl)
       # NOTE: The ISO C99 standard says;
       #
       # 6.10.3.3 The ## operator
@@ -342,7 +342,7 @@ module Cpp #:nodoc:
       #   The resulting token is available for further macro replacement.  The
       #   order of evaluation of ## operators is unspecified.
 
-      if lhs = res_toks.pop
+      if lhs = rslt_toks.pop
         unless arg_toks.empty?
           # NOTE: To avoid syntax error when the concatenated token can be
           #       retokenize to two or more tokens.
@@ -352,7 +352,7 @@ module Cpp #:nodoc:
             ReplacedToken.new(tok.type, tok.value, expansion_loc,
                               tok.type_hint, false)
           end
-          res_toks.concat(new_toks)
+          rslt_toks.concat(new_toks)
 
           macro_tbl.notify_sharpsharp_operator_evaled(
             lhs, Token.new(:MACRO_ARG, unlexed_arg, arg_toks.first.location),
@@ -360,7 +360,7 @@ module Cpp #:nodoc:
         else
           new_toks = [ReplacedToken.new(lhs.type, lhs.value, expansion_loc,
                                         lhs.type_hint, false)]
-          res_toks.concat(new_toks)
+          rslt_toks.concat(new_toks)
         end
       end
     end
@@ -648,9 +648,9 @@ module Cpp #:nodoc:
       @hide_sets = Hash.new { |hash, key| hash[key] = Set.new }
     end
 
-    def add_to_hide_set(org_tok, new_toks, macro_name)
+    def add_to_hide_set(orig_tok, new_toks, macro_name)
       new_toks.each do |new_tok|
-        @hide_sets[new_tok].merge(@hide_sets[org_tok])
+        @hide_sets[new_tok].merge(@hide_sets[orig_tok])
         @hide_sets[new_tok].add(macro_name)
       end
     end
@@ -713,14 +713,14 @@ module Cpp #:nodoc:
       replaced
     end
 
-    def notify_object_like_macro_replacement(macro, replacing_toks, res_toks)
-      on_object_like_macro_replacement.invoke(macro, replacing_toks, res_toks)
+    def notify_object_like_macro_replacement(macro, replacing_toks, rslt_toks)
+      on_object_like_macro_replacement.invoke(macro, replacing_toks, rslt_toks)
     end
 
     def notify_function_like_macro_replacement(macro, replacing_toks, args,
-                                               res_toks)
+                                               rslt_toks)
       on_function_like_macro_replacement.invoke(macro, replacing_toks, args,
-                                                res_toks)
+                                                rslt_toks)
     end
 
     def notify_sharpsharp_operator_evaled(lhs_tok, rhs_tok, new_toks)

@@ -171,48 +171,48 @@ module Cc1 #:nodoc:
     def visit_sizeof_expression(node)
       checkpoint(node.location)
 
-      ope_obj = res_var = nil
+      ope_obj = rslt_var = nil
       eval_without_side_effect do
-        res_type = type_of(UserTypeId.new("size_t")) || unsigned_long_t
+        rslt_type = type_of(UserTypeId.new("size_t")) || unsigned_long_t
         ope_obj = node.operand.accept(self)
         if ope_obj.variable?
           size = ope_obj.type.aligned_byte_size
-          res_var = create_tmpvar(res_type, scalar_value_of(size))
+          rslt_var = create_tmpvar(rslt_type, scalar_value_of(size))
         else
-          return create_tmpvar(res_type)
+          return create_tmpvar(rslt_type)
         end
       end
 
-      notify_sizeof_expr_evaled(node, ope_obj, res_var)
-      res_var
+      notify_sizeof_expr_evaled(node, ope_obj, rslt_var)
+      rslt_var
     end
 
     def visit_sizeof_type_expression(node)
       checkpoint(node.location)
       resolve_unresolved_type(node.operand)
 
-      res_var = nil
+      rslt_var = nil
       eval_without_side_effect do
-        res_type = type_of(UserTypeId.new("size_t")) || unsigned_long_t
+        rslt_type = type_of(UserTypeId.new("size_t")) || unsigned_long_t
         size = node.operand.type.aligned_byte_size
-        res_var = create_tmpvar(res_type, scalar_value_of(size))
+        rslt_var = create_tmpvar(rslt_type, scalar_value_of(size))
       end
 
-      notify_sizeof_type_expr_evaled(node, node.operand.type, res_var)
-      res_var
+      notify_sizeof_type_expr_evaled(node, node.operand.type, rslt_var)
+      rslt_var
     end
 
     def visit_alignof_expression(node)
       checkpoint(node.location)
 
       eval_without_side_effect do
-        res_type = type_of(UserTypeId.new("size_t")) || unsigned_long_t
+        rslt_type = type_of(UserTypeId.new("size_t")) || unsigned_long_t
         ope_obj = node.operand.accept(self)
         if ope_obj.variable?
           align = ope_obj.type.byte_alignment
-          create_tmpvar(res_type, scalar_value_of(align))
+          create_tmpvar(rslt_type, scalar_value_of(align))
         else
-          create_tmpvar(res_type)
+          create_tmpvar(rslt_type)
         end
       end
     end
@@ -222,9 +222,9 @@ module Cc1 #:nodoc:
       resolve_unresolved_type(node.operand)
 
       eval_without_side_effect do
-        res_type = type_of(UserTypeId.new("size_t")) || unsigned_long_t
+        rslt_type = type_of(UserTypeId.new("size_t")) || unsigned_long_t
         align = node.operand.type.aligned_byte_size
-        create_tmpvar(res_type, scalar_value_of(align))
+        create_tmpvar(rslt_type, scalar_value_of(align))
       end
     end
 
@@ -322,15 +322,15 @@ module Cc1 #:nodoc:
 
       if lhs_val.scalar? && rhs_val.scalar?
         # NOTE: No usual-arithmetic-conversion.
-        res_var = create_tmpvar(int_t, lhs_val.logical_and(rhs_val))
+        rslt_var = create_tmpvar(int_t, lhs_val.logical_and(rhs_val))
       else
-        res_var = create_tmpvar(int_t)
+        rslt_var = create_tmpvar(int_t)
       end
       notify_variable_value_referred(node, lhs_var)
       notify_variable_value_referred(node, rhs_var)
 
-      notify_logical_and_expr_evaled(node, lhs_var, rhs_var, res_var)
-      res_var
+      notify_logical_and_expr_evaled(node, lhs_var, rhs_var, rslt_var)
+      rslt_var
     end
 
     def visit_logical_or_expression(node)
@@ -374,15 +374,15 @@ module Cc1 #:nodoc:
 
       if lhs_val.scalar? && rhs_val.scalar?
         # NOTE: No usual-arithmetic-conversion.
-        res_var = create_tmpvar(int_t, lhs_val.logical_or(rhs_val))
+        rslt_var = create_tmpvar(int_t, lhs_val.logical_or(rhs_val))
       else
-        res_var = create_tmpvar(int_t)
+        rslt_var = create_tmpvar(int_t)
       end
       notify_variable_value_referred(node, lhs_var)
       notify_variable_value_referred(node, rhs_var)
 
-      notify_logical_or_expr_evaled(node, lhs_var, rhs_var, res_var)
-      res_var
+      notify_logical_or_expr_evaled(node, lhs_var, rhs_var, rslt_var)
+      rslt_var
     end
 
     def visit_simple_assignment_expression(node)
@@ -465,7 +465,7 @@ module Cc1 #:nodoc:
           return create_tmpvar
         end
 
-        res_type = obj.type.unqualify.base_type
+        rslt_type = obj.type.unqualify.base_type
 
         case
         when obj.type.array?
@@ -486,7 +486,7 @@ module Cc1 #:nodoc:
         unless subs.variable? and
             subs.value.scalar? && subs.value.exist? or subs.type.void?
           # NOTE: To detect bad value reference of `void' expressions.
-          return create_tmpvar(res_type)
+          return create_tmpvar(rslt_type)
         end
         _notify_variable_value_referred(node, subs)
 
@@ -497,7 +497,7 @@ module Cc1 #:nodoc:
                                            subs, int_subs)
             subs = int_subs
           else
-            return create_tmpvar(res_type)
+            return create_tmpvar(rslt_type)
           end
         end
 
@@ -505,14 +505,14 @@ module Cc1 #:nodoc:
         subs_val = subs.value.unique_sample
         if ary and inner_var = ary.inner_variable_at(subs_val)
           _notify_object_referred(node, inner_var)
-          if inner_var.type.same_as?(res_type)
-            res_var = inner_var
+          if inner_var.type.same_as?(rslt_type)
+            rslt_var = inner_var
           end
         end
-        res_var ||= create_tmpvar(res_type)
+        rslt_var ||= create_tmpvar(rslt_type)
 
-        notify_array_subscript_expr_evaled(node, obj, subs, ary, res_var)
-        res_var
+        notify_array_subscript_expr_evaled(node, obj, subs, ary, rslt_var)
+        rslt_var
       end
 
       def eval_function_call_expr(node, obj, args)
@@ -544,22 +544,22 @@ module Cc1 #:nodoc:
           notify_sequence_point_reached(SequencePoint.new(node))
         end
 
-        res_var = nil
+        rslt_var = nil
         break_event = BreakEvent.catch {
-          res_var = fun.call(interpreter, node, args)
+          rslt_var = fun.call(interpreter, node, args)
         }
 
         unless fun.builtin?
           arg_vars = args.map { |arg_obj, arg_expr|
             object_to_variable(arg_obj, arg_expr)
           }
-          notify_function_call_expr_evaled(node, fun, arg_vars, res_var)
+          notify_function_call_expr_evaled(node, fun, arg_vars, rslt_var)
         end
 
         if break_event
           break_event.throw
         else
-          res_var
+          rslt_var
         end
       end
 
@@ -635,7 +635,7 @@ module Cc1 #:nodoc:
           return create_tmpvar
         end
 
-        res_var = create_tmpvar(var.type, var.value.dup)
+        rslt_var = create_tmpvar(var.type, var.value.dup)
 
         # NOTE: Value of the variable is referred at this point.  But value
         #       reference should not be notified not to confuse sequence-point
@@ -647,8 +647,8 @@ module Cc1 #:nodoc:
           _notify_variable_value_updated(node, var)
         end
 
-        notify_postfix_increment_expr_evaled(node, var, res_var)
-        res_var
+        notify_postfix_increment_expr_evaled(node, var, rslt_var)
+        rslt_var
       end
 
       def eval_postfix_decrement_expr(node, obj)
@@ -658,7 +658,7 @@ module Cc1 #:nodoc:
           return create_tmpvar
         end
 
-        res_var = create_tmpvar(var.type, var.value.dup)
+        rslt_var = create_tmpvar(var.type, var.value.dup)
 
         # NOTE: Value of the variable is referred at this point.  But value
         #       reference should not be notified not to confuse sequence-point
@@ -670,8 +670,8 @@ module Cc1 #:nodoc:
           _notify_variable_value_updated(node, var)
         end
 
-        notify_postfix_decrement_expr_evaled(node, var, res_var)
-        res_var
+        notify_postfix_decrement_expr_evaled(node, var, rslt_var)
+        rslt_var
       end
 
       def eval_prefix_increment_expr(node, obj)
@@ -681,7 +681,7 @@ module Cc1 #:nodoc:
           return create_tmpvar
         end
 
-        org_val = var.value.dup
+        orig_val = var.value.dup
 
         # NOTE: Value of the variable is referred at this point.  But value
         #       reference should not be notified not to confuse sequence-point
@@ -693,7 +693,7 @@ module Cc1 #:nodoc:
           _notify_variable_value_updated(node, var)
         end
 
-        notify_prefix_increment_expr_evaled(node, var, org_val)
+        notify_prefix_increment_expr_evaled(node, var, orig_val)
         create_tmpvar(var.type, var.value)
       end
 
@@ -704,7 +704,7 @@ module Cc1 #:nodoc:
           return create_tmpvar
         end
 
-        org_val = var.value.dup
+        orig_val = var.value.dup
 
         # NOTE: Value of the variable is referred at this point.  But value
         #       reference should not be notified not to confuse sequence-point
@@ -716,7 +716,7 @@ module Cc1 #:nodoc:
           _notify_variable_value_updated(node, var)
         end
 
-        notify_prefix_decrement_expr_evaled(node, var, org_val)
+        notify_prefix_decrement_expr_evaled(node, var, orig_val)
         create_tmpvar(var.type, var.value)
       end
 
@@ -778,37 +778,37 @@ module Cc1 #:nodoc:
 
         case node.operator.type
         when "+"
-          res_var = create_tmpvar(var.type, +var.value)
+          rslt_var = create_tmpvar(var.type, +var.value)
         when "-"
-          res_var = create_tmpvar(var.type, -var.value)
+          rslt_var = create_tmpvar(var.type, -var.value)
         when "~"
-          res_var = create_tmpvar(var.type, ~var.value)
+          rslt_var = create_tmpvar(var.type, ~var.value)
         when "!"
-          res_var = create_tmpvar(int_t, !var.value)
+          rslt_var = create_tmpvar(int_t, !var.value)
         else
           __NOTREACHED__
         end
         _notify_variable_value_referred(node, var)
 
-        notify_unary_arithmetic_expr_evaled(node, var, res_var)
-        res_var
+        notify_unary_arithmetic_expr_evaled(node, var, rslt_var)
+        rslt_var
       end
 
       def eval_cast_expr(node, obj)
         resolve_unresolved_type(node.type_name)
 
         var = object_to_variable(obj, node)
-        res_var = do_conversion(var, node.type_name.type) ||
-                  create_tmpvar(node.type_name.type)
+        rslt_var = do_conversion(var, node.type_name.type) ||
+                   create_tmpvar(node.type_name.type)
 
-        notify_explicit_conv_performed(node, var, res_var)
+        notify_explicit_conv_performed(node, var, rslt_var)
 
         # NOTE: A cast-expression does not refer a source value essentially.
         #       But, to avoid misunderstand that a return value of a function
         #       is discarded when the return value is casted before assigning
         #       to a variable.
         _notify_variable_value_referred(node, var)
-        res_var
+        rslt_var
       end
 
       def eval_multiplicative_expr(node, lhs_obj, rhs_obj)
@@ -841,27 +841,27 @@ module Cc1 #:nodoc:
         when "*"
           # NOTE: Domain of the arithmetic result value will be restricted by
           #       min-max of the variable type.
-          res_var = create_tmpvar(lhs_conved.type, lhs_val * rhs_val)
+          rslt_var = create_tmpvar(lhs_conved.type, lhs_val * rhs_val)
         when "/"
           # NOTE: Domain of the arithmetic result value will be restricted by
           #       min-max of the variable type.
           # NOTE: "Div by 0" semantics is implemented in value-value
           #       arithmetic.
-          res_var = create_tmpvar(lhs_conved.type, lhs_val / rhs_val)
+          rslt_var = create_tmpvar(lhs_conved.type, lhs_val / rhs_val)
         when "%"
           # NOTE: Domain of the arithmetic result value will be restricted by
           #       min-max of the variable type.
           # NOTE: "Div by 0" semantics is implemented in value-value
           #       arithmetic.
-          res_var = create_tmpvar(lhs_conved.type, lhs_val % rhs_val)
+          rslt_var = create_tmpvar(lhs_conved.type, lhs_val % rhs_val)
         else
           __NOTREACHED__
         end
         _notify_variable_value_referred(node, lhs_var)
         _notify_variable_value_referred(node, rhs_var)
 
-        notify_multiplicative_expr_evaled(node, lhs_var, rhs_var, res_var)
-        res_var
+        notify_multiplicative_expr_evaled(node, lhs_var, rhs_var, rslt_var)
+        rslt_var
       end
 
       def eval_additive_expr(node, lhs_obj, rhs_obj)
@@ -894,19 +894,19 @@ module Cc1 #:nodoc:
         when "+"
           # NOTE: Domain of the arithmetic result value will be restricted by
           #       min-max of the variable type.
-          res_var = create_tmpvar(lhs_conved.type, lhs_val + rhs_val)
+          rslt_var = create_tmpvar(lhs_conved.type, lhs_val + rhs_val)
         when "-"
           # NOTE: Domain of the arithmetic result value will be restricted by
           #       min-max of the variable type.
-          res_var = create_tmpvar(lhs_conved.type, lhs_val - rhs_val)
+          rslt_var = create_tmpvar(lhs_conved.type, lhs_val - rhs_val)
         else
           __NOTREACHED__
         end
         _notify_variable_value_referred(node, lhs_var)
         _notify_variable_value_referred(node, rhs_var)
 
-        notify_additive_expr_evaled(node, lhs_var, rhs_var, res_var)
-        res_var
+        notify_additive_expr_evaled(node, lhs_var, rhs_var, rslt_var)
+        rslt_var
       end
 
       def eval_shift_expr(node, lhs_obj, rhs_obj)
@@ -949,19 +949,19 @@ module Cc1 #:nodoc:
         when "<<"
           # NOTE: Domain of the arithmetic result value will be restricted by
           #       min-max of the variable type.
-          res_var = create_tmpvar(lhs_conved.type, lhs_val << rhs_val)
+          rslt_var = create_tmpvar(lhs_conved.type, lhs_val << rhs_val)
         when ">>"
           # NOTE: Domain of the arithmetic result value will be restricted by
           #       min-max of the variable type.
-          res_var = create_tmpvar(lhs_conved.type, lhs_val >> rhs_val)
+          rslt_var = create_tmpvar(lhs_conved.type, lhs_val >> rhs_val)
         else
           __NOTREACHED__
         end
         _notify_variable_value_referred(node, lhs_var)
         _notify_variable_value_referred(node, rhs_var)
 
-        notify_shift_expr_evaled(node, lhs_var, rhs_var, res_var)
-        res_var
+        notify_shift_expr_evaled(node, lhs_var, rhs_var, rslt_var)
+        rslt_var
       end
 
       def eval_relational_expr(node, lhs_obj, rhs_obj)
@@ -992,21 +992,21 @@ module Cc1 #:nodoc:
 
         case node.operator.type
         when "<"
-          res_var = create_tmpvar(int_t, lhs_val <  rhs_val)
+          rslt_var = create_tmpvar(int_t, lhs_val <  rhs_val)
         when ">"
-          res_var = create_tmpvar(int_t, lhs_val >  rhs_val)
+          rslt_var = create_tmpvar(int_t, lhs_val >  rhs_val)
         when "<="
-          res_var = create_tmpvar(int_t, lhs_val <= rhs_val)
+          rslt_var = create_tmpvar(int_t, lhs_val <= rhs_val)
         when ">="
-          res_var = create_tmpvar(int_t, lhs_val >= rhs_val)
+          rslt_var = create_tmpvar(int_t, lhs_val >= rhs_val)
         else
           __NOTREACHED__
         end
         _notify_variable_value_referred(node, lhs_var)
         _notify_variable_value_referred(node, rhs_var)
 
-        notify_relational_expr_evaled(node, lhs_var, rhs_var, res_var)
-        res_var
+        notify_relational_expr_evaled(node, lhs_var, rhs_var, rslt_var)
+        rslt_var
       end
 
       def eval_equality_expr(node, lhs_obj, rhs_obj)
@@ -1037,17 +1037,17 @@ module Cc1 #:nodoc:
 
         case node.operator.type
         when "=="
-          res_var = create_tmpvar(int_t, lhs_val == rhs_val)
+          rslt_var = create_tmpvar(int_t, lhs_val == rhs_val)
         when "!="
-          res_var = create_tmpvar(int_t, lhs_val != rhs_val)
+          rslt_var = create_tmpvar(int_t, lhs_val != rhs_val)
         else
           __NOTREACHED__
         end
         _notify_variable_value_referred(node, lhs_var)
         _notify_variable_value_referred(node, rhs_var)
 
-        notify_equality_expr_evaled(node, lhs_var, rhs_var, res_var)
-        res_var
+        notify_equality_expr_evaled(node, lhs_var, rhs_var, rslt_var)
+        rslt_var
       end
 
       def eval_and_expr(node, lhs_obj, rhs_obj)
@@ -1078,12 +1078,12 @@ module Cc1 #:nodoc:
 
         # NOTE: Domain of the arithmetic result value will be restricted by
         #       min-max of the variable type.
-        res_var = create_tmpvar(lhs_conved.type, lhs_val & rhs_val)
+        rslt_var = create_tmpvar(lhs_conved.type, lhs_val & rhs_val)
         _notify_variable_value_referred(node, lhs_var)
         _notify_variable_value_referred(node, rhs_var)
 
-        notify_and_expr_evaled(node, lhs_var, rhs_var, res_var)
-        res_var
+        notify_and_expr_evaled(node, lhs_var, rhs_var, rslt_var)
+        rslt_var
       end
 
       def eval_exclusive_or_expr(node, lhs_obj, rhs_obj)
@@ -1114,12 +1114,12 @@ module Cc1 #:nodoc:
 
         # NOTE: Domain of the arithmetic result value will be restricted by
         #       min-max of the variable type.
-        res_var = create_tmpvar(lhs_conved.type, lhs_val ^ rhs_val)
+        rslt_var = create_tmpvar(lhs_conved.type, lhs_val ^ rhs_val)
         _notify_variable_value_referred(node, lhs_var)
         _notify_variable_value_referred(node, rhs_var)
 
-        notify_exclusive_or_expr_evaled(node, lhs_var, rhs_var, res_var)
-        res_var
+        notify_exclusive_or_expr_evaled(node, lhs_var, rhs_var, rslt_var)
+        rslt_var
       end
 
       def eval_inclusive_or_expr(node, lhs_obj, rhs_obj)
@@ -1150,12 +1150,12 @@ module Cc1 #:nodoc:
 
         # NOTE: Domain of the arithmetic result value will be restricted by
         #       min-max of the variable type.
-        res_var = create_tmpvar(lhs_conved.type, lhs_val | rhs_val)
+        rslt_var = create_tmpvar(lhs_conved.type, lhs_val | rhs_val)
         _notify_variable_value_referred(node, lhs_var)
         _notify_variable_value_referred(node, rhs_var)
 
-        notify_inclusive_or_expr_evaled(node, lhs_var, rhs_var, res_var)
-        res_var
+        notify_inclusive_or_expr_evaled(node, lhs_var, rhs_var, rslt_var)
+        rslt_var
       end
 
       def eval_simple_assignment_expr(node, lhs_obj, rhs_obj)
@@ -1228,7 +1228,7 @@ module Cc1 #:nodoc:
 
         lhs_val = lhs_conved.value
         rhs_val = rhs_conved.value
-        res_var = create_tmpvar(lhs_conved.type, lhs_val * rhs_val)
+        rslt_var = create_tmpvar(lhs_conved.type, lhs_val * rhs_val)
 
         # NOTE: Value of the lhs_var is referred at this point.  But value
         #       reference should not be notified not to confuse sequence-point
@@ -1236,9 +1236,9 @@ module Cc1 #:nodoc:
         # _notify_variable_value_referred(node, lhs_var)
         _notify_variable_value_referred(node, rhs_var)
 
-        notify_multiplicative_expr_evaled(node, lhs_var, rhs_var, res_var)
+        notify_multiplicative_expr_evaled(node, lhs_var, rhs_var, rslt_var)
 
-        _do_assign(node, lhs_var, res_var)
+        _do_assign(node, lhs_var, rslt_var)
       end
 
       def _do_div_then_assign(node, lhs_var, rhs_var)
@@ -1247,7 +1247,7 @@ module Cc1 #:nodoc:
         lhs_val = lhs_conved.value
         rhs_val = rhs_conved.value
         # NOTE: "Div by 0" semantics is implemented in value-value arithmetic.
-        res_var = create_tmpvar(lhs_conved.type, lhs_val / rhs_val)
+        rslt_var = create_tmpvar(lhs_conved.type, lhs_val / rhs_val)
 
         # NOTE: Value of the lhs_var is referred at this point.  But value
         #       reference should not be notified not to confuse sequence-point
@@ -1255,9 +1255,9 @@ module Cc1 #:nodoc:
         # _notify_variable_value_referred(node, lhs_var)
         _notify_variable_value_referred(node, rhs_var)
 
-        notify_multiplicative_expr_evaled(node, lhs_var, rhs_var, res_var)
+        notify_multiplicative_expr_evaled(node, lhs_var, rhs_var, rslt_var)
 
-        _do_assign(node, lhs_var, res_var)
+        _do_assign(node, lhs_var, rslt_var)
       end
 
       def _do_mod_then_assign(node, lhs_var, rhs_var)
@@ -1266,7 +1266,7 @@ module Cc1 #:nodoc:
         lhs_val = lhs_conved.value
         rhs_val = rhs_conved.value
         # NOTE: "Div by 0" semantics is implemented in value-value arithmetic.
-        res_var = create_tmpvar(lhs_conved.type, lhs_val % rhs_val)
+        rslt_var = create_tmpvar(lhs_conved.type, lhs_val % rhs_val)
 
         # NOTE: Value of the lhs_var is referred at this point.  But value
         #       reference should not be notified not to confuse sequence-point
@@ -1274,9 +1274,9 @@ module Cc1 #:nodoc:
         # _notify_variable_value_referred(node, lhs_var)
         _notify_variable_value_referred(node, rhs_var)
 
-        notify_multiplicative_expr_evaled(node, lhs_var, rhs_var, res_var)
+        notify_multiplicative_expr_evaled(node, lhs_var, rhs_var, rslt_var)
 
-        _do_assign(node, lhs_var, res_var)
+        _do_assign(node, lhs_var, rslt_var)
       end
 
       def _do_add_then_assign(node, lhs_var, rhs_var)
@@ -1284,7 +1284,7 @@ module Cc1 #:nodoc:
 
         lhs_val = lhs_conved.value
         rhs_val = rhs_conved.value
-        res_var = create_tmpvar(lhs_conved.type, lhs_val + rhs_val)
+        rslt_var = create_tmpvar(lhs_conved.type, lhs_val + rhs_val)
 
         # NOTE: Value of the lhs_var is referred at this point.  But value
         #       reference should not be notified not to confuse sequence-point
@@ -1292,9 +1292,9 @@ module Cc1 #:nodoc:
         # _notify_variable_value_referred(node, lhs_var)
         _notify_variable_value_referred(node, rhs_var)
 
-        notify_additive_expr_evaled(node, lhs_var, rhs_var, res_var)
+        notify_additive_expr_evaled(node, lhs_var, rhs_var, rslt_var)
 
-        _do_assign(node, lhs_var, res_var)
+        _do_assign(node, lhs_var, rslt_var)
       end
 
       def _do_sub_then_assign(node, lhs_var, rhs_var)
@@ -1302,7 +1302,7 @@ module Cc1 #:nodoc:
 
         lhs_val = lhs_conved.value
         rhs_val = rhs_conved.value
-        res_var = create_tmpvar(lhs_conved.type, lhs_val - rhs_val)
+        rslt_var = create_tmpvar(lhs_conved.type, lhs_val - rhs_val)
 
         # NOTE: Value of the lhs_var is referred at this point.  But value
         #       reference should not be notified not to confuse sequence-point
@@ -1310,9 +1310,9 @@ module Cc1 #:nodoc:
         # _notify_variable_value_referred(node, lhs_var)
         _notify_variable_value_referred(node, rhs_var)
 
-        notify_additive_expr_evaled(node, lhs_var, rhs_var, res_var)
+        notify_additive_expr_evaled(node, lhs_var, rhs_var, rslt_var)
 
-        _do_assign(node, lhs_var, res_var)
+        _do_assign(node, lhs_var, rslt_var)
       end
 
       def _do_shl_then_assign(node, lhs_var, rhs_var)
@@ -1329,7 +1329,7 @@ module Cc1 #:nodoc:
 
         lhs_val = lhs_conved.value
         rhs_val = rhs_conved.value
-        res_var = create_tmpvar(lhs_conved.type, lhs_val << rhs_val)
+        rslt_var = create_tmpvar(lhs_conved.type, lhs_val << rhs_val)
 
         # NOTE: Value of the lhs_var is referred at this point.  But value
         #       reference should not be notified not to confuse sequence-point
@@ -1337,9 +1337,9 @@ module Cc1 #:nodoc:
         # _notify_variable_value_referred(node, lhs_var)
         _notify_variable_value_referred(node, rhs_var)
 
-        notify_shift_expr_evaled(node, lhs_var, rhs_var, res_var)
+        notify_shift_expr_evaled(node, lhs_var, rhs_var, rslt_var)
 
-        _do_assign(node, lhs_var, res_var)
+        _do_assign(node, lhs_var, rslt_var)
       end
 
       def _do_shr_then_assign(node, lhs_var, rhs_var)
@@ -1356,7 +1356,7 @@ module Cc1 #:nodoc:
 
         lhs_val = lhs_conved.value
         rhs_val = rhs_conved.value
-        res_var = create_tmpvar(lhs_conved.type, lhs_val >> rhs_val)
+        rslt_var = create_tmpvar(lhs_conved.type, lhs_val >> rhs_val)
 
         # NOTE: Value of the lhs_var is referred at this point.  But value
         #       reference should not be notified not to confuse sequence-point
@@ -1364,9 +1364,9 @@ module Cc1 #:nodoc:
         # _notify_variable_value_referred(node, lhs_var)
         _notify_variable_value_referred(node, rhs_var)
 
-        notify_shift_expr_evaled(node, lhs_var, rhs_var, res_var)
+        notify_shift_expr_evaled(node, lhs_var, rhs_var, rslt_var)
 
-        _do_assign(node, lhs_var, res_var)
+        _do_assign(node, lhs_var, rslt_var)
       end
 
       def _do_and_then_assign(node, lhs_var, rhs_var)
@@ -1374,7 +1374,7 @@ module Cc1 #:nodoc:
 
         lhs_val = lhs_conved.value
         rhs_val = rhs_conved.value
-        res_var = create_tmpvar(lhs_conved.type, lhs_val & rhs_val)
+        rslt_var = create_tmpvar(lhs_conved.type, lhs_val & rhs_val)
 
         # NOTE: Value of the lhs_var is referred at this point.  But value
         #       reference should not be notified not to confuse sequence-point
@@ -1382,9 +1382,9 @@ module Cc1 #:nodoc:
         # _notify_variable_value_referred(node, lhs_var)
         _notify_variable_value_referred(node, rhs_var)
 
-        notify_and_expr_evaled(node, lhs_var, rhs_var, res_var)
+        notify_and_expr_evaled(node, lhs_var, rhs_var, rslt_var)
 
-        _do_assign(node, lhs_var, res_var)
+        _do_assign(node, lhs_var, rslt_var)
       end
 
       def _do_xor_then_assign(node, lhs_var, rhs_var)
@@ -1392,7 +1392,7 @@ module Cc1 #:nodoc:
 
         lhs_val = lhs_conved.value
         rhs_val = rhs_conved.value
-        res_var = create_tmpvar(lhs_conved.type, lhs_val ^ rhs_val)
+        rslt_var = create_tmpvar(lhs_conved.type, lhs_val ^ rhs_val)
 
         # NOTE: Value of the lhs_var is referred at this point.  But value
         #       reference should not be notified not to confuse sequence-point
@@ -1400,9 +1400,9 @@ module Cc1 #:nodoc:
         # _notify_variable_value_referred(node, lhs_var)
         _notify_variable_value_referred(node, rhs_var)
 
-        notify_exclusive_or_expr_evaled(node, lhs_var, rhs_var, res_var)
+        notify_exclusive_or_expr_evaled(node, lhs_var, rhs_var, rslt_var)
 
-        _do_assign(node, lhs_var, res_var)
+        _do_assign(node, lhs_var, rslt_var)
       end
 
       def _do_ior_then_assign(node, lhs_var, rhs_var)
@@ -1410,7 +1410,7 @@ module Cc1 #:nodoc:
 
         lhs_val = lhs_conved.value
         rhs_val = rhs_conved.value
-        res_var = create_tmpvar(lhs_conved.type, lhs_val | rhs_val)
+        rslt_var = create_tmpvar(lhs_conved.type, lhs_val | rhs_val)
 
         # NOTE: Value of the lhs_var is referred at this point.  But value
         #       reference should not be notified not to confuse sequence-point
@@ -1418,9 +1418,9 @@ module Cc1 #:nodoc:
         # _notify_variable_value_referred(node, lhs_var)
         _notify_variable_value_referred(node, rhs_var)
 
-        notify_inclusive_or_expr_evaled(node, lhs_var, rhs_var, res_var)
+        notify_inclusive_or_expr_evaled(node, lhs_var, rhs_var, rslt_var)
 
-        _do_assign(node, lhs_var, res_var)
+        _do_assign(node, lhs_var, rslt_var)
       end
 
       def _do_uarith_conversion(node, lhs_var, rhs_var)

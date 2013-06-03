@@ -160,11 +160,11 @@ module Cc1 #:nodoc:
       until lexer_ctxt.content.empty?
         nxt_tok = tokenize(lexer_ctxt)
         if nxt_tok.type == :STRING_LITERAL
-          res_tok = tok.class.new(tok.type, tok.value.sub(/"\z/, "") +
-                                 nxt_tok.value.sub(/\AL?"/, ""),
-                                 tok.location)
-          notify_string_literals_concatenated(tok, nxt_tok, res_tok)
-          return res_tok
+          rslt_tok = tok.class.new(tok.type, tok.value.sub(/"\z/, "") +
+                                   nxt_tok.value.sub(/\AL?"/, ""),
+                                   tok.location)
+          notify_string_literals_concatenated(tok, nxt_tok, rslt_tok)
+          return rslt_tok
         else
           @nxt_tok = nxt_tok
           break
@@ -233,8 +233,8 @@ module Cc1 #:nodoc:
       end
     end
 
-    def notify_string_literals_concatenated(former, latter, res_tok)
-      on_string_literals_concatenated.invoke(former, latter, res_tok)
+    def notify_string_literals_concatenated(former, latter, rslt_tok)
+      on_string_literals_concatenated.invoke(former, latter, rslt_tok)
     end
   end
 

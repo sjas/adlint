@@ -98,7 +98,7 @@ definition             -> def
 enumerator             -> enum
 member                 -> memb
 element                -> elem
-original               -> org
+original               -> orig
 converted              -> conved
 conversion             -> conv
 arithmetic             -> arith
@@ -204,7 +204,7 @@ logical-or             -> lor
 relationship           -> relat
 prototype              -> proto
 termination            -> term
-result                 -> res
+result                 -> rslt
 operand                -> ope
 domain                 -> dom
 qualified              -> qualed

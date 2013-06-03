@@ -440,9 +440,9 @@ module Cc1 #:nodoc:
     def narrow_domain!(op, ope_val)
       case ope_single_val = ope_val.to_single_value
       when ScalarValue
-        org_dom = @domain
+        orig_dom = @domain
         @domain = @domain.narrow(op, ope_single_val.domain)
-        !@domain.equal?(org_dom)
+        !@domain.equal?(orig_dom)
       else
         raise TypeError, "cannot narrow scalar value domain with non-scalar."
       end
@@ -451,9 +451,9 @@ module Cc1 #:nodoc:
     def widen_domain!(op, ope_val)
       case ope_single_val = ope_val.to_single_value
       when ScalarValue
-        org_dom = @domain
+        orig_dom = @domain
         @domain = @domain.widen(op, ope_single_val.domain)
-        !@domain.equal?(org_dom)
+        !@domain.equal?(orig_dom)
       else
         raise TypeError, "cannot widen scalar value domain with non-scalar."
       end
@@ -997,8 +997,8 @@ module Cc1 #:nodoc:
       when ArrayValue
         if @values.size == rhs_single_val.values.size
           zipped = @values.zip(rhs_single_val.values)
-          zipped.reduce(scalar_value_of_nil) do |res_val, (lhs, rhs)|
-            res_val.single_value_unified_with(lhs < rhs)
+          zipped.reduce(scalar_value_of_nil) do |rslt_val, (lhs, rhs)|
+            rslt_val.single_value_unified_with(lhs < rhs)
           end
         else
           scalar_value_of_false
@@ -1017,8 +1017,8 @@ module Cc1 #:nodoc:
       when ArrayValue
         if @values.size == rhs_single_val.values.size
           zipped = @values.zip(rhs_single_val.values)
-          zipped.reduce(scalar_value_of_nil) do |res_val, (lhs, rhs)|
-            res_val.single_value_unified_with(lhs > rhs)
+          zipped.reduce(scalar_value_of_nil) do |rslt_val, (lhs, rhs)|
+            rslt_val.single_value_unified_with(lhs > rhs)
           end
         else
           scalar_value_of_false
@@ -1037,8 +1037,8 @@ module Cc1 #:nodoc:
       when ArrayValue
         if @values.size == rhs_single_value.values.size
           zipped = @values.zip(rhs_single_val.values)
-          zipped.reduce(scalar_value_of_nil) do |res_val, (lhs, rhs)|
-            res_val.single_value_unified_with(lhs == rhs)
+          zipped.reduce(scalar_value_of_nil) do |rslt_val, (lhs, rhs)|
+            rslt_val.single_value_unified_with(lhs == rhs)
           end
         else
           scalar_value_of_false
@@ -1057,8 +1057,8 @@ module Cc1 #:nodoc:
       when ArrayValue
         if @values.size == rhs_single_val.values.size
           zipped = @values.zip(rhs_single_val.values)
-          zipped.reduce(scalar_value_of_nil) do |res_val, (lhs, rhs)|
-            res_val.single_value_unified_with(lhs != rhs)
+          zipped.reduce(scalar_value_of_nil) do |rslt_val, (lhs, rhs)|
+            rslt_val.single_value_unified_with(lhs != rhs)
           end
         else
           scalar_value_of_false
@@ -1077,8 +1077,8 @@ module Cc1 #:nodoc:
       when ArrayValue
         if @values.size == rhs_single_val.values.size
           zipped = @values.zip(rhs_single_val.values)
-          zipped.reduce(scalar_value_of_nil) do |res_val, (lhs, rhs)|
-            res_val.single_value_unified_with(lhs <= rhs)
+          zipped.reduce(scalar_value_of_nil) do |rslt_val, (lhs, rhs)|
+            rslt_val.single_value_unified_with(lhs <= rhs)
           end
         else
           scalar_value_of_false
@@ -1097,8 +1097,8 @@ module Cc1 #:nodoc:
       when ArrayValue
         if @values.size == rhs_single_value.values.size
           zipped = @values.zip(rhs_single_val.values)
-          zipped.reduce(scalar_value_of_nil) do |res_val, (lhs, rhs)|
-            res_val.single_value_unified_with(lhs >= rhs)
+          zipped.reduce(scalar_value_of_nil) do |rslt_val, (lhs, rhs)|
+            rslt_val.single_value_unified_with(lhs >= rhs)
           end
         else
           scalar_value_of_false
@@ -1117,8 +1117,8 @@ module Cc1 #:nodoc:
       when ArrayValue
         if @values.size == rhs_single_val.values.size
           zipped = @values.zip(rhs_single_val.values)
-          zipped.reduce(scalar_value_of_nil) do |res_val, (lhs, rhs)|
-            res_val.single_value_unified_with(lhs.logical_and(rhs))
+          zipped.reduce(scalar_value_of_nil) do |rslt_val, (lhs, rhs)|
+            rslt_val.single_value_unified_with(lhs.logical_and(rhs))
           end
         else
           scalar_value_of_false
@@ -1137,8 +1137,8 @@ module Cc1 #:nodoc:
       when ArrayValue
         if @values.size == rhs_single_val.values.size
           zipped = @values.zip(rhs_single_val.values)
-          zipped.reduce(scalar_value_of_nil) do |res_val, (lhs, rhs)|
-            res_val.single_value_unified_with(lhs.logical_or(rhs))
+          zipped.reduce(scalar_value_of_nil) do |rslt_val, (lhs, rhs)|
+            rslt_val.single_value_unified_with(lhs.logical_or(rhs))
           end
         else
           scalar_value_of_false
@@ -1484,8 +1484,8 @@ module Cc1 #:nodoc:
       when CompositeValue
         if @values.size == rhs_single_val.values.size
           zipped = @values.zip(rhs_single_val.values)
-          zipped.reduce(scalar_value_of_nil) do |res_val, (lhs, rhs)|
-            res_val.single_value_unified_with(lhs < rhs)
+          zipped.reduce(scalar_value_of_nil) do |rslt_val, (lhs, rhs)|
+            rslt_val.single_value_unified_with(lhs < rhs)
           end
         else
           scalar_value_of_false
@@ -1502,8 +1502,8 @@ module Cc1 #:nodoc:
       when CompositeValue
         if @values.size == rhs_single_val.values.size
           zipped = @values.zip(rhs_single_val.values)
-          zipped.reduce(scalar_value_of_nil) do |res_val, (lhs, rhs)|
-            res_val.single_value_unified_with(lhs > rhs)
+          zipped.reduce(scalar_value_of_nil) do |rslt_val, (lhs, rhs)|
+            rslt_val.single_value_unified_with(lhs > rhs)
           end
         else
           scalar_value_of_false
@@ -1520,8 +1520,8 @@ module Cc1 #:nodoc:
       when CompositeValue
         if @values.size == rhs_single_val.values.size
           zipped = @values.zip(rhs_single_val.values)
-          zipped.reduce(scalar_value_of_nil) do |res_val, (lhs, rhs)|
-            res_val.single_value_unified_with(lhs == rhs)
+          zipped.reduce(scalar_value_of_nil) do |rslt_val, (lhs, rhs)|
+            rslt_val.single_value_unified_with(lhs == rhs)
           end
         else
           scalar_value_of_false
@@ -1538,8 +1538,8 @@ module Cc1 #:nodoc:
       when CompositeValue
         if @values.size == rhs_single_val.values.size
           zipped = @values.zip(rhs_single_val.values)
-          zipped.reduce(scalar_value_of_nil) do |res_val, (lhs, rhs)|
-            res_val.single_value_unified_with(lhs != rhs)
+          zipped.reduce(scalar_value_of_nil) do |rslt_val, (lhs, rhs)|
+            rslt_val.single_value_unified_with(lhs != rhs)
           end
         else
           scalar_value_of_false
@@ -1556,8 +1556,8 @@ module Cc1 #:nodoc:
       when CompositeValue
         if @values.size == rhs_single_val.values.size
           zipped = @values.zip(rhs_single_val.values)
-          zipped.reduce(scalar_value_of_nil) do |res_val, (lhs, rhs)|
-            res_val.single_value_unified_with(lhs <= rhs)
+          zipped.reduce(scalar_value_of_nil) do |rslt_val, (lhs, rhs)|
+            rslt_val.single_value_unified_with(lhs <= rhs)
           end
         else
           scalar_value_of_false
@@ -1574,8 +1574,8 @@ module Cc1 #:nodoc:
       when CompositeValue
         if @values.size == rhs_single_val.values.size
           zipped = @values.zip(rhs_single_val.values)
-          zipped.reduce(scalar_value_of_nil) do |res_val, (lhs, rhs)|
-            res_val.single_value_unified_with(lhs >= rhs)
+          zipped.reduce(scalar_value_of_nil) do |rslt_val, (lhs, rhs)|
+            rslt_val.single_value_unified_with(lhs >= rhs)
           end
         else
           scalar_value_of_false
@@ -1592,8 +1592,8 @@ module Cc1 #:nodoc:
       when CompositeValue
         if @values.size == rhs_single_val.values.size
           zipped = @values.zip(rhs_single_val.values)
-          zipped.reduce(scalar_value_of_nil) do |res_val, (lhs, rhs)|
-            res_val.single_value_unified_with(lhs.logical_and(rhs))
+          zipped.reduce(scalar_value_of_nil) do |rslt_val, (lhs, rhs)|
+            rslt_val.single_value_unified_with(lhs.logical_and(rhs))
           end
         else
           scalar_value_of_false
@@ -1610,8 +1610,8 @@ module Cc1 #:nodoc:
       when CompositeValue
         if @values.size == rhs_single_val.values.size
           zipped = @values.zip(rhs_single_val.values)
-          zipped.reduce(scalar_value_of_nil) do |res_val, (lhs, rhs)|
-            res_val.single_value_unified_with(lhs.logical_or(rhs))
+          zipped.reduce(scalar_value_of_nil) do |rslt_val, (lhs, rhs)|
+            rslt_val.single_value_unified_with(lhs.logical_or(rhs))
           end
         else
           scalar_value_of_false
@@ -2120,10 +2120,10 @@ module Cc1 #:nodoc:
   end
 
   class VersionedValue < MultipleValue
-    def initialize(org_val)
-      # NOTE: `org_val.to_single_value' will be done in
+    def initialize(orig_val)
+      # NOTE: `orig_val.to_single_value' will be done in
       #       MultipleValue#initialize.
-      super(org_val, nil)
+      super(orig_val, nil)
 
       @version_controller = ValueVersionController.new(self)
     end
@@ -2155,14 +2155,14 @@ module Cc1 #:nodoc:
 
     def rollback_all_versions!
       delete_descendants!
-      org_val = @version_controller.original_value
+      orig_val = @version_controller.original_value
       @version_controller = nil
-      _org_overwrite!(org_val)
+      _orig_overwrite!(orig_val)
       @version_controller = ValueVersionController.new(self)
       invalidate_memo!
     end
 
-    alias :_org_overwrite! :overwrite!
+    alias :_orig_overwrite! :overwrite!
 
     def overwrite!(val)
       @version_controller.fork_current_version
@@ -2212,8 +2212,8 @@ module Cc1 #:nodoc:
   end
 
   class ValueVersionController
-    def initialize(org_val)
-      @versioning_group_stack = [RootVersioningGroup.new(org_val)]
+    def initialize(orig_val)
+      @versioning_group_stack = [RootVersioningGroup.new(orig_val)]
     end
 
     def original_value
@@ -2316,7 +2316,7 @@ module Cc1 #:nodoc:
         vals.each do |base_multi_val, initial_single_val|
           base_multi_val.delete_descendants!
           if base_multi_val.kind_of?(VersionedValue)
-            base_multi_val._org_overwrite!(initial_single_val)
+            base_multi_val._orig_overwrite!(initial_single_val)
           else
             base_multi_val.overwrite!(initial_single_val)
           end
@@ -2415,8 +2415,8 @@ module Cc1 #:nodoc:
     private_constant :VersioningGroup
 
     class RootVersioningGroup < VersioningGroup
-      def initialize(org_val)
-        super(Version.new([org_val], true), true)
+      def initialize(orig_val)
+        super(Version.new([orig_val], true), true)
       end
     end
     private_constant :RootVersioningGroup

@@ -327,9 +327,9 @@ end
 #         string_item: "foo${VAR}baz"
 #
 class Psych::TreeBuilder < Psych::Handler
-  alias :_org_scalar :scalar
+  alias :_orig_scalar :scalar
   def scalar(value, anchor, tag, plain, quoted, style)
-    _org_scalar(substitute_environment_variables(value),
+    _orig_scalar(substitute_environment_variables(value),
                  anchor, tag, plain, quoted, style)
   end
 

@@ -648,9 +648,9 @@ module Cc1 #:nodoc:
       rhs_vals = rhs_manip.narrowed_values
 
       @narrowed_values = lhs_vals.merge(rhs_vals) { |key, lhs_val, rhs_val|
-        res_val = lhs_val.dup
-        res_val.narrow_domain!(Operator::EQ, rhs_val)
-        res_val
+        rslt_val = lhs_val.dup
+        rslt_val.narrow_domain!(Operator::EQ, rhs_val)
+        rslt_val
       }
     end
 
@@ -659,9 +659,9 @@ module Cc1 #:nodoc:
       rhs_vals = rhs_manip.narrowed_values
 
       @narrowed_values = lhs_vals.merge(rhs_vals) { |key, lhs_val, rhs_val|
-        res_val = lhs_val.dup
-        res_val.widen_domain!(Operator::EQ, rhs_val)
-        res_val
+        rslt_val = lhs_val.dup
+        rslt_val.widen_domain!(Operator::EQ, rhs_val)
+        rslt_val
       }
     end
 
@@ -670,18 +670,18 @@ module Cc1 #:nodoc:
     def_delegator :@manipulator, :interpreter
     private :interpreter
 
-    alias :_org_interpret :interpret
+    alias :_orig_interpret :interpret
     def interpret(node)
       case node
       when ObjectSpecifier
         if safely_evaluable_object_specifier?(node)
-          _org_interpret(node)
+          _orig_interpret(node)
         else
           # NOTE: Nothing to do with an undeclared object.
           create_tmpvar
         end
       else
-        _org_interpret(node)
+        _orig_interpret(node)
       end
     end
 
@@ -724,17 +724,17 @@ module Cc1 #:nodoc:
 
       case @operator
       when Operator::EQ
-        res_var = create_tmpvar(int_t, lhs_val == rhs_val)
+        rslt_var = create_tmpvar(int_t, lhs_val == rhs_val)
       when Operator::NE
-        res_var = create_tmpvar(int_t, lhs_val != rhs_val)
+        rslt_var = create_tmpvar(int_t, lhs_val != rhs_val)
       when Operator::LT
-        res_var = create_tmpvar(int_t, lhs_val <  rhs_val)
+        rslt_var = create_tmpvar(int_t, lhs_val <  rhs_val)
       when Operator::GT
-        res_var = create_tmpvar(int_t, lhs_val >  rhs_val)
+        rslt_var = create_tmpvar(int_t, lhs_val >  rhs_val)
       when Operator::LE
-        res_var = create_tmpvar(int_t, lhs_val <= rhs_val)
+        rslt_var = create_tmpvar(int_t, lhs_val <= rhs_val)
       when Operator::GE
-        res_var = create_tmpvar(int_t, lhs_val >= rhs_val)
+        rslt_var = create_tmpvar(int_t, lhs_val >= rhs_val)
       else
         __NOTREACHED__
       end
@@ -744,9 +744,9 @@ module Cc1 #:nodoc:
 
       case @operator
       when Operator::EQ, Operator::NE
-        notify_equality_expr_evaled(@node, lhs_conved, rhs_conved, res_var)
+        notify_equality_expr_evaled(@node, lhs_conved, rhs_conved, rslt_var)
       when Operator::LT, Operator::GT, Operator::LE, Operator::GE
-        notify_relational_expr_evaled(@node, lhs_conved, rhs_conved, res_var)
+        notify_relational_expr_evaled(@node, lhs_conved, rhs_conved, rslt_var)
       else
         __NOTREACHED__
       end
@@ -760,7 +760,7 @@ module Cc1 #:nodoc:
         # NOTE: Domain of the rvalue should not be narrowed.
       end
 
-      res_var
+      rslt_var
     end
   end
 
@@ -815,9 +815,9 @@ module Cc1 #:nodoc:
       lhs_val = lhs_conved.value
       rhs_val = rhs_conved.value
 
-      res_var = create_tmpvar(int_t, lhs_val.logical_and(rhs_val))
-      notify_logical_and_expr_evaled(@node, lhs_conved, rhs_conved, res_var)
-      res_var
+      rslt_var = create_tmpvar(int_t, lhs_val.logical_and(rhs_val))
+      notify_logical_and_expr_evaled(@node, lhs_conved, rhs_conved, rslt_var)
+      rslt_var
     end
   end
 
@@ -873,9 +873,9 @@ module Cc1 #:nodoc:
       lhs_val = lhs_conved.value
       rhs_val = rhs_conved.value
 
-      res_var = create_tmpvar(int_t, lhs_val.logical_or(rhs_val))
-      notify_logical_or_expr_evaled(@node, lhs_conved, rhs_conved, res_var)
-      res_var
+      rslt_var = create_tmpvar(int_t, lhs_val.logical_or(rhs_val))
+      notify_logical_or_expr_evaled(@node, lhs_conved, rhs_conved, rslt_var)
+      rslt_var
     end
   end
 
@@ -888,8 +888,8 @@ module Cc1 #:nodoc:
     private
     def do_narrowing
       if @object.variable? && @object.named?
-        if org_val = original_value_of(@object)
-          @object = PhantomVariable.new(@object, org_val)
+        if orig_val = original_value_of(@object)
+          @object = PhantomVariable.new(@object, orig_val)
         end
       end
       @object

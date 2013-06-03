@@ -1253,8 +1253,8 @@ module CBuiltin #:nodoc:
     end
 
     private
-    def check(*, res_toks)
-      if defined_tok = res_toks.find { |tok| tok.value == "defined" }
+    def check(*, rslt_toks)
+      if defined_tok = rslt_toks.find { |tok| tok.value == "defined" }
         W(defined_tok.location)
       end
     end

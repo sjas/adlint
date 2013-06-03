@@ -47,23 +47,23 @@ module Cpp #:nodoc:
     def_plugin :on_substitution
 
     def execute(toks)
-      res_toks = []
+      rslt_toks = []
       idx = 0
       while first_tok = toks[idx]
         matcher = Matcher.new(@pattern)
         matched_len = matcher.match(toks, idx)
         if matcher.accepted? || idx + matched_len == toks.size
           notify_substitution(toks, idx, matched_len)
-          res_toks.concat(@replacement.map { |tok|
+          rslt_toks.concat(@replacement.map { |tok|
             Token.new(tok.type, tok.value, first_tok.location, tok.type_hint)
           })
           idx += matched_len
         else
-          res_toks.push(first_tok)
+          rslt_toks.push(first_tok)
           idx += 1
         end
       end
-      res_toks
+      rslt_toks
     end
 
     private

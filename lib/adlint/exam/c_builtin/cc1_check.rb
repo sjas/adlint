@@ -383,12 +383,12 @@ module CBuiltin #:nodoc:
     end
 
     private
-    def check_explicit_conversion(expr, org_var, res_var)
-      org_type = org_var.type
-      res_type = res_var.type
+    def check_explicit_conversion(expr, orig_var, rslt_var)
+      orig_type = orig_var.type
+      rslt_type = rslt_var.type
 
-      if org_type.pointer? && org_type.unqualify.base_type.const? &&
-          res_type.pointer? && !res_type.unqualify.base_type.const?
+      if orig_type.pointer? && orig_type.unqualify.base_type.const? &&
+          rslt_type.pointer? && !rslt_type.unqualify.base_type.const?
         W(expr.location)
       end
     end
@@ -408,12 +408,12 @@ module CBuiltin #:nodoc:
     end
 
     private
-    def check_explicit_conversion(expr, org_var, res_var)
-      org_type = org_var.type
-      res_type = res_var.type
+    def check_explicit_conversion(expr, orig_var, rslt_var)
+      orig_type = orig_var.type
+      rslt_type = rslt_var.type
 
-      if org_type.pointer? && org_type.unqualify.base_type.volatile? &&
-          res_type.pointer? && !res_type.unqualify.base_type.volatile?
+      if orig_type.pointer? && orig_type.unqualify.base_type.volatile? &&
+          rslt_type.pointer? && !rslt_type.unqualify.base_type.volatile?
         W(expr.location)
       end
     end
@@ -605,8 +605,8 @@ module CBuiltin #:nodoc:
       end
     end
 
-    def check_unary_prefix(expr, ope_var, org_val)
-      type, val = ope_var.type, org_val
+    def check_unary_prefix(expr, ope_var, orig_val)
+      type, val = ope_var.type, orig_val
 
       if @interp.constant_expression?(expr.operand) && type.pointer? &&
           val.must_be_equal_to?(@interp.scalar_value_of(0))
@@ -2442,9 +2442,9 @@ module CBuiltin #:nodoc:
       end
     end
 
-    def handle_array_subscript(expr, ary_or_ptr, *, res_var)
+    def handle_array_subscript(expr, ary_or_ptr, *, rslt_var)
       if @var_relationship && ary_or_ptr.type.pointer?
-        @var_relationship[res_var] = ary_or_ptr
+        @var_relationship[rslt_var] = ary_or_ptr
       end
     end
 
@@ -8383,8 +8383,8 @@ module CBuiltin #:nodoc:
       end
     end
 
-    def check_unary_prefix(expr, ope_var, org_val)
-      type, val = ope_var.type, org_val
+    def check_unary_prefix(expr, ope_var, orig_val)
+      type, val = ope_var.type, orig_val
 
       if type.pointer? && val.must_be_equal_to?(@interp.scalar_value_of(0))
         W(expr.operand.location)
@@ -8440,8 +8440,8 @@ module CBuiltin #:nodoc:
       end
     end
 
-    def check_unary_prefix(expr, ope_var, org_val)
-      type, val = ope_var.type, org_val
+    def check_unary_prefix(expr, ope_var, orig_val)
+      type, val = ope_var.type, orig_val
 
       if type.pointer? &&
           !val.must_be_equal_to?(@interp.scalar_value_of(0)) &&
@@ -8558,9 +8558,9 @@ module CBuiltin #:nodoc:
       def visit_if_else_statement(node)
         if node.analysis_target?(traits)
           check_dcl_or_stmt(node)
-          org_loc = @lst_dcl_or_stmt_loc
+          orig_loc = @lst_dcl_or_stmt_loc
           node.then_statement.accept(self)
-          @lst_dcl_or_stmt_loc = org_loc
+          @lst_dcl_or_stmt_loc = orig_loc
           node.else_statement.accept(self)
           @lst_dcl_or_stmt_loc = node.location
         end
@@ -12510,9 +12510,9 @@ module CBuiltin #:nodoc:
     end
 
     private
-    def check(expr, org_var, res_var)
-      lhs_type = org_var.type.unqualify
-      rhs_type = res_var.type.unqualify
+    def check(expr, orig_var, rslt_var)
+      lhs_type = orig_var.type.unqualify
+      rhs_type = rslt_var.type.unqualify
 
       return unless lhs_type.pointer? && lhs_type.base_type.function?
       return unless rhs_type.pointer? && rhs_type.base_type.function?
@@ -12829,9 +12829,9 @@ module CBuiltin #:nodoc:
     end
 
     private
-    def check(expr, org_var, res_var)
-      lhs_type = org_var.type.unqualify
-      rhs_type = res_var.type.unqualify
+    def check(expr, orig_var, rslt_var)
+      lhs_type = orig_var.type.unqualify
+      rhs_type = rslt_var.type.unqualify
 
       if lhs_type.integer? && !lhs_type.pointer? &&
           rhs_type.pointer? && rhs_type.base_type.volatile?
@@ -12861,9 +12861,9 @@ module CBuiltin #:nodoc:
     end
 
     private
-    def check(expr, org_var, res_var)
-      lhs_type = org_var.type.unqualify
-      rhs_type = res_var.type.unqualify
+    def check(expr, orig_var, rslt_var)
+      lhs_type = orig_var.type.unqualify
+      rhs_type = rslt_var.type.unqualify
 
       case
       when lhs_type.integer? && !lhs_type.pointer? &&
@@ -12890,9 +12890,9 @@ module CBuiltin #:nodoc:
     end
 
     private
-    def check(expr, org_var, res_var)
-      lhs_type = org_var.type.unqualify
-      rhs_type = res_var.type.unqualify
+    def check(expr, orig_var, rslt_var)
+      lhs_type = orig_var.type.unqualify
+      rhs_type = rslt_var.type.unqualify
 
       if lhs_type.integer? && !lhs_type.pointer? &&
           rhs_type.pointer? && !rhs_type.base_type.volatile?
@@ -13125,25 +13125,25 @@ module CBuiltin #:nodoc:
       @rvalues = {}
     end
 
-    def handle_unary(expr, *, res_var)
+    def handle_unary(expr, *, rslt_var)
       if expr.operator == "~"
-        memorize_rvalue_derivation(res_var, expr)
+        memorize_rvalue_derivation(rslt_var, expr)
       end
     end
 
-    def handle_shift(expr, *, res_var)
+    def handle_shift(expr, *, rslt_var)
       if expr.operator.type == "<<"
-        memorize_rvalue_derivation(res_var, expr)
+        memorize_rvalue_derivation(rslt_var, expr)
       end
     end
 
-    def handle_additive(expr, *, res_var)
-      memorize_rvalue_derivation(res_var, expr)
+    def handle_additive(expr, *, rslt_var)
+      memorize_rvalue_derivation(rslt_var, expr)
     end
 
-    def handle_multiplicative(expr, *, res_var)
+    def handle_multiplicative(expr, *, rslt_var)
       unless expr.operator.type == "%"
-        memorize_rvalue_derivation(res_var, expr)
+        memorize_rvalue_derivation(rslt_var, expr)
       end
     end
 
@@ -13192,25 +13192,25 @@ module CBuiltin #:nodoc:
       @rvalues = {}
     end
 
-    def handle_unary(expr, *, res_var)
+    def handle_unary(expr, *, rslt_var)
       if expr.operator == "~"
-        memorize_rvalue_derivation(res_var, expr)
+        memorize_rvalue_derivation(rslt_var, expr)
       end
     end
 
-    def handle_shift(expr, *, res_var)
+    def handle_shift(expr, *, rslt_var)
       if expr.operator.type == "<<"
-        memorize_rvalue_derivation(res_var, expr)
+        memorize_rvalue_derivation(rslt_var, expr)
       end
     end
 
-    def handle_additive(expr, *, res_var)
-      memorize_rvalue_derivation(res_var, expr)
+    def handle_additive(expr, *, rslt_var)
+      memorize_rvalue_derivation(rslt_var, expr)
     end
 
-    def handle_multiplicative(expr, *, res_var)
+    def handle_multiplicative(expr, *, rslt_var)
       unless expr.operator.type == "%"
-        memorize_rvalue_derivation(res_var, expr)
+        memorize_rvalue_derivation(rslt_var, expr)
       end
     end
 
@@ -13819,19 +13819,19 @@ module CBuiltin #:nodoc:
     end
 
     private
-    def check(expr, org_var, res_var)
-      org_type = org_var.type
-      res_type = res_var.type
+    def check(expr, orig_var, rslt_var)
+      orig_type = orig_var.type
+      rslt_type = rslt_var.type
 
-      unless org_type.scalar? && org_type.integer? &&
-          res_type.scalar? && res_type.integer? && res_type.unsigned?
+      unless orig_type.scalar? && orig_type.integer? &&
+          rslt_type.scalar? && rslt_type.integer? && rslt_type.unsigned?
         return
       end
 
-      org_val = org_var.value
-      return unless org_val.scalar?
+      orig_val = orig_var.value
+      return unless orig_val.scalar?
 
-      lower_test = org_val < @interp.scalar_value_of(0)
+      lower_test = orig_val < @interp.scalar_value_of(0)
 
       if lower_test.must_be_true?
         W(expr.location)
@@ -13853,19 +13853,19 @@ module CBuiltin #:nodoc:
     end
 
     private
-    def check(expr, org_var, res_var)
-      org_type = org_var.type
-      res_type = res_var.type
+    def check(expr, orig_var, rslt_var)
+      orig_type = orig_var.type
+      rslt_type = rslt_var.type
 
-      unless org_type.scalar? && org_type.integer? &&
-          res_type.scalar? && res_type.integer? && res_type.unsigned?
+      unless orig_type.scalar? && orig_type.integer? &&
+          rslt_type.scalar? && rslt_type.integer? && rslt_type.unsigned?
         return
       end
 
-      org_val = org_var.value
-      return unless org_val.scalar?
+      orig_val = orig_var.value
+      return unless orig_val.scalar?
 
-      lower_test = org_val < @interp.scalar_value_of(0)
+      lower_test = orig_val < @interp.scalar_value_of(0)
 
       if !lower_test.must_be_true? && lower_test.may_be_true?
         W(expr.location)
@@ -13899,8 +13899,8 @@ module CBuiltin #:nodoc:
     end
 
     private
-    def check(expr, *, res_var)
-      if res_var.value.must_be_true? && !should_not_check?(expr)
+    def check(expr, *, rslt_var)
+      if rslt_var.value.must_be_true? && !should_not_check?(expr)
         W(expr.location)
       end
     end
@@ -13957,8 +13957,8 @@ module CBuiltin #:nodoc:
     end
 
     private
-    def check(expr, *, res_var)
-      if res_var.value.must_be_false? && !should_not_check?(expr)
+    def check(expr, *, rslt_var)
+      if rslt_var.value.must_be_false? && !should_not_check?(expr)
         W(expr.location)
       end
     end
@@ -14746,9 +14746,9 @@ module CBuiltin #:nodoc:
     end
 
     private
-    def check(expr, org_var, res_var)
-      lhs_type = org_var.type.unqualify
-      rhs_type = res_var.type.unqualify
+    def check(expr, orig_var, rslt_var)
+      lhs_type = orig_var.type.unqualify
+      rhs_type = rslt_var.type.unqualify
 
       case
       when lhs_type.floating? &&
@@ -16655,20 +16655,20 @@ module CBuiltin #:nodoc:
     end
 
     private
-    def check(expr, org_var, res_var)
-      org_type = org_var.type
-      res_type = res_var.type
+    def check(expr, orig_var, rslt_var)
+      orig_type = orig_var.type
+      rslt_type = rslt_var.type
 
-      unless org_type.scalar? && org_type.floating? &&
-          res_type.scalar? && res_type.integer?
+      unless orig_type.scalar? && orig_type.floating? &&
+          rslt_type.scalar? && rslt_type.integer?
         return
       end
 
-      org_val = org_var.value
-      return unless org_val.scalar?
+      orig_val = orig_var.value
+      return unless orig_val.scalar?
 
-      lower_test = org_val < @interp.scalar_value_of(res_type.min - 1)
-      upper_test = org_val > @interp.scalar_value_of(res_type.max + 1)
+      lower_test = orig_val < @interp.scalar_value_of(rslt_type.min - 1)
+      upper_test = orig_val > @interp.scalar_value_of(rslt_type.max + 1)
 
       if lower_test.must_be_true? || upper_test.must_be_true?
         W(expr.location)
@@ -16690,15 +16690,15 @@ module CBuiltin #:nodoc:
     end
 
     private
-    def check(expr, org_var, res_var)
-      org_type = org_var.type
-      res_type = res_var.type
+    def check(expr, orig_var, rslt_var)
+      orig_type = orig_var.type
+      rslt_type = rslt_var.type
 
-      unless org_type.pointer? && res_type.scalar? && res_type.integer?
+      unless orig_type.pointer? && rslt_type.scalar? && rslt_type.integer?
         return
       end
 
-      if org_type.min < res_type.min || org_type.max > res_type.max
+      if orig_type.min < rslt_type.min || orig_type.max > rslt_type.max
         W(expr.location)
       end
     end
@@ -16719,7 +16719,7 @@ module CBuiltin #:nodoc:
     end
 
     private
-    def check(expr, lhs_var, rhs_var, res_var)
+    def check(expr, lhs_var, rhs_var, rslt_var)
       return unless lhs_var.type.scalar? && lhs_var.type.signed?
       return unless rhs_var.type.scalar? && rhs_var.type.signed?
 
@@ -16736,8 +16736,8 @@ module CBuiltin #:nodoc:
         return
       end
 
-      lower_test = unbound_val < @interp.scalar_value_of(res_var.type.min)
-      upper_test = unbound_val > @interp.scalar_value_of(res_var.type.max)
+      lower_test = unbound_val < @interp.scalar_value_of(rslt_var.type.min)
+      upper_test = unbound_val > @interp.scalar_value_of(rslt_var.type.max)
 
       if lower_test.must_be_true? || upper_test.must_be_true?
         W(expr.location)
@@ -16760,7 +16760,7 @@ module CBuiltin #:nodoc:
     end
 
     private
-    def check(expr, lhs_var, rhs_var, res_var)
+    def check(expr, lhs_var, rhs_var, rslt_var)
       return unless lhs_var.type.scalar? && lhs_var.type.signed?
       return unless rhs_var.type.scalar? && rhs_var.type.signed?
 
@@ -16777,8 +16777,8 @@ module CBuiltin #:nodoc:
         return
       end
 
-      lower_test = unbound_val < @interp.scalar_value_of(res_var.type.min)
-      upper_test = unbound_val > @interp.scalar_value_of(res_var.type.max)
+      lower_test = unbound_val < @interp.scalar_value_of(rslt_var.type.min)
+      upper_test = unbound_val > @interp.scalar_value_of(rslt_var.type.max)
 
       if !lower_test.must_be_true? && lower_test.may_be_true? or
           !upper_test.must_be_true? && upper_test.may_be_true?
@@ -16802,11 +16802,11 @@ module CBuiltin #:nodoc:
     end
 
     private
-    def check(init_or_expr, org_var, res_var)
-      return unless res_var.type.enum?
+    def check(init_or_expr, orig_var, rslt_var)
+      return unless rslt_var.type.enum?
 
-      val = org_var.value.unique_sample
-      unless res_var.type.enumerators.any? { |enum| val == enum.value }
+      val = orig_var.value.unique_sample
+      unless rslt_var.type.enumerators.any? { |enum| val == enum.value }
         W(init_or_expr.location)
       end
     end
@@ -17026,7 +17026,7 @@ module CBuiltin #:nodoc:
     end
 
     private
-    def check(init_or_expr, org_var, res_var)
+    def check(init_or_expr, orig_var, rslt_var)
       case init_or_expr
       when Cc1::Initializer
         unless expr = init_or_expr.expression
@@ -17038,18 +17038,18 @@ module CBuiltin #:nodoc:
 
       return unless @interp.constant_expression?(expr)
 
-      org_type = org_var.type
-      res_type = res_var.type
+      orig_type = orig_var.type
+      rslt_type = rslt_var.type
 
-      unless org_type.scalar? && org_type.integer? &&
-          res_type.scalar? && res_type.integer? && res_type.unsigned?
+      unless orig_type.scalar? && orig_type.integer? &&
+          rslt_type.scalar? && rslt_type.integer? && rslt_type.unsigned?
         return
       end
 
-      org_val = org_var.value
-      return unless org_val.scalar?
+      orig_val = orig_var.value
+      return unless orig_val.scalar?
 
-      upper_test = org_val > @interp.scalar_value_of(res_type.max)
+      upper_test = orig_val > @interp.scalar_value_of(rslt_type.max)
 
       W(expr.location) if upper_test.must_be_true?
     end
@@ -17069,7 +17069,7 @@ module CBuiltin #:nodoc:
     end
 
     private
-    def check(expr, lhs_var, rhs_var, res_var)
+    def check(expr, lhs_var, rhs_var, rslt_var)
       return unless expr.operator.type == "-"
 
       return unless @interp.constant_expression?(expr.lhs_operand)
@@ -17081,7 +17081,7 @@ module CBuiltin #:nodoc:
       return unless lhs_var.value.scalar? && rhs_var.value.scalar?
 
       unbound_val = lhs_var.value - rhs_var.value
-      lower_test = unbound_val < @interp.scalar_value_of(res_var.type.min)
+      lower_test = unbound_val < @interp.scalar_value_of(rslt_var.type.min)
 
       W(expr.location) if lower_test.must_be_true?
     end
@@ -17101,7 +17101,7 @@ module CBuiltin #:nodoc:
     end
 
     private
-    def check(expr, lhs_var, rhs_var, res_var)
+    def check(expr, lhs_var, rhs_var, rslt_var)
       return unless expr.operator.type == "+"
 
       return unless @interp.constant_expression?(expr.lhs_operand)
@@ -17113,7 +17113,7 @@ module CBuiltin #:nodoc:
       return unless lhs_var.value.scalar? && rhs_var.value.scalar?
 
       unbound_val = lhs_var.value + rhs_var.value
-      upper_test = unbound_val > @interp.scalar_value_of(res_var.type.max)
+      upper_test = unbound_val > @interp.scalar_value_of(rslt_var.type.max)
 
       W(expr.location) if upper_test.must_be_true?
     end
@@ -17133,7 +17133,7 @@ module CBuiltin #:nodoc:
     end
 
     private
-    def check(expr, lhs_var, rhs_var, res_var)
+    def check(expr, lhs_var, rhs_var, rslt_var)
       return unless expr.operator.type == "*"
 
       return unless @interp.constant_expression?(expr.lhs_operand)
@@ -17145,7 +17145,7 @@ module CBuiltin #:nodoc:
       return unless lhs_var.value.scalar? && rhs_var.value.scalar?
 
       unbound_val = lhs_var.value * rhs_var.value
-      upper_test = unbound_val > @interp.scalar_value_of(res_var.type.max)
+      upper_test = unbound_val > @interp.scalar_value_of(rslt_var.type.max)
 
       W(expr.location) if upper_test.must_be_true?
     end
@@ -17165,9 +17165,9 @@ module CBuiltin #:nodoc:
     end
 
     private
-    def check(init_or_expr, org_var, res_var)
-      unless org_var.type.scalar? && res_var.type.scalar? &&
-          org_var.type.signed? && res_var.type.unsigned?
+    def check(init_or_expr, orig_var, rslt_var)
+      unless orig_var.type.scalar? && rslt_var.type.scalar? &&
+          orig_var.type.signed? && rslt_var.type.unsigned?
         return
       end
 
@@ -17178,7 +17178,7 @@ module CBuiltin #:nodoc:
       end
 
       if expr && @interp.constant_expression?(expr) &&
-          org_var.value.must_be_less_than?(@interp.scalar_value_of(0))
+          orig_var.value.must_be_less_than?(@interp.scalar_value_of(0))
         W(expr.location)
       end
     end
@@ -17198,7 +17198,7 @@ module CBuiltin #:nodoc:
     end
 
     private
-    def check(init_or_expr, org_var, res_var)
+    def check(init_or_expr, orig_var, rslt_var)
       case init_or_expr
       when Cc1::Initializer
         unless expr = init_or_expr.expression
@@ -17210,19 +17210,19 @@ module CBuiltin #:nodoc:
 
       return unless @interp.constant_expression?(expr)
 
-      org_type = org_var.type
-      res_type = res_var.type
+      orig_type = orig_var.type
+      rslt_type = rslt_var.type
 
-      unless org_type.scalar? && org_type.integer? &&
-          res_type.scalar? && res_type.integer? && res_type.signed?
+      unless orig_type.scalar? && orig_type.integer? &&
+          rslt_type.scalar? && rslt_type.integer? && rslt_type.signed?
         return
       end
 
-      org_val = org_var.value
-      return unless org_val.scalar?
+      orig_val = orig_var.value
+      return unless orig_val.scalar?
 
-      lower_test = org_val < @interp.scalar_value_of(res_type.min)
-      upper_test = org_val > @interp.scalar_value_of(res_type.max)
+      lower_test = orig_val < @interp.scalar_value_of(rslt_type.min)
+      upper_test = orig_val > @interp.scalar_value_of(rslt_type.max)
 
       if lower_test.must_be_true? || upper_test.must_be_true?
         W(expr.location)
@@ -18103,11 +18103,11 @@ module CBuiltin #:nodoc:
     end
 
     private
-    def check(*, org_var, res_var)
-      return unless @rvalues && org_var.type.floating?
-      case expr = @rvalues[org_var]
+    def check(*, orig_var, rslt_var)
+      return unless @rvalues && orig_var.type.floating?
+      case expr = @rvalues[orig_var]
       when Cc1::AdditiveExpression, Cc1::MultiplicativeExpression
-        if org_var.type.same_as?(from_type) && res_var.type.same_as?(to_type)
+        if orig_var.type.same_as?(from_type) && rslt_var.type.same_as?(to_type)
           W(expr.location)
         end
       end
@@ -18117,13 +18117,13 @@ module CBuiltin #:nodoc:
       @rvalues = {}
     end
 
-    def handle_additive(expr, *, res_var)
-      memorize_rvalue_derivation(res_var, expr)
+    def handle_additive(expr, *, rslt_var)
+      memorize_rvalue_derivation(rslt_var, expr)
     end
 
-    def handle_multiplicative(expr, *, res_var)
+    def handle_multiplicative(expr, *, rslt_var)
       unless expr.operator.type == "%"
-        memorize_rvalue_derivation(res_var, expr)
+        memorize_rvalue_derivation(rslt_var, expr)
       end
     end
 
@@ -18220,9 +18220,9 @@ module CBuiltin #:nodoc:
     end
 
     private
-    def check(expr, org_var, res_var)
-      from_type = org_var.type.unqualify
-      to_type = res_var.type.unqualify
+    def check(expr, orig_var, rslt_var)
+      from_type = orig_var.type.unqualify
+      to_type = rslt_var.type.unqualify
 
       return unless from_type.pointer? && to_type.pointer?
 
@@ -18636,9 +18636,9 @@ module CBuiltin #:nodoc:
     end
 
     private
-    def check(expr, org_var, res_var)
-      lhs_type = org_var.type.unqualify
-      rhs_type = res_var.type.unqualify
+    def check(expr, orig_var, rslt_var)
+      lhs_type = orig_var.type.unqualify
+      rhs_type = rslt_var.type.unqualify
 
       case
       when lhs_type.floating? &&
@@ -18665,9 +18665,9 @@ module CBuiltin #:nodoc:
     end
 
     private
-    def check(expr, org_var, res_var)
-      lhs_type = org_var.type.unqualify
-      rhs_type = res_var.type.unqualify
+    def check(expr, orig_var, rslt_var)
+      lhs_type = orig_var.type.unqualify
+      rhs_type = rslt_var.type.unqualify
 
       if lhs_type.pointer? && rhs_type.pointer?
         case
@@ -19657,20 +19657,20 @@ module CBuiltin #:nodoc:
     end
 
     private
-    def check(expr, org_var, res_var)
-      org_type = org_var.type
-      res_type = res_var.type
+    def check(expr, orig_var, rslt_var)
+      orig_type = orig_var.type
+      rslt_type = rslt_var.type
 
-      unless org_type.scalar? && org_type.integer? &&
-          res_type.scalar? && res_type.integer? && res_type.signed?
+      unless orig_type.scalar? && orig_type.integer? &&
+          rslt_type.scalar? && rslt_type.integer? && rslt_type.signed?
         return
       end
 
-      org_val = org_var.value
-      return unless org_val.scalar?
+      orig_val = orig_var.value
+      return unless orig_val.scalar?
 
-      lower_test = org_val < @interp.scalar_value_of(res_type.min)
-      upper_test = org_val > @interp.scalar_value_of(res_type.max)
+      lower_test = orig_val < @interp.scalar_value_of(rslt_type.min)
+      upper_test = orig_val > @interp.scalar_value_of(rslt_type.max)
 
       if !lower_test.must_be_true? && lower_test.may_be_true? or
           !upper_test.must_be_true? && upper_test.may_be_true?
@@ -19693,20 +19693,20 @@ module CBuiltin #:nodoc:
     end
 
     private
-    def check(expr, org_var, res_var)
-      org_type = org_var.type
-      res_type = res_var.type
+    def check(expr, orig_var, rslt_var)
+      orig_type = orig_var.type
+      rslt_type = rslt_var.type
 
-      unless org_type.scalar? && org_type.integer? &&
-          res_type.scalar? && res_type.integer? && res_type.signed?
+      unless orig_type.scalar? && orig_type.integer? &&
+          rslt_type.scalar? && rslt_type.integer? && rslt_type.signed?
         return
       end
 
-      org_val = org_var.value
-      return unless org_val.scalar?
+      orig_val = orig_var.value
+      return unless orig_val.scalar?
 
-      lower_test = org_val < @interp.scalar_value_of(res_type.min)
-      upper_test = org_val > @interp.scalar_value_of(res_type.max)
+      lower_test = orig_val < @interp.scalar_value_of(rslt_type.min)
+      upper_test = orig_val > @interp.scalar_value_of(rslt_type.max)
 
       if lower_test.must_be_true? || upper_test.must_be_true?
         W(expr.location)
@@ -19729,7 +19729,7 @@ module CBuiltin #:nodoc:
     end
 
     private
-    def check(expr, lhs_var, rhs_var, res_var)
+    def check(expr, lhs_var, rhs_var, rslt_var)
       return unless lhs_var.type.scalar? && lhs_var.type.unsigned?
       return unless rhs_var.type.scalar? && rhs_var.type.unsigned?
       return unless lhs_var.value.scalar? && rhs_var.value.scalar?
@@ -19745,11 +19745,11 @@ module CBuiltin #:nodoc:
         return
       end
 
-      lower_test = unbound_val < @interp.scalar_value_of(res_var.type.min)
-      upper_test = unbound_val > @interp.scalar_value_of(res_var.type.max)
+      lower_test = unbound_val < @interp.scalar_value_of(rslt_var.type.min)
+      upper_test = unbound_val > @interp.scalar_value_of(rslt_var.type.max)
 
       if lower_test.must_be_true? || upper_test.must_be_true?
-        W(expr.location, res_var.type.brief_image)
+        W(expr.location, rslt_var.type.brief_image)
       end
     end
   end
@@ -19769,7 +19769,7 @@ module CBuiltin #:nodoc:
     end
 
     private
-    def check(expr, lhs_var, rhs_var, res_var)
+    def check(expr, lhs_var, rhs_var, rslt_var)
       return unless lhs_var.type.scalar? && lhs_var.type.unsigned?
       return unless rhs_var.type.scalar? && rhs_var.type.unsigned?
       return unless lhs_var.value.scalar? && rhs_var.value.scalar?
@@ -19785,12 +19785,12 @@ module CBuiltin #:nodoc:
         return
       end
 
-      lower_test = unbound_val < @interp.scalar_value_of(res_var.type.min)
-      upper_test = unbound_val > @interp.scalar_value_of(res_var.type.max)
+      lower_test = unbound_val < @interp.scalar_value_of(rslt_var.type.min)
+      upper_test = unbound_val > @interp.scalar_value_of(rslt_var.type.max)
 
       if !lower_test.must_be_true? && lower_test.may_be_true? or
           !upper_test.must_be_true? && upper_test.may_be_true?
-        W(expr.location, res_var.type.brief_image)
+        W(expr.location, rslt_var.type.brief_image)
       end
     end
   end
@@ -20236,10 +20236,10 @@ module CBuiltin #:nodoc:
       @retn_vals = nil
     end
 
-    def add_return_value(expr, fun, *, res_var)
+    def add_return_value(expr, fun, *, rslt_var)
       if @cur_fun
         unless fun.type.return_type.void?
-          @retn_vals[res_var] = [false, expr, fun]
+          @retn_vals[rslt_var] = [false, expr, fun]
         end
       end
     end
@@ -20443,9 +20443,9 @@ module CBuiltin #:nodoc:
     end
 
     private
-    def check(init_or_expr, org_var, res_var)
-      from_type = org_var.type
-      to_type = res_var.type
+    def check(init_or_expr, orig_var, rslt_var)
+      from_type = orig_var.type
+      to_type = rslt_var.type
 
       if from_type.undeclared? || from_type.unresolved? ||
           to_type.undeclared? || to_type.unresolved?
@@ -20456,13 +20456,13 @@ module CBuiltin #:nodoc:
       when Cc1::Initializer
         expr = init_or_expr.expression
         if expr && @interp.constant_expression?(expr)
-          if untyped_pointer_conversion?(from_type, to_type, org_var.value)
+          if untyped_pointer_conversion?(from_type, to_type, orig_var.value)
             return
           end
         end
       when Cc1::Expression
         if @interp.constant_expression?(init_or_expr)
-          if untyped_pointer_conversion?(from_type, to_type, org_var.value)
+          if untyped_pointer_conversion?(from_type, to_type, orig_var.value)
             return
           end
         end

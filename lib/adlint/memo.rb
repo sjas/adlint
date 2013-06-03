@@ -61,10 +61,10 @@ module AdLint #:nodoc:
           else
             if #{cache_name_of(name)}_forbidden ||= false
               #{cache_name_of(name)}_forbidden = false
-              #{org_name_of(name)}
+              #{orig_name_of(name)}
             else
               #{cache_name_of(name)}_initialized = true
-              #{cache_name_of(name)} = #{org_name_of(name)}(*args)
+              #{cache_name_of(name)} = #{orig_name_of(name)}(*args)
             end
           end
         end
@@ -82,16 +82,16 @@ module AdLint #:nodoc:
             if #{cache_name_of(name)}.include?(key)
               #{cache_name_of(name)}[key]
             else
-              #{cache_name_of(name)}[key] = #{org_name_of(name)}(*args)
+              #{cache_name_of(name)}[key] = #{orig_name_of(name)}(*args)
             end
           else
             if #{cache_name_of(name)}_forbidden ||= false
               #{cache_name_of(name)}_forbidden = false
-              #{org_name_of(name)}(*args)
+              #{orig_name_of(name)}(*args)
             else
               #{cache_name_of(name)}_initialized = true
               #{cache_name_of(name)} = {}
-              #{cache_name_of(name)}[key] = #{org_name_of(name)}(*args)
+              #{cache_name_of(name)}[key] = #{orig_name_of(name)}(*args)
             end
           end
         end
@@ -109,16 +109,16 @@ module AdLint #:nodoc:
             if #{cache_name_of(name)}.include?(key)
               #{cache_name_of(name)}[key]
             else
-              #{cache_name_of(name)}[key] = #{org_name_of(name)}(*args)
+              #{cache_name_of(name)}[key] = #{orig_name_of(name)}(*args)
             end
           else
             if #{cache_name_of(name)}_forbidden ||= false
               #{cache_name_of(name)}_forbidden = false
-              #{org_name_of(name)}(*args)
+              #{orig_name_of(name)}(*args)
             else
               #{cache_name_of(name)}_initialized = true
               #{cache_name_of(name)} = {}
-              #{cache_name_of(name)}[key] = #{org_name_of(name)}(*args)
+              #{cache_name_of(name)}[key] = #{orig_name_of(name)}(*args)
             end
           end
         end
@@ -194,8 +194,8 @@ module AdLint #:nodoc:
 
     def save_memoizing_method(name)
       class_eval <<-EOS
-        alias_method(:#{org_name_of(name)}, :#{name})
-        private(:#{org_name_of(name)})
+        alias_method(:#{orig_name_of(name)}, :#{name})
+        private(:#{orig_name_of(name)})
       EOS
     end
 
@@ -203,8 +203,8 @@ module AdLint #:nodoc:
       "@__cache_of__#{name.to_s.sub("?", "P")}"
     end
 
-    def org_name_of(name)
-      "__org_#{name}"
+    def orig_name_of(name)
+      "__orig_#{name}"
     end
   end
 

@@ -1,3 +1,13 @@
+Tue Jun  4 20:33:44 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* features/code_check/W0705.feature : Add scenario to reproduce a known
+	  bug.
+
+	* lib/adlint/cc1/interp.rb : Fix evaluation of the global constant
+	  variable definition in order not to ignore value of the initializer.
+	* lib/adlint/cc1/object.rb : Ditto.
+	* lib/adlint/cc1/value.rb : Ditto.
+
 Fri May 31 10:54:11 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* release.ga : 3.0.8

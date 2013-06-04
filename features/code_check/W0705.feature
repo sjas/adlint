@@ -360,3 +360,36 @@ Feature: W0705
       | W0502 | 5    | 9      |
       | W0498 | 7    | 18     |
       | W0628 | 3    | 5      |
+
+  Scenario: size of array is specified by the global constant variable
+    Given a target source named "fixture.c" with:
+      """
+      const int size = 2;
+
+      void foo(void)
+      {
+          int i;
+          char a[size];
+          for (i = 0; i < size; i++) {
+              a[i] = (char) 0; /* OK */
+          }
+      }
+
+      void bar(void)
+      {
+          int i;
+          char a[size];
+          for (i = 0; i < size; i++) {
+              a[i] = (char) 0; /* OK */
+          }
+      }
+      """
+    When I successfully run `adlint fixture.c` on noarch
+    Then the output should exactly match with:
+      | mesg  | line | column |
+      | W0117 | 1    | 11     |
+      | W0117 | 3    | 6      |
+      | W0117 | 12   | 6      |
+      | W0628 | 3    | 6      |
+      | W0628 | 12   | 6      |
+      | W0593 | 1    | 11     |

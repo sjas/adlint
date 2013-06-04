@@ -574,10 +574,10 @@ module Cc1 #:nodoc:
           init_var, init_conved = evaluate_initializer(node)
           var = define_variable(node, init_conved.value.to_defined_value)
         else
-          # NOTE: Define variable first in order to correctly evaluate
+          # NOTE: Declare variable first in order to correctly evaluate
           #       sizeof-expression that refers to the defining variable in the
           #       initializer.
-          define_variable(node) unless variable_named(node.identifier.value)
+          declare_variable(node)
           init_var, init_conved = evaluate_initializer(node)
           var = define_variable(node, init_conved.value.to_defined_value)
         end

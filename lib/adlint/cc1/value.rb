@@ -2166,8 +2166,15 @@ module Cc1 #:nodoc:
 
     def overwrite!(val)
       @version_controller.fork_current_version
-      super(val.to_single_value)
+      super
       @version_controller.mark_current_versioning_group_as_sticky
+      invalidate_memo!
+    end
+
+    def force_overwrite!(val)
+      single_val = val.to_single_value
+      @version_controller.original_value.overwrite!(single_val)
+      _orig_overwrite!(single_val)
       invalidate_memo!
     end
 

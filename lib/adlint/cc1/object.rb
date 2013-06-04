@@ -644,9 +644,9 @@ module Cc1 #:nodoc:
     end
 
     def define(dcl_or_def, init_val = nil)
-      if storage_duration_of(dcl_or_def) == :static
-        # NOTE: Value of the static duration object should be arbitrary because
-        #       execution of its accessors are out of order.
+      if storage_duration_of(dcl_or_def) == :static && !dcl_or_def.type.const?
+        # NOTE: Value of the inconstant static duration variable should be
+        #       arbitrary because execution of its accessors are out of order.
         #       So, a value of the initializer should be ignored.
         init_val = dcl_or_def.type.arbitrary_value
       else
@@ -656,7 +656,7 @@ module Cc1 #:nodoc:
       if var = lookup(dcl_or_def.identifier.value)
         if var.scope == current_scope
           var.declarations_and_definitions.push(dcl_or_def)
-          var.assign!(init_val)
+          var.value.force_overwrite!(init_val)
           return var
         end
       end
@@ -813,6 +813,8 @@ module Cc1 #:nodoc:
 
     def rollback_all_global_variables_value!
       @named_variables.first.each_value do |var|
+        # NOTE: Rollback effects recorded to global variables because execution
+        #       of its accessors are out of order.
         var.rollback_all_value_versions!
       end
     end

@@ -200,7 +200,7 @@ module AdLint #:nodoc:
     end
 
     def cache_name_of(name)
-      "@__cache_of__#{name.to_s.sub("?", "P")}"
+      "@__cache_of__#{name.to_s.sub("?", "_p")}"
     end
 
     def orig_name_of(name)

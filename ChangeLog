@@ -1,3 +1,9 @@
+Wed Jun  5 17:21:36 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/cc1/mediator.rb : Revise pointer dereferencing behavior to
+	  successfully dereference a pointer only when the value of pointer
+	  variable is definite.
+
 Tue Jun  4 20:33:44 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* features/code_check/W0705.feature : Add scenario to reproduce a known

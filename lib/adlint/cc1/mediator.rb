@@ -75,8 +75,8 @@ module Cc1 #:nodoc:
       #   mem = memory_at(addr) ? mem.binding.object : nil
       # }.compact
 
-      ptr.value.to_enum.each do |addr|
-        if mem = memory_at(addr)
+      if ptr.value.definite?
+        if addr = ptr.value.to_enum.first and mem = memory_at(addr)
           obj = mem.binding.object
           if obj.variable? or
               obj.function? && ptr.type.unqualify.base_type.function?

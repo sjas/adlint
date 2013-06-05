@@ -1,3 +1,19 @@
+Wed Jun  5 17:37:23 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/cc1/object.rb : Fix variable's value version rollback
+	  mechanism in order not to do unnecessary rollback of inner-variables
+	  of array or composite value.
+
+	* lib/adlint/cc1/type.rb : Fix bad type traits predicate methods for
+	  array type.
+
+	* features/code_check/W0097.feature : Add scenario to reproduce a known
+	  bug.
+	* features/code_check/W0461.feature : Ditto.
+
+	* lib/adlint/cc1/value.rb : Add comment to newly added destructive
+	  #force_oeverwrite! method.
+
 Wed Jun  5 17:21:36 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* lib/adlint/cc1/mediator.rb : Revise pointer dereferencing behavior to

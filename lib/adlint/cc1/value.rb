@@ -2172,6 +2172,7 @@ module Cc1 #:nodoc:
     end
 
     def force_overwrite!(val)
+      # NOTE: This method will be invoked only from VariableTable#define.
       single_val = val.to_single_value
       @version_controller.original_value.overwrite!(single_val)
       _orig_overwrite!(single_val)

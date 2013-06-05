@@ -366,24 +366,6 @@ module Cc1 #:nodoc:
       end
     end
 
-    def rollback_latest_value_version!
-      super
-      if @inner_variables
-        @inner_variables.each do |inner|
-          inner.rollback_latest_value_version!
-        end
-      end
-    end
-
-    def rollback_all_value_versions!
-      super
-      if @inner_variables
-        @inner_variables.each do |inner|
-          inner.rollback_all_value_versions!
-        end
-      end
-    end
-
     def inner?
       false
     end

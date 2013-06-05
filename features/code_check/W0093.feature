@@ -1,6 +1,6 @@
 Feature: W0093
 
-  W0093 detects that a division-by-zero may occur.
+  W0093 detects that a multiplicative-expression may cause division-by-zero.
 
   Scenario: narrowing denominator variable by an iteration controlling
             variable which has same value domain of the denominator

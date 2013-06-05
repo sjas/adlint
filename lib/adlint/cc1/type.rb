@@ -5646,15 +5646,15 @@ module Cc1 #:nodoc:
     end
 
     def const?
-      false
+      @base_type.const?
     end
 
     def volatile?
-      false
+      @base_type.volatile?
     end
 
     def restrict?
-      false
+      @base_type.restrict?
     end
 
     def bitfield?

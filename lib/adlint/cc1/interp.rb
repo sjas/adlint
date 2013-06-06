@@ -460,6 +460,10 @@ module Cc1 #:nodoc:
       end
     end
 
+    def eval_as_controlling_expr?
+      cur_opts.include?(EVAL_AS_CONTROLLING_EXPR)
+    end
+
     def _active_function
       # NOTE: This method is called only from
       #       StatementInterpreter#visit_return_statement.
@@ -1003,8 +1007,8 @@ module Cc1 #:nodoc:
         ctrlexpr_val = scalar_value_of_arbitrary
         ctrlexpr = nil
       else
-        ctrlexpr_var = object_to_variable(interpret(orig_ctrlexpr),
-                                          orig_ctrlexpr)
+        ctrlexpr_var = object_to_variable(
+          interpret(orig_ctrlexpr, EVAL_AS_CONTROLLING_EXPR), orig_ctrlexpr)
         ctrlexpr_val = value_of(ctrlexpr_var)
         notify_variable_value_referred(orig_ctrlexpr, ctrlexpr_var)
         notify_sequence_point_reached(SequencePoint.new(orig_ctrlexpr))
@@ -1037,8 +1041,8 @@ module Cc1 #:nodoc:
         ctrlexpr_val = scalar_value_of_arbitrary
         ctrlexpr = nil
       else
-        ctrlexpr_var = object_to_variable(interpret(orig_ctrlexpr),
-                                          orig_ctrlexpr)
+        ctrlexpr_var = object_to_variable(
+          interpret(orig_ctrlexpr, EVAL_AS_CONTROLLING_EXPR), orig_ctrlexpr)
         ctrlexpr_val = value_of(ctrlexpr_var)
         notify_variable_value_referred(orig_ctrlexpr, ctrlexpr_var)
         notify_sequence_point_reached(SequencePoint.new(orig_ctrlexpr))
@@ -1076,8 +1080,8 @@ module Cc1 #:nodoc:
 
       widen_varying_variable_value_domain(node)
 
-      ctrlexpr_var = object_to_variable(interpret(node.expression),
-                                        node.expression)
+      ctrlexpr_var = object_to_variable(
+        interpret(node.expression, EVAL_AS_CONTROLLING_EXPR), node.expression)
       ctrlexpr_val = value_of(ctrlexpr_var)
       notify_variable_value_referred(node.expression, ctrlexpr_var)
       notify_sequence_point_reached(SequencePoint.new(node.expression))
@@ -1128,8 +1132,8 @@ module Cc1 #:nodoc:
         leave_iteration_statement(orig_ctrlexpr)
       end
 
-      ctrlexpr_var = object_to_variable(interpret(node.expression),
-                                        node.expression)
+      ctrlexpr_var = object_to_variable(
+        interpret(node.expression, EVAL_AS_CONTROLLING_EXPR), node.expression)
       ctrlexpr_val = value_of(ctrlexpr_var)
       notify_variable_value_referred(node.expression, ctrlexpr_var)
       notify_sequence_point_reached(SequencePoint.new(node.expression))
@@ -1151,8 +1155,9 @@ module Cc1 #:nodoc:
 
       node.condition_statement.executed = true
       if explicit_ctrlexpr = node.condition_statement.expression
-        ctrlexpr_var = object_to_variable(interpret(explicit_ctrlexpr),
-                                          explicit_ctrlexpr)
+        ctrlexpr_var = object_to_variable(
+          interpret(explicit_ctrlexpr, EVAL_AS_CONTROLLING_EXPR),
+          explicit_ctrlexpr)
         ctrlexpr_val = value_of(ctrlexpr_var)
         notify_variable_value_referred(explicit_ctrlexpr, ctrlexpr_var)
         notify_sequence_point_reached(SequencePoint.new(explicit_ctrlexpr))
@@ -1185,8 +1190,9 @@ module Cc1 #:nodoc:
 
         node.condition_statement.executed = true
         if explicit_ctrlexpr = node.condition_statement.expression
-          ctrlexpr_var = object_to_variable(interpret(explicit_ctrlexpr),
-                                            explicit_ctrlexpr)
+          ctrlexpr_var = object_to_variable(
+            interpret(explicit_ctrlexpr, EVAL_AS_CONTROLLING_EXPR),
+            explicit_ctrlexpr)
           ctrlexpr_val = value_of(ctrlexpr_var)
           notify_variable_value_referred(explicit_ctrlexpr, ctrlexpr_var)
           notify_sequence_point_reached(SequencePoint.new(explicit_ctrlexpr))

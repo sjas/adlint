@@ -212,6 +212,7 @@ error                  -> err
 project                -> proj
 temporary              -> tmp
 referrer-function      -> ref_fun
+sample                 -> smpl
 @end verbatim
 
 

@@ -228,6 +228,7 @@ features/code_check/W0585.feature
 features/code_check/W0599.feature
 features/code_check/W0606.feature
 features/code_check/W0610.feature
+features/code_check/W0613.feature
 features/code_check/W0611.feature
 features/code_check/W0635.feature
 features/code_check/W0641.feature

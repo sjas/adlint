@@ -501,15 +501,8 @@ module Cc1 #:nodoc:
           end
         end
 
-        # FIXME: Domain of the subscript may have multiple values.
-        subs_val = subs.value.unique_sample
-        if ary and inner_var = ary.inner_variable_at(subs_val)
-          _notify_object_referred(node, inner_var)
-          if inner_var.type.same_as?(rslt_type)
-            rslt_var = inner_var
-          end
-        end
-        rslt_var ||= create_tmpvar(rslt_type)
+        rslt_var = _pick_array_element(ary, subs, rslt_type)
+        _notify_object_referred(node, rslt_var)
 
         notify_array_subscript_expr_evaled(node, obj, subs, ary, rslt_var)
         rslt_var
@@ -1466,6 +1459,46 @@ module Cc1 #:nodoc:
         _notify_variable_value_updated(node, lhs_var)
 
         notify_assignment_expr_evaled(node, lhs_var, rhs_conved)
+      end
+
+      def _pick_array_element(ary, subs, rslt_type)
+        if interpreter.eval_as_controlling_expr?
+          _pick_array_element_in_controlling_expr(ary, subs, rslt_type)
+        else
+          # FIXME: Domain of the subscript may have multiple values.
+          subs_val = subs.value.unique_sample
+          if ary and inner_var = ary.inner_variable_at(subs_val)
+            if inner_var.type.same_as?(rslt_type)
+              rslt_var = inner_var
+            end
+          end
+          rslt_var || create_tmpvar(rslt_type)
+        end
+      end
+
+      def _pick_array_element_in_controlling_expr(ary, subs, rslt_type)
+        # NOTE: To improve heuristics of array subscript evaluation with
+        #       indefinite subscript.
+        if ary
+          subs_smpls = subs.value.to_enum
+          if subs_smpls.count == 1
+            if inner_var = ary.inner_variable_at(subs_smpls.first) and
+                inner_var.type.same_as?(rslt_type)
+              rslt_var = inner_var
+            end
+          else
+            rslt_val = subs_smpls.reduce(rslt_type.nil_value) { |val, smpl_val|
+              if inner_var = ary.inner_variable_at(smpl_val) and
+                  inner_var.type.same_as?(rslt_type)
+                val.single_value_unified_with(inner_var.value)
+              else
+                val
+              end
+            }
+            rslt_var = create_tmpvar(rslt_type, rslt_val)
+          end
+        end
+        rslt_var || create_tmpvar(rslt_type)
       end
 
       def _notify_object_referred(node, obj)

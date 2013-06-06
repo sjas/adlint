@@ -1,3 +1,15 @@
+Thu Jun  6 18:36:13 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* features/code_check/W0613.feature : Add scenario to reproduce
+	  false-positive of W0613 code check when an array-subscript-expression
+	  refers to the global constant array is specified as the controlling
+	  expression.
+
+	* lib/adlint/cc1/expr.rb : Improve heuristics of array subscript
+	  evaluation with indefinite subscript only in controlling expressions.
+	* lib/adlint/cc1/interp.rb : Ditto.
+	* lib/adlint/cc1/option.rb : Ditto.
+
 Wed Jun  5 17:37:23 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* lib/adlint/cc1/object.rb : Fix variable's value version rollback

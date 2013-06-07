@@ -501,9 +501,7 @@ module Cc1 #:nodoc:
           end
         end
 
-        rslt_var = _pick_array_element(ary, subs, rslt_type)
-        _notify_object_referred(node, rslt_var)
-
+        rslt_var = _pick_array_element(node, ary, subs, rslt_type)
         notify_array_subscript_expr_evaled(node, obj, subs, ary, rslt_var)
         rslt_var
       end
@@ -1461,36 +1459,31 @@ module Cc1 #:nodoc:
         notify_assignment_expr_evaled(node, lhs_var, rhs_conved)
       end
 
-      def _pick_array_element(ary, subs, rslt_type)
-        if interpreter.eval_as_controlling_expr?
-          _pick_array_element_in_controlling_expr(ary, subs, rslt_type)
-        else
-          # FIXME: Domain of the subscript may have multiple values.
-          subs_val = subs.value.unique_sample
-          if ary and inner_var = ary.inner_variable_at(subs_val)
-            if inner_var.type.same_as?(rslt_type)
-              rslt_var = inner_var
-            end
-          end
-          rslt_var || create_tmpvar(rslt_type)
-        end
-      end
-
-      def _pick_array_element_in_controlling_expr(ary, subs, rslt_type)
-        # NOTE: To improve heuristics of array subscript evaluation with
-        #       indefinite subscript.
+      def _pick_array_element(expr, ary, subs, rslt_type)
         if ary
-          subs_smpls = subs.value.to_enum
-          if subs_smpls.count == 1
-            if inner_var = ary.inner_variable_at(subs_smpls.first) and
-                inner_var.type.same_as?(rslt_type)
-              rslt_var = inner_var
+          if subs.value.definite?
+            inner_var = ary.inner_variable_at(subs.value.unique_sample)
+            if inner_var && inner_var.type.same_as?(rslt_type)
+              _notify_object_referred(expr, inner_var)
+              return inner_var
             end
           else
-            rslt_var = create_tmpvar(rslt_type)
+            subs.value.to_enum.each do |subs_smpl|
+              inner_var = ary.inner_variable_at(subs_smpl)
+              if inner_var && inner_var.type.same_as?(rslt_type)
+                _notify_object_referred(expr, inner_var)
+                if interpreter.eval_as_controlling_expr?
+                  # NOTE: To improve heuristics of array subscript evaluation
+                  #       with indefinite subscript.
+                  return create_tmpvar(rslt_type)
+                else
+                  return inner_var
+                end
+              end
+            end
           end
         end
-        rslt_var || create_tmpvar(rslt_type)
+        create_tmpvar(rslt_type)
       end
 
       def _notify_object_referred(node, obj)

@@ -1487,19 +1487,7 @@ module Cc1 #:nodoc:
               rslt_var = inner_var
             end
           else
-            rslt_val = subs_smpls.reduce(rslt_type.nil_value) { |val, smpl_val|
-              if inner_var = ary.inner_variable_at(smpl_val) and
-                  inner_var.type.same_as?(rslt_type)
-                val.single_value_unified_with(inner_var.value)
-              else
-                val
-              end
-            }
-            if rslt_val.exist?
-              rslt_var = create_tmpvar(rslt_type, rslt_val)
-            else
-              rslt_var = create_tmpvar(rslt_type)
-            end
+            rslt_var = create_tmpvar(rslt_type)
           end
         end
         rslt_var || create_tmpvar(rslt_type)

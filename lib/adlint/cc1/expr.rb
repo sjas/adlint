@@ -1495,7 +1495,11 @@ module Cc1 #:nodoc:
                 val
               end
             }
-            rslt_var = create_tmpvar(rslt_type, rslt_val)
+            if rslt_val.exist?
+              rslt_var = create_tmpvar(rslt_type, rslt_val)
+            else
+              rslt_var = create_tmpvar(rslt_type)
+            end
           end
         end
         rslt_var || create_tmpvar(rslt_type)

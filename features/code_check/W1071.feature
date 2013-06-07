@@ -79,3 +79,33 @@ Feature: W1071
       | W0104 | 1    | 13     |
       | W1071 | 1    | 5      |
       | W0628 | 1    | 5      |
+
+  Scenario: array-subscript-expression as the controlling expression
+    Given a target source named "fixture.c" with:
+      """
+      struct foo {
+          int len;
+          int ary[];
+      };
+
+      static void foo(struct foo *p)
+      {
+          int i;
+          for (i = 0; i < p->len; i++) {
+              if (p->ary[i]) return;
+          }
+      }
+      """
+    When I successfully run `adlint fixture.c` on noarch
+    Then the output should exactly match with:
+      | mesg  | line | column |
+      | W1076 | 6    | 13     |
+      | W0422 | 9    | 22     |
+      | W0422 | 10   | 14     |
+      | W0104 | 6    | 29     |
+      | W0105 | 6    | 29     |
+      | W1071 | 6    | 13     |
+      | W0629 | 6    | 13     |
+      | W0414 | 10   | 24     |
+      | W0114 | 10   | 9      |
+      | W0628 | 6    | 13     |

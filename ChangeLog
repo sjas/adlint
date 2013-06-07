@@ -1,3 +1,12 @@
+Fri Jun  7 10:44:06 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* features/code_check/W1071.feature : Add scenario to reproduce the
+	  broken array subscript evaluation in controlling expressions.
+
+	* lib/adlint/cc1/expr.rb : Fix bad array subscript evaluation so that
+	  the array-subscript-expression makes undefined-value when no
+	  designated object is found.
+
 Thu Jun  6 18:36:13 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* features/code_check/W0613.feature : Add scenario to reproduce

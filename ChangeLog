@@ -1,3 +1,16 @@
+Wed Jun 12 11:43:35 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* features/code_check/W0459.feature : Add scenario to reproduce a known
+	  bug.
+
+	* lib/adlint/cc1/interp.rb : Fix conditional-expression evaluation in
+	  order to evaluate controlling expression in the same manner as that
+	  of if-statement.
+
+	* lib/adlint/cc1/mediator.rb : Fix pointer dereference behavior in
+	  order to find possible pointee objects when the pointer value is not
+	  definite.
+
 Fri Jun  7 11:45:23 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* lib/adlint/cc1/expr.rb : Revise global constant array subscript

@@ -195,6 +195,7 @@ features/code_check/W0422.feature
 features/code_check/W0425.feature
 features/code_check/W0431.feature
 features/code_check/W0432.feature
+features/code_check/W0459.feature
 features/code_check/W0460.feature
 features/code_check/W0461.feature
 features/code_check/W0477.feature

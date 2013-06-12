@@ -1007,8 +1007,8 @@ module Cc1 #:nodoc:
         ctrlexpr_val = scalar_value_of_arbitrary
         ctrlexpr = nil
       else
-        ctrlexpr_var = object_to_variable(
-          interpret(orig_ctrlexpr, EVAL_AS_CONTROLLING_EXPR), orig_ctrlexpr)
+        ctrlexpr_obj = interpret(orig_ctrlexpr, EVAL_AS_CONTROLLING_EXPR)
+        ctrlexpr_var = object_to_variable(ctrlexpr_obj, orig_ctrlexpr)
         ctrlexpr_val = value_of(ctrlexpr_var)
         notify_variable_value_referred(orig_ctrlexpr, ctrlexpr_var)
         notify_sequence_point_reached(SequencePoint.new(orig_ctrlexpr))
@@ -1041,8 +1041,8 @@ module Cc1 #:nodoc:
         ctrlexpr_val = scalar_value_of_arbitrary
         ctrlexpr = nil
       else
-        ctrlexpr_var = object_to_variable(
-          interpret(orig_ctrlexpr, EVAL_AS_CONTROLLING_EXPR), orig_ctrlexpr)
+        ctrlexpr_obj = interpret(orig_ctrlexpr, EVAL_AS_CONTROLLING_EXPR)
+        ctrlexpr_var = object_to_variable(ctrlexpr_obj, orig_ctrlexpr)
         ctrlexpr_val = value_of(ctrlexpr_var)
         notify_variable_value_referred(orig_ctrlexpr, ctrlexpr_var)
         notify_sequence_point_reached(SequencePoint.new(orig_ctrlexpr))
@@ -1080,8 +1080,8 @@ module Cc1 #:nodoc:
 
       widen_varying_variable_value_domain(node)
 
-      ctrlexpr_var = object_to_variable(
-        interpret(node.expression, EVAL_AS_CONTROLLING_EXPR), node.expression)
+      ctrlexpr_obj = interpret(node.expression, EVAL_AS_CONTROLLING_EXPR)
+      ctrlexpr_var = object_to_variable(ctrlexpr_obj, node.expression)
       ctrlexpr_val = value_of(ctrlexpr_var)
       notify_variable_value_referred(node.expression, ctrlexpr_var)
       notify_sequence_point_reached(SequencePoint.new(node.expression))
@@ -1132,8 +1132,8 @@ module Cc1 #:nodoc:
         leave_iteration_statement(orig_ctrlexpr)
       end
 
-      ctrlexpr_var = object_to_variable(
-        interpret(node.expression, EVAL_AS_CONTROLLING_EXPR), node.expression)
+      ctrlexpr_obj = interpret(node.expression, EVAL_AS_CONTROLLING_EXPR)
+      ctrlexpr_var = object_to_variable(ctrlexpr_obj, node.expression)
       ctrlexpr_val = value_of(ctrlexpr_var)
       notify_variable_value_referred(node.expression, ctrlexpr_var)
       notify_sequence_point_reached(SequencePoint.new(node.expression))
@@ -1155,9 +1155,8 @@ module Cc1 #:nodoc:
 
       node.condition_statement.executed = true
       if explicit_ctrlexpr = node.condition_statement.expression
-        ctrlexpr_var = object_to_variable(
-          interpret(explicit_ctrlexpr, EVAL_AS_CONTROLLING_EXPR),
-          explicit_ctrlexpr)
+        ctrlexpr_obj = interpret(explicit_ctrlexpr, EVAL_AS_CONTROLLING_EXPR)
+        ctrlexpr_var = object_to_variable(ctrlexpr_obj, explicit_ctrlexpr)
         ctrlexpr_val = value_of(ctrlexpr_var)
         notify_variable_value_referred(explicit_ctrlexpr, ctrlexpr_var)
         notify_sequence_point_reached(SequencePoint.new(explicit_ctrlexpr))
@@ -1190,9 +1189,8 @@ module Cc1 #:nodoc:
 
         node.condition_statement.executed = true
         if explicit_ctrlexpr = node.condition_statement.expression
-          ctrlexpr_var = object_to_variable(
-            interpret(explicit_ctrlexpr, EVAL_AS_CONTROLLING_EXPR),
-            explicit_ctrlexpr)
+          ctrlexpr_obj = interpret(explicit_ctrlexpr, EVAL_AS_CONTROLLING_EXPR)
+          ctrlexpr_var = object_to_variable(ctrlexpr_obj, explicit_ctrlexpr)
           ctrlexpr_val = value_of(ctrlexpr_var)
           notify_variable_value_referred(explicit_ctrlexpr, ctrlexpr_var)
           notify_sequence_point_reached(SequencePoint.new(explicit_ctrlexpr))
@@ -1687,7 +1685,8 @@ module Cc1 #:nodoc:
       checkpoint(node.location)
 
       ctrlexpr = node.condition
-      ctrlexpr_var = object_to_variable(interpret(ctrlexpr), ctrlexpr)
+      ctrlexpr_obj = interpret(ctrlexpr, EVAL_AS_CONTROLLING_EXPR)
+      ctrlexpr_var = object_to_variable(ctrlexpr_obj, ctrlexpr)
       ctrlexpr_val = value_of(ctrlexpr_var)
       notify_variable_value_referred(ctrlexpr, ctrlexpr_var)
       notify_sequence_point_reached(ctrlexpr.subsequent_sequence_point)

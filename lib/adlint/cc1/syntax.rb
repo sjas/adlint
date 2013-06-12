@@ -3619,10 +3619,17 @@ module Cc1 #:nodoc:
 
     private
     def deduct_controlling_expression_candidates(rough_cands)
-      varying_var_names = varying_variable_names
-      rough_cands.select do |expr_pair|
-        collect_object_specifiers(expr_pair.first).any? do |os|
-          varying_var_names.include?(os.identifier.value)
+      case
+      when rough_cands.empty?
+        [[nil, nil]]
+      when rough_cands.size == 1
+        rough_cands
+      else
+        varying_var_names = varying_variable_names
+        rough_cands.select do |expr_pair|
+          collect_object_specifiers(expr_pair.first).any? do |os|
+            varying_var_names.include?(os.identifier.value)
+          end
         end
       end
     end
@@ -3726,7 +3733,8 @@ module Cc1 #:nodoc:
 
     def deduct_controlling_expression
       sels = collect_loop_breaking_selection_statements(@statement)
-      rough_cands = [[@expression, @expression]] + sels.map { |stmt|
+      expr = @expression
+      rough_cands = [[expr, expr.to_normalized_logical]] + sels.map { |stmt|
         [stmt.expression,
           stmt.expression.to_normalized_logical.to_complemental_logical]
       }
@@ -3765,7 +3773,8 @@ module Cc1 #:nodoc:
 
     def deduct_controlling_expression
       sels = collect_loop_breaking_selection_statements(@statement)
-      rough_cands = [[@expression, @expression]] + sels.map { |stmt|
+      expr = @expression
+      rough_cands = [[expr, expr.to_normalized_logical]] + sels.map { |stmt|
         [stmt.expression,
           stmt.expression.to_normalized_logical.to_complemental_logical]
       }
@@ -3806,12 +3815,17 @@ module Cc1 #:nodoc:
 
     def deduct_controlling_expression
       sels = collect_loop_breaking_selection_statements(@body_statement)
-      rough_cands = [
-        [@condition_statement.expression, @condition_statement.expression]
-      ] + sels.map { |stmt|
-        [stmt.expression,
-          stmt.expression.to_normalized_logical.to_complemental_logical]
-      }
+      if expr = @condition_statement.expression
+        rough_cands = [[expr, expr.to_normalized_logical]] + sels.map { |stmt|
+          [stmt.expression,
+            stmt.expression.to_normalized_logical.to_complemental_logical]
+        }
+      else
+        rough_cands = sels.map { |stmt|
+          [stmt.expression,
+            stmt.expression.to_normalized_logical.to_complemental_logical]
+        }
+      end
 
       # FIXME: When many loop breaking selection-statements are found, how can
       #        I select one selection-statement?
@@ -3852,12 +3866,17 @@ module Cc1 #:nodoc:
 
     def deduct_controlling_expression
       sels = collect_loop_breaking_selection_statements(@body_statement)
-      rough_cands = [
-        [@condition_statement.expression, @condition_statement.expression]
-      ] + sels.map { |stmt|
-        [stmt.expression,
-          stmt.expression.to_normalized_logical.to_complemental_logical]
-      }
+      if expr = @condition_statement.expression
+        rough_cands = [[expr, expr.to_normalized_logical]] + sels.map { |stmt|
+          [stmt.expression,
+            stmt.expression.to_normalized_logical.to_complemental_logical]
+        }
+      else
+        rough_cands = sels.map { |stmt|
+          [stmt.expression,
+            stmt.expression.to_normalized_logical.to_complemental_logical]
+        }
+      end
 
       # FIXME: When many loop breaking selection-statements are found, how can
       #        I select one selection-statement?

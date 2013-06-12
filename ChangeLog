@@ -1,3 +1,12 @@
+Wed Jun 12 19:57:55 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/cc1/syntax.rb : Fix controlling-expression deduction of
+	  iteration-statements in order to adopt the ordinary expression when
+	  no control breaking condition is found in the iteration body.
+
+	* features/code_check/W0422.feature : Add scenario to reproduce a known
+	  bug.
+
 Wed Jun 12 15:51:38 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* lib/adlint/cc1/object.rb : Add missing value coercing in evaluation

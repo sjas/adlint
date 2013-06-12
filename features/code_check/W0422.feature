@@ -126,3 +126,30 @@ Feature: W0422
       | W1071 | 3    | 6      |
       | W0948 | 5    | 21     |
       | W0628 | 3    | 6      |
+
+  Scenario: value of the global pointer is correctly null-checked by the
+            controlling-expression of while-statement 
+    Given a target source named "fixture.c" with:
+      """
+      int *ptr = NULL;
+
+      static void foo(void)
+      {
+          while (ptr) {
+              int i, *p = ptr;
+              i = *p; /* OK */
+          }
+      }
+      """
+    When I successfully run `adlint fixture.c` on noarch
+    Then the output should exactly match with:
+      | mesg  | line | column |
+      | W0117 | 1    | 6      |
+      | W1076 | 3    | 13     |
+      | W0100 | 6    | 17     |
+      | W0629 | 3    | 13     |
+      | W0114 | 5    | 5      |
+      | W0425 | 6    | 17     |
+      | W0628 | 3    | 13     |
+      | W0589 | 1    | 6      |
+      | W0593 | 1    | 6      |

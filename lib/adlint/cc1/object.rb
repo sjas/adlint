@@ -638,7 +638,7 @@ module Cc1 #:nodoc:
       if var = lookup(dcl_or_def.identifier.value)
         if var.scope == current_scope
           var.declarations_and_definitions.push(dcl_or_def)
-          var.value.force_overwrite!(init_val)
+          var.value.force_overwrite!(init_val.coerce_to(var.type))
           return var
         end
       end

@@ -1,3 +1,13 @@
+Thu Jun 13 13:42:24 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/cc1/domain.rb : Fix bad bitwise & evaluation with
+	  indefinite value domains.
+
+	* features/code_check/W0612.feature : Add scenario to reproduce
+	  false-positive of W0612 code check when value of an operand is
+	  indefinite.  
+	* MANIFEST : Ditto.
+
 Wed Jun 12 19:57:55 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* lib/adlint/cc1/syntax.rb : Fix controlling-expression deduction of

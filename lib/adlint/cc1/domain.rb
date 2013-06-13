@@ -6426,8 +6426,12 @@ module Cc1 #:nodoc:
     end
 
     def &(rhs_dom)
-      new_sub_doms = domain_pair.map { |lhs| lhs & rhs_dom }
-      new_sub_doms.first.intersection(new_sub_doms.last)
+      if rhs_max = rhs_dom.max_value
+        ValueDomain.greater_than_or_equal_to(0, logical_shr?).intersection(
+          ValueDomain.less_than_or_equal_to(rhs_max, logical_shr?))
+      else
+        ValueDomain.greater_than_or_equal_to(0, logical_shr?)
+      end
     end
 
     def |(rhs_dom)
@@ -6789,8 +6793,12 @@ module Cc1 #:nodoc:
     end
 
     def &(rhs_dom)
-      new_sub_doms = domain_pair.map { |lhs| lhs & rhs_dom }
-      new_sub_doms.first.union(new_sub_doms.last)
+      if rhs_max = rhs_dom.max_value
+        ValueDomain.greater_than_or_equal_to(0, logical_shr?).intersection(
+          ValueDomain.less_than_or_equal_to(rhs_max, logical_shr?))
+      else
+        ValueDomain.greater_than_or_equal_to(0, logical_shr?)
+      end
     end
 
     def |(rhs_dom)

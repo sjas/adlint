@@ -1125,7 +1125,7 @@ module Cc1 #:nodoc:
 
       begin
         enter_iteration_statement(orig_ctrlexpr)
-        branched_eval(ctrlexpr, NARROWING, FINAL, IMPLICIT_COND, COMPLETE) do
+        branched_eval(nil, NARROWING, FINAL, IMPLICIT_COND, COMPLETE) do
           interpret(node.statement)
         end
       ensure

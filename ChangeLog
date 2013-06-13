@@ -1,3 +1,12 @@
+Thu Jun 13 15:53:21 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/cc1/interp.rb : Remove unnecessary controlling expression
+	  evaluation at entering a do-statement.
+
+	* features/code_check/W9001.feature : Add scenario to reproduce
+	  false-positive of W9001 code check about body of the one-shot
+	  do-statement.
+
 Thu Jun 13 13:42:24 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* lib/adlint/cc1/domain.rb : Fix bad bitwise & evaluation with

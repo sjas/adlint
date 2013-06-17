@@ -1,3 +1,13 @@
+Mon Jun 17 16:43:32 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/cpp/lexer.rb : Add missing comment handling in the initial
+	  state of the preprocessing lexer.
+
+	* features/code_check/E0008.feature : Add scenario to reproduce a parse
+	  error when a #define directive appears right after a block comment
+	  followed by an escaped newline.
+	* MANIFEST : Ditto.
+
 Mon Jun 17 15:24:10 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* features/code_check/W0704.feature : Add scenario to reproduce a parse

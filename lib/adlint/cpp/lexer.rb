@@ -297,7 +297,11 @@ module Cpp #:nodoc:
     def next_token
       # NOTE: An escaped newline may appear at the line above a preprocessing
       #       directive line.
-      while scan_escaped_newline(@lexer.content); end
+      loop do
+        unless discard_heading_comments || scan_escaped_newline(@lexer.content)
+          break
+        end
+      end
 
       case
       when @lexer.content.check(/[ \t]*#/)

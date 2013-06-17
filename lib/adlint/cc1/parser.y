@@ -985,6 +985,9 @@ enum_specifier
         result = EnumSpecifier.new(create_anon_tag_name(val[0]), val[2])
         result.head_token = val[0]
         result.tail_token = val[3]
+        result.enumerators.each do |enum|
+          @lexer.add_enumerator_name(enum.identifier)
+        end
       }
     | ENUM IDENTIFIER "{" enumerator_list "}"
       {
@@ -992,6 +995,9 @@ enum_specifier
         result = EnumSpecifier.new(val[1], val[3])
         result.head_token = val[0]
         result.tail_token = val[4]
+        result.enumerators.each do |enum|
+          @lexer.add_enumerator_name(enum.identifier)
+        end
       }
     | ENUM "{" enumerator_list "," "}"
       {
@@ -1000,6 +1006,9 @@ enum_specifier
                                    val[2], val[3])
         result.head_token = val[0]
         result.tail_token = val[4]
+        result.enumerators.each do |enum|
+          @lexer.add_enumerator_name(enum.identifier)
+        end
       }
     | ENUM IDENTIFIER "{" enumerator_list "," "}"
       {
@@ -1007,6 +1016,9 @@ enum_specifier
         result = EnumSpecifier.new(val[1], val[3], val[4])
         result.head_token = val[0]
         result.tail_token = val[5]
+        result.enumerators.each do |enum|
+          @lexer.add_enumerator_name(enum.identifier)
+        end
       }
     | ENUM IDENTIFIER
       {
@@ -1031,14 +1043,14 @@ enumerator_list
     ;
 
 enumerator
-    : IDENTIFIER
+    : enumerator_name
       {
         checkpoint(val[0].location)
         sym = @sym_tbl.create_new_symbol(EnumeratorName, val[0])
         result = Enumerator.new(val[0], nil, sym)
         result.head_token = result.tail_token = val[0]
       }
-    | IDENTIFIER "=" constant_expression
+    | enumerator_name "=" constant_expression
       {
         checkpoint(val[0].location)
         val[2].full = true
@@ -1046,6 +1058,14 @@ enumerator
         result = Enumerator.new(val[0], val[2], sym)
         result.head_token = val[0]
         result.tail_token = val[2].tail_token
+      }
+    ;
+
+enumerator_name
+    : IDENTIFIER
+    | TYPEDEF_NAME
+      {
+        result = val[0].class.new(:IDENTIFIER, val[0].value, val[0].location)
       }
     ;
 

@@ -1,3 +1,18 @@
+Mon Jun 17 15:24:10 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* features/code_check/W0704.feature : Add scenario to reproduce a parse
+	  error when the enumerator name is conflicting with the prior typedef
+	  name.
+	* MANIFEST : Ditto.
+
+	* lib/adlint/cc1/lexer.rb : Rewrite identifier set to track declared
+	  identifiers in preparation for fixing incomplete identifier to
+	  typedef name translation.
+
+	* lib/adlint/cc1/parser.y : Fix incomplete identifier to typedef name
+	  translation when the declaring enumerator name is conflicting with
+	  the prior typedef name.
+
 Thu Jun 13 15:53:21 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* lib/adlint/cc1/interp.rb : Remove unnecessary controlling expression

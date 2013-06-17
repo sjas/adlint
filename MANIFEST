@@ -257,6 +257,7 @@ features/code_check/W0698.feature
 features/code_check/W0699.feature
 features/code_check/W0700.feature
 features/code_check/W0703.feature
+features/code_check/W0704.feature
 features/code_check/W0705.feature
 features/code_check/W0707.feature
 features/code_check/W0708.feature

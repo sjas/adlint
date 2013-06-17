@@ -42,8 +42,7 @@ module Cc1 #:nodoc:
       super(pp_src.pp_tokens)
       @lst_tok = nil
       @nxt_tok = nil
-      @typedef_names = ScopedNameSet.new
-      @object_names  = ScopedNameSet.new
+      @ordinary_identifiers = OrdinaryIdentifiers.new
       @identifier_translation = true
     end
 
@@ -51,23 +50,13 @@ module Cc1 #:nodoc:
 
     def_plugin :on_string_literals_concatenated
 
-    def add_typedef_name(tok)
-      @typedef_names.add(tok.value)
-    end
+    extend Forwardable
 
-    def add_object_name(tok)
-      @object_names.add(tok.value)
-    end
-
-    def enter_scope
-      @typedef_names.enter_scope
-      @object_names.enter_scope
-    end
-
-    def leave_scope
-      @typedef_names.leave_scope
-      @object_names.leave_scope
-    end
+    def_delegator :@ordinary_identifiers, :add_typedef_name
+    def_delegator :@ordinary_identifiers, :add_object_name
+    def_delegator :@ordinary_identifiers, :add_enumerator_name
+    def_delegator :@ordinary_identifiers, :enter_scope
+    def_delegator :@ordinary_identifiers, :leave_scope
 
     def enable_identifier_translation
       @identifier_translation = true
@@ -142,12 +131,12 @@ module Cc1 #:nodoc:
 
       if @identifier_translation
         if tok.type == :IDENTIFIER
-          return tok if @object_names.include?(tok.value)
-          if @typedef_names.include?(tok.value)
+          id_type = @ordinary_identifiers.find(tok.value)
+          if id_type == :typedef
             unless @lst_tok and
                 @lst_tok.type == :STRUCT || @lst_tok.type == :UNION ||
-                @lst_tok.type == :ENUM ||
-                @lst_tok.type == "->" || @lst_tok.type == "."
+                @lst_tok.type == :ENUM   ||
+                @lst_tok.type == "->"    || @lst_tok.type == "."
               tok = tok.class.new(:TYPEDEF_NAME, tok.value, tok.location)
             end
           end
@@ -238,28 +227,43 @@ module Cc1 #:nodoc:
     end
   end
 
-  class ScopedNameSet
+  class OrdinaryIdentifiers
     def initialize
-      @name_stack  = [Set.new]
-      @scope_stack = [GlobalScope.new]
+      @id_stack = [[]]
     end
 
     def enter_scope
-      @name_stack.push(Set.new)
-      @scope_stack.push(Scope.new(@scope_stack.size))
+      @id_stack.unshift([])
     end
 
     def leave_scope
-      @name_stack.pop
-      @scope_stack.pop
+      @id_stack.shift
     end
 
-    def add(name)
-      @name_stack.last.add(name)
+    def add_typedef_name(tok)
+      add(tok.value, :typedef)
     end
 
-    def include?(name)
-      @name_stack.any? { |set| set.include?(name) }
+    def add_object_name(tok)
+      add(tok.value, :object)
+    end
+
+    def add_enumerator_name(tok)
+      add(tok.value, :enumerator)
+    end
+
+    def find(id_str)
+      @id_stack.each do |id_ary|
+        if pair = id_ary.assoc(id_str)
+          return pair.last
+        end
+      end
+      nil
+    end
+
+    private
+    def add(id_str, tag)
+      @id_stack.first.unshift([id_str, tag])
     end
   end
 

@@ -103,9 +103,17 @@ module Cc1 #:nodoc:
         # TODO: Study about introducing inter-value-constraints to correctly
         #       manage value domains of controlling variables related with each
         #       other.
-        env.end_versioning(break_with_return?, true)
+        if @group.in_iteration?
+          env.end_versioning(break_with_return? || break_with_break?, true)
+        else
+          env.end_versioning(break_with_return?, true)
+        end
       else
-        env.end_versioning(break_with_return?, false)
+        if @group.in_iteration?
+          env.end_versioning(break_with_return? || break_with_break?, false)
+        else
+          env.end_versioning(break_with_return?, false)
+        end
       end
 
       if final?
@@ -167,13 +175,15 @@ module Cc1 #:nodoc:
     include BranchOptions
     include BranchGroupOptions
 
-    def initialize(env, *opts)
+    def initialize(env, parent, *opts)
       @environment = env
+      @parent_group = parent
       @options = opts
       @branches = []
     end
 
     attr_reader :environment
+    attr_reader :parent_group
     attr_reader :branches
 
     def add_options(*new_opts)
@@ -182,6 +192,19 @@ module Cc1 #:nodoc:
 
     def complete?
       @options.include?(COMPLETE)
+    end
+
+    def iteration?
+      @options.include?(ITERATION)
+    end
+
+    def in_iteration?
+      br_group = @parent_group
+      while br_group
+        return true if br_group.iteration?
+        br_group = br_group.parent_group
+      end
+      false
     end
 
     def create_first_branch(*opts)

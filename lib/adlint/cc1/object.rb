@@ -257,13 +257,23 @@ module Cc1 #:nodoc:
 
     def narrow_value_domain!(op, val)
       assign!(type.arbitrary_value) unless self.value
+
       self.value.narrow_domain!(op, val.coerce_to(type))
+      # NOTE: Write via memory to correctly propagate inner variable's
+      #       mutation to its outer variable.
+      binding.memory.write(self.value)
+
       self.value.exist?
     end
 
     def widen_value_domain!(op, val)
       assign!(type.nil_value) unless self.value
+
       self.value.widen_domain!(op, val.coerce_to(type))
+      # NOTE: Write via memory to correctly propagate inner variable's
+      #       mutation to its outer variable.
+      binding.memory.write(self.value)
+
       self.value.exist?
     end
 
@@ -362,6 +372,15 @@ module Cc1 #:nodoc:
       if @inner_variables
         @inner_variables.each do |inner|
           inner.end_value_versioning
+        end
+      end
+    end
+
+    def thin_latest_value_version!(with_rollback)
+      super
+      if @inner_variables
+        @inner_variables.each do |inner|
+          inner.thin_latest_value_version!(with_rollback)
         end
       end
     end

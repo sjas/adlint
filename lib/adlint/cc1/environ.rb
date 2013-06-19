@@ -81,7 +81,8 @@ module Cc1 #:nodoc:
     end
 
     def enter_branch_group(*opts)
-      @branch_groups[@branch_depth] = BranchGroup.new(self, *opts)
+      @branch_groups[@branch_depth] =
+        BranchGroup.new(self, @branch_groups[@branch_depth - 1], *opts)
     end
 
     def current_branch_group

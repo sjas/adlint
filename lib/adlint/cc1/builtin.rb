@@ -73,8 +73,8 @@ module Cc1 #:nodoc:
 
     def call(interp, *, args)
       puts "__adlint__eval"
-      char_ary = interp.pointee_of(args.first.first)
-      if char_ary && char_ary.type.array?
+      char_ary = args.first.first
+      if char_ary.type.array?
         without_nil = char_ary.value.to_single_value.values[0..-2]
         prog_text = without_nil.map { |char| char.unique_sample.chr }.join
         if prog_text.empty?

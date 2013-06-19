@@ -128,7 +128,7 @@ Feature: W0422
       | W0628 | 3    | 6      |
 
   Scenario: value of the global pointer is correctly null-checked by the
-            controlling-expression of while-statement 
+            controlling-expression of while-statement
     Given a target source named "fixture.c" with:
       """
       int *ptr = NULL;
@@ -151,5 +151,135 @@ Feature: W0422
       | W0114 | 5    | 5      |
       | W0425 | 6    | 17     |
       | W0628 | 3    | 13     |
+      | W0589 | 1    | 6      |
+      | W0593 | 1    | 6      |
+
+  Scenario: global pointer array as the controlling-expression of if-statement
+    Given a target source named "fixture.c" with:
+      """
+      int *a[3] = { 0 };
+
+      int foo(void)
+      {
+          if (a[2] == NULL) {
+              return *a[2];
+          }
+          else if (a[2] == 1) {
+              return *a[2];
+          }
+          return *a[2]; /* OK not W0422 */
+      }
+      """
+    When I successfully run `adlint fixture.c` on noarch
+    Then the output should exactly match with:
+      | mesg  | line | column |
+      | W0117 | 1    | 6      |
+      | W0117 | 3    | 5      |
+      | W0421 | 6    | 16     |
+      | W9003 | 8    | 22     |
+      | W0027 | 8    | 19     |
+      | W1071 | 3    | 5      |
+      | W0950 | 1    | 8      |
+      | W1069 | 5    | 5      |
+      | W0628 | 3    | 5      |
+      | W0589 | 1    | 6      |
+      | W0593 | 1    | 6      |
+
+  Scenario: global pointer as the controlling-expression of if-statement
+    Given a target source named "fixture.c" with:
+      """
+      int *ptr = 0;
+
+      int bar(void)
+      {
+          if (ptr == NULL) {
+              return *ptr;
+          }
+          else if (ptr == 1) {
+              return *ptr;
+          }
+          return *ptr; /* OK not W0422 */
+      }
+      """
+    When I successfully run `adlint fixture.c` on noarch
+    Then the output should exactly match with:
+      | mesg  | line | column |
+      | W0117 | 1    | 6      |
+      | W0117 | 3    | 5      |
+      | W0421 | 6    | 16     |
+      | W9003 | 8    | 21     |
+      | W0027 | 8    | 18     |
+      | W1071 | 3    | 5      |
+      | W1069 | 5    | 5      |
+      | W0628 | 3    | 5      |
+      | W0589 | 1    | 6      |
+      | W0593 | 1    | 6      |
+
+  Scenario: global pointer as the controlling-expression of if-statement in an
+            iteration-statement
+    Given a target source named "fixture.c" with:
+      """
+      int *a[3] = { 0 };
+
+      int foo(unsigned int ui)
+      {
+          for (; ui < 3; ui++) {
+              if (a[ui] == NULL) {
+                  break;
+              }
+              return *a[ui]; /* OK not W0422 */
+          }
+          return 0;
+      }
+      """
+    When I successfully run `adlint fixture.c` on noarch
+    Then the output should exactly match with:
+      | mesg  | line | column |
+      | W0117 | 1    | 6      |
+      | W0117 | 3    | 5      |
+      | W0534 | 5    | 10     |
+      | W0167 | 5    | 17     |
+      | W0147 | 6    | 15     |
+      | W0147 | 9    | 19     |
+      | W0104 | 3    | 22     |
+      | W1071 | 3    | 5      |
+      | W0950 | 1    | 8      |
+      | W0628 | 3    | 5      |
+      | W0589 | 1    | 6      |
+      | W0593 | 1    | 6      |
+
+  Scenario: global pointer as the controlling-expression of if-statement in an
+            iteration-statement
+    Given a target source named "fixture.c" with:
+      """
+      int *ptr = 0;
+
+      int bar(unsigned int ui)
+      {
+          for (; ui < 3; ui++) {
+              if (ptr == NULL) {
+                  break;
+              }
+              else if (ptr == 1) {
+                  return *ptr; /* OK */
+              }
+              return *ptr; /* OK not W0422 */
+          }
+      }
+      """
+    When I successfully run `adlint fixture.c` on noarch
+    Then the output should exactly match with:
+      | mesg  | line | column |
+      | W0117 | 1    | 6      |
+      | W0117 | 3    | 5      |
+      | W0534 | 5    | 10     |
+      | W0167 | 5    | 17     |
+      | W9003 | 9    | 25     |
+      | W0027 | 9    | 22     |
+      | W0697 | 3    | 5      |
+      | W0104 | 3    | 22     |
+      | W1071 | 3    | 5      |
+      | W1069 | 6    | 9      |
+      | W0628 | 3    | 5      |
       | W0589 | 1    | 6      |
       | W0593 | 1    | 6      |

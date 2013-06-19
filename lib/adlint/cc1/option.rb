@@ -50,6 +50,7 @@ module Cc1 #:nodoc:
 
   module BranchGroupOptions
     COMPLETE = :complete
+    ITERATION = :iteration
   end
 
 end

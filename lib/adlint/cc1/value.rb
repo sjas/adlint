@@ -2263,8 +2263,8 @@ module Cc1 #:nodoc:
         current_versioning_group.delete_current_version_completely
         base_vals = current_versioning_group.base_values
         base_vals.zip(initial_vals).each do |multi_val, initial_val|
-          forked and multi_val.rollback!
-          initial_val and multi_val.overwrite!(initial_val)
+          multi_val.rollback! if forked
+          multi_val.overwrite!(initial_val) if initial_val
         end
         begin_forking
       else

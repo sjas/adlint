@@ -1,3 +1,23 @@
+Wed Jun 19 17:17:27 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/cc1/object.rb : Fix bypassing inner-variable's value
+	  mutation in order to correctly propagate mutation to the
+	  outer-variable.
+	  Add missing value-domain thinning of inner-variables.
+
+	* lib/adlint/cc1/branch.rb : Fix value-domain thinning condition to
+	  thin domains discarded by a break-statement in the iteration.
+	* lib/adlint/cc1/environ.rb : Ditto.
+	* lib/adlint/cc1/interp.rb : Ditto.
+	* lib/adlint/cc1/option.rb : Ditto.
+
+	* features/code_check/W0422.feature : Add scenario to reproduce
+	  false-positive of W0422 code check caused by incomplete value-domain
+	  thinning.
+
+	* lib/adlint/cc1/builtin.rb : Fix broken `__adlint__eval' builtin debug
+	  function.
+
 Mon Jun 17 16:43:32 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* lib/adlint/cpp/lexer.rb : Add missing comment handling in the initial

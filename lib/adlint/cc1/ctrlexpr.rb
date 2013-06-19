@@ -518,9 +518,9 @@ module Cc1 #:nodoc:
   end
 
   class NilValueDomainNarrower < ValueDomainManipulator
-    def initialize(interp, br_group)
+    def initialize(interp, branch_group)
       super(interp, nil)
-      @branch_group = br_group
+      @branch_group = branch_group
     end
 
     def prepare!
@@ -537,9 +537,9 @@ module Cc1 #:nodoc:
   end
 
   class NilValueDomainWidener < ValueDomainManipulator
-    def initialize(interp, br_group)
+    def initialize(interp, branch_group)
       super(interp, nil)
-      @branch_group = br_group
+      @branch_group = branch_group
     end
 
     def prepare!

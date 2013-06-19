@@ -1093,16 +1093,16 @@ module Cc1 #:nodoc:
       when ctrlexpr_val.must_be_true?
         begin
           enter_iteration_statement(orig_ctrlexpr)
-          br_opts = [ITERATION, NARROWING, FINAL, IMPLICIT_COND, COMPLETE]
-          branched_eval(ctrlexpr, *br_opts) { interpret(node.statement) }
+          branch_opts = [ITERATION, NARROWING, FINAL, IMPLICIT_COND, COMPLETE]
+          branched_eval(ctrlexpr, *branch_opts) { interpret(node.statement) }
         ensure
           leave_iteration_statement(orig_ctrlexpr)
         end
       when ctrlexpr_val.may_be_true?
         begin
           enter_iteration_statement(orig_ctrlexpr)
-          br_opts = [ITERATION, NARROWING, FINAL, IMPLICIT_COND]
-          branched_eval(ctrlexpr, *br_opts) { interpret(node.statement) }
+          branch_opts = [ITERATION, NARROWING, FINAL, IMPLICIT_COND]
+          branched_eval(ctrlexpr, *branch_opts) { interpret(node.statement) }
         ensure
           leave_iteration_statement(orig_ctrlexpr)
         end
@@ -1123,8 +1123,8 @@ module Cc1 #:nodoc:
 
       begin
         enter_iteration_statement(orig_ctrlexpr)
-        br_opts = [ITERATION, NARROWING, FINAL, IMPLICIT_COND, COMPLETE]
-        branched_eval(nil, *br_opts) { interpret(node.statement) }
+        branch_opts = [ITERATION, NARROWING, FINAL, IMPLICIT_COND, COMPLETE]
+        branched_eval(nil, *branch_opts) { interpret(node.statement) }
       ensure
         leave_iteration_statement(orig_ctrlexpr)
       end
@@ -1264,12 +1264,12 @@ module Cc1 #:nodoc:
       enter_iteration_statement(orig_ctrlexpr)
 
       if complete
-        br_opts = [ITERATION, NARROWING, FINAL, IMPLICIT_COND, COMPLETE]
+        branch_opts = [ITERATION, NARROWING, FINAL, IMPLICIT_COND, COMPLETE]
       else
-        br_opts = [ITERATION, NARROWING, FINAL, IMPLICIT_COND]
+        branch_opts = [ITERATION, NARROWING, FINAL, IMPLICIT_COND]
       end
 
-      branched_eval(ctrlexpr, *br_opts) do
+      branched_eval(ctrlexpr, *branch_opts) do
         interpret(node.body_statement)
         interpret(node.expression) if node.expression
 
@@ -1482,30 +1482,30 @@ module Cc1 #:nodoc:
       end
     end
 
-    def execute_branch(labeled_stmt, block_items, idx, br_opts)
+    def execute_branch(labeled_stmt, block_items, idx, branch_opts)
       ctrlexpr = labeled_stmt.normalized_expression
       ctrlexpr_val = value_of(interpret(ctrlexpr, QUIET))
 
       case labeled_stmt
       when DefaultLabeledStatement
-        br_opts.push(COMPLEMENTAL)
+        branch_opts.push(COMPLEMENTAL)
       end
 
       case
       when ctrlexpr_val.must_be_true?
-        br_opts.push(FINAL, COMPLETE)
+        branch_opts.push(FINAL, COMPLETE)
       when ctrlexpr_val.must_be_false?
         # NOTE: To end the current branch group of switch-statement if this
         #       case-clause is the final one.
-        branched_eval(ctrlexpr, *br_opts) {}
+        branched_eval(ctrlexpr, *branch_opts) {}
         return seek_next_branch(block_items, idx)
       end
 
-      branched_eval(ctrlexpr, *br_opts) do |branch|
+      branched_eval(ctrlexpr, *branch_opts) do |branch|
         case stmt = labeled_stmt.statement
         when CaseLabeledStatement, DefaultLabeledStatement
           # NOTE: Consecutive label appears!
-          enter_next_clause(stmt, block_items, idx, branch, br_opts)
+          enter_next_clause(stmt, block_items, idx, branch, branch_opts)
         end
         interpret(labeled_stmt)
         idx += 1
@@ -1519,7 +1519,7 @@ module Cc1 #:nodoc:
             redo
           when CaseLabeledStatement, DefaultLabeledStatement
             # NOTE: Fall through!
-            enter_next_clause(item, block_items, idx, branch, br_opts)
+            enter_next_clause(item, block_items, idx, branch, branch_opts)
           end
           interpret(item)
           idx += 1
@@ -1528,27 +1528,27 @@ module Cc1 #:nodoc:
         BreakEvent.of_break.throw
       end
 
-      br_opts.include?(FINAL) ? nil : seek_next_branch(block_items, idx)
+      branch_opts.include?(FINAL) ? nil : seek_next_branch(block_items, idx)
     end
 
-    def enter_next_clause(labeled_stmt, block_items, idx, branch, br_opts)
-      prepare_fall_through(branch, br_opts, labeled_stmt)
+    def enter_next_clause(labeled_stmt, block_items, idx, branch, branch_opts)
+      prepare_fall_through(branch, branch_opts, labeled_stmt)
 
       case labeled_stmt
       when DefaultLabeledStatement
-        br_opts.push(COMPLEMENTAL)
+        branch_opts.push(COMPLEMENTAL)
       end
 
-      br_opts.push(FINAL) if final_branch?(block_items, idx)
-      branch.add_options(*br_opts)
+      branch_opts.push(FINAL) if final_branch?(block_items, idx)
+      branch.add_options(*branch_opts)
 
       case stmt = labeled_stmt.statement
       when CaseLabeledStatement, DefaultLabeledStatement
-        enter_next_clause(stmt, block_items, idx, branch, br_opts)
+        enter_next_clause(stmt, block_items, idx, branch, branch_opts)
       end
     end
 
-    def prepare_fall_through(branch, br_opts, labeled_stmt)
+    def prepare_fall_through(branch, branch_opts, labeled_stmt)
       value_domain_manip = nil
 
       branch.restart_versioning do
@@ -1557,7 +1557,7 @@ module Cc1 #:nodoc:
 
         case
         when ctrlexpr_val.must_be_true?
-          br_opts.push(FINAL, COMPLETE)
+          branch_opts.push(FINAL, COMPLETE)
         when ctrlexpr_val.must_be_false?
           return
         end

@@ -38,8 +38,8 @@ module Cc1 #:nodoc:
   class Branch
     include BranchOptions
 
-    def initialize(br_group, *opts)
-      @group = br_group
+    def initialize(branch_group, *opts)
+      @group = branch_group
       @options = opts
       @break_event = nil
       @controlling_expression = nil
@@ -199,22 +199,22 @@ module Cc1 #:nodoc:
     end
 
     def in_iteration?
-      br_group = @parent_group
-      while br_group
-        return true if br_group.iteration?
-        br_group = br_group.parent_group
+      branch_group = @parent_group
+      while branch_group
+        return true if branch_group.iteration?
+        branch_group = branch_group.parent_group
       end
       false
     end
 
     def create_first_branch(*opts)
-      @branches.push(new_br = Branch.new(self, FIRST, *opts))
-      new_br
+      @branches.push(new_branch = Branch.new(self, FIRST, *opts))
+      new_branch
     end
 
     def create_trailing_branch(*opts)
-      @branches.push(new_br = Branch.new(self, *opts))
-      new_br
+      @branches.push(new_branch = Branch.new(self, *opts))
+      new_branch
     end
 
     def all_controlling_variables

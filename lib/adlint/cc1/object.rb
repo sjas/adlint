@@ -338,7 +338,10 @@ module Cc1 #:nodoc:
       super(mem, dcl_or_def, type, scope)
       # TODO: If too slow, make an index of inner variables.
       @inner_variables = create_inner_variables(type.unqualify, scope)
+      @representative_element = create_representative_element(type.unqualify)
     end
+
+    attr_reader :representative_element
 
     def enter_value_versioning_group
       super
@@ -346,6 +349,9 @@ module Cc1 #:nodoc:
         @inner_variables.each do |inner|
           inner.enter_value_versioning_group
         end
+      end
+      if @representative_element
+        @representative_element.enter_value_versioning_group
       end
     end
 
@@ -356,6 +362,9 @@ module Cc1 #:nodoc:
           inner.leave_value_versioning_group(raise_complement)
         end
       end
+      if @representative_element
+        @representative_element.leave_value_versioning_group(raise_complement)
+      end
     end
 
     def begin_value_versioning
@@ -364,6 +373,9 @@ module Cc1 #:nodoc:
         @inner_variables.each do |inner|
           inner.begin_value_versioning
         end
+      end
+      if @representative_element
+        @representative_element.begin_value_versioning
       end
     end
 
@@ -374,6 +386,9 @@ module Cc1 #:nodoc:
           inner.end_value_versioning
         end
       end
+      if @representative_element
+        @representative_element.end_value_versioning
+      end
     end
 
     def thin_latest_value_version!(with_rollback)
@@ -382,6 +397,9 @@ module Cc1 #:nodoc:
         @inner_variables.each do |inner|
           inner.thin_latest_value_version!(with_rollback)
         end
+      end
+      if @representative_element
+        @representative_element.thin_latest_value_version!(with_rollback)
       end
     end
 
@@ -438,6 +456,17 @@ module Cc1 #:nodoc:
         win = mem.create_window(offset, memb.type.aligned_byte_size)
         offset += win.byte_size
         CompositeMemberVariable.new(win, self, memb.type, memb.name)
+      end
+    end
+
+    def create_representative_element(type)
+      if type.array? and fst_elem = inner_variable_at(0)
+        mem = fst_elem.binding.memory.create_unmapped
+        ArrayElementVariable.new(mem, self, type.base_type, 0).tap do |var|
+          var.assign!(type.base_type.arbitrary_value)
+        end
+      else
+        nil
       end
     end
   end
@@ -1159,6 +1188,10 @@ module Cc1 #:nodoc:
       end
     end
 
+    def create_unmapped
+      UnmappedMemoryBlock.new(self)
+    end
+
     protected
     def create_value_from_windows
       case
@@ -1214,6 +1247,21 @@ module Cc1 #:nodoc:
     def handle_written_through_window(*)
       super
       on_written.invoke(self)
+    end
+  end
+
+  class UnmappedMemoryBlock < MemoryBlock
+    def initialize(origin)
+      super(origin.address, origin.byte_size)
+      @origin = origin
+    end
+
+    def static?
+      @origin.static?
+    end
+
+    def dynamic?
+      @origin.dynamic?
     end
   end
 

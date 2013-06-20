@@ -460,10 +460,6 @@ module Cc1 #:nodoc:
       end
     end
 
-    def eval_as_controlling_expr?
-      cur_opts.include?(EVAL_AS_CONTROLLING_EXPR)
-    end
-
     def _active_function
       # NOTE: This method is called only from
       #       StatementInterpreter#visit_return_statement.
@@ -1007,7 +1003,7 @@ module Cc1 #:nodoc:
         ctrlexpr_val = scalar_value_of_arbitrary
         ctrlexpr = nil
       else
-        ctrlexpr_obj = interpret(orig_ctrlexpr, EVAL_AS_CONTROLLING_EXPR)
+        ctrlexpr_obj = interpret(orig_ctrlexpr)
         ctrlexpr_var = object_to_variable(ctrlexpr_obj, orig_ctrlexpr)
         ctrlexpr_val = value_of(ctrlexpr_var)
         notify_variable_value_referred(orig_ctrlexpr, ctrlexpr_var)
@@ -1041,7 +1037,7 @@ module Cc1 #:nodoc:
         ctrlexpr_val = scalar_value_of_arbitrary
         ctrlexpr = nil
       else
-        ctrlexpr_obj = interpret(orig_ctrlexpr, EVAL_AS_CONTROLLING_EXPR)
+        ctrlexpr_obj = interpret(orig_ctrlexpr)
         ctrlexpr_var = object_to_variable(ctrlexpr_obj, orig_ctrlexpr)
         ctrlexpr_val = value_of(ctrlexpr_var)
         notify_variable_value_referred(orig_ctrlexpr, ctrlexpr_var)
@@ -1080,7 +1076,7 @@ module Cc1 #:nodoc:
 
       widen_varying_variable_value_domain(node)
 
-      ctrlexpr_obj = interpret(node.expression, EVAL_AS_CONTROLLING_EXPR)
+      ctrlexpr_obj = interpret(node.expression)
       ctrlexpr_var = object_to_variable(ctrlexpr_obj, node.expression)
       ctrlexpr_val = value_of(ctrlexpr_var)
       notify_variable_value_referred(node.expression, ctrlexpr_var)
@@ -1129,7 +1125,7 @@ module Cc1 #:nodoc:
         leave_iteration_statement(orig_ctrlexpr)
       end
 
-      ctrlexpr_obj = interpret(node.expression, EVAL_AS_CONTROLLING_EXPR)
+      ctrlexpr_obj = interpret(node.expression)
       ctrlexpr_var = object_to_variable(ctrlexpr_obj, node.expression)
       ctrlexpr_val = value_of(ctrlexpr_var)
       notify_variable_value_referred(node.expression, ctrlexpr_var)
@@ -1152,7 +1148,7 @@ module Cc1 #:nodoc:
 
       node.condition_statement.executed = true
       if explicit_ctrlexpr = node.condition_statement.expression
-        ctrlexpr_obj = interpret(explicit_ctrlexpr, EVAL_AS_CONTROLLING_EXPR)
+        ctrlexpr_obj = interpret(explicit_ctrlexpr)
         ctrlexpr_var = object_to_variable(ctrlexpr_obj, explicit_ctrlexpr)
         ctrlexpr_val = value_of(ctrlexpr_var)
         notify_variable_value_referred(explicit_ctrlexpr, ctrlexpr_var)
@@ -1186,7 +1182,7 @@ module Cc1 #:nodoc:
 
         node.condition_statement.executed = true
         if explicit_ctrlexpr = node.condition_statement.expression
-          ctrlexpr_obj = interpret(explicit_ctrlexpr, EVAL_AS_CONTROLLING_EXPR)
+          ctrlexpr_obj = interpret(explicit_ctrlexpr)
           ctrlexpr_var = object_to_variable(ctrlexpr_obj, explicit_ctrlexpr)
           ctrlexpr_val = value_of(ctrlexpr_var)
           notify_variable_value_referred(explicit_ctrlexpr, ctrlexpr_var)
@@ -1682,7 +1678,7 @@ module Cc1 #:nodoc:
       checkpoint(node.location)
 
       ctrlexpr = node.condition
-      ctrlexpr_obj = interpret(ctrlexpr, EVAL_AS_CONTROLLING_EXPR)
+      ctrlexpr_obj = interpret(ctrlexpr)
       ctrlexpr_var = object_to_variable(ctrlexpr_obj, ctrlexpr)
       ctrlexpr_val = value_of(ctrlexpr_var)
       notify_variable_value_referred(ctrlexpr, ctrlexpr_var)

@@ -35,7 +35,6 @@ module Cc1 #:nodoc:
   module InterpreterOptions
     QUIET = :quiet
     QUIET_WITHOUT_SIDE_EFFECT = :quiet_without_side_effect
-    EVAL_AS_CONTROLLING_EXPR = :eval_as_controlling_expr
   end
 
   module BranchOptions

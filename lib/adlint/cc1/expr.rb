@@ -1472,13 +1472,9 @@ module Cc1 #:nodoc:
               inner_var = ary.inner_variable_at(subs_smpl)
               if inner_var && inner_var.type.same_as?(rslt_type)
                 _notify_object_referred(expr, inner_var)
-                if interpreter.eval_as_controlling_expr?
-                  # NOTE: To improve heuristics of array subscript evaluation
-                  #       with indefinite subscript.
-                  return create_tmpvar(rslt_type)
-                else
-                  return inner_var
-                end
+                # NOTE: To improve heuristics of array subscript evaluation
+                #       with indefinite subscript.
+                return ary.representative_element
               end
             end
           end

@@ -1,3 +1,17 @@
+Thu Jun 20 17:59:25 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/cc1/expr.rb : Improve heuristics of array subscript
+	  evaluation with indefinite subscript again.
+
+	* lib/adlint/cc1/object.rb : Add management of the representative
+	  element of array variables.
+	  Add UnmappedMemoryBlock which is not mapped to the MemoryPool in
+	  order to bind representative elements to their values.
+
+	* lib/adlint/cc1/interp.rb : Scrap interpretation mode for controlling
+	  expressions.
+	* lib/adlint/cc1/option.rb : Ditto.
+
 Thu Jun 20 11:21:59 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* lib/adlint/cc1/object.rb : Fix bad value version management in order

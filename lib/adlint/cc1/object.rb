@@ -261,7 +261,7 @@ module Cc1 #:nodoc:
       self.value.narrow_domain!(op, val.coerce_to(type))
       # NOTE: Write via memory to correctly propagate inner variable's
       #       mutation to its outer variable.
-      binding.memory.write(self.value)
+      binding.memory._cascade_update
 
       self.value.exist?
     end
@@ -272,7 +272,7 @@ module Cc1 #:nodoc:
       self.value.widen_domain!(op, val.coerce_to(type))
       # NOTE: Write via memory to correctly propagate inner variable's
       #       mutation to its outer variable.
-      binding.memory.write(self.value)
+      binding.memory._cascade_update
 
       self.value.exist?
     end
@@ -1124,6 +1124,12 @@ module Cc1 #:nodoc:
         @value = VersionedValue.new(val)
       end
     end
+
+    def _cascade_update
+      # NOTE: This method will be called only from # #narrow_value_domain! and
+      #       #widen_value_domain! of Variable to propagate memory mutation to
+      #       the upper MemoryBlock from MemoryWindow.
+    end
   end
 
   class MemoryBlock < Memory
@@ -1197,7 +1203,11 @@ module Cc1 #:nodoc:
 
     def write(val, cascade = true)
       super(val)
-      on_written.invoke(self) if cascade
+      _cascade_update if cascade
+    end
+
+    def _cascade_update
+      on_written.invoke(self)
     end
 
     private

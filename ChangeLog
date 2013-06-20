@@ -1,3 +1,12 @@
+Thu Jun 20 11:21:59 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/cc1/object.rb : Fix bad value version management in order
+	  not to forget histories of a value.
+
+	* features/code_check/W1050.feature : Add scenario to reproduce bad
+	  value version management problem.
+	* MANIFEST : Ditto.
+
 Wed Jun 19 17:17:27 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* lib/adlint/cc1/object.rb : Fix bypassing inner-variable's value

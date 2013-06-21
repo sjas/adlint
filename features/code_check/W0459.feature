@@ -28,3 +28,26 @@ Feature: W0459
       | W0104 | 4    | 14     |
       | W0501 | 7    | 16     |
       | W0628 | 4    | 6      |
+
+  Scenario: reference to the uninitialized nested array element of the
+            indefinite subscript
+    Given a target source named "fixture.c" with:
+      """
+      int foo(int i)
+      {
+          int a[3][3]; /* W0100 */
+          return a[i][i]; /* W0459 */
+      }
+      """
+    When I successfully run `adlint fixture.c` on noarch
+    Then the output should exactly match with:
+      | mesg  | line | column |
+      | W0117 | 1    | 5      |
+      | W0705 | 4    | 14     |
+      | W0705 | 4    | 17     |
+      | W0459 | 4    | 16     |
+      | W0100 | 3    | 9      |
+      | W0104 | 1    | 13     |
+      | W0950 | 3    | 14     |
+      | W0950 | 3    | 11     |
+      | W0628 | 1    | 5      |

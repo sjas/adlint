@@ -213,6 +213,7 @@ project                -> proj
 temporary              -> tmp
 referrer-function      -> ref_fun
 sample                 -> smpl
+representative         -> repr
 @end verbatim
 
 

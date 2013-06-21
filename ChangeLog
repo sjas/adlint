@@ -1,3 +1,12 @@
+Fri Jun 21 17:59:24 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/cc1/object.rb : Add assignment of the array representative
+	  element.
+
+	* features/code_check/W0459.feature : Add scenario to reproduce
+	  false-negative of W0459 code check caused by missing representative
+	  element updating.
+
 Fri Jun 21 16:16:16 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* lib/adlint/cc1/expr.rb : Improve heuristics of array subscript

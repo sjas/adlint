@@ -343,6 +343,18 @@ module Cc1 #:nodoc:
 
     attr_reader :representative_element
 
+    def assign!(val)
+      super
+      if @representative_element
+        repr_type = @representative_element.type
+        if value.undefined?
+          @representative_element.assign!(repr_type.undefined_value)
+        else
+          @representative_element.assign!(repr_type.arbitrary_value)
+        end
+      end
+    end
+
     def enter_value_versioning_group
       super
       if @inner_variables

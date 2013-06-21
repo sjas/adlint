@@ -1468,15 +1468,11 @@ module Cc1 #:nodoc:
               return inner_var
             end
           else
-            subs.value.to_enum.each do |subs_smpl|
-              inner_var = ary.inner_variable_at(subs_smpl)
-              if inner_var && inner_var.type.same_as?(rslt_type)
-                _notify_object_referred(expr, inner_var)
-                # NOTE: To improve heuristics of array subscript evaluation
-                #       with indefinite subscript.
-                return ary.representative_element
-              end
-            end
+            # NOTE: To improve heuristics of array subscript evaluation with an
+            #       indefinite subscript.
+            inner_var = ary.representative_element
+            _notify_object_referred(expr, inner_var)
+            return inner_var
           end
         end
         create_tmpvar(rslt_type)

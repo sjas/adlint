@@ -1,3 +1,18 @@
+Fri Jun 21 16:16:16 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/cc1/expr.rb : Improve heuristics of array subscript
+	  evaluation with indefinite subscript again and again.
+
+	* lib/adlint/cc1/object.rb : Fix bad management of the representative
+	  element of array variables in order to correctly update the array by
+	  reassigning new value to its representative element.
+	  Add UnmappedMemoryWindow instead of UnmappedMemoryBlock.
+
+	* features/code_check/W0100.feature : Add scenario to reproduce
+	  false-positive of W0100 code check caused by bad representative array
+	  element.
+	* MANIFEST : Ditto.
+
 Thu Jun 20 17:59:25 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* lib/adlint/cc1/expr.rb : Improve heuristics of array subscript

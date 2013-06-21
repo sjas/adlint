@@ -460,8 +460,8 @@ module Cc1 #:nodoc:
     end
 
     def create_representative_element(type)
-      if type.array? and fst_elem = inner_variable_at(0)
-        mem = fst_elem.binding.memory.create_unmapped
+      if type.array?
+        mem = binding.memory.create_unmapped_window
         ArrayElementVariable.new(mem, self, type.base_type, 0).tap do |var|
           var.assign!(type.base_type.arbitrary_value)
         end
@@ -1170,17 +1170,16 @@ module Cc1 #:nodoc:
     attr_reader :windows
 
     def create_window(offset, byte_size)
-      win = MemoryWindow.new(self, @address + offset, byte_size)
-      win.on_written += method(:handle_written_through_window)
-      @windows.push(win)
-      win
+      MemoryWindow.new(self, @address + offset, byte_size).tap do |win|
+        win.on_written += method(:handle_written_through_window)
+        @windows.push(win)
+      end
     end
 
     def write(val)
       super
       if !@windows.empty? and
-          @value.array? && val.array? or
-          @value.composite? && val.composite?
+          @value.array? && val.array? or @value.composite? && val.composite?
         single_val = val.to_single_value
         @windows.zip(single_val.values).each do |win, inner_val|
           win.write(inner_val, false)
@@ -1188,30 +1187,38 @@ module Cc1 #:nodoc:
       end
     end
 
-    def create_unmapped
-      UnmappedMemoryBlock.new(self)
+    def create_unmapped_window
+      UnmappedMemoryWindow.new(self).tap do |win|
+        win.on_written += method(:handle_written_through_window)
+      end
     end
 
     protected
     def create_value_from_windows
-      case
-      when @value.scalar?
-        @value
-      when @value.array?
-        ArrayValue.new(@windows.map { |w| w.create_value_from_windows })
-      when @value.composite?
-        CompositeValue.new(@windows.map { |w| w.create_value_from_windows })
+      if @value
+        case
+        when @value.scalar?
+          @value
+        when @value.array?
+          ArrayValue.new(@windows.map { |w| w.create_value_from_windows })
+        when @value.composite?
+          CompositeValue.new(@windows.map { |w| w.create_value_from_windows })
+        else
+          __NOTREACHED__
+        end
+      else
+        nil
       end
     end
 
     private
     def handle_written_through_window(*)
-      val = create_value_from_windows
-
-      if @value
-        @value.overwrite!(val)
-      else
-        @value = VersionedValue.new(val)
+      if val = create_value_from_windows
+        if @value
+          @value.overwrite!(val)
+        else
+          @value = VersionedValue.new(val)
+        end
       end
     end
   end
@@ -1250,18 +1257,9 @@ module Cc1 #:nodoc:
     end
   end
 
-  class UnmappedMemoryBlock < MemoryBlock
-    def initialize(origin)
-      super(origin.address, origin.byte_size)
-      @origin = origin
-    end
-
-    def static?
-      @origin.static?
-    end
-
-    def dynamic?
-      @origin.dynamic?
+  class UnmappedMemoryWindow < MemoryWindow
+    def initialize(owner)
+      super(owner, owner.address, owner.byte_size)
     end
   end
 

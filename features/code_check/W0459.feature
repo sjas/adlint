@@ -51,3 +51,28 @@ Feature: W0459
       | W0950 | 3    | 14     |
       | W0950 | 3    | 11     |
       | W0628 | 1    | 5      |
+
+  Scenario: reference to the initialized array element of the indefinite
+            subscript
+    Given a target source named "fixture.c" with:
+      """
+      int foo(int i)
+      {
+          int a[3] = { 0 };
+
+          if (i < 3) {
+              return a[i]; /* OK not W0459 */
+          }
+          return 0;
+      }
+      """
+    When I successfully run `adlint fixture.c` on noarch
+    Then the output should exactly match with:
+      | mesg  | line | column |
+      | W0117 | 1    | 5      |
+      | W0705 | 6    | 18     |
+      | W0100 | 3    | 9      |
+      | W0104 | 1    | 13     |
+      | W1071 | 1    | 5      |
+      | W0950 | 3    | 11     |
+      | W0628 | 1    | 5      |

@@ -347,7 +347,7 @@ module Cc1 #:nodoc:
       super
       if @representative_element
         repr_type = @representative_element.type
-        if value.undefined?
+        if val.undefined?
           @representative_element.assign!(repr_type.undefined_value)
         else
           @representative_element.assign!(repr_type.arbitrary_value)
@@ -699,6 +699,9 @@ module Cc1 #:nodoc:
         if var.scope == current_scope
           var.declarations_and_definitions.push(dcl_or_def)
           var.value.force_overwrite!(init_val.coerce_to(var.type))
+          if repr_elem = var.representative_element
+            repr_elem.value.force_overwrite!(repr_elem.type.arbitrary_value)
+          end
           return var
         end
       end

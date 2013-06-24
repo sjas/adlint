@@ -1,3 +1,13 @@
+Mon Jun 24 17:22:47 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/cc1/branch.rb : Fix over-thinning of controlling
+	  variable's value-domain when the terminating branch is of
+	  switch-statement enclosed by an iteration-statement.
+
+	* features/code_check/W0459.feature : Add scenario to reproduce
+	  false-positive of W0459 code check caused by bad break statement
+	  evaluation in thinning value-domain of the controlling variable.
+
 Mon Jun 24 16:51:36 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* lib/adlint/cc1/object.rb : Restore scrapped side-effect rollback of

@@ -76,3 +76,44 @@ Feature: W0459
       | W1071 | 1    | 5      |
       | W0950 | 3    | 11     |
       | W0628 | 1    | 5      |
+
+  Scenario: assign value to the variable in a switch-statement in an
+            iteration-statement
+    Given a target source named "fixture.c" with:
+      """
+      extern void bar(int *);
+
+      int foo(int a[])
+      {
+          int i;
+          int j;
+
+          for (i = 0; a[i]; i++) {
+              switch (a[i]) {
+              case 0:
+                  bar(&j);
+                  break;
+              case 2:
+                  bar(&j);
+                  break;
+              default:
+                  break;
+              }
+          }
+
+          return j; /* OK but W0460 */
+      }
+      """
+    When I successfully run `adlint fixture.c` on noarch
+    Then the output should exactly match with:
+      | mesg  | line | column |
+      | W0118 | 1    | 13     |
+      | W0117 | 3    | 5      |
+      | W0459 | 14   | 17     |
+      | W0460 | 21   | 12     |
+      | W0104 | 3    | 13     |
+      | W9001 | 10   | 9      |
+      | W9001 | 11   | 13     |
+      | W9001 | 12   | 13     |
+      | W0114 | 8    | 5      |
+      | W0628 | 3    | 5      |

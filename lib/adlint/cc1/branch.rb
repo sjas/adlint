@@ -103,13 +103,13 @@ module Cc1 #:nodoc:
         # TODO: Study about introducing inter-value-constraints to correctly
         #       manage value domains of controlling variables related with each
         #       other.
-        if @group.in_iteration?
+        if @group.in_iteration? && !smother_break?
           env.end_versioning(break_with_return? || break_with_break?, true)
         else
           env.end_versioning(break_with_return?, true)
         end
       else
-        if @group.in_iteration?
+        if @group.in_iteration? && !smother_break?
           env.end_versioning(break_with_return? || break_with_break?, false)
         else
           env.end_versioning(break_with_return?, false)

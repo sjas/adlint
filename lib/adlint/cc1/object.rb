@@ -356,62 +356,74 @@ module Cc1 #:nodoc:
     end
 
     def enter_value_versioning_group
-      super
       if @inner_variables
         @inner_variables.each do |inner|
           inner.enter_value_versioning_group
         end
       end
+      super
       if @representative_element
         @representative_element.enter_value_versioning_group
       end
     end
 
     def leave_value_versioning_group(raise_complement)
-      super
       if @inner_variables
         @inner_variables.each do |inner|
           inner.leave_value_versioning_group(raise_complement)
         end
       end
+      super
       if @representative_element
         @representative_element.leave_value_versioning_group(raise_complement)
       end
     end
 
     def begin_value_versioning
-      super
       if @inner_variables
         @inner_variables.each do |inner|
           inner.begin_value_versioning
         end
       end
+      super
       if @representative_element
         @representative_element.begin_value_versioning
       end
     end
 
     def end_value_versioning
-      super
       if @inner_variables
         @inner_variables.each do |inner|
           inner.end_value_versioning
         end
       end
+      super
       if @representative_element
         @representative_element.end_value_versioning
       end
     end
 
     def thin_latest_value_version!(with_rollback)
-      super
       if @inner_variables
         @inner_variables.each do |inner|
           inner.thin_latest_value_version!(with_rollback)
         end
       end
+      super
       if @representative_element
         @representative_element.thin_latest_value_version!(with_rollback)
+      end
+    end
+
+    def rollback_all_value_versions!
+      if @inner_variables
+        @inner_variables.each do |inner|
+          inner.rollback_all_value_versions!
+        end
+      end
+      super
+      if @representative_element
+        @representative_element.rollback_all_value_versions!
       end
     end
 

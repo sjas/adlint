@@ -1,3 +1,36 @@
+Wed Jun 26 17:42:13 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* release.rc : 3.0.9
+	  - Fix incomplete identifier to typedef name translation when the
+	    declaring enumerator name is conflicting with the prior typedef
+	    name.
+	  - Add missing comment handling in the initial state of the
+	    preprocessing lexer.
+	  - Fix evaluation of the global constant variable definition in order
+	    not to ignore value of the initializer.
+	  - Revise pointer dereferencing behavior to successfully dereference a
+	    pointer only when the value of pointer variable is definite.
+	  - Fix variable's value version rollback mechanism in order not to do
+	    unnecessary rollback of inner-variables of array or composite
+	    value.
+	  - Improve heuristics of array subscript evaluation with indefinite
+	    subscript.
+	  - Fix conditional-expression evaluation in order to evaluate
+	    controlling expression in the same manner as that of if-statement.
+	  - Fix controlling-expression deduction of iteration-statements in
+	    order to adopt the ordinary expression when no control breaking
+	    condition is found in the iteration body.
+	  - Fix bad bitwise & evaluation with indefinite value domains.
+	  - Remove unnecessary controlling expression evaluation at entering a
+	    do-statement.
+	  - Fix value-domain thinning condition to thin domains discarded by a
+	    break-statement in the iteration.
+	  - Fix bypassing inner-variable's value mutation in order to correctly
+	    propagate mutation to the outer-variable.
+	  - Revise evaluation behavior of for-statement's explicit
+	    controlling-expression in order to properly evaluate the branch
+	    entering condition.
+
 Wed Jun 26 16:07:59 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* lib/adlint/cc1/object.rb : Fix assignment behavior of the array

@@ -1115,7 +1115,7 @@ module Cc1 #:nodoc:
 
       widen_varying_variable_value_domain(node)
 
-      orig_ctrlexpr, ctrlexpr = node.deduct_controlling_expression
+      orig_ctrlexpr, * = node.deduct_controlling_expression
 
       begin
         enter_iteration_statement(orig_ctrlexpr)

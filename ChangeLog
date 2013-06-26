@@ -1,3 +1,13 @@
+Wed Jun 26 16:07:59 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/cc1/object.rb : Fix assignment behavior of the array
+	  representative element in order to correctly propagete definiteness
+	  of the new value to outer array variable's value.
+
+	* features/code_check/W0461.feature : Add scenario to reproduce
+	  false-positive of W0461 code check when the pointee array is
+	  initialized by assignment with indefinite subscript value.
+
 Tue Jun 25 15:24:13 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* lib/adlint/cc1/interp.rb : Revise evaluation behavior of

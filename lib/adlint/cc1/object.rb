@@ -487,7 +487,7 @@ module Cc1 #:nodoc:
       if type.array?
         mem = binding.memory.create_unmapped_window
         ArrayElementVariable.new(mem, self, type.base_type, 0).tap do |var|
-          var.assign!(type.base_type.arbitrary_value)
+          var.assign!(type.base_type.undefined_value)
         end
       else
         nil
@@ -1203,20 +1203,20 @@ module Cc1 #:nodoc:
       end
     end
 
+    def create_unmapped_window
+      UnmappedMemoryWindow.new(self).tap do |win|
+        win.on_written += method(:handle_written_through_window)
+      end
+    end
+
+    alias :_orig_write :write
     def write(val)
       super
       if !@windows.empty? and
           @value.array? && val.array? or @value.composite? && val.composite?
-        single_val = val.to_single_value
-        @windows.zip(single_val.values).each do |win, inner_val|
+        @windows.zip(val.to_single_value.values).each do |win, inner_val|
           win.write(inner_val, false)
         end
-      end
-    end
-
-    def create_unmapped_window
-      UnmappedMemoryWindow.new(self).tap do |win|
-        win.on_written += method(:handle_written_through_window)
       end
     end
 
@@ -1239,13 +1239,12 @@ module Cc1 #:nodoc:
     end
 
     private
-    def handle_written_through_window(*)
+    def handle_written_through_window(win)
       if val = create_value_from_windows
-        if @value
-          @value.overwrite!(val)
-        else
-          @value = VersionedValue.new(val)
+        unless win.read.must_be_undefined?
+          val = val.to_defined_value
         end
+        _orig_write(val)
       end
     end
   end
@@ -1280,7 +1279,7 @@ module Cc1 #:nodoc:
     private
     def handle_written_through_window(*)
       super
-      on_written.invoke(self)
+      _cascade_update
     end
   end
 

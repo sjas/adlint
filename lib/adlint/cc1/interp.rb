@@ -1143,16 +1143,7 @@ module Cc1 #:nodoc:
 
       node.initial_statement.accept(self)
 
-      widen_varying_variable_value_domain(node)
-      orig_ctrlexpr, ctrlexpr = node.deduct_controlling_expression
-
-      node.condition_statement.executed = true
-      if explicit_ctrlexpr = node.condition_statement.expression
-        ctrlexpr_obj = interpret(explicit_ctrlexpr)
-        ctrlexpr_var = object_to_variable(ctrlexpr_obj, explicit_ctrlexpr)
-        ctrlexpr_val = value_of(ctrlexpr_var)
-        notify_variable_value_referred(explicit_ctrlexpr, ctrlexpr_var)
-        notify_sequence_point_reached(SequencePoint.new(explicit_ctrlexpr))
+      if ctrlexpr_val = interpret_for_ctrlexpr(node)
         notify_for_ctrlexpr_evaled(node, ctrlexpr_val)
       else
         ctrlexpr_val = scalar_value_of_true
@@ -1160,9 +1151,9 @@ module Cc1 #:nodoc:
 
       case
       when ctrlexpr_val.must_be_true?
-        interpret_for_body_statement(node, orig_ctrlexpr, ctrlexpr, true)
+        interpret_for_body_statement(node, true)
       when ctrlexpr_val.may_be_true?
-        interpret_for_body_statement(node, orig_ctrlexpr, ctrlexpr, false)
+        interpret_for_body_statement(node, false)
       end
     ensure
       notify_for_stmt_ended(node)
@@ -1177,16 +1168,7 @@ module Cc1 #:nodoc:
         node.executed = true
         notify_c99_for_stmt_started(node)
 
-        widen_varying_variable_value_domain(node)
-        orig_ctrlexpr, ctrlexpr = node.deduct_controlling_expression
-
-        node.condition_statement.executed = true
-        if explicit_ctrlexpr = node.condition_statement.expression
-          ctrlexpr_obj = interpret(explicit_ctrlexpr)
-          ctrlexpr_var = object_to_variable(ctrlexpr_obj, explicit_ctrlexpr)
-          ctrlexpr_val = value_of(ctrlexpr_var)
-          notify_variable_value_referred(explicit_ctrlexpr, ctrlexpr_var)
-          notify_sequence_point_reached(SequencePoint.new(explicit_ctrlexpr))
+        if ctrlexpr_val = interpret_for_ctrlexpr(node)
           notify_c99_for_ctrlexpr_evaled(node, ctrlexpr_val)
         else
           ctrlexpr_val = scalar_value_of_true
@@ -1194,9 +1176,9 @@ module Cc1 #:nodoc:
 
         case
         when ctrlexpr_val.must_be_true?
-          interpret_for_body_statement(node, orig_ctrlexpr, ctrlexpr, true)
+          interpret_for_body_statement(node, true)
         when ctrlexpr_val.may_be_true?
-          interpret_for_body_statement(node, orig_ctrlexpr, ctrlexpr, false)
+          interpret_for_body_statement(node, false)
         end
       end
     ensure
@@ -1256,14 +1238,35 @@ module Cc1 #:nodoc:
     end
 
     private
-    def interpret_for_body_statement(node, orig_ctrlexpr, ctrlexpr, complete)
-      enter_iteration_statement(orig_ctrlexpr)
+    def interpret_for_ctrlexpr(node)
+      node.condition_statement.executed = true
 
+      if ctrlexpr = node.condition_statement.expression
+        ctrlexpr_obj = interpret(ctrlexpr, QUIET)
+        ctrlexpr_var = object_to_variable(ctrlexpr_obj, ctrlexpr)
+        ctrlexpr_val = value_of(ctrlexpr_var)
+
+        widen_varying_variable_value_domain(node)
+        ctrlexpr_var = interpret(ctrlexpr)
+
+        notify_variable_value_referred(ctrlexpr, ctrlexpr_var)
+        notify_sequence_point_reached(SequencePoint.new(ctrlexpr))
+      else
+        widen_varying_variable_value_domain(node)
+      end
+
+      ctrlexpr_val
+    end
+
+    def interpret_for_body_statement(node, complete)
       if complete
         branch_opts = [ITERATION, NARROWING, FINAL, IMPLICIT_COND, COMPLETE]
       else
         branch_opts = [ITERATION, NARROWING, FINAL, IMPLICIT_COND]
       end
+
+      orig_ctrlexpr, ctrlexpr = node.deduct_controlling_expression
+      enter_iteration_statement(orig_ctrlexpr)
 
       branched_eval(ctrlexpr, *branch_opts) do
         interpret(node.body_statement)
@@ -1705,8 +1708,7 @@ module Cc1 #:nodoc:
 
       case
       when then_var && else_var
-        rslt_val = then_var.value.single_value_unified_with(else_var.value)
-        rslt_var = create_tmpvar(then_var.type, rslt_val)
+        rslt_var = unify_then_and_else_var(then_var, else_var)
         # FIXME: Not to over-warn about discarding a function return value.
         #        Because the unified result is a new temporary variable, it is
         #        impossible to relate a reference of the unified result and a
@@ -1729,6 +1731,19 @@ module Cc1 #:nodoc:
       if seqp = node.subsequent_sequence_point
         notify_sequence_point_reached(seqp)
       end
+    end
+
+    def unify_then_and_else_var(then_var, else_var)
+      if then_var.type.pointer? || else_var.type.pointer?
+        case
+        when pointee_of(then_var)
+          return then_var
+        when pointee_of(else_var)
+          return else_var
+        end
+      end
+      create_tmpvar(then_var.type,
+                    then_var.value.single_value_unified_with(else_var.value))
     end
   end
 

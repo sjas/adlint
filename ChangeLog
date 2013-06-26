@@ -1,3 +1,19 @@
+Tue Jun 25 15:24:13 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/cc1/interp.rb : Revise evaluation behavior of
+	  for-statement's explicit controlling-expression in order to properly
+	  evaluate the branch entering condition.
+	  Revise evaluation behavior of conditional-expressions to adopt the
+	  non-NULL pointer as the expression value when a value of the
+	  controlling-expression is indefinite.
+
+	* lib/adlint/cc1/mediator.rb : Revise pointer dereferencing behavior to
+	  successfully dereference a pointer only when the value of pointer
+	  variable is definite again.
+
+	* features/code_check/W0610.feature : Add scenario to reproduce bad
+	  variables' value-domain management problem.
+
 Mon Jun 24 17:22:47 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* lib/adlint/cc1/branch.rb : Fix over-thinning of controlling

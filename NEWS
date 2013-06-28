@@ -32,26 +32,18 @@
   ignore value of the initializer
 * Revise pointer dereferencing behavior to successfully dereference a pointer
   only when the value of pointer variable is definite
-* Fix variable's value version rollback mechanism in order not to do
-  unnecessary rollback of inner-variables of array or composite value
 * Improve heuristics of array subscript evaluation with indefinite subscript
-* Fix conditional-expression evaluation in order to evaluate controlling
-  expression in the same manner as that of if-statement
 * Fix controlling-expression deduction of iteration-statements in order to
   adopt the ordinary expression when no control breaking condition is found in
   the iteration body
-* Fix bad bitwise & evaluation with indefinite value domains
 * Remove unnecessary controlling expression evaluation at entering a
   do-statement
 * Fix value-domain thinning condition to thin domains discarded by a
   break-statement in the iteration
 * Fix bypassing inner-variable's value mutation in order to correctly propagate
   mutation to the outer-variable
-* Revise evaluation behavior of for-statement's explicit controlling-expression
-  in order to properly evaluate the branch entering condition
 
-See the file
-{ChangeLog}[http://adlint.sourceforge.net/pmwiki/upload.d/Main/ChangeLog]
+See the file {ChangeLog}[https://github.com/yanoh/adlint/blob/master/ChangeLog]
 for more details.
 
 === \AdLint 3.0.8 is released (2013-05-31)

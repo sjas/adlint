@@ -2369,7 +2369,7 @@ module Cc1 #:nodoc:
         @initial_values = base_ver.values.map { |multi_val|
           multi_val.base_value.dup
         }
-        @version_stack = []
+        @current_version = nil
         @all_versions = []
       end
 
@@ -2390,7 +2390,7 @@ module Cc1 #:nodoc:
       end
 
       def current_version
-        @version_stack.empty? ? @base_version : @version_stack.last
+        @current_version || @base_version
       end
 
       def current_values
@@ -2398,13 +2398,12 @@ module Cc1 #:nodoc:
       end
 
       def begin_new_version
-        new_ver = Version.new(base_values)
-        @version_stack.push(new_ver)
-        @all_versions.push(new_ver)
+        @current_version = Version.new(base_values)
+        @all_versions.push(@current_version)
       end
 
       def end_current_version
-        @version_stack.pop
+        @current_version = nil
       end
 
       def delete_current_version_completely

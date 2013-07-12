@@ -2328,18 +2328,18 @@ module CBuiltin #:nodoc:
       end
     end
 
-    def check_return_statement(retn_stmt, retn_var)
+    def check_return_statement(ret_stmt, ret_var)
       return unless @lvars
-      return unless retn_var && retn_var.type.pointer?
+      return unless ret_var && ret_var.type.pointer?
 
-      if pointee = @interp.pointee_of(retn_var)
+      if pointee = @interp.pointee_of(ret_var)
         if pointee.variable? && pointee.named?
           # NOTE: An array typed parameter can be considered as an alias of the
           #       corresponding argument.  So, it is safe to return an address
           #       of the argument.
           return if pointee.type.parameter? && pointee.type.array?
           if @lvars.include?(pointee.name)
-            W(retn_stmt.location)
+            W(ret_stmt.location)
           end
         end
       end
@@ -5403,10 +5403,10 @@ module CBuiltin #:nodoc:
       @cur_fun = nil
     end
 
-    def check(retn_stmt, retn_var)
-      if @cur_fun && retn_var
-        if match?(retn_var.type, @cur_fun.type.return_type)
-          W(retn_stmt.location, @cur_fun.name)
+    def check(ret_stmt, ret_var)
+      if @cur_fun && ret_var
+        if match?(ret_var.type, @cur_fun.type.return_type)
+          W(ret_stmt.location, @cur_fun.name)
         end
       end
     end
@@ -8687,11 +8687,11 @@ module CBuiltin #:nodoc:
       @indent_level = 0
       @indent_widths = Hash.new(0)
       @paren_depth = 0
-      @last_token = nil
+      @lst_token = nil
     end
 
     def last_line_no
-      @last_token ? @last_token.location.line_no : 0
+      @lst_token ? @lst_token.location.line_no : 0
     end
 
     def do_execute(phase_ctxt)
@@ -8807,7 +8807,7 @@ module CBuiltin #:nodoc:
 
     def peek_token
       if tok = @tokens[@index]
-        @last_token = @tokens[[0, @index - 1].max]
+        @lst_token = @tokens[[0, @index - 1].max]
         checkpoint(tok.location)
       end
       tok
@@ -8839,7 +8839,7 @@ module CBuiltin #:nodoc:
     end
 
     def on_beginning_of_line(tok)
-      return if @paren_depth > 0 || @last_token.replaced?
+      return if @paren_depth > 0 || @lst_token.replaced?
 
       case tok.type
       when "{"
@@ -8858,8 +8858,8 @@ module CBuiltin #:nodoc:
         widths_idx = @indent_level
       end
 
-      expected_column_no = @indent_widths[widths_idx]
-      if tok.location.appearance_column_no < expected_column_no
+      expected_col_no = @indent_widths[widths_idx]
+      if tok.location.appearance_column_no < expected_col_no
         W(tok.location) if tok.analysis_target?(traits)
       end
 
@@ -8891,11 +8891,11 @@ module CBuiltin #:nodoc:
       @indent_level = 0
       @indent_width = indent_width
       @paren_depth  = 0
-      @last_token   = nil
+      @lst_token    = nil
     end
 
     def last_line_no
-      @last_token ? @last_token.location.line_no : 0
+      @lst_token ? @lst_token.location.line_no : 0
     end
 
     def do_execute(phase_ctxt)
@@ -9028,7 +9028,7 @@ module CBuiltin #:nodoc:
 
     def peek_token
       if tok = @tokens[@index]
-        @last_token = @tokens[[0, @index - 1].max]
+        @lst_token = @tokens[[0, @index - 1].max]
         checkpoint(tok.location)
       end
       tok
@@ -9060,26 +9060,26 @@ module CBuiltin #:nodoc:
     end
 
     def on_beginning_of_line(tok)
-      return if @paren_depth > 0 || @last_token.replaced?
+      return if @paren_depth > 0 || @lst_token.replaced?
 
       case tok.type
       when "{"
         if @indent_level == 0
-          expected_column_no = expected_indent_width(tok)
+          expected_col_no = expected_indent_width(tok)
         else
-          expected_column_no = expected_indent_width(tok, -1)
+          expected_col_no = expected_indent_width(tok, -1)
         end
       when "}"
         if indent_style == INDENT_STYLE_GNU && @indent_level > 0
-          expected_column_no = expected_indent_width(tok, +1)
+          expected_col_no = expected_indent_width(tok, +1)
         else
-          expected_column_no = expected_indent_width(tok)
+          expected_col_no = expected_indent_width(tok)
         end
       else
-        expected_column_no = expected_indent_width(tok)
+        expected_col_no = expected_indent_width(tok)
       end
 
-      unless tok.location.appearance_column_no == expected_column_no
+      unless tok.location.appearance_column_no == expected_col_no
         W(tok.location) if tok.analysis_target?(traits)
       end
     end
@@ -12087,8 +12087,8 @@ module CBuiltin #:nodoc:
       var_names = inited_var_names + node.varying_variable_names
       histo = var_names.each_with_object({}) { |name, hash| hash[name] = 0 }
 
-      ctrl_expr, * = node.deduct_controlling_expression
-      collect_object_specifiers(ctrl_expr).map { |obj_spec|
+      ctrlexpr, * = node.deduct_controlling_expression
+      collect_object_specifiers(ctrlexpr).map { |obj_spec|
         obj_spec.identifier.value
       }.each { |obj_name| histo.include?(obj_name) and histo[obj_name] += 1 }
 
@@ -13543,8 +13543,8 @@ module CBuiltin #:nodoc:
       var_names = inited_var_names + node.varying_variable_names
       histo = var_names.each_with_object({}) { |name, hash| hash[name] = 0 }
 
-      ctrl_expr, * = node.deduct_controlling_expression
-      collect_object_specifiers(ctrl_expr).map { |obj_spec|
+      ctrlexpr, * = node.deduct_controlling_expression
+      collect_object_specifiers(ctrlexpr).map { |obj_spec|
         obj_spec.identifier.value
       }.each { |obj_name| histo.include?(obj_name) and histo[obj_name] += 1 }
 
@@ -14377,24 +14377,24 @@ module CBuiltin #:nodoc:
       traversal.enter_continue_statement   += T(:update_last_statement)
       traversal.enter_break_statement      += T(:update_last_statement)
       traversal.enter_return_statement     += T(:update_last_statement)
-      @last_stmts = []
+      @lst_stmts = []
       @expected_stmts = Set.new
     end
 
     private
     def enter_block(*)
-      @last_stmts.push(nil)
+      @lst_stmts.push(nil)
     end
 
     def leave_block(*)
-      @last_stmts.pop
+      @lst_stmts.pop
     end
 
     def enter_expression_statement(node)
       return if @expected_stmts.include?(node)
 
       unless node.expression
-        if lst_stmt = @last_stmts.last
+        if lst_stmt = @lst_stmts.last
           tail = lst_stmt.tail_location
           head = node.head_location
           if tail.fpath == head.fpath && tail.line_no == head.line_no
@@ -14411,7 +14411,7 @@ module CBuiltin #:nodoc:
     end
 
     def update_last_statement(node)
-      @last_stmts[-1] = node
+      @lst_stmts[-1] = node
     end
   end
 
@@ -16542,8 +16542,8 @@ module CBuiltin #:nodoc:
       var_names = inited_var_names + node.varying_variable_names
       histo = var_names.each_with_object({}) { |name, hash| hash[name] = 0 }
 
-      ctrl_expr, * = node.deduct_controlling_expression
-      collect_object_specifiers(ctrl_expr).map { |obj_spec|
+      ctrlexpr, * = node.deduct_controlling_expression
+      collect_object_specifiers(ctrlexpr).map { |obj_spec|
         obj_spec.identifier.value
       }.each { |obj_name| histo.include?(obj_name) and histo[obj_name] += 1 }
 
@@ -16890,14 +16890,14 @@ module CBuiltin #:nodoc:
       @cur_fun = nil
     end
 
-    def check(retn_stmt, retn_var)
-      return unless @cur_fun && retn_var
-      return unless retn_type = @cur_fun.type.return_type
-      return unless retn_type.enum?
+    def check(ret_stmt, ret_var)
+      return unless @cur_fun && ret_var
+      return unless ret_type = @cur_fun.type.return_type
+      return unless ret_type.enum?
 
-      if @interp.constant_expression?(retn_stmt.expression)
-        if retn_var.type.enum? && !retn_type.same_as?(retn_var.type)
-          W(retn_stmt.expression.location)
+      if @interp.constant_expression?(ret_stmt.expression)
+        if ret_var.type.enum? && !ret_type.same_as?(ret_var.type)
+          W(ret_stmt.expression.location)
         end
       end
     end
@@ -19866,12 +19866,12 @@ module CBuiltin #:nodoc:
       @cur_fun = nil
     end
 
-    def check(retn_stmt, retn_var)
-      return unless @cur_fun && retn_var
+    def check(ret_stmt, ret_var)
+      return unless @cur_fun && ret_var
 
-      if retn_type = @cur_fun.type.return_type and retn_type.enum?
-        unless retn_var.type.enum?
-          W(retn_stmt.expression.location)
+      if ret_type = @cur_fun.type.return_type and ret_type.enum?
+        unless ret_var.type.enum?
+          W(ret_stmt.expression.location)
         end
       end
     end
@@ -19956,13 +19956,13 @@ module CBuiltin #:nodoc:
       @cur_fun = nil
     end
 
-    def check(retn_stmt, retn_var)
-      return unless @cur_fun && retn_var
-      return if @interp.constant_expression?(retn_stmt.expression)
+    def check(ret_stmt, ret_var)
+      return unless @cur_fun && ret_var
+      return if @interp.constant_expression?(ret_stmt.expression)
 
-      if retn_type = @cur_fun.type.return_type and retn_type.enum?
-        if retn_var.type.enum? && !retn_type.same_as?(retn_var.type)
-          W(retn_stmt.expression.location)
+      if ret_type = @cur_fun.type.return_type and ret_type.enum?
+        if ret_var.type.enum? && !ret_type.same_as?(ret_var.type)
+          W(ret_stmt.expression.location)
         end
       end
     end
@@ -20017,11 +20017,11 @@ module CBuiltin #:nodoc:
       @cur_fun = nil
     end
 
-    def check(retn_stmt, retn_var)
-      return unless @cur_fun && retn_var
+    def check(ret_stmt, ret_var)
+      return unless @cur_fun && ret_var
 
-      if retn_type = @cur_fun.type.return_type and !retn_type.enum?
-        W(retn_stmt.expression.location) if retn_var.type.enum?
+      if ret_type = @cur_fun.type.return_type and !ret_type.enum?
+        W(ret_stmt.expression.location) if ret_var.type.enum?
       end
     end
   end
@@ -20103,13 +20103,13 @@ module CBuiltin #:nodoc:
       @cur_fun = nil
     end
 
-    def check(retn_stmt, retn_var)
-      return unless @cur_fun && retn_var
+    def check(ret_stmt, ret_var)
+      return unless @cur_fun && ret_var
 
-      if retn_type = @cur_fun.type.return_type and retn_type.enum?
-        unless @interp.constant_expression?(retn_stmt.expression)
-          unless retn_var.type.same_as?(retn_type)
-            W(retn_stmt.expression.location)
+      if ret_type = @cur_fun.type.return_type and ret_type.enum?
+        unless @interp.constant_expression?(ret_stmt.expression)
+          unless ret_var.type.same_as?(ret_type)
+            W(ret_stmt.expression.location)
           end
         end
       end
@@ -20214,18 +20214,18 @@ module CBuiltin #:nodoc:
       interp.on_function_call_expr_evaled += T(:add_return_value)
       interp.on_variable_value_referred   += T(:refer_return_value)
       @cur_fun   = nil
-      @retn_vals = nil
+      @ret_vals = nil
     end
 
     private
     def enter_function(fun_def, *)
       @cur_fun   = fun_def
-      @retn_vals = {}
+      @ret_vals = {}
     end
 
     def leave_function(*)
       if @cur_fun
-        @retn_vals.each_value do |rec|
+        @ret_vals.each_value do |rec|
           unless rec[0]
             fun_name = rec[2].named? ? rec[2].name : "(anon)"
             W(rec[1].location, fun_name)
@@ -20233,20 +20233,20 @@ module CBuiltin #:nodoc:
         end
       end
       @cur_fun = nil
-      @retn_vals = nil
+      @ret_vals = nil
     end
 
     def add_return_value(expr, fun, *, rslt_var)
       if @cur_fun
         unless fun.type.return_type.void?
-          @retn_vals[rslt_var] = [false, expr, fun]
+          @ret_vals[rslt_var] = [false, expr, fun]
         end
       end
     end
 
     def refer_return_value(expr, var)
       if @cur_fun
-        if rec = @retn_vals[var]
+        if rec = @ret_vals[var]
           rec[0] = true
         end
       end

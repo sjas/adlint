@@ -89,6 +89,15 @@ module Cc1 #:nodoc:
       @branch_groups[@branch_depth]
     end
 
+    def current_ctrlexpr
+      if group = current_branch_group and branch = group.current_branch
+        if ctrlexpr = branch.controlling_expression
+          return ctrlexpr.target_expr
+        end
+      end
+      nil
+    end
+
     def leave_branch_group
       @branch_groups.delete(@branch_depth)
     end

@@ -66,11 +66,13 @@ module Cc1 #:nodoc:
       @manipulators = []
     end
 
-    def ensure_true_by_narrowing(alt_expr = nil)
-      target_expr = alt_expr || @target_expr
+    attr_reader :target_expr
 
-      if target_expr
-        new_manip = ValueDomainNarrower.new(@interpreter, target_expr)
+    def ensure_true_by_narrowing(alt_expr = nil)
+      expr = alt_expr || @target_expr
+
+      if expr
+        new_manip = ValueDomainNarrower.new(@interpreter, expr)
         if @branch.implicit_condition?
           eval_quietly { new_manip.prepare! }
         else
@@ -85,10 +87,10 @@ module Cc1 #:nodoc:
     end
 
     def ensure_true_by_widening(alt_expr = nil)
-      target_expr = alt_expr || @target_expr
+      expr = alt_expr || @target_expr
 
-      if target_expr
-        new_manip = ValueDomainWidener.new(@interpreter, target_expr)
+      if expr
+        new_manip = ValueDomainWidener.new(@interpreter, expr)
         if @branch.implicit_condition?
           eval_quietly { new_manip.prepare! }
         else
@@ -919,7 +921,7 @@ module Cc1 #:nodoc:
       @phantom_val
     end
 
-    def assign!(val)
+    def assign!(val, *)
       @phantom_val = val
     end
 

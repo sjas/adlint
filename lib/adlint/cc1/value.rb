@@ -91,7 +91,7 @@ module Cc1 #:nodoc:
       subclass_responsibility
     end
 
-    def overwrite!(val)
+    def overwrite!(val, src, ctrlexpr)
       subclass_responsibility
     end
 
@@ -428,7 +428,7 @@ module Cc1 #:nodoc:
       @domain.ambiguous?
     end
 
-    def overwrite!(val)
+    def overwrite!(val, *)
       case single_val = val.to_single_value
       when ScalarValue
         @domain = single_val.domain
@@ -834,11 +834,11 @@ module Cc1 #:nodoc:
       @values.empty? ? false : @values.all? { |val| val.ambiguous? }
     end
 
-    def overwrite!(val)
+    def overwrite!(val, src, ctrlexpr)
       case single_val = val.to_single_value
       when ArrayValue
         @values.zip(single_val.values).each do |lhs, rhs|
-          rhs && lhs.overwrite!(rhs)
+          rhs && lhs.overwrite!(rhs, src, ctrlexpr)
         end
       else
         raise TypeError, "cannot overwrite array with non-array."
@@ -1334,11 +1334,11 @@ module Cc1 #:nodoc:
       @values.empty? ? false : @values.all? { |val| val.ambiguous? }
     end
 
-    def overwrite!(val)
+    def overwrite!(val, src, ctrlexpr)
       case single_val = val.to_single_value
       when CompositeValue
         @values.zip(single_val.values).each do |lhs, rhs|
-          rhs && lhs.overwrite!(rhs)
+          rhs && lhs.overwrite!(rhs, src, ctrlexpr)
         end
       else
         raise TypeError, "cannot overwrite composite with non-composite."
@@ -1750,40 +1750,47 @@ module Cc1 #:nodoc:
   end
 
   class MultipleValue < Value
-    def initialize(val, ancestor)
-      @base_value = val.to_single_value
+    Base = Struct.new(:value, :source, :ctrlexpr)
+    private_constant :Base
+
+    def initialize(val, ancestor, src, ctrlexpr)
+      @base = Base.new(val.to_single_value, src, ctrlexpr)
       @ancestor = ancestor
       @descendants = []
     end
 
-    attr_reader :base_value
+    def scalar?
+      _base_value.scalar?
+    end
 
-    extend Forwardable
+    def array?
+      _base_value.array?
+    end
 
-    def_delegator :@base_value, :scalar?
-    def_delegator :@base_value, :array?
-    def_delegator :@base_value, :composite?
+    def composite?
+      _base_value.composite?
+    end
 
     def undefined?
-      effective_values.all? { |multi_val| multi_val.base_value.undefined? }
+      effective_values.all? { |multi_val| multi_val._base_value.undefined? }
     end
 
     def ambiguous?
-      effective_values.all? { |multi_val| multi_val.base_value.ambiguous? }
+      effective_values.all? { |multi_val| multi_val._base_value.ambiguous? }
     end
 
     def exist?
-      effective_values.any? { |multi_val| multi_val.base_value.exist? }
+      effective_values.any? { |multi_val| multi_val._base_value.exist? }
     end
 
     def definite?
-      effective_values.all? { |multi_val| multi_val.base_value.definite? }
+      effective_values.all? { |multi_val| multi_val._base_value.definite? }
     end
 
     def contain?(val)
       single_val = val.to_single_value
       effective_values.all? do |multi_val|
-        multi_val.base_value.contain?(single_val)
+        multi_val._base_value.contain?(single_val)
       end
     end
 
@@ -1791,10 +1798,12 @@ module Cc1 #:nodoc:
       true
     end
 
-    def overwrite!(val)
+    def overwrite!(val, src, ctrlexpr)
       single_val = val.to_single_value
       effective_values.each do |multi_val|
-        multi_val.base_value.overwrite!(single_val)
+        multi_val._base_value.overwrite!(single_val, nil, nil)
+        multi_val._base_source = src if src
+        multi_val._base_ctrlexpr = ctrlexpr if ctrlexpr
       end
     end
 
@@ -1802,9 +1811,9 @@ module Cc1 #:nodoc:
       ope_single_val = ope_val.to_single_value
       effective_values.map { |multi_val|
         if anc = multi_val.ancestor
-          anc.base_value.narrow_domain!(op.for_complement, ope_single_val)
+          anc._base_value.narrow_domain!(op.for_complement, ope_single_val)
         end
-        multi_val.base_value.narrow_domain!(op, ope_single_val)
+        multi_val._base_value.narrow_domain!(op, ope_single_val)
       }.any?
     end
 
@@ -1812,15 +1821,15 @@ module Cc1 #:nodoc:
       ope_single_val = ope_val.to_single_value
       effective_values.map { |multi_val|
         if anc = multi_val.ancestor
-          anc.base_value.narrow_domain!(op.for_complement, ope_single_val)
+          anc._base_value.narrow_domain!(op.for_complement, ope_single_val)
         end
-        multi_val.base_value.widen_domain!(op, ope_single_val)
+        multi_val._base_value.widen_domain!(op, ope_single_val)
       }.any?
     end
 
     def invert_domain!
       effective_values.each do |multi_val|
-        multi_val.base_value.invert_domain!
+        multi_val._base_value.invert_domain!
       end
     end
 
@@ -1829,13 +1838,14 @@ module Cc1 #:nodoc:
     end
 
     def fork
-      same_val = @descendants.find { |multi_val| multi_val.eql?(@base_value) }
+      same_val = @descendants.find { |multi_val| multi_val.eql?(_base_value) }
       if same_val
         same_val
       else
-        new_descendant = MultipleValue.new(@base_value.dup, self)
-        @descendants.push(new_descendant)
-        new_descendant
+        MultipleValue.new(_base_value.dup, self,
+                          _base_source, _base_ctrlexpr).tap do |new_desc|
+          @descendants.push(new_desc)
+        end
       end
     end
 
@@ -1938,14 +1948,14 @@ module Cc1 #:nodoc:
     def must_be_equal_to?(val)
       single_val = val.to_single_value
       non_nil_vals = effective_values.select { |multi_val|
-        multi_val.base_value.exist?
+        multi_val._base_value.exist?
       }
 
       if non_nil_vals.empty?
         false
       else
         non_nil_vals.all? do |multi_val|
-          multi_val.base_value.must_be_equal_to?(single_val)
+          multi_val._base_value.must_be_equal_to?(single_val)
         end
       end
     end
@@ -1953,20 +1963,20 @@ module Cc1 #:nodoc:
     def may_be_equal_to?(val)
       single_val = val.to_single_value
       effective_values.any? do |multi_val|
-        multi_val.base_value.may_be_equal_to?(single_val)
+        multi_val._base_value.may_be_equal_to?(single_val)
       end
     end
 
     def must_not_be_equal_to?(val)
       single_val = val.to_single_value
       non_nil_vals = effective_values.select { |multi_val|
-        multi_val.base_value.exist?
+        multi_val._base_value.exist?
       }
       if non_nil_vals.empty?
         false
       else
         non_nil_vals.all? do |multi_val|
-          multi_val.base_value.must_not_be_equal_to?(single_val)
+          multi_val._base_value.must_not_be_equal_to?(single_val)
         end
       end
     end
@@ -1974,20 +1984,20 @@ module Cc1 #:nodoc:
     def may_not_be_equal_to?(val)
       single_val = val.to_single_value
       effective_values.any? do |multi_val|
-        multi_val.base_value.may_not_be_equal_to?(single_val)
+        multi_val._base_value.may_not_be_equal_to?(single_val)
       end
     end
 
     def must_be_less_than?(val)
       single_val = val.to_single_value
       non_nil_vals = effective_values.select { |multi_val|
-        multi_val.base_value.exist?
+        multi_val._base_value.exist?
       }
       if non_nil_vals.empty?
         false
       else
         non_nil_vals.all? do |multi_val|
-          multi_val.base_value.must_be_less_than?(single_val)
+          multi_val._base_value.must_be_less_than?(single_val)
         end
       end
     end
@@ -1995,20 +2005,20 @@ module Cc1 #:nodoc:
     def may_be_less_than?(val)
       single_val = val.to_single_value
       effective_values.any? do |multi_val|
-        multi_val.base_value.may_be_less_than?(single_val)
+        multi_val._base_value.may_be_less_than?(single_val)
       end
     end
 
     def must_be_greater_than?(val)
       single_val = val.to_single_value
       non_nil_vals = effective_values.select { |multi_val|
-        multi_val.base_value.exist?
+        multi_val._base_value.exist?
       }
       if non_nil_vals.empty?
         false
       else
         non_nil_vals.all? do |multi_val|
-          multi_val.base_value.must_be_greater_than?(single_val)
+          multi_val._base_value.must_be_greater_than?(single_val)
         end
       end
     end
@@ -2016,62 +2026,63 @@ module Cc1 #:nodoc:
     def may_be_greater_than?(val)
       single_val = val.to_single_value
       effective_values.any? do |multi_val|
-        multi_val.base_value.may_be_greater_than?(single_val)
+        multi_val._base_value.may_be_greater_than?(single_val)
       end
     end
 
     def must_be_undefined?
       effective_values.all? do |multi_val|
-        multi_val.base_value.must_be_undefined?
+        multi_val._base_value.must_be_undefined?
       end
     end
 
     def may_be_undefined?
       effective_values.any? do |multi_val|
-        multi_val.base_value.may_be_undefined?
+        multi_val._base_value.may_be_undefined?
       end
     end
 
     def must_be_true?
       non_nil_vals = effective_values.select { |multi_val|
-        multi_val.base_value.exist?
+        multi_val._base_value.exist?
       }
       if non_nil_vals.empty?
         false
       else
         non_nil_vals.all? do |multi_val|
-          multi_val.base_value.must_be_true?
+          multi_val._base_value.must_be_true?
         end
       end
     end
 
     def may_be_true?
       effective_values.any? do |multi_val|
-        multi_val.base_value.may_be_true?
+        multi_val._base_value.may_be_true?
       end
     end
 
     def must_be_false?
       non_nil_vals = effective_values.select { |multi_val|
-        multi_val.base_value.exist?
+        multi_val._base_value.exist?
       }
       if non_nil_vals.empty?
         false
       else
         non_nil_vals.all? do |multi_val|
-          multi_val.base_value.must_be_false?
+          multi_val._base_value.must_be_false?
         end
       end
     end
 
     def may_be_false?
       effective_values.any? do |multi_val|
-        multi_val.base_value.may_be_false?
+        multi_val._base_value.may_be_false?
       end
     end
 
     def coerce_to(type)
-      MultipleValue.new(to_single_value.coerce_to(type), nil)
+      MultipleValue.new(to_single_value.coerce_to(type), nil,
+                        _base_source, _base_ctrlexpr)
     end
 
     def to_enum
@@ -2079,9 +2090,10 @@ module Cc1 #:nodoc:
     end
 
     def to_single_value
-      # NOTE: The base_value of the MultipleValue object must be a SingleValue.
+      # NOTE: The _base_value of the MultipleValue object must be a
+      #       SingleValue.
       effective_values.map { |multi_val|
-        multi_val.base_value
+        multi_val._base_value
       }.reduce do |unified_val, single_val|
         unified_val.single_value_unified_with(single_val)
       end
@@ -2100,7 +2112,7 @@ module Cc1 #:nodoc:
     end
 
     def dup
-      MultipleValue.new(to_single_value.dup, nil)
+      MultipleValue.new(to_single_value.dup, nil, _base_source, _base_ctrlexpr)
     end
 
     def effective_values
@@ -2115,15 +2127,40 @@ module Cc1 #:nodoc:
       end
     end
 
+    def _base_value
+      # NOTE: This method will be invoked only from this file.
+      @base.value
+    end
+
+    def _base_source
+      # NOTE: This method will be invoked only from this file.
+      @base.source
+    end
+
+    def _base_source=(src)
+      # NOTE: This method will be invoked only from this file.
+      @base.source = src
+    end
+
+    def _base_ctrlexpr
+      # NOTE: This method will be invoked only from this file.
+      @base.ctrlexpr
+    end
+
+    def _base_ctrlexpr=(ctrlexpr)
+      # NOTE: This method will be invoked only from this file.
+      @base.ctrlexpr = ctrlexpr
+    end
+
     protected
     attr_reader :ancestor
   end
 
   class VersionedValue < MultipleValue
-    def initialize(orig_val)
+    def initialize(orig_val, src, ctrlexpr)
       # NOTE: `orig_val.to_single_value' will be done in
       #       MultipleValue#initialize.
-      super(orig_val, nil)
+      super(orig_val, nil, src, ctrlexpr)
 
       @version_controller = ValueVersionController.new(self)
     end
@@ -2157,14 +2194,14 @@ module Cc1 #:nodoc:
       delete_descendants!
       orig_val = @version_controller.original_value
       @version_controller = nil
-      _orig_overwrite!(orig_val)
+      _orig_overwrite!(orig_val, nil, nil)
       @version_controller = ValueVersionController.new(self)
       invalidate_memo!
     end
 
     alias :_orig_overwrite! :overwrite!
 
-    def overwrite!(val)
+    def overwrite!(val, src, ctrlexpr)
       @version_controller.fork_current_version
       super
       @version_controller.mark_current_versioning_group_as_sticky
@@ -2174,8 +2211,8 @@ module Cc1 #:nodoc:
     def force_overwrite!(val)
       # NOTE: This method will be invoked only from VariableTable#define.
       single_val = val.to_single_value
-      @version_controller.original_value.overwrite!(single_val)
-      _orig_overwrite!(single_val)
+      @version_controller.original_value.overwrite!(single_val, nil, nil)
+      _orig_overwrite!(single_val, nil, nil)
       invalidate_memo!
     end
 
@@ -2198,7 +2235,8 @@ module Cc1 #:nodoc:
     end
 
     def coerce_to(type)
-      VersionedValue.new(to_single_value.coerce_to(type))
+      VersionedValue.new(to_single_value.coerce_to(type),
+                         _base_source, _base_ctrlexpr)
     end
 
     def effective_values
@@ -2264,7 +2302,7 @@ module Cc1 #:nodoc:
         base_vals = current_versioning_group.base_values
         base_vals.zip(initial_vals).each do |multi_val, initial_val|
           multi_val.rollback! if forked
-          multi_val.overwrite!(initial_val) if initial_val
+          multi_val.overwrite!(initial_val, nil, nil) if initial_val
         end
         begin_forking
       else
@@ -2295,7 +2333,7 @@ module Cc1 #:nodoc:
       # NOTE: This method must be called between ending of the forking section
       #       and ending of the versioning group.
       current_values.each do |multi_val|
-        base_val = multi_val.base_value
+        base_val = multi_val._base_value
         already_exist = multi_val.descendants.any? { |desc_multi_val|
           !desc_multi_val.equal?(multi_val) && desc_multi_val.eql?(base_val)
         }
@@ -2324,9 +2362,9 @@ module Cc1 #:nodoc:
         vals.each do |base_multi_val, initial_single_val|
           base_multi_val.delete_descendants!
           if base_multi_val.kind_of?(VersionedValue)
-            base_multi_val._orig_overwrite!(initial_single_val)
+            base_multi_val._orig_overwrite!(initial_single_val, nil, nil)
           else
-            base_multi_val.overwrite!(initial_single_val)
+            base_multi_val.overwrite!(initial_single_val, nil, nil)
           end
         end
       else
@@ -2367,7 +2405,7 @@ module Cc1 #:nodoc:
         @sticky = sticky
 
         @initial_values = base_ver.values.map { |multi_val|
-          multi_val.base_value.dup
+          multi_val._base_value.dup
         }
         @current_version = nil
         @all_versions = []

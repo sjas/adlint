@@ -38,11 +38,11 @@ module AdLint #:nodoc:
     #
     # Param:: _fpath_ (Pathname) Path name of the file contains the token.
     # Param:: _line_no_ (Integer) Line-no where the token appears.
-    # Param:: _column_no_ (Integer) Column-no where the token appears.
-    def initialize(fpath = nil, line_no = nil, column_no = nil,
-                   appearance_column_no = column_no)
-      @fpath, @line_no, @column_no = fpath, line_no, column_no
-      @appearance_column_no = appearance_column_no
+    # Param:: _col_no_ (Integer) Column-no where the token appears.
+    def initialize(fpath = nil, line_no = nil, col_no = nil,
+                   appearance_col_no = col_no)
+      @fpath, @line_no, @column_no = fpath, line_no, col_no
+      @appearance_column_no = appearance_col_no
     end
 
     # === VALUE

@@ -346,7 +346,7 @@ module Cc1 #:nodoc:
     def_plugin_and_notifier :goto_stmt_evaled, :stmt, :label_name
 
     # NOTE: Notified when the interpreter evaluates a return-statement.
-    def_plugin_and_notifier :return_stmt_evaled, :stmt, :retn_var
+    def_plugin_and_notifier :return_stmt_evaled, :stmt, :ret_var
 
     # NOTE: Notified when the interpreter evaluates an implicit return.
     def_plugin_and_notifier :implicit_return_evaled, :loc
@@ -554,7 +554,7 @@ module Cc1 #:nodoc:
         dcl.mark_as_referred_by(node.identifier)
       end
 
-      var = declare_variable(node)
+      var = declare_variable(node, current_ctrlexpr)
       notify_variable_declared(node, var)
       evaluate_sequence_point(node.declarator)
     end
@@ -572,21 +572,23 @@ module Cc1 #:nodoc:
           # NOTE: Unable to define variable of incomplete type such as an array
           #       without length.
           init_var, init_conved = evaluate_initializer(node)
-          var = define_variable(node, init_conved.value.to_defined_value)
+          var = define_variable(node, current_ctrlexpr,
+                                init_conved.value.to_defined_value)
         else
           # NOTE: Declare variable first in order to correctly evaluate
           #       sizeof-expression that refers to the defining variable in the
           #       initializer.
-          declare_variable(node)
+          declare_variable(node, current_ctrlexpr)
           init_var, init_conved = evaluate_initializer(node)
-          var = define_variable(node, init_conved.value.to_defined_value)
+          var = define_variable(node, current_ctrlexpr,
+                                init_conved.value.to_defined_value)
         end
 
         notify_variable_value_referred(node, init_var)
         notify_variable_defined(node, var)
         notify_variable_initialized(node, var, init_var)
       else
-        notify_variable_defined(node, define_variable(node))
+        notify_variable_defined(node, define_variable(node, current_ctrlexpr))
       end
 
       evaluate_sequence_point(node.init_declarator.declarator)
@@ -859,7 +861,7 @@ module Cc1 #:nodoc:
       end
 
       if id
-        var = define_variable(node.to_variable_definition,
+        var = define_variable(node.to_variable_definition, nil,
                               node.type.parameter_value)
         notify_parameter_defined(node, var)
       end
@@ -1221,11 +1223,11 @@ module Cc1 #:nodoc:
       notify_variable_value_referred(node.expression, var)
 
       if active_fun = interpreter._active_function and
-          retn_type = active_fun.type.return_type
-        if var.type.same_as?(retn_type)
+          ret_type = active_fun.type.return_type
+        if var.type.same_as?(ret_type)
           conved = var
         else
-          conved = do_conversion(var, retn_type) || create_tmpvar(retn_type)
+          conved = do_conversion(var, ret_type) || create_tmpvar(ret_type)
           notify_implicit_conv_performed(node.expression, var, conved)
         end
       else

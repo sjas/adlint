@@ -152,7 +152,7 @@ context                -> ctxt
 exception              -> ex
 template               -> tmpl
 format                 -> fmt
-return                 -> retn
+return                 -> ret
 current                -> cur
 replacement            -> repl
 index                  -> idx
@@ -214,6 +214,8 @@ temporary              -> tmp
 referrer-function      -> ref_fun
 sample                 -> smpl
 representative         -> repr
+descendant             -> desc
+column                 -> col
 @end verbatim
 
 

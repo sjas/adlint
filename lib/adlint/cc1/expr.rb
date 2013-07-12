@@ -634,7 +634,7 @@ module Cc1 #:nodoc:
         # _notify_variable_value_referred(node, var)
 
         if var.value.scalar?
-          var.assign!(var.value + scalar_value_of(1))
+          var.assign!(var.value + scalar_value_of(1), node, current_ctrlexpr)
           _notify_variable_value_updated(node, var)
         end
 
@@ -657,7 +657,7 @@ module Cc1 #:nodoc:
         # _notify_variable_value_referred(node, var)
 
         if var.value.scalar?
-          var.assign!(var.value - scalar_value_of(1))
+          var.assign!(var.value - scalar_value_of(1), node, current_ctrlexpr)
           _notify_variable_value_updated(node, var)
         end
 
@@ -680,7 +680,7 @@ module Cc1 #:nodoc:
         # _notify_variable_value_referred(node, var)
 
         if var.value.scalar?
-          var.assign!(var.value + scalar_value_of(1))
+          var.assign!(var.value + scalar_value_of(1), node, current_ctrlexpr)
           _notify_variable_value_updated(node, var)
         end
 
@@ -703,7 +703,7 @@ module Cc1 #:nodoc:
         # _notify_variable_value_referred(node, var)
 
         if var.value.scalar?
-          var.assign!(var.value - scalar_value_of(1))
+          var.assign!(var.value - scalar_value_of(1), node, current_ctrlexpr)
           _notify_variable_value_updated(node, var)
         end
 
@@ -1166,7 +1166,8 @@ module Cc1 #:nodoc:
         # NOTE: Even if rhs_obj is a NamedVariable, new value will be
         #       instantiated in value-coercing.
         #       So, value-aliasing never occurs.
-        lhs_var.assign!(rhs_conved.value.to_defined_value)
+        defined_val = rhs_conved.value.to_defined_value
+        lhs_var.assign!(defined_val, node, current_ctrlexpr)
         _notify_variable_value_referred(node, rhs_var)
         _notify_variable_value_updated(node, lhs_var)
 
@@ -1453,7 +1454,8 @@ module Cc1 #:nodoc:
 
         # NOTE: Domain of the arithmetic result value will be restricted by
         #       min-max of the variable type.
-        lhs_var.assign!(rhs_conved.value.to_defined_value)
+        defined_val = rhs_conved.value.to_defined_value
+        lhs_var.assign!(defined_val, node, current_ctrlexpr)
         _notify_variable_value_updated(node, lhs_var)
 
         notify_assignment_expr_evaled(node, lhs_var, rhs_conved)

@@ -46,8 +46,8 @@ module Cc1
       @symbol_table = SymbolTable.new
       @type_table   = TypeTable.new(@adlint.traits, @monitor, @logger)
       @interpreter  = Interpreter.new(@type_table)
-      @int_i        = @interpreter.define_variable(int_i_def)
-      @int_j        = @interpreter.define_variable(int_j_def)
+      @int_i        = @interpreter.define_variable(int_i_def, nil)
+      @int_j        = @interpreter.define_variable(int_j_def, nil)
     end
 
     context "`int i = ((> 0) && (< 10)) || (== 0)' and " +

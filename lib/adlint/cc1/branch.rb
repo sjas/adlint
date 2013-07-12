@@ -238,6 +238,10 @@ module Cc1 #:nodoc:
     def all_branches_break_with_return?
       @branches.all? { |br| br.break_with_return? }
     end
+
+    def current_branch
+      @branches.last
+    end
   end
 
   class BreakEvent

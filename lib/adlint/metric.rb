@@ -133,8 +133,8 @@ module AdLint #:nodoc:
   end
 
   class FN_RETN_Metric < FunctionMetric
-    def initialize(fun_id, loc, retn_cnt)
-      super("FN_RETN", fun_id, loc, retn_cnt)
+    def initialize(fun_id, loc, ret_cnt)
+      super("FN_RETN", fun_id, loc, ret_cnt)
     end
   end
 

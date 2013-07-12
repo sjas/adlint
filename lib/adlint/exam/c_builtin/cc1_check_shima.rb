@@ -240,12 +240,12 @@ module CBuiltin #:nodoc:
       @cur_fun = nil
     end
 
-    def check(retn_stmt)
+    def check(ret_stmt)
       return unless @cur_fun.explicitly_typed?
 
-      if retn_type = @cur_fun.type.return_type
-        if !retn_type.void? && retn_stmt.expression.nil?
-          W(retn_stmt.location, @cur_fun.identifier.value)
+      if ret_type = @cur_fun.type.return_type
+        if !ret_type.void? && ret_stmt.expression.nil?
+          W(ret_stmt.location, @cur_fun.identifier.value)
         end
       end
     end
@@ -259,11 +259,11 @@ module CBuiltin #:nodoc:
     mark_as_unique
 
     private
-    def check(retn_stmt)
+    def check(ret_stmt)
       return unless @cur_fun.implicitly_typed?
 
-      if retn_stmt.expression.nil?
-        W(retn_stmt.location, @cur_fun.identifier.value)
+      if ret_stmt.expression.nil?
+        W(ret_stmt.location, @cur_fun.identifier.value)
       end
     end
   end
@@ -294,9 +294,9 @@ module CBuiltin #:nodoc:
       @cur_fun = nil
     end
 
-    def check_explicit_return(retn_stmt, *)
+    def check_explicit_return(ret_stmt, *)
       if @cur_fun
-        if @cur_fun.implicitly_typed? && retn_stmt.expression.nil?
+        if @cur_fun.implicitly_typed? && ret_stmt.expression.nil?
           W(@cur_fun.location, @cur_fun.identifier.value)
         end
       end
@@ -469,11 +469,11 @@ module CBuiltin #:nodoc:
     mark_as_unique
 
     private
-    def check(retn_stmt)
-      if retn_stmt.expression
-        if retn_type = @cur_fun.type.return_type
-          if retn_type.void? && (retn_type.const? || retn_type.volatile?)
-            W(retn_stmt.location, @cur_fun.identifier.value)
+    def check(ret_stmt)
+      if ret_stmt.expression
+        if ret_type = @cur_fun.type.return_type
+          if ret_type.void? && (ret_type.const? || ret_type.volatile?)
+            W(ret_stmt.location, @cur_fun.identifier.value)
           end
         end
       end
@@ -771,8 +771,8 @@ module CBuiltin #:nodoc:
 
     private
     def check(dcl_or_def)
-      if retn_type = dcl_or_def.type.return_type
-        if retn_type.const? || retn_type.volatile?
+      if ret_type = dcl_or_def.type.return_type
+        if ret_type.const? || ret_type.volatile?
           W(dcl_or_def.location)
         end
       end

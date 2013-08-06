@@ -46,8 +46,8 @@ module Cc1
       @symbol_table = SymbolTable.new
       @type_table   = TypeTable.new(@adlint.traits, @monitor, @logger)
       @interpreter  = Interpreter.new(@type_table)
-      @int_i        = @interpreter.define_variable(int_i_def)
-      @int_j        = @interpreter.define_variable(int_j_def)
+      @int_i        = @interpreter.define_variable(int_i_def, nil)
+      @int_j        = @interpreter.define_variable(int_j_def, nil)
     end
 
     context "`int i = ((> 0) && (< 10)) || (== 0)' and " +
@@ -63,9 +63,12 @@ module Cc1
          "and should not contain 10" do
         expr = EqualityExpression.new(eq_op, i_spec, j_spec)
         branched_eval(expr, NARROWING, FINAL) do
-          @int_i.value.may_be_equal_to?(scalar_value_of(0)).should be_true
-          @int_i.value.may_be_equal_to?(scalar_value_of(9)).should be_true
-          @int_i.value.may_be_equal_to?(scalar_value_of(10)).should_not be_true
+          @int_i.value.test_may_be_equal_to(
+            scalar_value_of(0)).result.should be_true
+          @int_i.value.test_may_be_equal_to(
+            scalar_value_of(9)).result.should be_true
+          @int_i.value.test_may_be_equal_to(
+            scalar_value_of(10)).result.should be_false
         end
       end
 
@@ -73,9 +76,12 @@ module Cc1
          "and should not contain 10" do
         expr = EqualityExpression.new(ne_op, i_spec, j_spec)
         branched_eval(expr, NARROWING, FINAL) do
-          @int_i.value.may_be_equal_to?(scalar_value_of(0)).should be_true
-          @int_i.value.may_be_equal_to?(scalar_value_of(9)).should be_true
-          @int_i.value.may_be_equal_to?(scalar_value_of(10)).should_not be_true
+          @int_i.value.test_may_be_equal_to(
+            scalar_value_of(0)).result.should be_true
+          @int_i.value.test_may_be_equal_to(
+            scalar_value_of(9)).result.should be_true
+          @int_i.value.test_may_be_equal_to(
+            scalar_value_of(10)).result.should be_false
         end
       end
     end
@@ -93,9 +99,12 @@ module Cc1
          "and should not contain 0" do
         expr = EqualityExpression.new(eq_op, i_spec, j_spec)
         branched_eval(expr, NARROWING, FINAL) do
-          @int_i.value.may_be_equal_to?(scalar_value_of(3)).should be_true
-          @int_i.value.may_be_equal_to?(scalar_value_of(4)).should be_true
-          @int_i.value.may_be_equal_to?(scalar_value_of(0)).should_not be_true
+          @int_i.value.test_may_be_equal_to(
+            scalar_value_of(3)).result.should be_true
+          @int_i.value.test_may_be_equal_to(
+            scalar_value_of(4)).result.should be_true
+          @int_i.value.test_may_be_equal_to(
+            scalar_value_of(0)).result.should be_false
         end
       end
     end

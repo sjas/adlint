@@ -502,8 +502,8 @@ module AdLint #:nodoc:
     end
     alias :FN_GOTO :write_FN_GOTO
 
-    def write_FN_RETN(fun_id, loc, retn_cnt)
-      write_code_metric(FN_RETN_Metric.new(fun_id, loc, retn_cnt))
+    def write_FN_RETN(fun_id, loc, ret_cnt)
+      write_code_metric(FN_RETN_Metric.new(fun_id, loc, ret_cnt))
     end
     alias :FN_RETN :write_FN_RETN
 

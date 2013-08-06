@@ -895,8 +895,11 @@ module Cpp #:nodoc:
     end
 
     def next_token
-      return nil unless top_token
-      @last_token = @lexer_stack.last.next_token
+      if top_token
+        @lexer_stack.last.next_token
+      else
+        nil
+      end
     end
 
     def skip_group

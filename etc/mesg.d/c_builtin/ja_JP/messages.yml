@@ -2996,3 +2996,31 @@ message_definition:
     classes:
       - "INF:X99"
     format: "この識別名 `%s' で警告を検知しました。"
+  C1000:
+    classes:
+      - "INF:X99"
+    format: "次の実行パスで警告を検知しました。"
+  C1001:
+    classes:
+      - "INF:X99"
+    format: "この制御式を真として評価しました。"
+  C1002:
+    classes:
+      - "INF:X99"
+    format: "この制御式を偽として評価しました。"
+  C1003:
+    classes:
+      - "INF:X99"
+    format: "ここで該当変数が初期値を指定せずに定義されています。"
+  C1004:
+    classes:
+      - "INF:X99"
+    format: "この式で該当変数に NULL の値を割り当てました。"
+  C1005:
+    classes:
+      - "INF:X99"
+    format: "この式で該当変数に NULL の可能性がある値を割り当てました。"
+  C1006:
+    classes:
+      - "INF:X99"
+    format: "この式で該当変数に値を割り当てました。"

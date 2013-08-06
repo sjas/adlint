@@ -254,6 +254,10 @@ module Cc1 #:nodoc:
       environment.reset
     end
 
+    def current_branch
+      environment.current_branch
+    end
+
     def scalar_value_of(numeric)
       ScalarValue.of(numeric, logical_right_shift?)
     end

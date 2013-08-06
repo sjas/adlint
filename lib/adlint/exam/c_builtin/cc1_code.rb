@@ -309,10 +309,10 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      @interp = phase_ctxt[:cc1_interpreter]
-      @interp.on_function_started          += T(:update_caller)
-      @interp.on_function_ended            += T(:clear_caller)
-      @interp.on_function_call_expr_evaled += T(:extract_function_call)
+      interp = phase_ctxt[:cc1_interpreter]
+      interp.on_function_started          += T(:update_caller)
+      interp.on_function_ended            += T(:clear_caller)
+      interp.on_function_call_expr_evaled += T(:extract_function_call)
       @caller = nil
     end
 

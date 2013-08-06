@@ -108,7 +108,7 @@ module Cc1 #:nodoc:
       when from_type.pointer?
         void_pointer?(from_type) || void_pointer?(to_type)
       when from_type.integer?
-        !from_type.enum? && from_val.must_be_equal_to?(scalar_value_of(0))
+        !from_type.enum? && from_val.test_must_be_null.true?
       else
         void_pointer?(to_type)
       end
@@ -121,12 +121,12 @@ module Cc1 #:nodoc:
       case
       when orig_var.type.signed? && to_type.unsigned?
         min_val = scalar_value_of(to_type.min)
-        if (orig_var.value < min_val).may_be_true?
+        if (orig_var.value < min_val).test_may_be_true.true?
           return min_val - orig_var.value + scalar_value_of(1)
         end
       when orig_var.type.unsigned? && to_type.signed?
         max_val = scalar_value_of(to_type.max)
-        if (orig_var.value > max_val).may_be_true?
+        if (orig_var.value > max_val).test_may_be_true.true?
           return max_val - orig_var.value + scalar_value_of(1)
         end
       end

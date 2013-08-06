@@ -473,9 +473,9 @@ module CBuiltin #:nodoc:
       traversal.enter_continue_statement        += T(:enter_statement)
       traversal.enter_break_statement           += T(:enter_statement)
       traversal.enter_return_statement          += T(:count_return)
-      @cur_fun   = nil
-      @retn_cnt  = 0
-      @last_stmt = nil
+      @cur_fun  = nil
+      @ret_cnt  = 0
+      @lst_stmt = nil
     end
 
     private
@@ -485,39 +485,39 @@ module CBuiltin #:nodoc:
     def enter_function(fun_def)
       if @fpath == fun_def.location.fpath
         @cur_fun  = fun_def
-        @retn_cnt  = 0
-        @last_stmt = nil
+        @ret_cnt  = 0
+        @lst_stmt = nil
       end
     end
 
     def leave_function(*)
       if @cur_fun
         if @cur_fun.type.return_type.void? &&
-            !(@last_stmt.kind_of?(Cc1::ReturnStatement))
+            !(@lst_stmt.kind_of?(Cc1::ReturnStatement))
           FN_RETN(FunctionId.new(@cur_fun.identifier.value,
                                  @cur_fun.signature.to_s),
-                  @cur_fun.location, @retn_cnt + 1)
+                  @cur_fun.location, @ret_cnt + 1)
         else
           FN_RETN(FunctionId.new(@cur_fun.identifier.value,
                                  @cur_fun.signature.to_s),
-                  @cur_fun.location, @retn_cnt)
+                  @cur_fun.location, @ret_cnt)
         end
-        @cur_fun   = nil
-        @retn_cnt  = 0
-        @last_stmt = nil
+        @cur_fun  = nil
+        @ret_cnt  = 0
+        @lst_stmt = nil
       end
     end
 
     def enter_statement(node)
       if @cur_fun
-        @last_stmt = node if node.executed?
+        @lst_stmt = node if node.executed?
       end
     end
 
     def count_return(node)
       if @cur_fun
-        @retn_cnt += 1
-        @last_stmt = node
+        @ret_cnt += 1
+        @lst_stmt = node
       end
     end
   end

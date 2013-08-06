@@ -2401,9 +2401,9 @@ module Cc1 #:nodoc:
   end
 
   class FunctionType < Type
-    def initialize(type_tbl, retn_type, param_types, have_va_list = false)
-      super(type_tbl, create_name(retn_type, param_types, have_va_list))
-      @return_type = retn_type
+    def initialize(type_tbl, ret_type, param_types, have_va_list = false)
+      super(type_tbl, create_name(ret_type, param_types, have_va_list))
+      @return_type = ret_type
       @parameter_types = param_types
       @have_va_list = have_va_list
     end
@@ -2933,33 +2933,33 @@ module Cc1 #:nodoc:
     end
 
     private
-    def create_name(retn_type, param_types, have_va_list)
-      "#{retn_type.name}(" +
+    def create_name(ret_type, param_types, have_va_list)
+      "#{ret_type.name}(" +
         param_types.map { |type| type.name }.join(", ") +
         (have_va_list ? ",...)" : ")")
     end
 
-    def create_image(retn_type, param_types, have_va_list)
-      "#{retn_type.image}(" +
+    def create_image(ret_type, param_types, have_va_list)
+      "#{ret_type.image}(" +
         param_types.map { |type| type.image }.join(", ") +
         (have_va_list ? ",...)" : ")")
     end
 
-    def create_brief_image(retn_type, param_types, have_va_list)
-      "#{retn_type.brief_image}(" +
+    def create_brief_image(ret_type, param_types, have_va_list)
+      "#{ret_type.brief_image}(" +
         param_types.map { |type| type.brief_image }.join(", ") +
         (have_va_list ? ",...)" : ")")
     end
   end
 
   class FunctionTypeId < TypeId
-    def initialize(retn_type, param_types, have_va_list)
-      super(create_value(retn_type, param_types, have_va_list))
+    def initialize(ret_type, param_types, have_va_list)
+      super(create_value(ret_type, param_types, have_va_list))
     end
 
     private
-    def create_value(retn_type, param_types, have_va_list)
-      "#{retn_type.brief_image}(" +
+    def create_value(ret_type, param_types, have_va_list)
+      "#{ret_type.brief_image}(" +
         param_types.map { |type| type.brief_image }.join(",") +
         (have_va_list ? ",...)" : ")")
     end
@@ -7266,8 +7266,8 @@ module Cc1 #:nodoc:
       ArrayType.new(self, base_type, len)
     end
 
-    def function_type(retn_type, param_types, have_va_list = false)
-      FunctionType.new(self, retn_type, param_types, have_va_list)
+    def function_type(ret_type, param_types, have_va_list = false)
+      FunctionType.new(self, ret_type, param_types, have_va_list)
     end
 
     def builtin_function_type

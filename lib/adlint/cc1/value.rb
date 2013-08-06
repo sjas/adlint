@@ -44,6 +44,49 @@ module Cc1 #:nodoc:
   end
 
   # == DESCRIPTION
+  # === TestBasis class hierarchy
+  #  TestBasis
+  #    <-- TrivialTestBasis
+  #    <-- NontrivialTestBasis
+  #          <-- UndefinableTestBasis
+  #          <-- DefinableTestBasis
+  #          <-- NullableTestBasis
+  class TestBasis
+    def fulfilled?
+      subclass_responsibility
+    end
+
+    def emit_context_messages(reporter)
+      subclass_responsibility
+    end
+  end
+
+  # == DESCRIPTION
+  # === ValueTest class hierarchy
+  #  ValueTest
+  #    <-- TrivialValueTest
+  #    <-- NontrivialValueTest
+  class ValueTest
+    def initialize(basis)
+      @basis = basis
+    end
+
+    attr_reader :basis
+
+    def result
+      subclass_responsibility
+    end
+
+    def true?
+      !!result
+    end
+
+    def false?
+      !true?
+    end
+  end
+
+  # == DESCRIPTION
   # === Value class hierarchy
   #  Value
   #    <-- SingleValue
@@ -91,7 +134,7 @@ module Cc1 #:nodoc:
       subclass_responsibility
     end
 
-    def overwrite!(val)
+    def overwrite!(val, by_tag, at_tag)
       subclass_responsibility
     end
 
@@ -201,59 +244,67 @@ module Cc1 #:nodoc:
       subclass_responsibility
     end
 
-    def must_be_equal_to?(val)
+    def test_must_be_undefined
       subclass_responsibility
     end
 
-    def may_be_equal_to?(val)
+    def test_may_be_undefined
       subclass_responsibility
     end
 
-    def must_not_be_equal_to?(val)
+    def test_must_be_equal_to(val)
       subclass_responsibility
     end
 
-    def may_not_be_equal_to?(val)
+    def test_may_be_equal_to(val)
       subclass_responsibility
     end
 
-    def must_be_less_than?(val)
+    def test_must_not_be_equal_to(val)
       subclass_responsibility
     end
 
-    def may_be_less_than?(val)
+    def test_may_not_be_equal_to(val)
       subclass_responsibility
     end
 
-    def must_be_greater_than?(val)
+    def test_must_be_less_than(val)
       subclass_responsibility
     end
 
-    def may_be_greater_than?(val)
+    def test_may_be_less_than(val)
       subclass_responsibility
     end
 
-    def must_be_undefined?
+    def test_must_be_greater_than(val)
       subclass_responsibility
     end
 
-    def may_be_undefined?
+    def test_may_be_greater_than(val)
       subclass_responsibility
     end
 
-    def must_be_true?
+    def test_must_be_null
       subclass_responsibility
     end
 
-    def may_be_true?
+    def test_may_be_null
       subclass_responsibility
     end
 
-    def must_be_false?
+    def test_must_be_true
       subclass_responsibility
     end
 
-    def may_be_false?
+    def test_may_be_true
+      subclass_responsibility
+    end
+
+    def test_must_be_false
+      subclass_responsibility
+    end
+
+    def test_may_be_false
       subclass_responsibility
     end
 
@@ -286,20 +337,41 @@ module Cc1 #:nodoc:
     end
   end
 
+  class TrivialTestBasis < TestBasis
+    def fulfilled?
+      true
+    end
+
+    def emit_context_messages(reporter)
+      # NOTE: Basis of the test result about SingleValue-s is trivial.
+      #       So, nothing to be complemented.
+      []
+    end
+  end
+
+  class TrivialValueTest < ValueTest
+    def initialize(rslt)
+      super(TrivialTestBasis.new)
+      @result = rslt
+    end
+
+    attr_reader :result
+  end
+
   class SingleValue < Value
     def multiple?
       false
     end
 
-    def must_be_undefined?
-      self.undefined?
+    def test_must_be_undefined
+      TrivialValueTest.new(self.undefined?)
     end
 
-    def may_be_undefined?
+    def test_may_be_undefined
       # NOTE: SingleValue has exactly one value domain.
       #       So, the value of SingleValue may be undefined when the value
       #       must be undefined.
-      self.must_be_undefined?
+      self.test_must_be_undefined
     end
 
     def to_single_value
@@ -307,6 +379,10 @@ module Cc1 #:nodoc:
     end
 
     private
+    def scalar_value_of_null
+      ScalarValue.of(0, logical_shr?)
+    end
+
     def scalar_value_of_true
       ScalarValue.of_true(logical_shr?)
     end
@@ -412,9 +488,9 @@ module Cc1 #:nodoc:
     end
 
     def contain?(val)
-      case single_val = val.to_single_value
+      case sval = val.to_single_value
       when ScalarValue
-        @domain.contain?(single_val.domain)
+        @domain.contain?(sval.domain)
       else
         false
       end
@@ -428,20 +504,20 @@ module Cc1 #:nodoc:
       @domain.ambiguous?
     end
 
-    def overwrite!(val)
-      case single_val = val.to_single_value
+    def overwrite!(val, *)
+      case sval = val.to_single_value
       when ScalarValue
-        @domain = single_val.domain
+        @domain = sval.domain
       else
         raise TypeError, "cannot overwrite scalar with non-scalar."
       end
     end
 
     def narrow_domain!(op, ope_val)
-      case ope_single_val = ope_val.to_single_value
+      case ope_sval = ope_val.to_single_value
       when ScalarValue
         orig_dom = @domain
-        @domain = @domain.narrow(op, ope_single_val.domain)
+        @domain = @domain.narrow(op, ope_sval.domain)
         !@domain.equal?(orig_dom)
       else
         raise TypeError, "cannot narrow scalar value domain with non-scalar."
@@ -449,10 +525,10 @@ module Cc1 #:nodoc:
     end
 
     def widen_domain!(op, ope_val)
-      case ope_single_val = ope_val.to_single_value
+      case ope_sval = ope_val.to_single_value
       when ScalarValue
         orig_dom = @domain
-        @domain = @domain.widen(op, ope_single_val.domain)
+        @domain = @domain.widen(op, ope_sval.domain)
         !@domain.equal?(orig_dom)
       else
         raise TypeError, "cannot widen scalar value domain with non-scalar."
@@ -464,9 +540,9 @@ module Cc1 #:nodoc:
     end
 
     def single_value_unified_with(rhs_val)
-      case rhs_single_val = rhs_val.to_single_value
+      case rhs_sval = rhs_val.to_single_value
       when ScalarValue
-        ScalarValue.new(@domain.union(rhs_single_val.domain))
+        ScalarValue.new(@domain.union(rhs_sval.domain))
       else
         raise TypeError, "cannot unify scalar value with non-scalar."
       end
@@ -485,90 +561,90 @@ module Cc1 #:nodoc:
     end
 
     def +(rhs_val)
-      case rhs_single_val = rhs_val.to_single_value
+      case rhs_sval = rhs_val.to_single_value
       when ScalarValue
-        ScalarValue.new(@domain + rhs_single_val.domain)
+        ScalarValue.new(@domain + rhs_sval.domain)
       else
         raise TypeError, "binary operation between scalar and non-scalar."
       end
     end
 
     def -(rhs_val)
-      case rhs_single_val = rhs_val.to_single_value
+      case rhs_sval = rhs_val.to_single_value
       when ScalarValue
-        ScalarValue.new(@domain - rhs_single_val.domain)
+        ScalarValue.new(@domain - rhs_sval.domain)
       else
         raise TypeError, "binary operation between scalar and non-scalar."
       end
     end
 
     def *(rhs_val)
-      case rhs_single_val = rhs_val.to_single_value
+      case rhs_sval = rhs_val.to_single_value
       when ScalarValue
-        ScalarValue.new(@domain * rhs_single_val.domain)
+        ScalarValue.new(@domain * rhs_sval.domain)
       else
         raise TypeError, "binary operation between scalar and non-scalar."
       end
     end
 
     def /(rhs_val)
-      case rhs_single_val = rhs_val.to_single_value
+      case rhs_sval = rhs_val.to_single_value
       when ScalarValue
-        ScalarValue.new(@domain / rhs_single_val.domain)
+        ScalarValue.new(@domain / rhs_sval.domain)
       else
         raise TypeError, "binary operation between scalar and non-scalar."
       end
     end
 
     def %(rhs_val)
-      case rhs_single_val = rhs_val.to_single_value
+      case rhs_sval = rhs_val.to_single_value
       when ScalarValue
-        ScalarValue.new(@domain % rhs_single_val.domain)
+        ScalarValue.new(@domain % rhs_sval.domain)
       else
         raise TypeError, "binary operation between scalar and non-scalar."
       end
     end
 
     def &(rhs_val)
-      case rhs_single_val = rhs_val.to_single_value
+      case rhs_sval = rhs_val.to_single_value
       when ScalarValue
-        ScalarValue.new(@domain & rhs_single_val.domain)
+        ScalarValue.new(@domain & rhs_sval.domain)
       else
         raise TypeError, "binary operation between scalar and non-scalar."
       end
     end
 
     def |(rhs_val)
-      case rhs_single_val = rhs_val.to_single_value
+      case rhs_sval = rhs_val.to_single_value
       when ScalarValue
-        ScalarValue.new(@domain | rhs_single_val.domain)
+        ScalarValue.new(@domain | rhs_sval.domain)
       else
         raise TypeError, "binary operation between scalar and non-scalar."
       end
     end
 
     def ^(rhs_val)
-      case rhs_single_val = rhs_val.to_single_value
+      case rhs_sval = rhs_val.to_single_value
       when ScalarValue
-        ScalarValue.new(@domain ^ rhs_single_val.domain)
+        ScalarValue.new(@domain ^ rhs_sval.domain)
       else
         raise TypeError, "binary operation between scalar and non-scalar."
       end
     end
 
     def <<(rhs_val)
-      case rhs_single_val = rhs_val.to_single_value
+      case rhs_sval = rhs_val.to_single_value
       when ScalarValue
-        ScalarValue.new(@domain << rhs_single_val.domain)
+        ScalarValue.new(@domain << rhs_sval.domain)
       else
         raise TypeError, "binary operation between scalar and non-scalar."
       end
     end
 
     def >>(rhs_val)
-      case rhs_single_val = rhs_val.to_single_value
+      case rhs_sval = rhs_val.to_single_value
       when ScalarValue
-        ScalarValue.new(@domain >> rhs_single_val.domain)
+        ScalarValue.new(@domain >> rhs_sval.domain)
       else
         raise TypeError, "binary operation between scalar and non-scalar."
       end
@@ -579,176 +655,193 @@ module Cc1 #:nodoc:
     end
 
     def <(rhs_val)
-      case rhs_single_val = rhs_val.to_single_value
+      case rhs_sval = rhs_val.to_single_value
       when ScalarValue
-        ScalarValue.new(@domain < rhs_single_val.domain)
+        ScalarValue.new(@domain < rhs_sval.domain)
       else
         raise TypeError, "comparison between scalar and non-scalar."
       end
     end
 
     def >(rhs_val)
-      case rhs_single_val = rhs_val.to_single_value
+      case rhs_sval = rhs_val.to_single_value
       when ScalarValue
-        ScalarValue.new(@domain > rhs_single_val.domain)
+        ScalarValue.new(@domain > rhs_sval.domain)
       else
         raise TypeError, "comparison between scalar and non-scalar."
       end
     end
 
     def ==(rhs_val)
-      case rhs_single_val = rhs_val.to_single_value
+      case rhs_sval = rhs_val.to_single_value
       when ScalarValue
-        ScalarValue.new(@domain == rhs_single_val.domain)
+        ScalarValue.new(@domain == rhs_sval.domain)
       else
         raise TypeError, "comparison between scalar and non-scalar."
       end
     end
 
     def !=(rhs_val)
-      case rhs_single_val = rhs_val.to_single_value
+      case rhs_sval = rhs_val.to_single_value
       when ScalarValue
-        ScalarValue.new(@domain != rhs_single_val.domain)
+        ScalarValue.new(@domain != rhs_sval.domain)
       else
         raise TypeError, "comparison between scalar and non-scalar."
       end
     end
 
     def <=(rhs_val)
-      case rhs_single_val = rhs_val.to_single_value
+      case rhs_sval = rhs_val.to_single_value
       when ScalarValue
-        ScalarValue.new(@domain <= rhs_single_val.domain)
+        ScalarValue.new(@domain <= rhs_sval.domain)
       else
         raise TypeError, "comparison between scalar and non-scalar."
       end
     end
 
     def >=(rhs_val)
-      case rhs_single_val = rhs_val.to_single_value
+      case rhs_sval = rhs_val.to_single_value
       when ScalarValue
-        ScalarValue.new(@domain >= rhs_single_val.domain)
+        ScalarValue.new(@domain >= rhs_sval.domain)
       else
         raise TypeError, "comparison between scalar and non-scalar."
       end
     end
 
     def logical_and(rhs_val)
-      case rhs_single_val = rhs_val.to_single_value
+      case rhs_sval = rhs_val.to_single_value
       when ScalarValue
-        ScalarValue.new(@domain.logical_and(rhs_single_val.domain))
+        ScalarValue.new(@domain.logical_and(rhs_sval.domain))
       else
         raise TypeError, "comparison between scalar and non-scalar."
       end
     end
 
     def logical_or(rhs_val)
-      case rhs_single_val = rhs_val.to_single_value
+      case rhs_sval = rhs_val.to_single_value
       when ScalarValue
-        ScalarValue.new(@domain.logical_or(rhs_single_val.domain))
+        ScalarValue.new(@domain.logical_or(rhs_sval.domain))
       else
         raise TypeError, "comparison between scalar and non-scalar."
       end
     end
 
-    def must_be_equal_to?(val)
-      case single_val = val.to_single_value.dup
+    def test_must_be_equal_to(val)
+      case sval = val.to_single_value.dup
       when ScalarValue
-        comp_val = (self == single_val)
-        single_val.invert_domain!
-        single_val.narrow_domain!(Operator::EQ, self)
-        comp_val.domain.intersect?(scalar_value_of_true.domain) &&
+        comp_val = (self == sval)
+        sval.invert_domain!
+        sval.narrow_domain!(Operator::EQ, self)
+        TrivialValueTest.new(
+          comp_val.domain.intersect?(scalar_value_of_true.domain) &&
           !comp_val.domain.contain?(scalar_value_of_false.domain) &&
-          !@domain.intersect?(single_val.domain)
+          !@domain.intersect?(sval.domain))
       else
         raise TypeError, "comparison between scalar and non-scalar."
       end
     end
 
-    def may_be_equal_to?(val)
-      case single_val = val.to_single_value
+    def test_may_be_equal_to(val)
+      case sval = val.to_single_value
       when ScalarValue
-        (self == single_val).domain.intersect?(scalar_value_of_true.domain)
+        TrivialValueTest.new(
+          (self == sval).domain.intersect?(scalar_value_of_true.domain))
       else
         raise TypeError, "comparison between scalar and non-scalar."
       end
     end
 
-    def must_not_be_equal_to?(val)
-      case single_val = val.to_single_value
+    def test_must_not_be_equal_to(val)
+      case sval = val.to_single_value
       when ScalarValue
-        comp_val = (self != single_val)
-        comp_val.domain.intersect?(scalar_value_of_true.domain) &&
+        comp_val = (self != sval)
+        TrivialValueTest.new(
+          comp_val.domain.intersect?(scalar_value_of_true.domain) &&
           !comp_val.domain.contain?(scalar_value_of_false.domain) &&
-          !@domain.intersect?(single_val.domain)
+          !@domain.intersect?(sval.domain))
       else
         raise TypeError, "comparison between scalar and non-scalar."
       end
     end
 
-    def may_not_be_equal_to?(val)
-      case single_val = val.to_single_value
+    def test_may_not_be_equal_to(val)
+      case sval = val.to_single_value
       when ScalarValue
-        (self != single_val).domain.intersect?(scalar_value_of_true.domain)
+        TrivialValueTest.new(
+          (self != sval).domain.intersect?(scalar_value_of_true.domain))
       else
         raise TypeError, "comparison between scalar and non-scalar."
       end
     end
 
-    def must_be_less_than?(val)
-      case single_val = val.to_single_value
+    def test_must_be_less_than(val)
+      case sval = val.to_single_value
       when ScalarValue
-        comp_val = (self < single_val)
-        comp_val.domain.intersect?(scalar_value_of_true.domain) &&
-          !comp_val.domain.contain?(scalar_value_of_false.domain)
+        comp_val = (self < sval)
+        TrivialValueTest.new(
+          comp_val.domain.intersect?(scalar_value_of_true.domain) &&
+          !comp_val.domain.contain?(scalar_value_of_false.domain))
       else
         raise TypeError, "comparison between scalar and non-scalar."
       end
     end
 
-    def may_be_less_than?(val)
-      case single_val = val.to_single_value
+    def test_may_be_less_than(val)
+      case sval = val.to_single_value
       when ScalarValue
-        (self < single_val).domain.intersect?(scalar_value_of_true.domain)
+        TrivialValueTest.new(
+          (self < sval).domain.intersect?(scalar_value_of_true.domain))
       else
         raise TypeError, "comparison between scalar and non-scalar."
       end
     end
 
-    def must_be_greater_than?(val)
-      case single_val = val.to_single_value
+    def test_must_be_greater_than(val)
+      case sval = val.to_single_value
       when ScalarValue
-        comp_val = (self > single_val)
-        comp_val.domain.intersect?(scalar_value_of_true.domain) &&
-          !comp_val.domain.contain?(scalar_value_of_false.domain)
+        comp_val = (self > sval)
+        TrivialValueTest.new(
+          comp_val.domain.intersect?(scalar_value_of_true.domain) &&
+          !comp_val.domain.contain?(scalar_value_of_false.domain))
       else
         raise TypeError, "comparison between scalar and non-scalar."
       end
     end
 
-    def may_be_greater_than?(val)
-      case single_val = val.to_single_value
+    def test_may_be_greater_than(val)
+      case sval = val.to_single_value
       when ScalarValue
-        (self > single_val).domain.intersect?(scalar_value_of_true.domain)
+        TrivialValueTest.new(
+          (self > sval).domain.intersect?(scalar_value_of_true.domain))
       else
         raise TypeError, "comparison between scalar and non-scalar."
       end
     end
 
-    def must_be_true?
-      self.may_be_equal_to?(scalar_value_of_true) &&
-        self.must_not_be_equal_to?(scalar_value_of_false)
+    def test_must_be_null
+      test_must_be_equal_to(scalar_value_of_null)
     end
 
-    def may_be_true?
-      self.may_be_equal_to?(scalar_value_of_true)
+    def test_may_be_null
+      test_may_be_equal_to(scalar_value_of_null)
     end
 
-    def must_be_false?
-      self.must_be_equal_to?(scalar_value_of_false)
+    def test_must_be_true
+      TrivialValueTest.new(
+        test_may_be_equal_to(scalar_value_of_true).true? &&
+        test_must_not_be_equal_to(scalar_value_of_false).true?)
     end
 
-    def may_be_false?
-      self.may_be_equal_to?(scalar_value_of_false)
+    def test_may_be_true
+      test_may_be_equal_to(scalar_value_of_true)
+    end
+
+    def test_must_be_false
+      test_must_be_equal_to(scalar_value_of_false)
+    end
+
+    def test_may_be_false
+      test_may_be_equal_to(scalar_value_of_false)
     end
 
     def coerce_to(type)
@@ -812,12 +905,10 @@ module Cc1 #:nodoc:
     end
 
     def contain?(val)
-      case single_val = val.to_single_value
+      case sval = val.to_single_value
       when ArrayValue
-        if @values.size == single_val.values.size
-          @values.zip(single_val.values).all? do |lhs, rhs|
-            lhs.contain?(rhs)
-          end
+        if @values.size == sval.values.size
+          @values.zip(sval.values).all? { |lhs, rhs| lhs.contain?(rhs) }
         else
           false
         end
@@ -834,11 +925,11 @@ module Cc1 #:nodoc:
       @values.empty? ? false : @values.all? { |val| val.ambiguous? }
     end
 
-    def overwrite!(val)
-      case single_val = val.to_single_value
+    def overwrite!(val, by_tag, at_tag)
+      case sval = val.to_single_value
       when ArrayValue
-        @values.zip(single_val.values).each do |lhs, rhs|
-          rhs && lhs.overwrite!(rhs)
+        @values.zip(sval.values).each do |lhs, rhs|
+          rhs && lhs.overwrite!(rhs, by_tag, at_tag)
         end
       else
         raise TypeError, "cannot overwrite array with non-array."
@@ -846,9 +937,9 @@ module Cc1 #:nodoc:
     end
 
     def narrow_domain!(op, ope_val)
-      case ope_single_val = ope_val.to_single_value
+      case ope_sval = ope_val.to_single_value
       when ArrayValue
-        @values.zip(ope_single_val.values).map { |lhs, rhs|
+        @values.zip(ope_sval.values).map { |lhs, rhs|
           if rhs
             lhs.narrow_domain!(op, rhs)
           else
@@ -861,9 +952,9 @@ module Cc1 #:nodoc:
     end
 
     def widen_domain!(op, ope_val)
-      case ope_single_val = ope_val.to_single_value
+      case ope_sval = ope_val.to_single_value
       when ArrayValue
-        @values.zip(ope_single_val.values).map { |lhs, rhs|
+        @values.zip(ope_sval.values).map { |lhs, rhs|
           if rhs
             lhs.widen_domain!(op, rhs)
           else
@@ -880,9 +971,9 @@ module Cc1 #:nodoc:
     end
 
     def single_value_unified_with(rhs_val)
-      case rhs_single_val = rhs_val.to_single_value
+      case rhs_sval = rhs_val.to_single_value
       when ArrayValue
-        ArrayValue.new(@values.zip(rhs_single_val.values).map { |lhs, rhs|
+        ArrayValue.new(@values.zip(rhs_sval.values).map { |lhs, rhs|
           lhs.single_value_unified_with(rhs)
         })
       else
@@ -993,10 +1084,10 @@ module Cc1 #:nodoc:
       #       of an array variable should be evaluated into a pointer to the
       #       array body.
       #       So, this comparison operator should not be reached.
-      case rhs_single_val = rhs_val.to_single_value
+      case rhs_sval = rhs_val.to_single_value
       when ArrayValue
-        if @values.size == rhs_single_val.values.size
-          zipped = @values.zip(rhs_single_val.values)
+        if @values.size == rhs_sval.values.size
+          zipped = @values.zip(rhs_sval.values)
           zipped.reduce(scalar_value_of_nil) do |rslt_val, (lhs, rhs)|
             rslt_val.single_value_unified_with(lhs < rhs)
           end
@@ -1013,10 +1104,10 @@ module Cc1 #:nodoc:
       #       of an array variable should be evaluated into a pointer to the
       #       array body.
       #       So, this comparison operator should not be reached.
-      case rhs_single_val = rhs_val.to_single_value
+      case rhs_sval = rhs_val.to_single_value
       when ArrayValue
-        if @values.size == rhs_single_val.values.size
-          zipped = @values.zip(rhs_single_val.values)
+        if @values.size == rhs_sval.values.size
+          zipped = @values.zip(rhs_sval.values)
           zipped.reduce(scalar_value_of_nil) do |rslt_val, (lhs, rhs)|
             rslt_val.single_value_unified_with(lhs > rhs)
           end
@@ -1033,10 +1124,10 @@ module Cc1 #:nodoc:
       #       of an array variable should be evaluated into a pointer to the
       #       array body.
       #       So, this comparison operator should not be reached.
-      case rhs_single_val = rhs_val.to_single_value
+      case rhs_sval = rhs_val.to_single_value
       when ArrayValue
-        if @values.size == rhs_single_value.values.size
-          zipped = @values.zip(rhs_single_val.values)
+        if @values.size == rhs_sval.values.size
+          zipped = @values.zip(rhs_sval.values)
           zipped.reduce(scalar_value_of_nil) do |rslt_val, (lhs, rhs)|
             rslt_val.single_value_unified_with(lhs == rhs)
           end
@@ -1053,10 +1144,10 @@ module Cc1 #:nodoc:
       #       of an array variable should be evaluated into a pointer to the
       #       array body.
       #       So, this comparison operator should not be reached.
-      case rhs_single_val = rhs_val.to_single_value
+      case rhs_sval = rhs_val.to_single_value
       when ArrayValue
-        if @values.size == rhs_single_val.values.size
-          zipped = @values.zip(rhs_single_val.values)
+        if @values.size == rhs_sval.values.size
+          zipped = @values.zip(rhs_sval.values)
           zipped.reduce(scalar_value_of_nil) do |rslt_val, (lhs, rhs)|
             rslt_val.single_value_unified_with(lhs != rhs)
           end
@@ -1073,10 +1164,10 @@ module Cc1 #:nodoc:
       #       of an array variable should be evaluated into a pointer to the
       #       array body.
       #       So, this comparison operator should not be reached.
-      case rhs_single_val = rhs_val.to_single_value
+      case rhs_sval = rhs_val.to_single_value
       when ArrayValue
-        if @values.size == rhs_single_val.values.size
-          zipped = @values.zip(rhs_single_val.values)
+        if @values.size == rhs_sval.values.size
+          zipped = @values.zip(rhs_sval.values)
           zipped.reduce(scalar_value_of_nil) do |rslt_val, (lhs, rhs)|
             rslt_val.single_value_unified_with(lhs <= rhs)
           end
@@ -1093,10 +1184,10 @@ module Cc1 #:nodoc:
       #       of an array variable should be evaluated into a pointer to the
       #       array body.
       #       So, this comparison operator should not be reached.
-      case rhs_single_val = rhs_val.to_single_value
+      case rhs_sval = rhs_val.to_single_value
       when ArrayValue
-        if @values.size == rhs_single_value.values.size
-          zipped = @values.zip(rhs_single_val.values)
+        if @values.size == rhs_sval.values.size
+          zipped = @values.zip(rhs_sval.values)
           zipped.reduce(scalar_value_of_nil) do |rslt_val, (lhs, rhs)|
             rslt_val.single_value_unified_with(lhs >= rhs)
           end
@@ -1113,10 +1204,10 @@ module Cc1 #:nodoc:
       #       of an array variable should be evaluated into a pointer to the
       #       array body.
       #       So, this comparison operator should not be reached.
-      case rhs_single_val = rhs_val.to_single_value
+      case rhs_sval = rhs_val.to_single_value
       when ArrayValue
-        if @values.size == rhs_single_val.values.size
-          zipped = @values.zip(rhs_single_val.values)
+        if @values.size == rhs_sval.values.size
+          zipped = @values.zip(rhs_sval.values)
           zipped.reduce(scalar_value_of_nil) do |rslt_val, (lhs, rhs)|
             rslt_val.single_value_unified_with(lhs.logical_and(rhs))
           end
@@ -1133,10 +1224,10 @@ module Cc1 #:nodoc:
       #       of an array variable should be evaluated into a pointer to the
       #       array body.
       #       So, this comparison operator should not be reached.
-      case rhs_single_val = rhs_val.to_single_value
+      case rhs_sval = rhs_val.to_single_value
       when ArrayValue
-        if @values.size == rhs_single_val.values.size
-          zipped = @values.zip(rhs_single_val.values)
+        if @values.size == rhs_sval.values.size
+          zipped = @values.zip(rhs_sval.values)
           zipped.reduce(scalar_value_of_nil) do |rslt_val, (lhs, rhs)|
             rslt_val.single_value_unified_with(lhs.logical_or(rhs))
           end
@@ -1148,108 +1239,117 @@ module Cc1 #:nodoc:
       end
     end
 
-    def must_be_equal_to?(val)
-      case single_val = val.to_single_value
+    def test_must_be_equal_to(val)
+      case sval = val.to_single_value
       when ArrayValue
-        (self == single_val).must_be_true?
+        TrivialValueTest.new((self == sval).test_must_be_true.result)
       else
         raise TypeError, "comparison between array and non-array."
       end
     end
 
-    def may_be_equal_to?(val)
-      case single_val = val.to_single_value
+    def test_may_be_equal_to(val)
+      case sval = val.to_single_value
       when ArrayValue
-        (self == single_val).may_be_true?
+        TrivialValueTest.new((self == sval).test_may_be_true.result)
       else
         raise TypeError, "comparison between array and non-array."
       end
     end
 
-    def must_not_be_equal_to?(val)
-      case single_val = val.to_single_value
+    def test_must_not_be_equal_to(val)
+      case sval = val.to_single_value
       when ArrayValue
-        (self != single_val).must_be_true?
+        TrivialValueTest.new((self != sval).test_must_be_true.result)
       else
         raise TypeError, "comparison between array and non-array."
       end
     end
 
-    def may_not_be_equal_to?(val)
-      case single_val = val.to_single_value
+    def test_may_not_be_equal_to(val)
+      case sval = val.to_single_value
       when ArrayValue
-        (self != single_val).may_be_true?
+        TrivialValueTest.new((self != sval).test_may_be_true.result)
       else
         raise TypeError, "comparison between array and non-array."
       end
     end
 
-    def must_be_less_than?(val)
-      case single_val = value.to_single_value
+    def test_must_be_less_than(val)
+      case sval = value.to_single_value
       when ArrayValue
-        (self < single_val).must_be_true?
+        TrivialValueTest.new((self < sval).test_must_be_true.result)
       else
         raise TypeError, "comparison between array and non-array."
       end
     end
 
-    def may_be_less_than?(val)
-      case single_val = val.to_single_value
+    def test_may_be_less_than(val)
+      case sval = val.to_single_value
       when ArrayValue
-        (self < single_val).may_be_true?
+        TrivialValueTest.new((self < sval).test_may_be_true.result)
       else
         raise TypeError, "comparison between array and non-array."
       end
     end
 
-    def must_be_greater_than?(val)
-      case single_val = val.to_single_value
+    def test_must_be_greater_than(val)
+      case sval = val.to_single_value
       when ArrayValue
-        (self > single_val).must_be_true?
+        TrivialValueTest.new((self > sval).test_must_be_true.result)
       else
         raise TypeError, "comparison between array and non-array."
       end
     end
 
-    def may_be_greater_than?(val)
-      case single_val = val.to_single_value
+    def test_may_be_greater_than(val)
+      case sval = val.to_single_value
       when ArrayValue
-        (self > single_val).may_be_true?
+        TrivialValueTest.new((self > sval).test_may_be_true.result)
       else
         raise TypeError, "comparison between array and non-array."
       end
     end
 
-    def must_be_true?
+    def test_must_be_null
+      TrivialValueTest.new(@values.all? { |val| val.test_must_be_null.result })
+    end
+
+    def test_may_be_null
+      TrivialValueTest.new(@values.all? { |val| val.test_may_be_null.result })
+    end
+
+    def test_must_be_true
       # NOTE: When an array variable appears in expressions, object-specifier
       #       of an array variable should be evaluated into a pointer to the
       #       array body.
       #       So, this method should not be reached.
-      @values.all? { |val| val.must_be_true? }
+      TrivialValueTest.new(@values.all? { |val| val.test_must_be_true.result })
     end
 
-    def may_be_true?
+    def test_may_be_true
       # NOTE: When an array variable appears in expressions, object-specifier
       #       of an array variable should be evaluated into a pointer to the
       #       array body.
       #       So, this method should not be reached.
-      @values.all? { |val| val.may_be_true? }
+      TrivialValueTest.new(@values.all? { |val| val.test_may_be_true.result })
     end
 
-    def must_be_false?
+    def test_must_be_false
       # NOTE: When an array variable appears in expressions, object-specifier
       #       of an array variable should be evaluated into a pointer to the
       #       array body.
       #       So, this method should not be reached.
-      @values.all? { |val| val.must_be_false? }
+      TrivialValueTest.new(
+        @values.all? { |val| val.test_must_be_false.result })
     end
 
-    def may_be_false?
+    def test_may_be_false
       # NOTE: When an array variable appears in expressions, object-specifier
       #       of an array variable should be evaluated into a pointer to the
       #       array body.
       #       So, this method should not be reached.
-      @values.all? { |val| val.may_be_false? }
+      TrivialValueTest.new(@values.all? { |val| val.test_may_be_false.result })
     end
 
     def coerce_to(type)
@@ -1312,12 +1412,10 @@ module Cc1 #:nodoc:
     end
 
     def contain?(val)
-      case single_val = val.to_single_value
+      case sval = val.to_single_value
       when CompositeValue
-        if @values.size == single_val.values.size
-          @values.zip(single_val.values).all? do |lhs, rhs|
-            lhs.contain?(rhs)
-          end
+        if @values.size == sval.values.size
+          @values.zip(sval.values).all? { |lhs, rhs| lhs.contain?(rhs) }
         else
           false
         end
@@ -1334,11 +1432,11 @@ module Cc1 #:nodoc:
       @values.empty? ? false : @values.all? { |val| val.ambiguous? }
     end
 
-    def overwrite!(val)
-      case single_val = val.to_single_value
+    def overwrite!(val, by_tag, at_tag)
+      case sval = val.to_single_value
       when CompositeValue
-        @values.zip(single_val.values).each do |lhs, rhs|
-          rhs && lhs.overwrite!(rhs)
+        @values.zip(sval.values).each do |lhs, rhs|
+          rhs && lhs.overwrite!(rhs, by_tag, at_tag)
         end
       else
         raise TypeError, "cannot overwrite composite with non-composite."
@@ -1346,9 +1444,9 @@ module Cc1 #:nodoc:
     end
 
     def narrow_domain!(op, ope_val)
-      case ope_single_val = ope_val.to_single_value
+      case ope_sval = ope_val.to_single_value
       when CompositeValue
-        @values.zip(ope_single_val.values).map { |lhs, rhs|
+        @values.zip(ope_sval.values).map { |lhs, rhs|
           if rhs
             lhs.narrow_domain!(op, rhs)
           else
@@ -1362,9 +1460,9 @@ module Cc1 #:nodoc:
     end
 
     def widen_domain!(op, ope_val)
-      case ope_single_val = ope_val.to_single_value
+      case ope_sval = ope_val.to_single_value
       when CompositeValue
-        @values.zip(ope_single_val.values).map { |lhs, rhs|
+        @values.zip(ope_sval.values).map { |lhs, rhs|
           if rhs
             lhs.widen_domain!(op, rhs)
           else
@@ -1382,10 +1480,10 @@ module Cc1 #:nodoc:
     end
 
     def single_value_unified_with(rhs_val)
-      case rhs_single_val = rhs_val.to_single_value
+      case rhs_sval = rhs_val.to_single_value
       when CompositeValue
         CompositeValue.new(
-          @values.zip(rhs_single_val.values).map { |lhs, rhs|
+          @values.zip(rhs_sval.values).map { |lhs, rhs|
             lhs.single_value_unified_with(rhs)
           })
       else
@@ -1480,10 +1578,10 @@ module Cc1 #:nodoc:
     def <(rhs_val)
       # NOTE: A composite variable cannot appear in expressions except the
       #       primary-expression(object-specifier followed by `.').
-      case rhs_single_val = rhs_val.to_single_value
+      case rhs_sval = rhs_val.to_single_value
       when CompositeValue
-        if @values.size == rhs_single_val.values.size
-          zipped = @values.zip(rhs_single_val.values)
+        if @values.size == rhs_sval.values.size
+          zipped = @values.zip(rhs_sval.values)
           zipped.reduce(scalar_value_of_nil) do |rslt_val, (lhs, rhs)|
             rslt_val.single_value_unified_with(lhs < rhs)
           end
@@ -1498,10 +1596,10 @@ module Cc1 #:nodoc:
     def >(rhs_val)
       # NOTE: A composite variable cannot appear in expressions except the
       #       primary-expression(object-specifier followed by `.').
-      case rhs_single_val = rhs_val.to_single_value
+      case rhs_sval = rhs_val.to_single_value
       when CompositeValue
-        if @values.size == rhs_single_val.values.size
-          zipped = @values.zip(rhs_single_val.values)
+        if @values.size == rhs_sval.values.size
+          zipped = @values.zip(rhs_sval.values)
           zipped.reduce(scalar_value_of_nil) do |rslt_val, (lhs, rhs)|
             rslt_val.single_value_unified_with(lhs > rhs)
           end
@@ -1516,10 +1614,10 @@ module Cc1 #:nodoc:
     def ==(rhs_val)
       # NOTE: A composite variable cannot appear in expressions except the
       #       primary-expression(object-specifier followed by `.').
-      case rhs_single_val = rhs_val.to_single_value
+      case rhs_sval = rhs_val.to_single_value
       when CompositeValue
-        if @values.size == rhs_single_val.values.size
-          zipped = @values.zip(rhs_single_val.values)
+        if @values.size == rhs_sval.values.size
+          zipped = @values.zip(rhs_sval.values)
           zipped.reduce(scalar_value_of_nil) do |rslt_val, (lhs, rhs)|
             rslt_val.single_value_unified_with(lhs == rhs)
           end
@@ -1534,10 +1632,10 @@ module Cc1 #:nodoc:
     def !=(rhs_val)
       # NOTE: A composite variable cannot appear in expressions except the
       #       primary-expression(object-specifier followed by `.').
-      case rhs_single_val = rhs_val.to_single_value
+      case rhs_sval = rhs_val.to_single_value
       when CompositeValue
-        if @values.size == rhs_single_val.values.size
-          zipped = @values.zip(rhs_single_val.values)
+        if @values.size == rhs_sval.values.size
+          zipped = @values.zip(rhs_sval.values)
           zipped.reduce(scalar_value_of_nil) do |rslt_val, (lhs, rhs)|
             rslt_val.single_value_unified_with(lhs != rhs)
           end
@@ -1552,10 +1650,10 @@ module Cc1 #:nodoc:
     def <=(rhs_val)
       # NOTE: A composite variable cannot appear in expressions except the
       #       primary-expression(object-specifier followed by `.').
-      case rhs_single_val = rhs_val.to_single_value
+      case rhs_sval = rhs_val.to_single_value
       when CompositeValue
-        if @values.size == rhs_single_val.values.size
-          zipped = @values.zip(rhs_single_val.values)
+        if @values.size == rhs_sval.values.size
+          zipped = @values.zip(rhs_sval.values)
           zipped.reduce(scalar_value_of_nil) do |rslt_val, (lhs, rhs)|
             rslt_val.single_value_unified_with(lhs <= rhs)
           end
@@ -1570,10 +1668,10 @@ module Cc1 #:nodoc:
     def >=(rhs_val)
       # NOTE: A composite variable cannot appear in expressions except the
       #       primary-expression(object-specifier followed by `.').
-      case rhs_single_val = rhs_val.to_single_value
+      case rhs_sval = rhs_val.to_single_value
       when CompositeValue
-        if @values.size == rhs_single_val.values.size
-          zipped = @values.zip(rhs_single_val.values)
+        if @values.size == rhs_sval.values.size
+          zipped = @values.zip(rhs_sval.values)
           zipped.reduce(scalar_value_of_nil) do |rslt_val, (lhs, rhs)|
             rslt_val.single_value_unified_with(lhs >= rhs)
           end
@@ -1588,10 +1686,10 @@ module Cc1 #:nodoc:
     def logical_and(rhs_val)
       # NOTE: A composite variable cannot appear in expressions except the
       #       primary-expression(object-specifier followed by `.').
-      case rhs_single_val = rhs_val.to_single_value
+      case rhs_sval = rhs_val.to_single_value
       when CompositeValue
-        if @values.size == rhs_single_val.values.size
-          zipped = @values.zip(rhs_single_val.values)
+        if @values.size == rhs_sval.values.size
+          zipped = @values.zip(rhs_sval.values)
           zipped.reduce(scalar_value_of_nil) do |rslt_val, (lhs, rhs)|
             rslt_val.single_value_unified_with(lhs.logical_and(rhs))
           end
@@ -1606,10 +1704,10 @@ module Cc1 #:nodoc:
     def logical_or(rhs_val)
       # NOTE: A composite variable cannot appear in expressions except the
       #       primary-expression(object-specifier followed by `.').
-      case rhs_single_val = rhs_val.to_single_value
+      case rhs_sval = rhs_val.to_single_value
       when CompositeValue
-        if @values.size == rhs_single_val.values.size
-          zipped = @values.zip(rhs_single_val.values)
+        if @values.size == rhs_sval.values.size
+          zipped = @values.zip(rhs_sval.values)
           zipped.reduce(scalar_value_of_nil) do |rslt_val, (lhs, rhs)|
             rslt_val.single_value_unified_with(lhs.logical_or(rhs))
           end
@@ -1621,100 +1719,109 @@ module Cc1 #:nodoc:
       end
     end
 
-    def must_be_equal_to?(val)
-      case single_val = val.to_single_value
+    def test_must_be_equal_to(val)
+      case sval = val.to_single_value
       when CompositeValue
-        (self == single_val).must_be_true?
+        TrivialValueTest.new((self == sval).test_must_be_true.result)
       else
         raise TypeError, "comparison between composite and non-composite."
       end
     end
 
-    def may_be_equal_to?(val)
-      case single_val = val.to_single_value
+    def test_may_be_equal_to(val)
+      case sval = val.to_single_value
       when CompositeValue
-        (self == single_val).may_be_true?
+        TrivialValueTest.new((self == sval).test_may_be_true.result)
       else
         raise TypeError, "comparison between composite and non-composite."
       end
     end
 
-    def must_not_be_equal_to?(val)
-      case single_val = val.to_single_value
+    def test_must_not_be_equal_to(val)
+      case sval = val.to_single_value
       when CompositeValue
-        (self != single_val).must_be_true?
+        TrivialValueTest.new((self != sval).test_must_be_true.result)
       else
         raise TypeError, "comparison between composite and non-composite."
       end
     end
 
-    def may_not_be_equal_to?(val)
-      case single_val = val.to_single_value
+    def test_may_not_be_equal_to(val)
+      case sval = val.to_single_value
       when CompositeValue
-        (self != single_val).may_be_true?
+        TrivialValueTest.new((self != sval).test_may_be_true.result)
       else
         raise TypeError, "comparison between composite and non-composite."
       end
     end
 
-    def must_be_less_than?(val)
-      case single_val = val.to_single_value
+    def test_must_be_less_than(val)
+      case sval = val.to_single_value
       when CompositeValue
-        (self < single_val).must_be_true?
+        TrivialValueTest.new((self < sval).test_must_be_true.result)
       else
         raise TypeError, "comparison between composite and non-composite."
       end
     end
 
-    def may_be_less_than?(val)
-      case single_val = val.to_single_value
+    def test_may_be_less_than(val)
+      case sval = val.to_single_value
       when CompositeValue
-        (self < single_val).may_be_true?
+        TrivialValueTest.new((self < sval).test_may_be_true.result)
       else
         raise TypeError, "comparison between composite and non-composite."
       end
     end
 
-    def must_be_greater_than?(val)
-      case single_val = val.to_single_value
+    def test_must_be_greater_than(val)
+      case sval = val.to_single_value
       when CompositeValue
-        (self > single_val).must_be_true?
+        TrivialValueTest.new((self > sval).test_must_be_true.result)
       else
         raise TypeError, "comparison between composite and non-composite."
       end
     end
 
-    def may_be_greater_than?(val)
-      case single_val = val.to_single_value
+    def test_may_be_greater_than(val)
+      case sval = val.to_single_value
       when CompositeValue
-        (self > single_val).may_be_true?
+        TrivialValueTest.new((self > sval).test_may_be_true.result)
       else
         raise TypeError, "comparison between composite and non-composite."
       end
     end
 
-    def must_be_true?
+    def test_must_be_null
+      TrivialValueTest.new(@values.all? { |val| val.test_must_be_null.result })
+    end
+
+    def test_may_be_null
+      TrivialValueTest.new(@values.all? { |val| val.test_may_be_null.result })
+    end
+
+    def test_must_be_true
       # NOTE: A composite variable cannot appear in expressions except the
       #       primary-expression(object-specifier followed by `.').
-      @values.all? { |val| val.must_be_true? }
+      TrivialValueTest.new(@values.all? { |val| val.test_must_be_true.result })
     end
 
-    def may_be_true?
+    def test_may_be_true
       # NOTE: A composite variable cannot appear in expressions except the
       #       primary-expression(object-specifier followed by `.').
-      @values.all? { |val| val.may_be_true? }
+      TrivialValueTest.new(@values.all? { |val| val.test_may_be_true.result })
     end
 
-    def must_be_false?
+    def test_must_be_false
       # NOTE: A composite variable cannot appear in expressions except the
       #       primary-expression(object-specifier followed by `.').
-      @values.all? { |val| val.must_be_false? }
+      TrivialValueTest.new(
+        @values.all? { |val| val.test_must_be_false.result })
     end
 
-    def may_be_false?
+    def test_may_be_false
       # NOTE: A composite variable cannot appear in expressions except the
       #       primary-expression(object-specifier followed by `.').
-      @values.all? { |val| val.may_be_false? }
+      TrivialValueTest.new(@values.all? { |val| val.test_may_be_false.result })
     end
 
     def coerce_to(type)
@@ -1749,78 +1856,231 @@ module Cc1 #:nodoc:
     memoize :logical_shr?
   end
 
+  class NontrivialTestBasis < TestBasis
+    def initialize(exact)
+      @exact = exact
+      @positive_contribs = []
+      @negative_contribs = []
+    end
+
+    def fulfilled?
+      if @exact
+        !@negative_contribs.empty?
+      else
+        !@positive_contribs.empty? && !@negative_contribs.empty?
+      end
+    end
+
+    def add_positive_contributor(mval)
+      @positive_contribs.push(mval)
+    end
+
+    def add_negative_contributor(mval)
+      @negative_contribs.push(mval)
+    end
+  end
+
+  class UndefinableTestBasis < NontrivialTestBasis
+    # NOTE: Context tracing feature will be mixed-in at trace.rb later.
+  end
+
+  class NullabilityTestBasis < NontrivialTestBasis
+    # NOTE: Context tracing feature will be mixed-in at trace.rb later.
+  end
+
+  class DefinableTestBasis < NontrivialTestBasis
+    # NOTE: Context tracing feature will be mixed-in at trace.rb later.
+
+    def initialize(pred, exact)
+      super(exact)
+      @predicate = pred
+    end
+  end
+
+  class NontrivialValueTest < ValueTest
+    def initialize(basis, exact)
+      super(basis)
+      @exact = exact
+    end
+
+    def result
+      # NOTE: TestBasis of an NontrivialValueTest must be a kind of
+      #       NontrivialTestBasis.
+      if @exact
+        !@basis.positive_contribs.empty? && @basis.negative_contribs.empty?
+      else
+        !@basis.positive_contribs.empty?
+      end
+    end
+  end
+
+  class ValueTransition
+    include Enumerable
+
+    Snapshot = Struct.new(:value, :by_tag, :at_tag)
+    private_constant :Snapshot
+
+    def initialize(mval)
+      @ordered_snapshots = create_ordered_snapshots(mval)
+    end
+
+    def first
+      @ordered_snapshots.first
+    end
+
+    def last
+      @ordered_snapshots.last
+    end
+
+    #def ctrlexprs
+    #  @ordered_snapshots.each_with_object(Array.new) do |ss, ary|
+    #    ary.concat(ss.ctrlexprs)
+    #  end
+    #end
+
+    #def ctrlexprs_on(base_trans)
+    #  expr_num = base_trans.ctrlexprs.size + 1
+    #  last_val = nil
+    #  @ordered_snapshots.each do |cur_ss|
+    #    if last_val.nil? || base_trans.any? { |ss| ss.value.equal?(last_val) }
+    #      last_val = cur_ss.value
+    #    else
+    #      return cur_ss.ctrlexprs.slice(0, expr_num)
+    #    end
+    #  end
+    #  @ordered_snapshots.last.ctrlexprs
+    #end
+
+    def each(&block)
+      if block_given?
+        @ordered_snapshots.each(&block)
+      else
+        to_enum(:each)
+      end
+    end
+
+    private
+    def create_ordered_snapshots(mval)
+      if mval.ancestor
+        older = create_ordered_snapshots(mval.ancestor)
+      else
+        older = []
+      end
+      older.push(Snapshot.new(mval._base.value,
+                              mval._base.by_tag, mval._base.at_tag))
+    end
+  end
+
   class MultipleValue < Value
-    def initialize(val, ancestor)
-      @base_value = val.to_single_value
+    class Base
+      def initialize(val, by_tag, at_tag)
+        @value = val
+        self.by_tag = by_tag
+        self.at_tag = at_tag
+      end
+
+      attr_reader :value
+
+      # NOTE: This value is generated by `by_tag' points to the AST node.
+      attr_accessor :by_tag
+
+      # NOTE: This value is generated in `at_tag' points to the branch tree.
+      attr_reader :at_tag
+
+      def at_tag=(at_tag)
+        if at_tag
+          @at_tag = at_tag.dup.compact.uniq
+        else
+          @at_tag = []
+        end
+      end
+
+      def pretty_print(pp)
+        Summary.new(@value, @by_tag ? @by_tag.location : nil).pretty_print(pp)
+      end
+
+      Summary = Struct.new(:value, :by)
+      private_constant :Summary
+    end
+    private_constant :Base
+
+    def initialize(val, ancestor, by_tag, at_tag)
+      @base = Base.new(val.to_single_value, by_tag, at_tag)
       @ancestor = ancestor
       @descendants = []
     end
 
-    attr_reader :base_value
+    attr_reader :ancestor
 
-    extend Forwardable
+    def scalar?
+      _base.value.scalar?
+    end
 
-    def_delegator :@base_value, :scalar?
-    def_delegator :@base_value, :array?
-    def_delegator :@base_value, :composite?
+    def array?
+      _base.value.array?
+    end
+
+    def composite?
+      _base.value.composite?
+    end
 
     def undefined?
-      effective_values.all? { |multi_val| multi_val.base_value.undefined? }
+      effective_values.all? { |mval| mval._base.value.undefined? }
     end
 
     def ambiguous?
-      effective_values.all? { |multi_val| multi_val.base_value.ambiguous? }
+      effective_values.all? { |mval| mval._base.value.ambiguous? }
     end
 
     def exist?
-      effective_values.any? { |multi_val| multi_val.base_value.exist? }
+      effective_values.any? { |mval| mval._base.value.exist? }
     end
 
     def definite?
-      effective_values.all? { |multi_val| multi_val.base_value.definite? }
+      effective_values.all? { |mval| mval._base.value.definite? }
     end
 
     def contain?(val)
-      single_val = val.to_single_value
-      effective_values.all? do |multi_val|
-        multi_val.base_value.contain?(single_val)
-      end
+      sval = val.to_single_value
+      effective_values.all? { |mval| mval._base.value.contain?(sval) }
     end
 
     def multiple?
       true
     end
 
-    def overwrite!(val)
-      single_val = val.to_single_value
-      effective_values.each do |multi_val|
-        multi_val.base_value.overwrite!(single_val)
+    def overwrite!(val, by_tag, at_tag)
+      sval = val.to_single_value
+      effective_values.each do |mval|
+        mval._base.value.overwrite!(sval, nil, nil)
+        mval._base.by_tag = by_tag if by_tag
+        mval._base.at_tag = at_tag if at_tag
       end
     end
 
     def narrow_domain!(op, ope_val)
-      ope_single_val = ope_val.to_single_value
-      effective_values.map { |multi_val|
-        if anc = multi_val.ancestor
-          anc.base_value.narrow_domain!(op.for_complement, ope_single_val)
+      ope_sval = ope_val.to_single_value
+      effective_values.map { |mval|
+        if anc = mval.ancestor
+          anc._base.value.narrow_domain!(op.for_complement, ope_sval)
         end
-        multi_val.base_value.narrow_domain!(op, ope_single_val)
+        mval._base.value.narrow_domain!(op, ope_sval)
       }.any?
     end
 
     def widen_domain!(op, ope_val)
-      ope_single_val = ope_val.to_single_value
-      effective_values.map { |multi_val|
-        if anc = multi_val.ancestor
-          anc.base_value.narrow_domain!(op.for_complement, ope_single_val)
+      ope_sval = ope_val.to_single_value
+      effective_values.map { |mval|
+        if anc = mval.ancestor
+          anc._base.value.narrow_domain!(op.for_complement, ope_sval)
         end
-        multi_val.base_value.widen_domain!(op, ope_single_val)
+        mval._base.value.widen_domain!(op, ope_sval)
       }.any?
     end
 
     def invert_domain!
-      effective_values.each do |multi_val|
-        multi_val.base_value.invert_domain!
+      effective_values.each do |mval|
+        mval._base.value.invert_domain!
       end
     end
 
@@ -1829,13 +2089,14 @@ module Cc1 #:nodoc:
     end
 
     def fork
-      same_val = @descendants.find { |multi_val| multi_val.eql?(@base_value) }
+      same_val = @descendants.find { |mval| mval.eql?(_base.value) }
       if same_val
         same_val
       else
-        new_descendant = MultipleValue.new(@base_value.dup, self)
-        @descendants.push(new_descendant)
-        new_descendant
+        new_desc = MultipleValue.new(_base.value.dup, self,
+                                     _base.by_tag, _base.at_tag)
+        @descendants.push(new_desc)
+        new_desc
       end
     end
 
@@ -1935,143 +2196,278 @@ module Cc1 #:nodoc:
       to_single_value.logical_or(rhs_val.to_single_value)
     end
 
-    def must_be_equal_to?(val)
-      single_val = val.to_single_value
-      non_nil_vals = effective_values.select { |multi_val|
-        multi_val.base_value.exist?
-      }
-
-      if non_nil_vals.empty?
-        false
-      else
-        non_nil_vals.all? do |multi_val|
-          multi_val.base_value.must_be_equal_to?(single_val)
+    def test_must_be_undefined
+      basis = UndefinableTestBasis.new(true)
+      effective_values.each do |mval|
+        if mval._base.value.test_must_be_undefined.true?
+          basis.add_positive_contributor(mval)
+        else
+          basis.add_negative_contributor(mval)
         end
+        break if basis.fulfilled?
       end
+      NontrivialValueTest.new(basis, true)
     end
 
-    def may_be_equal_to?(val)
-      single_val = val.to_single_value
-      effective_values.any? do |multi_val|
-        multi_val.base_value.may_be_equal_to?(single_val)
-      end
-    end
-
-    def must_not_be_equal_to?(val)
-      single_val = val.to_single_value
-      non_nil_vals = effective_values.select { |multi_val|
-        multi_val.base_value.exist?
-      }
-      if non_nil_vals.empty?
-        false
-      else
-        non_nil_vals.all? do |multi_val|
-          multi_val.base_value.must_not_be_equal_to?(single_val)
+    def test_may_be_undefined
+      basis = UndefinableTestBasis.new(false)
+      effective_values.each do |mval|
+        if mval._base.value.test_may_be_undefined.true?
+          basis.add_positive_contributor(mval)
+        else
+          basis.add_negative_contributor(mval)
         end
+        break if basis.fulfilled?
       end
+      NontrivialValueTest.new(basis, false)
     end
 
-    def may_not_be_equal_to?(val)
-      single_val = val.to_single_value
-      effective_values.any? do |multi_val|
-        multi_val.base_value.may_not_be_equal_to?(single_val)
-      end
-    end
-
-    def must_be_less_than?(val)
-      single_val = val.to_single_value
-      non_nil_vals = effective_values.select { |multi_val|
-        multi_val.base_value.exist?
-      }
+    def test_must_be_equal_to(val)
+      sval = val.to_single_value
+      non_nil_vals = effective_values.select { |mval| mval._base.value.exist? }
       if non_nil_vals.empty?
-        false
+        TrivialValueTest.new(false)
       else
-        non_nil_vals.all? do |multi_val|
-          multi_val.base_value.must_be_less_than?(single_val)
+        pred = lambda { |val| val.test_must_be_equal_to(sval).true? }
+        basis = DefinableTestBasis.new(pred, true)
+        non_nil_vals.each do |mval|
+          if pred.call(mval._base.value)
+            basis.add_positive_contributor(mval)
+          else
+            basis.add_negative_contributor(mval)
+          end
+          break if basis.fulfilled?
         end
+        NontrivialValueTest.new(basis, true)
       end
     end
 
-    def may_be_less_than?(val)
-      single_val = val.to_single_value
-      effective_values.any? do |multi_val|
-        multi_val.base_value.may_be_less_than?(single_val)
+    def test_may_be_equal_to(val)
+      sval = val.to_single_value
+      pred = lambda { |val| val.test_may_be_equal_to(sval).true? }
+      basis = DefinableTestBasis.new(pred, false)
+      effective_values.each do |mval|
+        if pred.call(mval._base.value)
+          basis.add_positive_contributor(mval)
+        else
+          basis.add_negative_contributor(mval)
+        end
+        break if basis.fulfilled?
       end
+      NontrivialValueTest.new(basis, false)
     end
 
-    def must_be_greater_than?(val)
-      single_val = val.to_single_value
-      non_nil_vals = effective_values.select { |multi_val|
-        multi_val.base_value.exist?
-      }
+    def test_must_not_be_equal_to(val)
+      sval = val.to_single_value
+      non_nil_vals = effective_values.select { |mval| mval._base.value.exist? }
       if non_nil_vals.empty?
-        false
+        TrivialValueTest.new(false)
       else
-        non_nil_vals.all? do |multi_val|
-          multi_val.base_value.must_be_greater_than?(single_val)
+        pred = lambda { |val| val.test_must_not_be_equal_to(sval).true? }
+        basis = DefinableTestBasis.new(pred, true)
+        non_nil_vals.each do |mval|
+          if pred.call(mval._base.value)
+            basis.add_positive_contributor(mval)
+          else
+            basis.add_negative_contributor(mval)
+          end
+          break if basis.fulfilled?
         end
+        NontrivialValueTest.new(basis, true)
       end
     end
 
-    def may_be_greater_than?(val)
-      single_val = val.to_single_value
-      effective_values.any? do |multi_val|
-        multi_val.base_value.may_be_greater_than?(single_val)
+    def test_may_not_be_equal_to(val)
+      sval = val.to_single_value
+      pred = lambda { |val| val.test_may_not_be_equal_to(sval).true? }
+      basis = DefinableTestBasis.new(pred, false)
+      effective_values.each do |mval|
+        if pred.call(mval._base.value)
+          basis.add_positive_contributor(mval)
+        else
+          basis.add_negative_contributor(mval)
+        end
+        break if basis.fulfilled?
       end
+      NontrivialValueTest.new(basis, false)
     end
 
-    def must_be_undefined?
-      effective_values.all? do |multi_val|
-        multi_val.base_value.must_be_undefined?
-      end
-    end
-
-    def may_be_undefined?
-      effective_values.any? do |multi_val|
-        multi_val.base_value.may_be_undefined?
-      end
-    end
-
-    def must_be_true?
-      non_nil_vals = effective_values.select { |multi_val|
-        multi_val.base_value.exist?
-      }
+    def test_must_be_less_than(val)
+      sval = val.to_single_value
+      non_nil_vals = effective_values.select { |mval| mval._base.value.exist? }
       if non_nil_vals.empty?
-        false
+        TrivialValueTest.new(false)
       else
-        non_nil_vals.all? do |multi_val|
-          multi_val.base_value.must_be_true?
+        pred = lambda { |val| val.test_must_be_less_than(sval).true? }
+        basis = DefinableTestBasis.new(pred, true)
+        non_nil_vals.each do |mval|
+          if pred.call(mval._base.value)
+            basis.add_positive_contributor(mval)
+          else
+            basis.add_negative_contributor(mval)
+          end
+          break if basis.fulfilled?
         end
+        NontrivialValueTest.new(basis, true)
       end
     end
 
-    def may_be_true?
-      effective_values.any? do |multi_val|
-        multi_val.base_value.may_be_true?
+    def test_may_be_less_than(val)
+      sval = val.to_single_value
+      pred = lambda { |val| val.test_may_be_less_than(sval).true? }
+      basis = DefinableTestBasis.new(pred, false)
+      effective_values.each do |mval|
+        if pred.call(mval._base.value)
+          basis.add_positive_contributor(mval)
+        else
+          basis.add_negative_contributor(mval)
+        end
+        break if basis.fulfilled?
       end
+      NontrivialValueTest.new(basis, false)
     end
 
-    def must_be_false?
-      non_nil_vals = effective_values.select { |multi_val|
-        multi_val.base_value.exist?
-      }
+    def test_must_be_greater_than(val)
+      sval = val.to_single_value
+      non_nil_vals = effective_values.select { |mval| mval._base.value.exist? }
       if non_nil_vals.empty?
-        false
+        TrivialValueTest.new(false)
       else
-        non_nil_vals.all? do |multi_val|
-          multi_val.base_value.must_be_false?
+        pred = lambda { |val| val.test_must_be_greater_than(sval).true? }
+        basis = DefinableTestBasis.new(pred, true)
+        non_nil_vals.each do |mval|
+          if pred.call(mval._base.value)
+            basis.add_positive_contributor(mval)
+          else
+            basis.add_negative_contributor(mval)
+          end
+          break if basis.fulfilled?
         end
+        NontrivialValueTest.new(basis, true)
       end
     end
 
-    def may_be_false?
-      effective_values.any? do |multi_val|
-        multi_val.base_value.may_be_false?
+    def test_may_be_greater_than(val)
+      sval = val.to_single_value
+      pred = lambda { |val| val.test_may_be_greater_than(sval).true? }
+      basis = DefinableTestBasis.new(pred, false)
+      effective_values.any? do |mval|
+        if pred.call(mval._base.value)
+          basis.add_positive_contributor(mval)
+        else
+          basis.add_negative_contributor(mval)
+        end
+        break if basis.fulfilled?
       end
+      NontrivialValueTest.new(basis, false)
+    end
+
+    def test_must_be_null
+      non_nil_vals = effective_values.select { |mval| mval._base.value.exist? }
+      if non_nil_vals.empty?
+        TrivialValueTest.new(false)
+      else
+        pred = lambda { |val| val.test_must_be_null.true? }
+        basis = DefinableTestBasis.new(pred, true)
+        non_nil_vals.each do |mval|
+          if pred.call(mval._base.value)
+            basis.add_positive_contributor(mval)
+          else
+            basis.add_negative_contributor(mval)
+          end
+          break if basis.fulfilled?
+        end
+        NontrivialValueTest.new(basis, true)
+      end
+    end
+
+    def test_may_be_null
+      pred = lambda { |val| val.test_may_be_null.true? }
+      basis = DefinableTestBasis.new(pred, false)
+      effective_values.each do |mval|
+        if pred.call(mval._base.value)
+          basis.add_positive_contributor(mval)
+        else
+          basis.add_negative_contributor(mval)
+        end
+        break if basis.fulfilled?
+      end
+      NontrivialValueTest.new(basis, false)
+    end
+
+    def test_must_be_true
+      non_nil_vals = effective_values.select { |mval| mval._base.value.exist? }
+      if non_nil_vals.empty?
+        TrivialValueTest.new(false)
+      else
+        pred = lambda { |val| val.test_must_be_true.true? }
+        basis = DefinableTestBasis.new(pred, true)
+        non_nil_vals.each do |mval|
+          if pred.call(mval._base.value)
+            basis.add_positive_contributor(mval)
+          else
+            basis.add_negative_contributor(mval)
+          end
+          break if basis.fulfilled?
+        end
+        NontrivialValueTest.new(basis, true)
+      end
+    end
+
+    def test_may_be_true
+      pred = lambda { |val| val.test_may_be_true.true? }
+      basis = DefinableTestBasis.new(pred, false)
+      effective_values.each do |mval|
+        if pred.call(mval._base.value)
+          basis.add_positive_contributor(mval)
+        else
+          basis.add_negative_contributor(mval)
+        end
+        break if basis.fulfilled?
+      end
+      NontrivialValueTest.new(basis, false)
+    end
+
+    def test_must_be_false
+      non_nil_vals = effective_values.select { |mval| mval._base.value.exist? }
+      if non_nil_vals.empty?
+        TrivialValueTest.new(false)
+      else
+        pred = lambda { |val| val.test_must_be_false.true? }
+        basis = DefinableTestBasis.new(pred, true)
+        non_nil_vals.each do |mval|
+          if pred.call(mval._base.value)
+            basis.add_positive_contributor(mval)
+          else
+            basis.add_negative_contributor(mval)
+          end
+          break if basis.fulfilled?
+        end
+        NontrivialValueTest.new(basis, true)
+      end
+    end
+
+    def test_may_be_false
+      pred = lambda { |val| val.test_may_be_false.true? }
+      basis = DefinableTestBasis.new(pred, false)
+      effective_values.each do |mval|
+        if pred.call(mval._base.value)
+          basis.add_positive_contributor(mval)
+        else
+          basis.add_negative_contributor(mval)
+        end
+        break if basis.fulfilled?
+      end
+      NontrivialValueTest.new(basis, false)
+    end
+
+    def transition
+      ValueTransition.new(self)
     end
 
     def coerce_to(type)
-      MultipleValue.new(to_single_value.coerce_to(type), nil)
+      sval = to_single_value.coerce_to(type)
+      MultipleValue.new(sval, nil, _base.by_tag, _base.at_tag)
     end
 
     def to_enum
@@ -2079,12 +2475,11 @@ module Cc1 #:nodoc:
     end
 
     def to_single_value
-      # NOTE: The base_value of the MultipleValue object must be a SingleValue.
-      effective_values.map { |multi_val|
-        multi_val.base_value
-      }.reduce do |unified_val, single_val|
-        unified_val.single_value_unified_with(single_val)
-      end
+      # NOTE: The _base.value of the MultipleValue object must be a
+      #       SingleValue.
+      effective_values.map { |mval| mval._base.value }.reduce { |unified, sval|
+        unified.single_value_unified_with(sval)
+      }
     end
 
     def to_defined_value
@@ -2100,7 +2495,7 @@ module Cc1 #:nodoc:
     end
 
     def dup
-      MultipleValue.new(to_single_value.dup, nil)
+      MultipleValue.new(to_single_value.dup, nil, _base.by_tag, _base.at_tag)
     end
 
     def effective_values
@@ -2111,19 +2506,21 @@ module Cc1 #:nodoc:
       if @descendants.empty?
         [self]
       else
-        @descendants.map { |multi_val| multi_val.descendants }.flatten.uniq
+        @descendants.map { |mval| mval.descendants }.flatten
       end
     end
 
-    protected
-    attr_reader :ancestor
+    def _base
+      # NOTE: This method will be invoked only from this file.
+      @base
+    end
   end
 
   class VersionedValue < MultipleValue
-    def initialize(orig_val)
+    def initialize(orig_val, by_tag, at_tag)
       # NOTE: `orig_val.to_single_value' will be done in
       #       MultipleValue#initialize.
-      super(orig_val, nil)
+      super(orig_val, nil, by_tag, at_tag)
 
       @version_controller = ValueVersionController.new(self)
     end
@@ -2157,14 +2554,14 @@ module Cc1 #:nodoc:
       delete_descendants!
       orig_val = @version_controller.original_value
       @version_controller = nil
-      _orig_overwrite!(orig_val)
+      _orig_overwrite!(orig_val, nil, nil)
       @version_controller = ValueVersionController.new(self)
       invalidate_memo!
     end
 
     alias :_orig_overwrite! :overwrite!
 
-    def overwrite!(val)
+    def overwrite!(val, by_tag, at_tag)
       @version_controller.fork_current_version
       super
       @version_controller.mark_current_versioning_group_as_sticky
@@ -2173,9 +2570,9 @@ module Cc1 #:nodoc:
 
     def force_overwrite!(val)
       # NOTE: This method will be invoked only from VariableTable#define.
-      single_val = val.to_single_value
-      @version_controller.original_value.overwrite!(single_val)
-      _orig_overwrite!(single_val)
+      sval = val.to_single_value
+      @version_controller.original_value.overwrite!(sval, nil, nil)
+      _orig_overwrite!(sval, nil, nil)
       invalidate_memo!
     end
 
@@ -2198,7 +2595,8 @@ module Cc1 #:nodoc:
     end
 
     def coerce_to(type)
-      VersionedValue.new(to_single_value.coerce_to(type))
+      VersionedValue.new(to_single_value.coerce_to(type),
+                         _base.by_tag, _base.at_tag)
     end
 
     def effective_values
@@ -2213,8 +2611,8 @@ module Cc1 #:nodoc:
 
     private
     def compact_descendants!
-      @descendants = @version_controller.current_values.reject { |multi_val|
-        multi_val.equal?(self)
+      @descendants = @version_controller.current_values.reject { |mval|
+        mval.equal?(self)
       }.uniq
     end
   end
@@ -2262,17 +2660,15 @@ module Cc1 #:nodoc:
         initial_vals = current_version.initial_values
         current_versioning_group.delete_current_version_completely
         base_vals = current_versioning_group.base_values
-        base_vals.zip(initial_vals).each do |multi_val, initial_val|
-          multi_val.rollback! if forked
-          multi_val.overwrite!(initial_val) if initial_val
+        base_vals.zip(initial_vals).each do |mval, init_val|
+          mval.rollback! if forked
+          mval.overwrite!(init_val, nil, nil) if init_val
         end
         begin_forking
       else
         current_versioning_group.delete_current_version
         if forked
-          current_versioning_group.base_values.each do |multi_val|
-            multi_val.rollback!
-          end
+          current_versioning_group.base_values.each { |mval| mval.rollback! }
         end
       end
 
@@ -2294,12 +2690,12 @@ module Cc1 #:nodoc:
 
       # NOTE: This method must be called between ending of the forking section
       #       and ending of the versioning group.
-      current_values.each do |multi_val|
-        base_val = multi_val.base_value
-        already_exist = multi_val.descendants.any? { |desc_multi_val|
-          !desc_multi_val.equal?(multi_val) && desc_multi_val.eql?(base_val)
+      current_values.each do |mval|
+        base_val = mval._base.value
+        already_exist = mval.descendants.any? { |desc_mval|
+          !desc_mval.equal?(mval) && desc_mval.eql?(base_val)
         }
-        multi_val.fork unless already_exist
+        mval.fork unless already_exist
       end
     end
 
@@ -2311,22 +2707,28 @@ module Cc1 #:nodoc:
       case
       when current_versioning_group.sticky?
         fork_all_versions
-        base_ver.values = base_ver.values.map { |base_multi_val|
-          base_multi_val.descendants
-        }.flatten.uniq
+
+        base_values = base_ver.values.map { |mval| mval.descendants }.flatten
+        base_ver.values = base_values.each_with_object(Hash.new) { |mval, hash|
+          if eql_mval = hash[mval]
+            eql_mval._base.at_tag += mval._base.at_tag
+          else
+            hash[mval] = mval
+          end
+        }.keys
       when current_versioning_group.versions_forked?
         # NOTE: When versions in the current versioning group have been forked,
         #       base_version of the current versioning group has already been
         #       forked.  So, it is safe to overwrite the base_version's values
         #       with the current versioning group's initial snapshot values.
-        initial_vals = current_versioning_group.initial_values
-        vals = base_ver.values.zip(initial_vals)
-        vals.each do |base_multi_val, initial_single_val|
-          base_multi_val.delete_descendants!
-          if base_multi_val.kind_of?(VersionedValue)
-            base_multi_val._orig_overwrite!(initial_single_val)
+        init_vals = current_versioning_group.initial_values
+        vals = base_ver.values.zip(init_vals)
+        vals.each do |base_mval, init_sval|
+          base_mval.delete_descendants!
+          if base_mval.kind_of?(VersionedValue)
+            base_mval._orig_overwrite!(init_sval, nil, nil)
           else
-            base_multi_val.overwrite!(initial_single_val)
+            base_mval.overwrite!(init_sval, nil, nil)
           end
         end
       else
@@ -2365,10 +2767,7 @@ module Cc1 #:nodoc:
       def initialize(base_ver, sticky = false)
         @base_version = base_ver
         @sticky = sticky
-
-        @initial_values = base_ver.values.map { |multi_val|
-          multi_val.base_value.dup
-        }
+        @initial_values = base_ver.values.map { |mval| mval._base.value.dup }
         @current_version = nil
         @all_versions = []
       end
@@ -2452,7 +2851,7 @@ module Cc1 #:nodoc:
 
       def fork_from(base_ver)
         if forking?
-          @values = base_ver.values.map { |multi_val| multi_val.fork }
+          @values = base_ver.values.map { |mval| mval.fork }
           @initial_values = @values.each_with_object([]) { |val, ary|
             ary.push(val.to_single_value.dup)
           }

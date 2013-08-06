@@ -76,10 +76,10 @@ module Cpp #:nodoc:
     end
 
     def to_s
-      @last_fpath     = nil
-      @last_line_no   = 0
-      @last_column_no = 1
-      @last_token     = nil
+      @lst_fpath     = nil
+      @lst_line_no   = 0
+      @lst_column_no = 1
+      @lst_token     = nil
       @io = StringIO.new
       @io.set_encoding(Encoding.default_external)
       @tokens.each { |tok| print(tok) }
@@ -100,45 +100,44 @@ module Cpp #:nodoc:
     end
 
     def print(tok)
-      return if @last_column_no == 1 && tok.type == :NEW_LINE
+      return if @lst_column_no == 1 && tok.type == :NEW_LINE
 
-      if tok.location.fpath == @last_fpath
-        if @last_line_no < tok.location.line_no
-          if (vsp = tok.location.line_no - @last_line_no) > 3
+      if tok.location.fpath == @lst_fpath
+        if @lst_line_no < tok.location.line_no
+          if (vsp = tok.location.line_no - @lst_line_no) > 3
             insert_line_marker(tok)
           else
             vsp.times { @io.puts }
           end
         end
-        if (hsp = tok.location.appearance_column_no - @last_column_no) > 0
+        if (hsp = tok.location.appearance_column_no - @lst_column_no) > 0
           @io.print(" " * hsp)
         elsif need_hspace?(tok)
           @io.print(" ")
         end
         if tok.type == :NEW_LINE
           @io.puts
-          @last_line_no = tok.location.line_no + 1
-          @last_column_no = 1
+          @lst_line_no = tok.location.line_no + 1
+          @lst_column_no = 1
         else
           @io.print(tok.value.to_default_external)
-          @last_line_no = tok.location.line_no
-          @last_column_no =
-            tok.location.appearance_column_no + tok.value.length
+          @lst_line_no = tok.location.line_no
+          @lst_column_no = tok.location.appearance_column_no + tok.value.length
         end
       else
         insert_line_marker(tok)
         print(tok)
       end
 
-      @last_token = tok
+      @lst_token = tok
     end
 
     def need_hspace?(tok)
-      return false unless @last_token
-      if keyword_or_identifier?(@last_token.value)
+      return false unless @lst_token
+      if keyword_or_identifier?(@lst_token.value)
         !start_with_punctuator?(tok.value)
       else
-        !(end_with_punctuator?(@last_token.value) ||
+        !(end_with_punctuator?(@lst_token.value) ||
           start_with_punctuator?(tok.value))
       end
     end
@@ -156,15 +155,15 @@ module Cpp #:nodoc:
     end
 
     def insert_line_marker(tok)
-      if @last_column_no > 1
+      if @lst_column_no > 1
         @io.puts
       end
       line_marker = "# #{tok.location.line_no.to_s.to_default_external} " +
                     "\"#{tok.location.fpath.to_s.to_default_external}\""
       @io.puts(line_marker.to_default_external)
-      @last_fpath     = tok.location.fpath
-      @last_line_no   = tok.location.line_no
-      @last_column_no = 1
+      @lst_fpath     = tok.location.fpath
+      @lst_line_no   = tok.location.line_no
+      @lst_column_no = 1
     end
   end
 

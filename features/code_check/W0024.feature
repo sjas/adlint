@@ -32,6 +32,8 @@ Feature: W0024
       | W0117 | 1    | 12     |
       | W0024 | 3    | 12     |
       | W0424 | 3    | 14     |
+      | C1000 |      |        |
+      | C1006 | 1    | 28     |
       | W0628 | 1    | 12     |
 
   Scenario: a pointer variable as lhs of the additive-expression
@@ -49,6 +51,8 @@ Feature: W0024
       | W9003 | 3    | 16     |
       | W0024 | 3    | 14     |
       | W0424 | 3    | 12     |
+      | C1000 |      |        |
+      | C1006 | 1    | 35     |
       | W0628 | 1    | 12     |
 
   Scenario: a pointer variable as rhs of the additive-expression
@@ -66,6 +70,8 @@ Feature: W0024
       | W9003 | 3    | 12     |
       | W0024 | 3    | 14     |
       | W0424 | 3    | 16     |
+      | C1000 |      |        |
+      | C1006 | 1    | 35     |
       | W0628 | 1    | 12     |
 
   Scenario: a pointer variable as lhs of the additive-expression
@@ -84,6 +90,8 @@ Feature: W0024
       | W9003 | 3    | 14     |
       | W0024 | 3    | 12     |
       | W0424 | 3    | 10     |
+      | C1000 |      |        |
+      | C1006 | 1    | 28     |
       | W0628 | 1    | 12     |
 
   Scenario: postfix-decrement-expression with a pointer variable
@@ -100,6 +108,8 @@ Feature: W0024
       | W0117 | 1    | 12     |
       | W0024 | 3    | 13     |
       | W0424 | 3    | 12     |
+      | C1000 |      |        |
+      | C1006 | 3    | 13     |
       | W0628 | 1    | 12     |
 
   Scenario: prefix-decrement-expression with a pointer variable
@@ -116,6 +126,8 @@ Feature: W0024
       | W0117 | 1    | 12     |
       | W0024 | 3    | 12     |
       | W0424 | 3    | 14     |
+      | C1000 |      |        |
+      | C1006 | 1    | 28     |
       | W0628 | 1    | 12     |
 
   Scenario: a pointer variable as lhs of the additive-expression
@@ -133,6 +145,8 @@ Feature: W0024
       | W9003 | 3    | 16     |
       | W0024 | 3    | 14     |
       | W0424 | 3    | 12     |
+      | C1000 |      |        |
+      | C1006 | 1    | 35     |
       | W0628 | 1    | 12     |
 
   Scenario: a pointer variable as rhs of the additive-expression
@@ -150,6 +164,8 @@ Feature: W0024
       | W9003 | 3    | 12     |
       | W0024 | 3    | 14     |
       | W0424 | 3    | 16     |
+      | C1000 |      |        |
+      | C1006 | 1    | 35     |
       | W0628 | 1    | 12     |
 
   Scenario: pointer variables are incremented and decremented
@@ -167,6 +183,8 @@ Feature: W0024
       | W0024 | 3    | 13     |
       | W0024 | 3    | 19     |
       | W0424 | 3    | 18     |
+      | C1000 |      |        |
+      | C1006 | 3    | 19     |
       | W0424 | 3    | 13     |
       | W0424 | 3    | 19     |
       | W0628 | 1    | 12     |
@@ -206,6 +224,8 @@ Feature: W0024
       | W9003 | 3    | 16     |
       | W0023 | 3    | 14     |
       | W0424 | 3    | 12     |
+      | C1000 |      |        |
+      | C1006 | 1    | 35     |
       | W0628 | 1    | 12     |
 
   Scenario: pointer variable minus 2
@@ -223,4 +243,6 @@ Feature: W0024
       | W9003 | 3    | 16     |
       | W0023 | 3    | 14     |
       | W0424 | 3    | 12     |
+      | C1000 |      |        |
+      | C1006 | 1    | 35     |
       | W0628 | 1    | 12     |

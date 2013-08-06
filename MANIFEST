@@ -386,6 +386,7 @@ lib/adlint/cc1/scanner.rb
 lib/adlint/cc1/scope.rb
 lib/adlint/cc1/seqp.rb
 lib/adlint/cc1/syntax.rb
+lib/adlint/cc1/trace.rb
 lib/adlint/cc1/type.rb
 lib/adlint/cc1/util.rb
 lib/adlint/cc1/value.rb

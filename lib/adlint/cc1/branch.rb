@@ -42,12 +42,16 @@ module Cc1 #:nodoc:
       @group = branch_group
       @options = opts
       @break_event = nil
-      @controlling_expression = nil
+      @ctrlexpr = nil
     end
 
     attr_reader :group
     attr_reader :break_event
-    attr_reader :controlling_expression
+    attr_reader :ctrlexpr
+
+    def trunk
+      @group.trunk
+    end
 
     def add_options(*new_opts)
       @options = (@options + new_opts).uniq
@@ -86,8 +90,8 @@ module Cc1 #:nodoc:
       env.enter_versioning_group if first?
       env.begin_versioning
 
-      @controlling_expression = ControllingExpression.new(interp, self, expr)
-      if ensure_condition(@controlling_expression)
+      @ctrlexpr = ControllingExpression.new(interp, self, expr)
+      if ensure_condition(@ctrlexpr)
         @break_event = BreakEvent.catch { yield(self) }
       else
         unless final? && @group.branches.size == 1
@@ -96,7 +100,7 @@ module Cc1 #:nodoc:
       end
 
     ensure
-      if @controlling_expression.complexly_compounded? && !complemental?
+      if @ctrlexpr.complexly_compounded? && !complemental?
         # NOTE: Give up value domain thinning of the controlling variables,
         #       because the controlling expression is too complex to manage
         #       value domains correctly.
@@ -125,13 +129,13 @@ module Cc1 #:nodoc:
     end
 
     def restart_versioning(&block)
-      @controlling_expression.save_affected_variables
+      @ctrlexpr.save_affected_variables
       env.end_versioning(false)
       env.leave_versioning_group(true)
       env.enter_versioning_group
       env.begin_versioning
       yield
-      @controlling_expression.restore_affected_variables
+      @ctrlexpr.restore_affected_variables
     end
 
     def break_with_break?
@@ -175,16 +179,29 @@ module Cc1 #:nodoc:
     include BranchOptions
     include BranchGroupOptions
 
-    def initialize(env, parent, *opts)
+    def initialize(env, trunk, *opts)
       @environment = env
-      @parent_group = parent
+      @trunk = trunk
       @options = opts
       @branches = []
     end
 
     attr_reader :environment
-    attr_reader :parent_group
+    attr_reader :trunk
     attr_reader :branches
+
+    def trunk_group
+      @trunk ? @trunk.group : nil
+    end
+
+    def branches_to_trunk(acc = [])
+      if @trunk
+        acc.push(@trunk)
+        @trunk.group.branches_to_trunk(acc)
+      else
+        acc
+      end
+    end
 
     def add_options(*new_opts)
       @options = (@options + new_opts).uniq
@@ -199,10 +216,10 @@ module Cc1 #:nodoc:
     end
 
     def in_iteration?
-      branch_group = @parent_group
+      branch_group = trunk_group
       while branch_group
         return true if branch_group.iteration?
-        branch_group = branch_group.parent_group
+        branch_group = branch_group.trunk_group
       end
       false
     end
@@ -219,7 +236,7 @@ module Cc1 #:nodoc:
 
     def all_controlling_variables
       @branches.map { |br|
-        ctrlexpr = br.controlling_expression and ctrlexpr.affected_variables
+        ctrlexpr = br.ctrlexpr and ctrlexpr.affected_variables
       }.compact.flatten.uniq
     end
 
@@ -237,6 +254,10 @@ module Cc1 #:nodoc:
 
     def all_branches_break_with_return?
       @branches.all? { |br| br.break_with_return? }
+    end
+
+    def current_branch
+      @branches.last
     end
   end
 

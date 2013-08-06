@@ -254,8 +254,8 @@ module Cc1 #:nodoc:
       environment.reset
     end
 
-    def current_ctrlexpr
-      environment.current_ctrlexpr
+    def current_branch
+      environment.current_branch
     end
 
     def scalar_value_of(numeric)

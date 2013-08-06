@@ -215,7 +215,10 @@ referrer-function      -> ref_fun
 sample                 -> smpl
 representative         -> repr
 descendant             -> desc
-column                 -> col
+transition             -> trans
+contributor            -> contrib
+positive               -> pos
+negative               -> neg
 @end verbatim
 
 

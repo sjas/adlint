@@ -34,15 +34,17 @@ module AdLint #:nodoc:
   # == DESCRIPTION
   # Location identifier of tokens.
   class Location
+    include Comparable
+
     # === Constructs a location identifier.
     #
     # Param:: _fpath_ (Pathname) Path name of the file contains the token.
     # Param:: _line_no_ (Integer) Line-no where the token appears.
-    # Param:: _col_no_ (Integer) Column-no where the token appears.
-    def initialize(fpath = nil, line_no = nil, col_no = nil,
-                   appearance_col_no = col_no)
-      @fpath, @line_no, @column_no = fpath, line_no, col_no
-      @appearance_column_no = appearance_col_no
+    # Param:: _column_no_ (Integer) Column-no where the token appears.
+    def initialize(fpath = nil, line_no = nil, column_no = nil,
+                   appearance_column_no = column_no)
+      @fpath, @line_no, @column_no = fpath, line_no, column_no
+      @appearance_column_no = appearance_column_no
     end
 
     # === VALUE
@@ -76,8 +78,8 @@ module AdLint #:nodoc:
     #       the performance.
     memoize :in_analysis_target?, force_nullary: true
 
-    def ==(rhs)
-      self.to_a == rhs.to_a
+    def <=>(rhs)
+      self.to_a <=> rhs.to_a
     end
 
     def eql?(rhs)
@@ -103,11 +105,7 @@ module AdLint #:nodoc:
     # === RETURN VALUE
     # String -- String representation of this location identifier.
     def to_s
-      str = ""
-      str += "#{@fpath}:" if @fpath
-      str += "#{@line_no}:" if @line_no
-      str += "#{@column_no}" if @column_no
-      str
+      "#{@fpath}:#{@line_no}:#{@column_no}"
     end
 
     # === DESCRIPTION

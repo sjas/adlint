@@ -242,13 +242,13 @@ module Cc1 #:nodoc:
       binding.memory.read
     end
 
-    def assign!(val, src = nil, ctrlexpr = nil)
+    def assign!(val, src = nil, branch = nil)
       # NOTE: Length of the incomplete array type should be deducted while
       #       initializer evaluation.  So, adjustment of the assigning value
       #       can be done at this point by Value#coerce_to(type).
       # NOTE: Domain of the assigning value must be narrowed before writing to
       #       the memory by Value#coerce_to(type).
-      binding.memory.write(val.coerce_to(type), src, ctrlexpr)
+      binding.memory.write(val.coerce_to(type), src, branch)
     end
 
     def uninitialize!
@@ -343,7 +343,7 @@ module Cc1 #:nodoc:
 
     attr_reader :representative_element
 
-    def assign!(val, src = nil, ctrlexpr = nil)
+    def assign!(val, src = nil, branch = nil)
       super
       if @representative_element
         if val.undefined?
@@ -351,7 +351,7 @@ module Cc1 #:nodoc:
         else
           repr_val = @representative_element.type.arbitrary_value
         end
-        @representative_element.assign!(repr_val, src, ctrlexpr)
+        @representative_element.assign!(repr_val, src, branch)
       end
     end
 
@@ -535,6 +535,7 @@ module Cc1 #:nodoc:
     end
 
     Summary = Struct.new(:object_id, :name, :type, :memory)
+    private_constant :Summary
   end
 
   class TemporaryVariable < OuterVariable
@@ -559,6 +560,7 @@ module Cc1 #:nodoc:
     end
 
     Summary = Struct.new(:object_id, :type, :memory)
+    private_constant :Summary
   end
 
   class InnerVariable < OuterVariable
@@ -686,18 +688,18 @@ module Cc1 #:nodoc:
       rollback_all_global_variables_value! if current_scope.global?
     end
 
-    def declare(dcl, ctrlexpr)
+    def declare(dcl, branch)
       if var = lookup(dcl.identifier.value)
         var.declarations_and_definitions.push(dcl)
         return var
       end
 
       # NOTE: External variable may have undefined values.
-      define_variable(dcl, ctrlexpr, dcl.type, allocate_memory(dcl),
+      define_variable(dcl, branch, dcl.type, allocate_memory(dcl),
                       dcl.type.undefined_value)
     end
 
-    def define(dcl_or_def, ctrlexpr, init_val = nil)
+    def define(dcl_or_def, branch, init_val = nil)
       if storage_duration_of(dcl_or_def) == :static && !dcl_or_def.type.const?
         # NOTE: Value of the inconstant static duration variable should be
         #       arbitrary because execution of its accessors are out of order.
@@ -720,7 +722,7 @@ module Cc1 #:nodoc:
 
       # NOTE: Domain of the init-value will be restricted by type's min-max in
       #       define_variable.
-      define_variable(dcl_or_def, ctrlexpr, dcl_or_def.type,
+      define_variable(dcl_or_def, branch, dcl_or_def.type,
                       allocate_memory(dcl_or_def), init_val)
     end
 
@@ -834,9 +836,9 @@ module Cc1 #:nodoc:
     end
 
     private
-    def define_variable(dcl_or_def, ctrlexpr, type, mem, init_val)
+    def define_variable(dcl_or_def, branch, type, mem, init_val)
       var = create_variable(dcl_or_def, type, mem)
-      var.assign!(init_val, dcl_or_def, ctrlexpr)
+      var.assign!(init_val, dcl_or_def, branch)
 
       if var.named?
         @named_variables.last[var.name] = var
@@ -995,7 +997,7 @@ module Cc1 #:nodoc:
         end
 
         ret_val = sink.type.return_value
-        sink.assign!(ret_val, funcall_expr, interp.current_ctrlexpr)
+        sink.assign!(ret_val, funcall_expr, interp.current_branch)
         interp.notify_variable_value_updated(expr, sink)
 
         # NOTE: Returning a value via a pointer parameter can be considered as
@@ -1174,15 +1176,15 @@ module Cc1 #:nodoc:
       @value
     end
 
-    def write(val, src, ctrlexpr)
+    def write(val, src, branch)
       if @value
-        @value.overwrite!(val, src, ctrlexpr)
+        @value.overwrite!(val, src, [branch])
       else
-        @value = VersionedValue.new(val, ctrlexpr, src)
+        @value = VersionedValue.new(val, src, [branch])
       end
     end
 
-    def _cascade_update(src, ctrlexpr)
+    def _cascade_update(src, branch)
       # NOTE: This method will be called only from # #narrow_value_domain! and
       #       #widen_value_domain! of Variable to propagate memory mutation to
       #       the upper MemoryBlock from MemoryWindow.
@@ -1211,12 +1213,12 @@ module Cc1 #:nodoc:
     end
 
     alias :_orig_write :write
-    def write(val, src, ctrlexpr)
+    def write(val, src, branch)
       super
       if !@windows.empty? and
           @value.array? && val.array? or @value.composite? && val.composite?
         @windows.zip(val.to_single_value.values).each do |win, inner_val|
-          win.write(inner_val, src, ctrlexpr, false)
+          win.write(inner_val, src, branch, false)
         end
       end
     end
@@ -1240,12 +1242,12 @@ module Cc1 #:nodoc:
     end
 
     private
-    def handle_written_through_window(win, src, ctrlexpr)
+    def handle_written_through_window(win, src, branch)
       if val = create_value_from_windows
-        unless win.read.must_be_undefined?
+        unless win.read.test_must_be_undefined.true?
           val = val.to_defined_value
         end
-        _orig_write(val, src, ctrlexpr)
+        _orig_write(val, src, branch)
       end
     end
   end
@@ -1268,19 +1270,19 @@ module Cc1 #:nodoc:
       @owner.dynamic?
     end
 
-    def write(val, src, ctrlexpr, cascade = true)
-      super(val, src, ctrlexpr)
-      _cascade_update(src, ctrlexpr) if cascade
+    def write(val, src, branch, cascade = true)
+      super(val, src, branch)
+      _cascade_update(src, branch) if cascade
     end
 
-    def _cascade_update(src, ctrlexpr)
-      on_written.invoke(self, src, ctrlexpr)
+    def _cascade_update(src, branch)
+      on_written.invoke(self, src, branch)
     end
 
     private
-    def handle_written_through_window(win, src, ctrlexpr)
+    def handle_written_through_window(win, src, branch)
       super
-      _cascade_update(src, ctrlexpr)
+      _cascade_update(src, branch)
     end
   end
 

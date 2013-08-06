@@ -81,15 +81,15 @@ module AdLint #:nodoc:
     # _str_:: String -- Target string.
     # _fpath_:: Pathname -- File path name contains the target string.
     # _line_no_:: Integer -- Initial line-no of the target string.
-    def initialize(str, tab_width = 8, fpath = nil, line_no = 1, col_no = 1)
+    def initialize(str, tab_width = 8, fpath = nil, line_no = 1, column_no = 1)
       @scanner = StringScanner.new(str)
       @tab_width = tab_width
-      @fpath, @line_no, @col_no = fpath, line_no, col_no
-      @appearance_col_no = col_no
+      @fpath, @line_no, @column_no = fpath, line_no, column_no
+      @appearance_column_no = column_no
     end
 
     def location
-      Location.new(@fpath, @line_no, @col_no, @appearance_col_no)
+      Location.new(@fpath, @line_no, @column_no, @appearance_column_no)
     end
     memoize :location
 
@@ -145,11 +145,11 @@ module AdLint #:nodoc:
       if (nl_cnt = tok.count("\n")) > 0
         @line_no += nl_cnt
         lst_line = tok[tok.rindex("\n")..-1]
-        @col_no = lst_line.length
-        @appearance_col_no = lst_line.gsub(/\t/, " " * @tab_width).length
+        @column_no = lst_line.length
+        @appearance_column_no = lst_line.gsub(/\t/, " " * @tab_width).length
       else
-        @col_no += tok.length
-        @appearance_col_no += tok.gsub(/\t/, " " * @tab_width).length
+        @column_no += tok.length
+        @appearance_column_no += tok.gsub(/\t/, " " * @tab_width).length
       end
       forget_memo_of__location
     end

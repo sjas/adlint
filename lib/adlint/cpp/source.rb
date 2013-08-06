@@ -76,10 +76,10 @@ module Cpp #:nodoc:
     end
 
     def to_s
-      @lst_fpath   = nil
-      @lst_line_no = 0
-      @lst_col_no  = 1
-      @lst_token    = nil
+      @lst_fpath     = nil
+      @lst_line_no   = 0
+      @lst_column_no = 1
+      @lst_token     = nil
       @io = StringIO.new
       @io.set_encoding(Encoding.default_external)
       @tokens.each { |tok| print(tok) }
@@ -100,7 +100,7 @@ module Cpp #:nodoc:
     end
 
     def print(tok)
-      return if @lst_col_no == 1 && tok.type == :NEW_LINE
+      return if @lst_column_no == 1 && tok.type == :NEW_LINE
 
       if tok.location.fpath == @lst_fpath
         if @lst_line_no < tok.location.line_no
@@ -110,7 +110,7 @@ module Cpp #:nodoc:
             vsp.times { @io.puts }
           end
         end
-        if (hsp = tok.location.appearance_column_no - @lst_col_no) > 0
+        if (hsp = tok.location.appearance_column_no - @lst_column_no) > 0
           @io.print(" " * hsp)
         elsif need_hspace?(tok)
           @io.print(" ")
@@ -118,11 +118,11 @@ module Cpp #:nodoc:
         if tok.type == :NEW_LINE
           @io.puts
           @lst_line_no = tok.location.line_no + 1
-          @lst_col_no = 1
+          @lst_column_no = 1
         else
           @io.print(tok.value.to_default_external)
           @lst_line_no = tok.location.line_no
-          @lst_col_no = tok.location.appearance_column_no + tok.value.length
+          @lst_column_no = tok.location.appearance_column_no + tok.value.length
         end
       else
         insert_line_marker(tok)
@@ -155,15 +155,15 @@ module Cpp #:nodoc:
     end
 
     def insert_line_marker(tok)
-      if @lst_col_no > 1
+      if @lst_column_no > 1
         @io.puts
       end
       line_marker = "# #{tok.location.line_no.to_s.to_default_external} " +
                     "\"#{tok.location.fpath.to_s.to_default_external}\""
       @io.puts(line_marker.to_default_external)
-      @lst_fpath   = tok.location.fpath
-      @lst_line_no = tok.location.line_no
-      @lst_col_no  = 1
+      @lst_fpath     = tok.location.fpath
+      @lst_line_no   = tok.location.line_no
+      @lst_column_no = 1
     end
   end
 

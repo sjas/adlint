@@ -554,7 +554,7 @@ module Cc1 #:nodoc:
         dcl.mark_as_referred_by(node.identifier)
       end
 
-      var = declare_variable(node, current_ctrlexpr)
+      var = declare_variable(node, current_branch)
       notify_variable_declared(node, var)
       evaluate_sequence_point(node.declarator)
     end
@@ -572,15 +572,15 @@ module Cc1 #:nodoc:
           # NOTE: Unable to define variable of incomplete type such as an array
           #       without length.
           init_var, init_conved = evaluate_initializer(node)
-          var = define_variable(node, current_ctrlexpr,
+          var = define_variable(node, current_branch,
                                 init_conved.value.to_defined_value)
         else
           # NOTE: Declare variable first in order to correctly evaluate
           #       sizeof-expression that refers to the defining variable in the
           #       initializer.
-          declare_variable(node, current_ctrlexpr)
+          declare_variable(node, current_branch)
           init_var, init_conved = evaluate_initializer(node)
-          var = define_variable(node, current_ctrlexpr,
+          var = define_variable(node, current_branch,
                                 init_conved.value.to_defined_value)
         end
 
@@ -588,7 +588,7 @@ module Cc1 #:nodoc:
         notify_variable_defined(node, var)
         notify_variable_initialized(node, var, init_var)
       else
-        notify_variable_defined(node, define_variable(node, current_ctrlexpr))
+        notify_variable_defined(node, define_variable(node, current_branch))
       end
 
       evaluate_sequence_point(node.init_declarator.declarator)
@@ -1015,11 +1015,11 @@ module Cc1 #:nodoc:
       notify_if_ctrlexpr_evaled(node, ctrlexpr_val)
 
       case
-      when ctrlexpr_val.must_be_true?
+      when ctrlexpr_val.test_must_be_true.true?
         branched_eval(ctrlexpr, NARROWING, FINAL, IMPLICIT_COND, COMPLETE) do
           interpret(node.statement)
         end
-      when ctrlexpr_val.may_be_true?
+      when ctrlexpr_val.test_may_be_true.true?
         branched_eval(ctrlexpr, NARROWING, FINAL, IMPLICIT_COND) do
           interpret(node.statement)
         end
@@ -1049,12 +1049,12 @@ module Cc1 #:nodoc:
       notify_if_else_ctrlexpr_evaled(node, ctrlexpr_val)
 
       case
-      when ctrlexpr_val.must_be_true?
+      when ctrlexpr_val.test_must_be_true.true?
         branched_eval(ctrlexpr, NARROWING, FINAL, IMPLICIT_COND, COMPLETE) do
           interpret(node.then_statement)
         end
         return
-      when ctrlexpr_val.may_be_true?
+      when ctrlexpr_val.test_may_be_true.true?
         branched_eval(ctrlexpr, NARROWING, IMPLICIT_COND) do
           interpret(node.then_statement)
         end
@@ -1088,7 +1088,7 @@ module Cc1 #:nodoc:
       orig_ctrlexpr, ctrlexpr = node.deduct_controlling_expression
 
       case
-      when ctrlexpr_val.must_be_true?
+      when ctrlexpr_val.test_must_be_true.true?
         begin
           enter_iteration_statement(orig_ctrlexpr)
           branch_opts = [ITERATION, NARROWING, FINAL, IMPLICIT_COND, COMPLETE]
@@ -1096,7 +1096,7 @@ module Cc1 #:nodoc:
         ensure
           leave_iteration_statement(orig_ctrlexpr)
         end
-      when ctrlexpr_val.may_be_true?
+      when ctrlexpr_val.test_may_be_true.true?
         begin
           enter_iteration_statement(orig_ctrlexpr)
           branch_opts = [ITERATION, NARROWING, FINAL, IMPLICIT_COND]
@@ -1152,9 +1152,9 @@ module Cc1 #:nodoc:
       end
 
       case
-      when ctrlexpr_val.must_be_true?
+      when ctrlexpr_val.test_must_be_true.true?
         interpret_for_body_statement(node, true)
-      when ctrlexpr_val.may_be_true?
+      when ctrlexpr_val.test_may_be_true.true?
         interpret_for_body_statement(node, false)
       end
     ensure
@@ -1177,9 +1177,9 @@ module Cc1 #:nodoc:
         end
 
         case
-        when ctrlexpr_val.must_be_true?
+        when ctrlexpr_val.test_must_be_true.true?
           interpret_for_body_statement(node, true)
-        when ctrlexpr_val.may_be_true?
+        when ctrlexpr_val.test_may_be_true.true?
           interpret_for_body_statement(node, false)
         end
       end
@@ -1493,9 +1493,9 @@ module Cc1 #:nodoc:
       end
 
       case
-      when ctrlexpr_val.must_be_true?
+      when ctrlexpr_val.test_must_be_true.true?
         branch_opts.push(FINAL, COMPLETE)
-      when ctrlexpr_val.must_be_false?
+      when ctrlexpr_val.test_must_be_false.true?
         # NOTE: To end the current branch group of switch-statement if this
         #       case-clause is the final one.
         branched_eval(ctrlexpr, *branch_opts) {}
@@ -1557,14 +1557,13 @@ module Cc1 #:nodoc:
         ctrlexpr_val = value_of(interpret(ctrlexpr, QUIET))
 
         case
-        when ctrlexpr_val.must_be_true?
+        when ctrlexpr_val.test_must_be_true.true?
           branch_opts.push(FINAL, COMPLETE)
-        when ctrlexpr_val.must_be_false?
+        when ctrlexpr_val.test_must_be_false.true?
           return
         end
 
-        value_domain_manip =
-          branch.controlling_expression.ensure_true_by_widening(ctrlexpr)
+        value_domain_manip = branch.ctrlexpr.ensure_true_by_widening(ctrlexpr)
       end
 
       value_domain_manip.commit!
@@ -1691,7 +1690,7 @@ module Cc1 #:nodoc:
       ctrlexpr = ctrlexpr.to_normalized_logical
 
       then_var = nil
-      if ctrlexpr_val.may_be_true?
+      if ctrlexpr_val.test_may_be_true.true?
         branched_eval(ctrlexpr, NARROWING, IMPLICIT_COND) do
           then_var = object_to_variable(interpret(node.then_expression),
                                         node.then_expression)
@@ -1699,7 +1698,7 @@ module Cc1 #:nodoc:
       end
 
       else_var = nil
-      if ctrlexpr_val.may_be_false?
+      if ctrlexpr_val.test_may_be_false.true?
         branched_eval(nil, NARROWING, FINAL, COMPLETE) do
           else_var = object_to_variable(interpret(node.else_expression),
                                         node.else_expression)

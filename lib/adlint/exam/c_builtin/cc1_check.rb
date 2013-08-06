@@ -422,6 +422,8 @@ module CBuiltin #:nodoc:
   class W0023 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
 
+    include Cc1::InterpreterMediator
+
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
     mark_as_unique
@@ -437,21 +439,29 @@ module CBuiltin #:nodoc:
     def check_binary(binary_expr, lhs_var, rhs_var, *)
       case
       when lhs_var.type.pointer? && rhs_var.type.scalar?
+        rhs_val = rhs_var.value
         if rhs_var.value.scalar? &&
-            !rhs_var.value.must_be_equal_to?(@interp.scalar_value_of(1))
+            rhs_val.test_must_be_equal_to(scalar_value_of(1)).false?
           W(binary_expr.location)
         end
       when rhs_var.type.pointer? && lhs_var.type.scalar?
-        if lhs_var.value.scalar? &&
-            !lhs_var.value.must_be_equal_to?(@interp.scalar_value_of(1))
+        lhs_val = lhs_var.value
+        if lhs_val.scalar? &&
+            lhs_val.test_must_be_equal_to(scalar_value_of(1)).false?
           W(binary_expr.location)
         end
       end
+    end
+
+    def interpreter
+      @interp
     end
   end
 
   class W0024 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
+
+    include Cc1::InterpreterMediator
 
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
@@ -471,13 +481,15 @@ module CBuiltin #:nodoc:
     def check_binary(binary_expr, lhs_var, rhs_var, *)
       case
       when lhs_var.type.pointer? && rhs_var.type.scalar?
+        rhs_val = rhs_var.value
         if rhs_var.value.scalar? &&
-            rhs_var.value.must_be_equal_to?(@interp.scalar_value_of(1))
+            rhs_val.test_must_be_equal_to(scalar_value_of(1)).true?
           W(binary_expr.location)
         end
       when rhs_var.type.pointer? && lhs_var.type.scalar?
+        lhs_val = lhs_var.value
         if lhs_var.value.scalar? &&
-            lhs_var.value.must_be_equal_to?(@interp.scalar_value_of(1))
+            lhs_val.test_must_be_equal_to(scalar_value_of(1)).true?
           W(binary_expr.location)
         end
       end
@@ -493,6 +505,10 @@ module CBuiltin #:nodoc:
       if ope_var.type.pointer?
         W(postfix_expr.location)
       end
+    end
+
+    def interpreter
+      @interp
     end
   end
 
@@ -524,6 +540,8 @@ module CBuiltin #:nodoc:
   class W0028 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
 
+    include Cc1::InterpreterMediator
+
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
     mark_as_unique
@@ -538,9 +556,9 @@ module CBuiltin #:nodoc:
 
     private
     def check_indirection(expr, var, *)
-      if @interp.constant_expression?(expr.operand)
-        if var.value.scalar? &&
-            var.value.must_be_equal_to?(@interp.scalar_value_of(0))
+      if constant_expression?(expr.operand)
+        val = var.value
+        if val.scalar? && val.test_must_be_null.true?
           W(expr.location)
         end
       end
@@ -548,9 +566,9 @@ module CBuiltin #:nodoc:
 
     def check_member_access(expr, outer_var, *)
       return unless outer_var.type.pointer?
-      if @interp.constant_expression?(expr.expression)
-        if outer_var.value.scalar? &&
-            outer_var.value.must_be_equal_to?(@interp.scalar_value_of(0))
+      if constant_expression?(expr.expression)
+        val = outer_var.value
+        if val.scalar? && val.test_must_be_null.true?
           W(expr.location)
         end
       end
@@ -558,17 +576,23 @@ module CBuiltin #:nodoc:
 
     def check_array_subscript(expr, ptr_var, *)
       return unless ptr_var.type.pointer?
-      if @interp.constant_expression?(expr.expression)
-        if ptr_var.value.scalar? &&
-            ptr_var.value.must_be_equal_to?(@interp.scalar_value_of(0))
+      if constant_expression?(expr.expression)
+        val = ptr_var.value
+        if val.scalar? && val.test_must_be_null.true?
           W(expr.location)
         end
       end
+    end
+
+    def interpreter
+      @interp
     end
   end
 
   class W0030 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
+
+    include Cc1::InterpreterMediator
 
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
@@ -594,13 +618,13 @@ module CBuiltin #:nodoc:
       lhs_type, lhs_val = lhs_var.type, lhs_var.value
       rhs_type, rhs_val = rhs_var.type, rhs_var.value
 
-      if @interp.constant_expression?(expr.lhs_operand) && lhs_type.pointer? &&
-          lhs_val.must_be_equal_to?(@interp.scalar_value_of(0))
+      if constant_expression?(expr.lhs_operand) &&
+          lhs_type.pointer? && lhs_val.test_must_be_null.true?
         W(expr.lhs_operand.location)
       end
 
-      if @interp.constant_expression?(expr.rhs_operand) && rhs_type.pointer? &&
-          rhs_val.must_be_equal_to?(@interp.scalar_value_of(0))
+      if constant_expression?(expr.rhs_operand) &&
+          rhs_type.pointer? && rhs_val.test_must_be_null.true?
         W(expr.rhs_operand.location)
       end
     end
@@ -608,8 +632,8 @@ module CBuiltin #:nodoc:
     def check_unary_prefix(expr, ope_var, orig_val)
       type, val = ope_var.type, orig_val
 
-      if @interp.constant_expression?(expr.operand) && type.pointer? &&
-          val.must_be_equal_to?(@interp.scalar_value_of(0))
+      if constant_expression?(expr.operand) &&
+          type.pointer? && val.test_must_be_null.true?
         W(expr.operand.location)
       end
     end
@@ -617,10 +641,14 @@ module CBuiltin #:nodoc:
     def check_unary_postfix(expr, ope_var, *)
       type, val = ope_var.type, ope_var.value
 
-      if @interp.constant_expression?(expr.operand) && type.pointer? &&
-          val.must_be_equal_to?(@interp.scalar_value_of(0))
+      if constant_expression?(expr.operand) &&
+          type.pointer? && val.test_must_be_null.true?
         W(expr.operand.location)
       end
+    end
+
+    def interpreter
+      @interp
     end
   end
 
@@ -1158,17 +1186,17 @@ module CBuiltin #:nodoc:
     end
 
     def total_length(ary_type)
-      result = 1
+      total_len = 1
       type = ary_type
       while type.array?
         if type.length
-          result *= type.length
+          total_len *= type.length
           type = type.base_type
         else
           return nil
         end
       end
-      result
+      total_len
     end
   end
 
@@ -1494,6 +1522,8 @@ module CBuiltin #:nodoc:
   class W0066 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
 
+    include Cc1::InterpreterMediator
+
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
     mark_as_unique
@@ -1516,13 +1546,13 @@ module CBuiltin #:nodoc:
     end
 
     def check(node)
-      unless node.type.return_type == @interp.int_t
+      unless node.type.return_type == int_t
         W(node.location)
         return
       end
 
       if node.type.parameter_types.size == 1 &&
-          node.type.parameter_types[0] == @interp.void_t
+          node.type.parameter_types[0] == void_t
         return
       end
 
@@ -1536,11 +1566,15 @@ module CBuiltin #:nodoc:
     end
 
     def argc_type
-      @interp.int_t
+      int_t
     end
 
     def argv_type
-      @interp.array_type(@interp.pointer_type(@interp.char_t))
+      array_type(pointer_type(char_t))
+    end
+
+    def interpreter
+      @interp
     end
   end
 
@@ -1704,6 +1738,8 @@ module CBuiltin #:nodoc:
   class W0079 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
 
+    include Cc1::InterpreterMediator
+
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
     mark_as_unique
@@ -1719,7 +1755,7 @@ module CBuiltin #:nodoc:
     def check(node)
       return unless node.initializer && node.initializer.expression
 
-      if node.type.array? && node.type.base_type.same_as?(@interp.char_t)
+      if node.type.array? && node.type.base_type.same_as?(char_t)
         if len = node.type.length
           finder = StringLiteralSpecifierFinder.new
           node.initializer.expression.accept(finder)
@@ -1733,6 +1769,10 @@ module CBuiltin #:nodoc:
 
     def unquote_string_literal(str_lit)
       str_lit.literal.value.sub(/\AL?"(.*)"\z/, "\\1")
+    end
+
+    def interpreter
+      @interp
     end
 
     class StringLiteralSpecifierFinder < Cc1::SyntaxTreeVisitor
@@ -1788,6 +1828,8 @@ module CBuiltin #:nodoc:
   class W0081 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
 
+    include Cc1::InterpreterMediator
+
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
     mark_as_unique
@@ -1801,17 +1843,23 @@ module CBuiltin #:nodoc:
     private
     def check(expr, ope_var, *)
       if expr.operator.type == "-"
-        if ope_var.type.same_as?(@interp.unsigned_int_t) ||
-            ope_var.type.same_as?(@interp.unsigned_long_t) ||
-            ope_var.type.same_as?(@interp.unsigned_long_long_t)
+        if ope_var.type.same_as?(unsigned_int_t) ||
+            ope_var.type.same_as?(unsigned_long_t) ||
+            ope_var.type.same_as?(unsigned_long_long_t)
           W(expr.location)
         end
       end
+    end
+
+    def interpreter
+      @interp
     end
   end
 
   class W0082 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
+
+    include Cc1::InterpreterMediator
 
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
@@ -1833,8 +1881,12 @@ module CBuiltin #:nodoc:
     end
 
     def unsigned_underlying_type?(type)
-      type.same_as?(@interp.unsigned_char_t) ||
-        type.same_as?(@interp.unsigned_short_t) || type.bitfield?
+      type.same_as?(unsigned_char_t) ||
+        type.same_as?(unsigned_short_t) || type.bitfield?
+    end
+
+    def interpreter
+      @interp
     end
   end
 
@@ -2021,6 +2073,8 @@ module CBuiltin #:nodoc:
   class W0093 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
 
+    include Cc1::InterpreterMediator
+
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
     mark_as_unique
@@ -2034,20 +2088,28 @@ module CBuiltin #:nodoc:
     private
     def check(expr, lhs_var, rhs_var, *)
       return if expr.operator.type == "*"
-      return if @interp.constant_expression?(expr.rhs_operand)
-
       return unless rhs_var.type.scalar? && rhs_var.value.scalar?
-      return if rhs_var.value.must_be_equal_to?(@interp.scalar_value_of(0))
 
-      if rhs_var.value.may_be_equal_to?(@interp.scalar_value_of(0))
-        W(expr.location)
+      unless constant_expression?(expr.rhs_operand)
+        if rhs_var.value.test_must_be_equal_to(scalar_value_of(0)).false?
+          test = rhs_var.value.test_may_be_equal_to(scalar_value_of(0))
+          if test.true?
+            W(expr.location, *test.basis.emit_context_messages(self))
+          end
+        end
       end
+    end
+
+    def interpreter
+      @interp
     end
   end
 
   class W0096 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
 
+    include Cc1::InterpreterMediator
+
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
     mark_as_unique
@@ -2061,19 +2123,26 @@ module CBuiltin #:nodoc:
     private
     def check(expr, lhs_var, rhs_var, *)
       return if expr.operator.type == "*"
-      return unless @interp.constant_expression?(expr.rhs_operand)
-
       return unless rhs_var.type.scalar? && rhs_var.value.scalar?
 
-      if rhs_var.value.must_be_equal_to?(@interp.scalar_value_of(0))
-        W(expr.location)
+      if constant_expression?(expr.rhs_operand)
+        test = rhs_var.value.test_must_be_equal_to(scalar_value_of(0))
+        if test.true?
+          W(expr.location, *test.basis.emit_context_messages(self))
+        end
       end
+    end
+
+    def interpreter
+      @interp
     end
   end
 
   class W0097 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
 
+    include Cc1::InterpreterMediator
+
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
     mark_as_unique
@@ -2087,13 +2156,18 @@ module CBuiltin #:nodoc:
     private
     def check(expr, lhs_var, rhs_var, *)
       return if expr.operator.type == "*"
-      return if @interp.constant_expression?(expr.rhs_operand)
-
       return unless rhs_var.type.scalar? && rhs_var.value.scalar?
 
-      if rhs_var.value.must_be_equal_to?(@interp.scalar_value_of(0))
-        W(expr.location)
+      unless constant_expression?(expr.rhs_operand)
+        test = rhs_var.value.test_must_be_equal_to(scalar_value_of(0))
+        if test.true?
+          W(expr.location, *test.basis.emit_context_messages(self))
+        end
       end
+    end
+
+    def interpreter
+      @interp
     end
   end
 
@@ -2195,6 +2269,8 @@ module CBuiltin #:nodoc:
   class W0101 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
 
+    include Cc1::InterpreterMediator
+
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
     mark_as_unique
@@ -2209,7 +2285,7 @@ module CBuiltin #:nodoc:
     def check(expr, lhs_var, rhs_var)
       return unless lhs_var.type.pointer? && rhs_var.type.pointer?
 
-      if rhs_pointee = @interp.pointee_of(rhs_var)
+      if rhs_pointee = pointee_of(rhs_var)
         if rhs_pointee.variable? && rhs_pointee.named?
           return unless rhs_pointee.binding.memory.dynamic?
           # NOTE: An array typed parameter can be considered as an alias of the
@@ -2226,10 +2302,16 @@ module CBuiltin #:nodoc:
         end
       end
     end
+
+    def interpreter
+      @interp
+    end
   end
 
   class W0102 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
+
+    include Cc1::InterpreterMediator
 
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
@@ -2280,7 +2362,7 @@ module CBuiltin #:nodoc:
         return
       end
 
-      if rhs_pointee = @interp.pointee_of(rhs_var)
+      if rhs_pointee = pointee_of(rhs_var)
         if rhs_pointee.variable? && rhs_pointee.named?
           return unless rhs_pointee.binding.memory.dynamic?
           # NOTE: An array typed parameter can be considered as an alias of the
@@ -2291,10 +2373,16 @@ module CBuiltin #:nodoc:
         end
       end
     end
+
+    def interpreter
+      @interp
+    end
   end
 
   class W0103 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
+
+    include Cc1::InterpreterMediator
 
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
@@ -2332,7 +2420,7 @@ module CBuiltin #:nodoc:
       return unless @lvars
       return unless ret_var && ret_var.type.pointer?
 
-      if pointee = @interp.pointee_of(ret_var)
+      if pointee = pointee_of(ret_var)
         if pointee.variable? && pointee.named?
           # NOTE: An array typed parameter can be considered as an alias of the
           #       corresponding argument.  So, it is safe to return an address
@@ -2343,6 +2431,10 @@ module CBuiltin #:nodoc:
           end
         end
       end
+    end
+
+    def interpreter
+      @interp
     end
   end
 
@@ -2468,6 +2560,8 @@ module CBuiltin #:nodoc:
   class W0107 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
 
+    include Cc1::InterpreterMediator
+
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
     mark_as_unique
@@ -2482,7 +2576,7 @@ module CBuiltin #:nodoc:
     def check_assignment(expr, lhs_var, rhs_var)
       return unless lhs_var.type.pointer? && rhs_var.type.pointer?
 
-      if rhs_pointee = @interp.pointee_of(rhs_var)
+      if rhs_pointee = pointee_of(rhs_var)
         if rhs_pointee.variable? && rhs_pointee.named?
           return unless rhs_pointee.binding.memory.dynamic?
           # NOTE: An array typed parameter can be considered as an alias of the
@@ -2495,6 +2589,10 @@ module CBuiltin #:nodoc:
           end
         end
       end
+    end
+
+    def interpreter
+      @interp
     end
   end
 
@@ -2622,8 +2720,8 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      @interp = phase_ctxt[:cc1_interpreter]
-      @interp.on_implicit_function_declared += T(:check)
+      interp = phase_ctxt[:cc1_interpreter]
+      interp.on_implicit_function_declared += T(:check)
     end
 
     private
@@ -2652,6 +2750,7 @@ module CBuiltin #:nodoc:
     end
 
     class ForStatementAnalyzer < Cc1::SyntaxTreeVisitor
+      include Cc1::InterpreterMediator
       include ReportUtil
 
       def initialize(phase_ctxt, interp)
@@ -2673,7 +2772,7 @@ module CBuiltin #:nodoc:
       def visit_object_specifier(node)
         return if @reported
 
-        if var = @interp.variable_named(node.identifier.value)
+        if var = variable_named(node.identifier.value)
           if var.type.scalar? && var.type.floating?
             W(node.location)
             @reported = true
@@ -2689,6 +2788,10 @@ module CBuiltin #:nodoc:
 
       def_delegator :@phase_ctxt, :message_catalog
       private :message_catalog
+
+      def interpreter
+        @interp
+      end
 
       def suppressors
         @phase_ctxt[:suppressors]
@@ -2869,6 +2972,8 @@ module CBuiltin #:nodoc:
   class W0115 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
 
+    include Cc1::InterpreterMediator
+
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
     mark_as_unique
@@ -2884,21 +2989,24 @@ module CBuiltin #:nodoc:
       op = shift_expr.operator.type
       return unless op == "<<" || op == "<<="
 
-      return if lhs_var.type.signed?
-
-      if must_overflow?(lhs_var, rhs_var)
-        W(shift_expr.location)
+      if lhs_var.type.unsigned?
+        lhs_limit = scalar_value_of(lhs_var.type.max) >> rhs_var.value
+        test = lhs_var.value.test_must_be_greater_than(lhs_limit)
+        if test.true?
+          W(shift_expr.location, *test.basis.emit_context_messages(self))
+        end
       end
     end
 
-    def must_overflow?(lhs_var, rhs_var)
-      comp_val = lhs_var.value << rhs_var.value
-      comp_val.must_be_greater_than?(@interp.scalar_value_of(lhs_var.type.max))
+    def interpreter
+      @interp
     end
   end
 
   class W0116 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
+
+    include Cc1::InterpreterMediator
 
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
@@ -2915,21 +3023,19 @@ module CBuiltin #:nodoc:
       operator = shift_expr.operator.type
       return unless operator == "<<" || operator == "<<="
 
-      return if lhs_var.type.signed?
-
-      if !must_overflow?(lhs_var, rhs_var) && may_overflow?(lhs_var, rhs_var)
-        W(shift_expr.location)
+      if lhs_var.type.unsigned?
+        lhs_limit = scalar_value_of(lhs_var.type.max) >> rhs_var.value
+        if lhs_var.value.test_must_be_greater_than(lhs_limit).false?
+          test = lhs_var.value.test_may_be_greater_than(lhs_limit)
+          if test.true?
+            W(shift_expr.location, *test.basis.emit_context_messages(self))
+          end
+        end
       end
     end
 
-    def must_overflow?(lhs_var, rhs_var)
-      comp_val = lhs_var.value << rhs_var.value
-      comp_val.must_be_greater_than?(@interp.scalar_value_of(lhs_var.type.max))
-    end
-
-    def may_overflow?(lhs_var, rhs_var)
-      comp_val = lhs_var.value << rhs_var.value
-      comp_val.may_be_greater_than?(@interp.scalar_value_of(lhs_var.type.max))
+    def interpreter
+      @interp
     end
   end
 
@@ -3035,6 +3141,8 @@ module CBuiltin #:nodoc:
   class W0119 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
 
+    include Cc1::InterpreterMediator
+
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
     mark_as_unique
@@ -3053,11 +3161,11 @@ module CBuiltin #:nodoc:
     end
 
     def from_type
-      @interp.char_t
+      char_t
     end
 
     def to_type
-      @interp.signed_char_t
+      signed_char_t
     end
 
     def match?(from_var, to_var)
@@ -3078,8 +3186,11 @@ module CBuiltin #:nodoc:
     end
 
     def char_type_family?(type)
-      type == @interp.char_t ||
-        type == @interp.signed_char_t || type == @interp.unsigned_char_t
+      type == char_t || type == signed_char_t || type == unsigned_char_t
+    end
+
+    def interpreter
+      @interp
     end
   end
 
@@ -3092,11 +3203,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.char_t
+      char_t
     end
 
     def to_type
-      @interp.unsigned_char_t
+      unsigned_char_t
     end
   end
 
@@ -3109,11 +3220,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.char_t
+      char_t
     end
 
     def to_type
-      @interp.signed_short_t
+      signed_short_t
     end
   end
 
@@ -3126,11 +3237,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.char_t
+      char_t
     end
 
     def to_type
-      @interp.unsigned_short_t
+      unsigned_short_t
     end
   end
 
@@ -3143,11 +3254,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.char_t
+      char_t
     end
 
     def to_type
-      @interp.signed_int_t
+      signed_int_t
     end
   end
 
@@ -3160,11 +3271,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.char_t
+      char_t
     end
 
     def to_type
-      @interp.unsigned_int_t
+      unsigned_int_t
     end
   end
 
@@ -3177,11 +3288,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.char_t
+      char_t
     end
 
     def to_type
-      @interp.signed_long_t
+      signed_long_t
     end
   end
 
@@ -3194,11 +3305,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.char_t
+      char_t
     end
 
     def to_type
-      @interp.unsigned_long_t
+      unsigned_long_t
     end
   end
 
@@ -3211,11 +3322,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.char_t
+      char_t
     end
 
     def to_type
-      @interp.float_t
+      float_t
     end
   end
 
@@ -3228,11 +3339,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.char_t
+      char_t
     end
 
     def to_type
-      @interp.double_t
+      double_t
     end
   end
 
@@ -3245,11 +3356,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.char_t
+      char_t
     end
 
     def to_type
-      @interp.long_double_t
+      long_double_t
     end
   end
 
@@ -3262,11 +3373,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.char_t
+      char_t
     end
 
     def to_type
-      @interp.signed_long_long_t
+      signed_long_long_t
     end
   end
 
@@ -3279,11 +3390,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.char_t
+      char_t
     end
 
     def to_type
-      @interp.unsigned_long_long_t
+      unsigned_long_long_t
     end
   end
 
@@ -3296,11 +3407,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_char_t
+      unsigned_char_t
     end
 
     def to_type
-      @interp.char_t
+      char_t
     end
   end
 
@@ -3313,11 +3424,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_char_t
+      signed_char_t
     end
 
     def to_type
-      @interp.char_t
+      char_t
     end
   end
 
@@ -3330,11 +3441,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_short_t
+      signed_short_t
     end
 
     def to_type
-      @interp.char_t
+      char_t
     end
   end
 
@@ -3347,11 +3458,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_short_t
+      unsigned_short_t
     end
 
     def to_type
-      @interp.char_t
+      char_t
     end
   end
 
@@ -3364,11 +3475,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_int_t
+      signed_int_t
     end
 
     def to_type
-      @interp.char_t
+      char_t
     end
   end
 
@@ -3381,11 +3492,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_int_t
+      unsigned_int_t
     end
 
     def to_type
-      @interp.char_t
+      char_t
     end
   end
 
@@ -3398,11 +3509,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_long_t
+      signed_long_t
     end
 
     def to_type
-      @interp.char_t
+      char_t
     end
   end
 
@@ -3415,11 +3526,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_long_t
+      unsigned_long_t
     end
 
     def to_type
-      @interp.char_t
+      char_t
     end
   end
 
@@ -3432,11 +3543,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_long_long_t
+      signed_long_long_t
     end
 
     def to_type
-      @interp.char_t
+      char_t
     end
   end
 
@@ -3449,11 +3560,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_long_long_t
+      unsigned_long_long_t
     end
 
     def to_type
-      @interp.char_t
+      char_t
     end
   end
 
@@ -3466,11 +3577,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_char_t
+      unsigned_char_t
     end
 
     def to_type
-      @interp.signed_char_t
+      signed_char_t
     end
   end
 
@@ -3483,11 +3594,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_short_t
+      unsigned_short_t
     end
 
     def to_type
-      @interp.signed_char_t
+      signed_char_t
     end
   end
 
@@ -3500,11 +3611,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_short_t
+      unsigned_short_t
     end
 
     def to_type
-      @interp.signed_short_t
+      signed_short_t
     end
   end
 
@@ -3517,11 +3628,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_int_t
+      unsigned_int_t
     end
 
     def to_type
-      @interp.signed_char_t
+      signed_char_t
     end
   end
 
@@ -3534,11 +3645,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_int_t
+      unsigned_int_t
     end
 
     def to_type
-      @interp.signed_short_t
+      signed_short_t
     end
   end
 
@@ -3551,11 +3662,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_int_t
+      unsigned_int_t
     end
 
     def to_type
-      @interp.signed_int_t
+      signed_int_t
     end
   end
 
@@ -3568,11 +3679,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_long_t
+      unsigned_long_t
     end
 
     def to_type
-      @interp.signed_char_t
+      signed_char_t
     end
   end
 
@@ -3585,11 +3696,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_long_t
+      unsigned_long_t
     end
 
     def to_type
-      @interp.signed_short_t
+      signed_short_t
     end
   end
 
@@ -3602,11 +3713,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_long_t
+      unsigned_long_t
     end
 
     def to_type
-      @interp.signed_int_t
+      signed_int_t
     end
   end
 
@@ -3619,11 +3730,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_long_t
+      unsigned_long_t
     end
 
     def to_type
-      @interp.signed_long_t
+      signed_long_t
     end
   end
 
@@ -3636,11 +3747,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_long_long_t
+      unsigned_long_long_t
     end
 
     def to_type
-      @interp.signed_char_t
+      signed_char_t
     end
   end
 
@@ -3653,11 +3764,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_long_long_t
+      unsigned_long_long_t
     end
 
     def to_type
-      @interp.signed_short_t
+      signed_short_t
     end
   end
 
@@ -3670,11 +3781,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_long_long_t
+      unsigned_long_long_t
     end
 
     def to_type
-      @interp.signed_int_t
+      signed_int_t
     end
   end
 
@@ -3687,11 +3798,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_long_long_t
+      unsigned_long_long_t
     end
 
     def to_type
-      @interp.signed_long_t
+      signed_long_t
     end
   end
 
@@ -3704,11 +3815,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_long_long_t
+      unsigned_long_long_t
     end
 
     def to_type
-      @interp.signed_long_long_t
+      signed_long_long_t
     end
   end
 
@@ -3721,11 +3832,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_char_t
+      signed_char_t
     end
 
     def to_type
-      @interp.unsigned_char_t
+      unsigned_char_t
     end
   end
 
@@ -3738,11 +3849,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_char_t
+      signed_char_t
     end
 
     def to_type
-      @interp.unsigned_short_t
+      unsigned_short_t
     end
   end
 
@@ -3755,11 +3866,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_char_t
+      signed_char_t
     end
 
     def to_type
-      @interp.unsigned_int_t
+      unsigned_int_t
     end
   end
 
@@ -3772,11 +3883,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_char_t
+      signed_char_t
     end
 
     def to_type
-      @interp.unsigned_long_t
+      unsigned_long_t
     end
   end
 
@@ -3789,11 +3900,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_short_t
+      signed_short_t
     end
 
     def to_type
-      @interp.unsigned_char_t
+      unsigned_char_t
     end
   end
 
@@ -3806,11 +3917,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_short_t
+      signed_short_t
     end
 
     def to_type
-      @interp.unsigned_short_t
+      unsigned_short_t
     end
   end
 
@@ -3823,11 +3934,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_short_t
+      signed_short_t
     end
 
     def to_type
-      @interp.unsigned_int_t
+      unsigned_int_t
     end
   end
 
@@ -3840,11 +3951,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_short_t
+      signed_short_t
     end
 
     def to_type
-      @interp.unsigned_long_t
+      unsigned_long_t
     end
   end
 
@@ -3857,11 +3968,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_int_t
+      signed_int_t
     end
 
     def to_type
-      @interp.unsigned_char_t
+      unsigned_char_t
     end
   end
 
@@ -3874,11 +3985,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_int_t
+      signed_int_t
     end
 
     def to_type
-      @interp.unsigned_short_t
+      unsigned_short_t
     end
   end
 
@@ -3891,11 +4002,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_int_t
+      signed_int_t
     end
 
     def to_type
-      @interp.unsigned_int_t
+      unsigned_int_t
     end
   end
 
@@ -3908,11 +4019,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_int_t
+      signed_int_t
     end
 
     def to_type
-      @interp.unsigned_long_t
+      unsigned_long_t
     end
   end
 
@@ -3925,11 +4036,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_long_t
+      signed_long_t
     end
 
     def to_type
-      @interp.unsigned_char_t
+      unsigned_char_t
     end
   end
 
@@ -3942,11 +4053,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_long_t
+      signed_long_t
     end
 
     def to_type
-      @interp.unsigned_short_t
+      unsigned_short_t
     end
   end
 
@@ -3959,11 +4070,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_long_t
+      signed_long_t
     end
 
     def to_type
-      @interp.unsigned_int_t
+      unsigned_int_t
     end
   end
 
@@ -3976,11 +4087,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_long_t
+      signed_long_t
     end
 
     def to_type
-      @interp.unsigned_long_t
+      unsigned_long_t
     end
   end
 
@@ -3993,11 +4104,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_char_t
+      signed_char_t
     end
 
     def to_type
-      @interp.unsigned_long_long_t
+      unsigned_long_long_t
     end
   end
 
@@ -4010,11 +4121,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_short_t
+      signed_short_t
     end
 
     def to_type
-      @interp.unsigned_long_long_t
+      unsigned_long_long_t
     end
   end
 
@@ -4027,11 +4138,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_int_t
+      signed_int_t
     end
 
     def to_type
-      @interp.unsigned_long_long_t
+      unsigned_long_long_t
     end
   end
 
@@ -4044,11 +4155,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_long_t
+      signed_long_t
     end
 
     def to_type
-      @interp.unsigned_long_long_t
+      unsigned_long_long_t
     end
   end
 
@@ -4061,11 +4172,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_long_long_t
+      signed_long_long_t
     end
 
     def to_type
-      @interp.unsigned_char_t
+      unsigned_char_t
     end
   end
 
@@ -4078,11 +4189,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_long_long_t
+      signed_long_long_t
     end
 
     def to_type
-      @interp.unsigned_short_t
+      unsigned_short_t
     end
   end
 
@@ -4095,11 +4206,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_long_long_t
+      signed_long_long_t
     end
 
     def to_type
-      @interp.unsigned_int_t
+      unsigned_int_t
     end
   end
 
@@ -4112,11 +4223,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_long_long_t
+      signed_long_long_t
     end
 
     def to_type
-      @interp.unsigned_long_t
+      unsigned_long_t
     end
   end
 
@@ -4129,11 +4240,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_long_long_t
+      signed_long_long_t
     end
 
     def to_type
-      @interp.unsigned_long_long_t
+      unsigned_long_long_t
     end
   end
 
@@ -4146,11 +4257,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_char_t
+      unsigned_char_t
     end
 
     def to_type
-      @interp.float_t
+      float_t
     end
   end
 
@@ -4163,11 +4274,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_char_t
+      unsigned_char_t
     end
 
     def to_type
-      @interp.double_t
+      double_t
     end
   end
 
@@ -4180,11 +4291,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_char_t
+      unsigned_char_t
     end
 
     def to_type
-      @interp.long_double_t
+      long_double_t
     end
   end
 
@@ -4197,11 +4308,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_char_t
+      signed_char_t
     end
 
     def to_type
-      @interp.float_t
+      float_t
     end
   end
 
@@ -4214,11 +4325,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_char_t
+      signed_char_t
     end
 
     def to_type
-      @interp.double_t
+      double_t
     end
   end
 
@@ -4231,11 +4342,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_char_t
+      signed_char_t
     end
 
     def to_type
-      @interp.long_double_t
+      long_double_t
     end
   end
 
@@ -4248,11 +4359,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_short_t
+      signed_short_t
     end
 
     def to_type
-      @interp.float_t
+      float_t
     end
   end
 
@@ -4265,11 +4376,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_short_t
+      signed_short_t
     end
 
     def to_type
-      @interp.double_t
+      double_t
     end
   end
 
@@ -4282,11 +4393,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_short_t
+      signed_short_t
     end
 
     def to_type
-      @interp.long_double_t
+      long_double_t
     end
   end
 
@@ -4299,11 +4410,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_short_t
+      unsigned_short_t
     end
 
     def to_type
-      @interp.float_t
+      float_t
     end
   end
 
@@ -4316,11 +4427,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_short_t
+      unsigned_short_t
     end
 
     def to_type
-      @interp.double_t
+      double_t
     end
   end
 
@@ -4333,11 +4444,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_short_t
+      unsigned_short_t
     end
 
     def to_type
-      @interp.long_double_t
+      long_double_t
     end
   end
 
@@ -4350,11 +4461,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_int_t
+      signed_int_t
     end
 
     def to_type
-      @interp.float_t
+      float_t
     end
   end
 
@@ -4367,11 +4478,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_int_t
+      signed_int_t
     end
 
     def to_type
-      @interp.double_t
+      double_t
     end
   end
 
@@ -4384,11 +4495,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_int_t
+      signed_int_t
     end
 
     def to_type
-      @interp.long_double_t
+      long_double_t
     end
   end
 
@@ -4401,11 +4512,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_int_t
+      unsigned_int_t
     end
 
     def to_type
-      @interp.float_t
+      float_t
     end
   end
 
@@ -4418,11 +4529,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_int_t
+      unsigned_int_t
     end
 
     def to_type
-      @interp.double_t
+      double_t
     end
   end
 
@@ -4435,11 +4546,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_int_t
+      unsigned_int_t
     end
 
     def to_type
-      @interp.long_double_t
+      long_double_t
     end
   end
 
@@ -4452,11 +4563,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_long_t
+      signed_long_t
     end
 
     def to_type
-      @interp.float_t
+      float_t
     end
   end
 
@@ -4469,11 +4580,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_long_t
+      signed_long_t
     end
 
     def to_type
-      @interp.double_t
+      double_t
     end
   end
 
@@ -4486,11 +4597,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_long_t
+      signed_long_t
     end
 
     def to_type
-      @interp.long_double_t
+      long_double_t
     end
   end
 
@@ -4503,11 +4614,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_long_t
+      unsigned_long_t
     end
 
     def to_type
-      @interp.float_t
+      float_t
     end
   end
 
@@ -4520,11 +4631,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_long_t
+      unsigned_long_t
     end
 
     def to_type
-      @interp.double_t
+      double_t
     end
   end
 
@@ -4537,11 +4648,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_long_t
+      unsigned_long_t
     end
 
     def to_type
-      @interp.long_double_t
+      long_double_t
     end
   end
 
@@ -4554,11 +4665,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_long_long_t
+      signed_long_long_t
     end
 
     def to_type
-      @interp.float_t
+      float_t
     end
   end
 
@@ -4571,11 +4682,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_long_long_t
+      signed_long_long_t
     end
 
     def to_type
-      @interp.double_t
+      double_t
     end
   end
 
@@ -4588,11 +4699,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_long_long_t
+      signed_long_long_t
     end
 
     def to_type
-      @interp.long_double_t
+      long_double_t
     end
   end
 
@@ -4605,11 +4716,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_long_long_t
+      unsigned_long_long_t
     end
 
     def to_type
-      @interp.float_t
+      float_t
     end
   end
 
@@ -4622,11 +4733,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_long_long_t
+      unsigned_long_long_t
     end
 
     def to_type
-      @interp.double_t
+      double_t
     end
   end
 
@@ -4639,11 +4750,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_long_long_t
+      unsigned_long_long_t
     end
 
     def to_type
-      @interp.long_double_t
+      long_double_t
     end
   end
 
@@ -4656,11 +4767,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.float_t
+      float_t
     end
 
     def to_type
-      @interp.char_t
+      char_t
     end
   end
 
@@ -4673,11 +4784,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.float_t
+      float_t
     end
 
     def to_type
-      @interp.signed_char_t
+      signed_char_t
     end
   end
 
@@ -4690,11 +4801,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.float_t
+      float_t
     end
 
     def to_type
-      @interp.unsigned_char_t
+      unsigned_char_t
     end
   end
 
@@ -4707,11 +4818,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.float_t
+      float_t
     end
 
     def to_type
-      @interp.signed_short_t
+      signed_short_t
     end
   end
 
@@ -4724,11 +4835,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.float_t
+      float_t
     end
 
     def to_type
-      @interp.unsigned_short_t
+      unsigned_short_t
     end
   end
 
@@ -4741,11 +4852,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.float_t
+      float_t
     end
 
     def to_type
-      @interp.signed_int_t
+      signed_int_t
     end
   end
 
@@ -4758,11 +4869,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.float_t
+      float_t
     end
 
     def to_type
-      @interp.unsigned_int_t
+      unsigned_int_t
     end
   end
 
@@ -4775,11 +4886,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.float_t
+      float_t
     end
 
     def to_type
-      @interp.signed_long_t
+      signed_long_t
     end
   end
 
@@ -4792,11 +4903,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.float_t
+      float_t
     end
 
     def to_type
-      @interp.unsigned_long_t
+      unsigned_long_t
     end
   end
 
@@ -4809,11 +4920,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.double_t
+      double_t
     end
 
     def to_type
-      @interp.char_t
+      char_t
     end
   end
 
@@ -4826,11 +4937,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.double_t
+      double_t
     end
 
     def to_type
-      @interp.signed_char_t
+      signed_char_t
     end
   end
 
@@ -4843,11 +4954,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.double_t
+      double_t
     end
 
     def to_type
-      @interp.unsigned_char_t
+      unsigned_char_t
     end
   end
 
@@ -4860,11 +4971,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.double_t
+      double_t
     end
 
     def to_type
-      @interp.signed_short_t
+      signed_short_t
     end
   end
 
@@ -4877,11 +4988,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.double_t
+      double_t
     end
 
     def to_type
-      @interp.unsigned_short_t
+      unsigned_short_t
     end
   end
 
@@ -4894,11 +5005,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.double_t
+      double_t
     end
 
     def to_type
-      @interp.signed_int_t
+      signed_int_t
     end
   end
 
@@ -4911,11 +5022,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.double_t
+      double_t
     end
 
     def to_type
-      @interp.unsigned_int_t
+      unsigned_int_t
     end
   end
 
@@ -4928,11 +5039,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.double_t
+      double_t
     end
 
     def to_type
-      @interp.signed_long_t
+      signed_long_t
     end
   end
 
@@ -4945,11 +5056,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.double_t
+      double_t
     end
 
     def to_type
-      @interp.unsigned_long_t
+      unsigned_long_t
     end
   end
 
@@ -4962,11 +5073,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.long_double_t
+      long_double_t
     end
 
     def to_type
-      @interp.char_t
+      char_t
     end
   end
 
@@ -4979,11 +5090,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.long_double_t
+      long_double_t
     end
 
     def to_type
-      @interp.signed_char_t
+      signed_char_t
     end
   end
 
@@ -4996,11 +5107,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.long_double_t
+      long_double_t
     end
 
     def to_type
-      @interp.unsigned_char_t
+      unsigned_char_t
     end
   end
 
@@ -5013,11 +5124,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.long_double_t
+      long_double_t
     end
 
     def to_type
-      @interp.signed_short_t
+      signed_short_t
     end
   end
 
@@ -5030,11 +5141,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.long_double_t
+      long_double_t
     end
 
     def to_type
-      @interp.unsigned_short_t
+      unsigned_short_t
     end
   end
 
@@ -5047,11 +5158,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.long_double_t
+      long_double_t
     end
 
     def to_type
-      @interp.signed_int_t
+      signed_int_t
     end
   end
 
@@ -5064,11 +5175,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.long_double_t
+      long_double_t
     end
 
     def to_type
-      @interp.unsigned_int_t
+      unsigned_int_t
     end
   end
 
@@ -5081,11 +5192,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.long_double_t
+      long_double_t
     end
 
     def to_type
-      @interp.signed_long_t
+      signed_long_t
     end
   end
 
@@ -5098,11 +5209,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.long_double_t
+      long_double_t
     end
 
     def to_type
-      @interp.unsigned_long_t
+      unsigned_long_t
     end
   end
 
@@ -5115,11 +5226,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.float_t
+      float_t
     end
 
     def to_type
-      @interp.signed_long_long_t
+      signed_long_long_t
     end
   end
 
@@ -5132,11 +5243,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.float_t
+      float_t
     end
 
     def to_type
-      @interp.unsigned_long_long_t
+      unsigned_long_long_t
     end
   end
 
@@ -5149,11 +5260,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.double_t
+      double_t
     end
 
     def to_type
-      @interp.signed_long_long_t
+      signed_long_long_t
     end
   end
 
@@ -5166,11 +5277,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.double_t
+      double_t
     end
 
     def to_type
-      @interp.unsigned_long_long_t
+      unsigned_long_long_t
     end
   end
 
@@ -5183,11 +5294,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.long_double_t
+      long_double_t
     end
 
     def to_type
-      @interp.signed_long_long_t
+      signed_long_long_t
     end
   end
 
@@ -5200,11 +5311,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.long_double_t
+      long_double_t
     end
 
     def to_type
-      @interp.unsigned_long_long_t
+      unsigned_long_long_t
     end
   end
 
@@ -5217,11 +5328,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_char_t
+      unsigned_char_t
     end
 
     def to_type
-      @interp.signed_short_t
+      signed_short_t
     end
   end
 
@@ -5234,11 +5345,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_char_t
+      unsigned_char_t
     end
 
     def to_type
-      @interp.signed_int_t
+      signed_int_t
     end
   end
 
@@ -5251,11 +5362,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_char_t
+      unsigned_char_t
     end
 
     def to_type
-      @interp.signed_long_t
+      signed_long_t
     end
   end
 
@@ -5268,11 +5379,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_short_t
+      unsigned_short_t
     end
 
     def to_type
-      @interp.signed_int_t
+      signed_int_t
     end
   end
 
@@ -5285,11 +5396,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_short_t
+      unsigned_short_t
     end
 
     def to_type
-      @interp.signed_long_t
+      signed_long_t
     end
   end
 
@@ -5302,11 +5413,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_int_t
+      unsigned_int_t
     end
 
     def to_type
-      @interp.signed_long_t
+      signed_long_t
     end
   end
 
@@ -5319,11 +5430,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_char_t
+      unsigned_char_t
     end
 
     def to_type
-      @interp.signed_long_long_t
+      signed_long_long_t
     end
   end
 
@@ -5336,11 +5447,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_short_t
+      unsigned_short_t
     end
 
     def to_type
-      @interp.signed_long_long_t
+      signed_long_long_t
     end
   end
 
@@ -5353,11 +5464,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_int_t
+      unsigned_int_t
     end
 
     def to_type
-      @interp.signed_long_long_t
+      signed_long_long_t
     end
   end
 
@@ -5370,16 +5481,18 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_long_t
+      unsigned_long_t
     end
 
     def to_type
-      @interp.signed_long_long_t
+      signed_long_long_t
     end
   end
 
   class W0255 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
+
+    include Cc1::InterpreterMediator
 
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
@@ -5412,11 +5525,11 @@ module CBuiltin #:nodoc:
     end
 
     def from_type
-      @interp.char_t
+      char_t
     end
 
     def to_type
-      @interp.signed_char_t
+      signed_char_t
     end
 
     def match?(expr_type, fun_type)
@@ -5437,8 +5550,11 @@ module CBuiltin #:nodoc:
     end
 
     def char_type_family?(type)
-      type == @interp.char_t ||
-        type == @interp.signed_char_t || type == @interp.unsigned_char_t
+      type == char_t || type == signed_char_t || type == unsigned_char_t
+    end
+
+    def interpreter
+      @interp
     end
   end
 
@@ -5451,11 +5567,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.char_t
+      char_t
     end
 
     def to_type
-      @interp.unsigned_char_t
+      unsigned_char_t
     end
   end
 
@@ -5468,11 +5584,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.char_t
+      char_t
     end
 
     def to_type
-      @interp.signed_short_t
+      signed_short_t
     end
   end
 
@@ -5485,11 +5601,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.char_t
+      char_t
     end
 
     def to_type
-      @interp.unsigned_short_t
+      unsigned_short_t
     end
   end
 
@@ -5502,11 +5618,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.char_t
+      char_t
     end
 
     def to_type
-      @interp.signed_int_t
+      signed_int_t
     end
   end
 
@@ -5519,11 +5635,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.char_t
+      char_t
     end
 
     def to_type
-      @interp.unsigned_int_t
+      unsigned_int_t
     end
   end
 
@@ -5536,11 +5652,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.char_t
+      char_t
     end
 
     def to_type
-      @interp.signed_long_t
+      signed_long_t
     end
   end
 
@@ -5553,11 +5669,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.char_t
+      char_t
     end
 
     def to_type
-      @interp.unsigned_long_t
+      unsigned_long_t
     end
   end
 
@@ -5570,11 +5686,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.char_t
+      char_t
     end
 
     def to_type
-      @interp.float_t
+      float_t
     end
   end
 
@@ -5587,11 +5703,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.char_t
+      char_t
     end
 
     def to_type
-      @interp.double_t
+      double_t
     end
   end
 
@@ -5604,11 +5720,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.char_t
+      char_t
     end
 
     def to_type
-      @interp.long_double_t
+      long_double_t
     end
   end
 
@@ -5621,11 +5737,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.char_t
+      char_t
     end
 
     def to_type
-      @interp.signed_long_long_t
+      signed_long_long_t
     end
   end
 
@@ -5638,11 +5754,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.char_t
+      char_t
     end
 
     def to_type
-      @interp.unsigned_long_long_t
+      unsigned_long_long_t
     end
   end
 
@@ -5655,11 +5771,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_char_t
+      unsigned_char_t
     end
 
     def to_type
-      @interp.char_t
+      char_t
     end
   end
 
@@ -5672,11 +5788,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_char_t
+      signed_char_t
     end
 
     def to_type
-      @interp.char_t
+      char_t
     end
   end
 
@@ -5689,11 +5805,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_short_t
+      signed_short_t
     end
 
     def to_type
-      @interp.char_t
+      char_t
     end
   end
 
@@ -5706,11 +5822,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_short_t
+      unsigned_short_t
     end
 
     def to_type
-      @interp.char_t
+      char_t
     end
   end
 
@@ -5723,11 +5839,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_int_t
+      signed_int_t
     end
 
     def to_type
-      @interp.char_t
+      char_t
     end
   end
 
@@ -5740,11 +5856,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_int_t
+      unsigned_int_t
     end
 
     def to_type
-      @interp.char_t
+      char_t
     end
   end
 
@@ -5757,11 +5873,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_long_t
+      signed_long_t
     end
 
     def to_type
-      @interp.char_t
+      char_t
     end
   end
 
@@ -5774,11 +5890,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_long_t
+      unsigned_long_t
     end
 
     def to_type
-      @interp.char_t
+      char_t
     end
   end
 
@@ -5791,11 +5907,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_long_long_t
+      signed_long_long_t
     end
 
     def to_type
-      @interp.char_t
+      char_t
     end
   end
 
@@ -5808,11 +5924,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_long_long_t
+      unsigned_long_long_t
     end
 
     def to_type
-      @interp.char_t
+      char_t
     end
   end
 
@@ -5825,11 +5941,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_char_t
+      unsigned_char_t
     end
 
     def to_type
-      @interp.signed_char_t
+      signed_char_t
     end
   end
 
@@ -5842,11 +5958,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_short_t
+      unsigned_short_t
     end
 
     def to_type
-      @interp.signed_char_t
+      signed_char_t
     end
   end
 
@@ -5859,11 +5975,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_short_t
+      unsigned_short_t
     end
 
     def to_type
-      @interp.signed_short_t
+      signed_short_t
     end
   end
 
@@ -5876,11 +5992,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_int_t
+      unsigned_int_t
     end
 
     def to_type
-      @interp.signed_char_t
+      signed_char_t
     end
   end
 
@@ -5893,11 +6009,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_int_t
+      unsigned_int_t
     end
 
     def to_type
-      @interp.signed_short_t
+      signed_short_t
     end
   end
 
@@ -5910,11 +6026,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_int_t
+      unsigned_int_t
     end
 
     def to_type
-      @interp.signed_int_t
+      signed_int_t
     end
   end
 
@@ -5927,11 +6043,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_long_t
+      unsigned_long_t
     end
 
     def to_type
-      @interp.signed_char_t
+      signed_char_t
     end
   end
 
@@ -5944,11 +6060,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_long_t
+      unsigned_long_t
     end
 
     def to_type
-      @interp.signed_short_t
+      signed_short_t
     end
   end
 
@@ -5961,11 +6077,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_long_t
+      unsigned_long_t
     end
 
     def to_type
-      @interp.signed_int_t
+      signed_int_t
     end
   end
 
@@ -5978,11 +6094,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_long_t
+      unsigned_long_t
     end
 
     def to_type
-      @interp.signed_long_t
+      signed_long_t
     end
   end
 
@@ -5995,11 +6111,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_long_long_t
+      unsigned_long_long_t
     end
 
     def to_type
-      @interp.signed_char_t
+      signed_char_t
     end
   end
 
@@ -6012,11 +6128,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_long_long_t
+      unsigned_long_long_t
     end
 
     def to_type
-      @interp.signed_short_t
+      signed_short_t
     end
   end
 
@@ -6029,11 +6145,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_long_long_t
+      unsigned_long_long_t
     end
 
     def to_type
-      @interp.signed_int_t
+      signed_int_t
     end
   end
 
@@ -6046,11 +6162,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_long_long_t
+      unsigned_long_long_t
     end
 
     def to_type
-      @interp.signed_long_t
+      signed_long_t
     end
   end
 
@@ -6063,11 +6179,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_long_long_t
+      unsigned_long_long_t
     end
 
     def to_type
-      @interp.signed_long_long_t
+      signed_long_long_t
     end
   end
 
@@ -6080,11 +6196,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_char_t
+      signed_char_t
     end
 
     def to_type
-      @interp.unsigned_char_t
+      unsigned_char_t
     end
   end
 
@@ -6097,11 +6213,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_char_t
+      signed_char_t
     end
 
     def to_type
-      @interp.unsigned_short_t
+      unsigned_short_t
     end
   end
 
@@ -6114,11 +6230,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_char_t
+      signed_char_t
     end
 
     def to_type
-      @interp.unsigned_int_t
+      unsigned_int_t
     end
   end
 
@@ -6131,11 +6247,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_char_t
+      signed_char_t
     end
 
     def to_type
-      @interp.unsigned_long_t
+      unsigned_long_t
     end
   end
 
@@ -6148,11 +6264,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_short_t
+      signed_short_t
     end
 
     def to_type
-      @interp.unsigned_char_t
+      unsigned_char_t
     end
   end
 
@@ -6165,11 +6281,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_short_t
+      signed_short_t
     end
 
     def to_type
-      @interp.unsigned_short_t
+      unsigned_short_t
     end
   end
 
@@ -6182,11 +6298,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_short_t
+      signed_short_t
     end
 
     def to_type
-      @interp.unsigned_int_t
+      unsigned_int_t
     end
   end
 
@@ -6199,11 +6315,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_short_t
+      signed_short_t
     end
 
     def to_type
-      @interp.unsigned_long_t
+      unsigned_long_t
     end
   end
 
@@ -6216,11 +6332,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_int_t
+      signed_int_t
     end
 
     def to_type
-      @interp.unsigned_char_t
+      unsigned_char_t
     end
   end
 
@@ -6233,11 +6349,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_int_t
+      signed_int_t
     end
 
     def to_type
-      @interp.unsigned_short_t
+      unsigned_short_t
     end
   end
 
@@ -6250,11 +6366,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_int_t
+      signed_int_t
     end
 
     def to_type
-      @interp.unsigned_int_t
+      unsigned_int_t
     end
   end
 
@@ -6267,11 +6383,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_int_t
+      signed_int_t
     end
 
     def to_type
-      @interp.unsigned_long_t
+      unsigned_long_t
     end
   end
 
@@ -6284,11 +6400,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_long_t
+      signed_long_t
     end
 
     def to_type
-      @interp.unsigned_char_t
+      unsigned_char_t
     end
   end
 
@@ -6301,11 +6417,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_long_t
+      signed_long_t
     end
 
     def to_type
-      @interp.unsigned_short_t
+      unsigned_short_t
     end
   end
 
@@ -6318,11 +6434,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_long_t
+      signed_long_t
     end
 
     def to_type
-      @interp.unsigned_int_t
+      unsigned_int_t
     end
   end
 
@@ -6335,11 +6451,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_long_t
+      signed_long_t
     end
 
     def to_type
-      @interp.unsigned_long_t
+      unsigned_long_t
     end
   end
 
@@ -6352,11 +6468,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_char_t
+      signed_char_t
     end
 
     def to_type
-      @interp.unsigned_long_long_t
+      unsigned_long_long_t
     end
   end
 
@@ -6369,11 +6485,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_short_t
+      signed_short_t
     end
 
     def to_type
-      @interp.unsigned_long_long_t
+      unsigned_long_long_t
     end
   end
 
@@ -6386,11 +6502,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_int_t
+      signed_int_t
     end
 
     def to_type
-      @interp.unsigned_long_long_t
+      unsigned_long_long_t
     end
   end
 
@@ -6403,11 +6519,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_long_t
+      signed_long_t
     end
 
     def to_type
-      @interp.unsigned_long_long_t
+      unsigned_long_long_t
     end
   end
 
@@ -6420,11 +6536,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_long_long_t
+      signed_long_long_t
     end
 
     def to_type
-      @interp.unsigned_char_t
+      unsigned_char_t
     end
   end
 
@@ -6437,11 +6553,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_long_long_t
+      signed_long_long_t
     end
 
     def to_type
-      @interp.unsigned_short_t
+      unsigned_short_t
     end
   end
 
@@ -6454,11 +6570,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_long_long_t
+      signed_long_long_t
     end
 
     def to_type
-      @interp.unsigned_int_t
+      unsigned_int_t
     end
   end
 
@@ -6471,11 +6587,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_long_long_t
+      signed_long_long_t
     end
 
     def to_type
-      @interp.unsigned_long_t
+      unsigned_long_t
     end
   end
 
@@ -6488,11 +6604,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_long_long_t
+      signed_long_long_t
     end
 
     def to_type
-      @interp.unsigned_long_long_t
+      unsigned_long_long_t
     end
   end
 
@@ -6505,11 +6621,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_char_t
+      unsigned_char_t
     end
 
     def to_type
-      @interp.float_t
+      float_t
     end
   end
 
@@ -6522,11 +6638,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_char_t
+      unsigned_char_t
     end
 
     def to_type
-      @interp.double_t
+      double_t
     end
   end
 
@@ -6539,11 +6655,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_char_t
+      unsigned_char_t
     end
 
     def to_type
-      @interp.long_double_t
+      long_double_t
     end
   end
 
@@ -6556,11 +6672,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_char_t
+      signed_char_t
     end
 
     def to_type
-      @interp.float_t
+      float_t
     end
   end
 
@@ -6573,11 +6689,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_char_t
+      signed_char_t
     end
 
     def to_type
-      @interp.double_t
+      double_t
     end
   end
 
@@ -6590,11 +6706,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_char_t
+      signed_char_t
     end
 
     def to_type
-      @interp.long_double_t
+      long_double_t
     end
   end
 
@@ -6607,11 +6723,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_short_t
+      signed_short_t
     end
 
     def to_type
-      @interp.float_t
+      float_t
     end
   end
 
@@ -6624,11 +6740,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_short_t
+      signed_short_t
     end
 
     def to_type
-      @interp.double_t
+      double_t
     end
   end
 
@@ -6641,11 +6757,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_short_t
+      signed_short_t
     end
 
     def to_type
-      @interp.long_double_t
+      long_double_t
     end
   end
 
@@ -6658,11 +6774,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_short_t
+      unsigned_short_t
     end
 
     def to_type
-      @interp.float_t
+      float_t
     end
   end
 
@@ -6675,11 +6791,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_short_t
+      unsigned_short_t
     end
 
     def to_type
-      @interp.double_t
+      double_t
     end
   end
 
@@ -6692,11 +6808,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_short_t
+      unsigned_short_t
     end
 
     def to_type
-      @interp.long_double_t
+      long_double_t
     end
   end
 
@@ -6709,11 +6825,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_int_t
+      signed_int_t
     end
 
     def to_type
-      @interp.float_t
+      float_t
     end
   end
 
@@ -6726,11 +6842,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_int_t
+      signed_int_t
     end
 
     def to_type
-      @interp.double_t
+      double_t
     end
   end
 
@@ -6743,11 +6859,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_int_t
+      signed_int_t
     end
 
     def to_type
-      @interp.long_double_t
+      long_double_t
     end
   end
 
@@ -6760,11 +6876,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_int_t
+      unsigned_int_t
     end
 
     def to_type
-      @interp.float_t
+      float_t
     end
   end
 
@@ -6777,11 +6893,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_int_t
+      unsigned_int_t
     end
 
     def to_type
-      @interp.double_t
+      double_t
     end
   end
 
@@ -6794,11 +6910,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_int_t
+      unsigned_int_t
     end
 
     def to_type
-      @interp.long_double_t
+      long_double_t
     end
   end
 
@@ -6811,11 +6927,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_long_t
+      signed_long_t
     end
 
     def to_type
-      @interp.float_t
+      float_t
     end
   end
 
@@ -6828,11 +6944,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_long_t
+      signed_long_t
     end
 
     def to_type
-      @interp.double_t
+      double_t
     end
   end
 
@@ -6845,11 +6961,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_long_t
+      signed_long_t
     end
 
     def to_type
-      @interp.long_double_t
+      long_double_t
     end
   end
 
@@ -6862,11 +6978,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_long_t
+      unsigned_long_t
     end
 
     def to_type
-      @interp.float_t
+      float_t
     end
   end
 
@@ -6879,11 +6995,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_long_t
+      unsigned_long_t
     end
 
     def to_type
-      @interp.double_t
+      double_t
     end
   end
 
@@ -6896,11 +7012,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_long_t
+      unsigned_long_t
     end
 
     def to_type
-      @interp.long_double_t
+      long_double_t
     end
   end
 
@@ -6913,11 +7029,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_long_long_t
+      signed_long_long_t
     end
 
     def to_type
-      @interp.float_t
+      float_t
     end
   end
 
@@ -6930,11 +7046,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_long_long_t
+      signed_long_long_t
     end
 
     def to_type
-      @interp.double_t
+      double_t
     end
   end
 
@@ -6947,11 +7063,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_long_long_t
+      signed_long_long_t
     end
 
     def to_type
-      @interp.long_double_t
+      long_double_t
     end
   end
 
@@ -6964,11 +7080,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_long_long_t
+      unsigned_long_long_t
     end
 
     def to_type
-      @interp.float_t
+      float_t
     end
   end
 
@@ -6981,11 +7097,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_long_long_t
+      unsigned_long_long_t
     end
 
     def to_type
-      @interp.double_t
+      double_t
     end
   end
 
@@ -6998,11 +7114,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_long_long_t
+      unsigned_long_long_t
     end
 
     def to_type
-      @interp.long_double_t
+      long_double_t
     end
   end
 
@@ -7015,11 +7131,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.float_t
+      float_t
     end
 
     def to_type
-      @interp.char_t
+      char_t
     end
   end
 
@@ -7032,11 +7148,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.float_t
+      float_t
     end
 
     def to_type
-      @interp.signed_char_t
+      signed_char_t
     end
   end
 
@@ -7049,11 +7165,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.float_t
+      float_t
     end
 
     def to_type
-      @interp.unsigned_char_t
+      unsigned_char_t
     end
   end
 
@@ -7066,11 +7182,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.float_t
+      float_t
     end
 
     def to_type
-      @interp.signed_short_t
+      signed_short_t
     end
   end
 
@@ -7083,11 +7199,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.float_t
+      float_t
     end
 
     def to_type
-      @interp.unsigned_short_t
+      unsigned_short_t
     end
   end
 
@@ -7100,11 +7216,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.float_t
+      float_t
     end
 
     def to_type
-      @interp.signed_int_t
+      signed_int_t
     end
   end
 
@@ -7117,11 +7233,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.float_t
+      float_t
     end
 
     def to_type
-      @interp.unsigned_int_t
+      unsigned_int_t
     end
   end
 
@@ -7134,11 +7250,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.float_t
+      float_t
     end
 
     def to_type
-      @interp.signed_long_t
+      signed_long_t
     end
   end
 
@@ -7151,11 +7267,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.float_t
+      float_t
     end
 
     def to_type
-      @interp.unsigned_long_t
+      unsigned_long_t
     end
   end
 
@@ -7168,11 +7284,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.double_t
+      double_t
     end
 
     def to_type
-      @interp.char_t
+      char_t
     end
   end
 
@@ -7185,11 +7301,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.double_t
+      double_t
     end
 
     def to_type
-      @interp.signed_char_t
+      signed_char_t
     end
   end
 
@@ -7202,11 +7318,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.double_t
+      double_t
     end
 
     def to_type
-      @interp.unsigned_char_t
+      unsigned_char_t
     end
   end
 
@@ -7219,11 +7335,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.double_t
+      double_t
     end
 
     def to_type
-      @interp.signed_short_t
+      signed_short_t
     end
   end
 
@@ -7236,11 +7352,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.double_t
+      double_t
     end
 
     def to_type
-      @interp.unsigned_short_t
+      unsigned_short_t
     end
   end
 
@@ -7253,11 +7369,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.double_t
+      double_t
     end
 
     def to_type
-      @interp.signed_int_t
+      signed_int_t
     end
   end
 
@@ -7270,11 +7386,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.double_t
+      double_t
     end
 
     def to_type
-      @interp.unsigned_int_t
+      unsigned_int_t
     end
   end
 
@@ -7287,11 +7403,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.double_t
+      double_t
     end
 
     def to_type
-      @interp.signed_long_t
+      signed_long_t
     end
   end
 
@@ -7304,11 +7420,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.double_t
+      double_t
     end
 
     def to_type
-      @interp.unsigned_long_t
+      unsigned_long_t
     end
   end
 
@@ -7321,11 +7437,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.long_double_t
+      long_double_t
     end
 
     def to_type
-      @interp.char_t
+      char_t
     end
   end
 
@@ -7338,11 +7454,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.long_double_t
+      long_double_t
     end
 
     def to_type
-      @interp.signed_char_t
+      signed_char_t
     end
   end
 
@@ -7355,11 +7471,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.long_double_t
+      long_double_t
     end
 
     def to_type
-      @interp.unsigned_char_t
+      unsigned_char_t
     end
   end
 
@@ -7372,11 +7488,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.long_double_t
+      long_double_t
     end
 
     def to_type
-      @interp.signed_short_t
+      signed_short_t
     end
   end
 
@@ -7389,11 +7505,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.long_double_t
+      long_double_t
     end
 
     def to_type
-      @interp.unsigned_short_t
+      unsigned_short_t
     end
   end
 
@@ -7406,11 +7522,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.long_double_t
+      long_double_t
     end
 
     def to_type
-      @interp.signed_int_t
+      signed_int_t
     end
   end
 
@@ -7423,11 +7539,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.long_double_t
+      long_double_t
     end
 
     def to_type
-      @interp.unsigned_int_t
+      unsigned_int_t
     end
   end
 
@@ -7440,11 +7556,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.long_double_t
+      long_double_t
     end
 
     def to_type
-      @interp.signed_long_t
+      signed_long_t
     end
   end
 
@@ -7457,11 +7573,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.long_double_t
+      long_double_t
     end
 
     def to_type
-      @interp.unsigned_long_t
+      unsigned_long_t
     end
   end
 
@@ -7474,11 +7590,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.float_t
+      float_t
     end
 
     def to_type
-      @interp.signed_long_long_t
+      signed_long_long_t
     end
   end
 
@@ -7491,11 +7607,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.float_t
+      float_t
     end
 
     def to_type
-      @interp.unsigned_long_long_t
+      unsigned_long_long_t
     end
   end
 
@@ -7508,11 +7624,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.double_t
+      double_t
     end
 
     def to_type
-      @interp.signed_long_long_t
+      signed_long_long_t
     end
   end
 
@@ -7525,11 +7641,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.double_t
+      double_t
     end
 
     def to_type
-      @interp.unsigned_long_long_t
+      unsigned_long_long_t
     end
   end
 
@@ -7542,11 +7658,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.long_double_t
+      long_double_t
     end
 
     def to_type
-      @interp.signed_long_long_t
+      signed_long_long_t
     end
   end
 
@@ -7559,11 +7675,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.long_double_t
+      long_double_t
     end
 
     def to_type
-      @interp.unsigned_long_long_t
+      unsigned_long_long_t
     end
   end
 
@@ -7576,11 +7692,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_short_t
+      signed_short_t
     end
 
     def to_type
-      @interp.signed_char_t
+      signed_char_t
     end
   end
 
@@ -7593,11 +7709,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_short_t
+      unsigned_short_t
     end
 
     def to_type
-      @interp.unsigned_char_t
+      unsigned_char_t
     end
   end
 
@@ -7610,11 +7726,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_int_t
+      signed_int_t
     end
 
     def to_type
-      @interp.signed_char_t
+      signed_char_t
     end
   end
 
@@ -7627,11 +7743,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_int_t
+      signed_int_t
     end
 
     def to_type
-      @interp.signed_short_t
+      signed_short_t
     end
   end
 
@@ -7644,11 +7760,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_int_t
+      unsigned_int_t
     end
 
     def to_type
-      @interp.unsigned_char_t
+      unsigned_char_t
     end
   end
 
@@ -7661,11 +7777,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_int_t
+      unsigned_int_t
     end
 
     def to_type
-      @interp.unsigned_short_t
+      unsigned_short_t
     end
   end
 
@@ -7678,11 +7794,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_long_t
+      signed_long_t
     end
 
     def to_type
-      @interp.signed_char_t
+      signed_char_t
     end
   end
 
@@ -7695,11 +7811,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_long_t
+      signed_long_t
     end
 
     def to_type
-      @interp.signed_short_t
+      signed_short_t
     end
   end
 
@@ -7712,11 +7828,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_long_t
+      signed_long_t
     end
 
     def to_type
-      @interp.signed_int_t
+      signed_int_t
     end
   end
 
@@ -7729,11 +7845,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_long_t
+      unsigned_long_t
     end
 
     def to_type
-      @interp.unsigned_char_t
+      unsigned_char_t
     end
   end
 
@@ -7746,11 +7862,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_long_t
+      unsigned_long_t
     end
 
     def to_type
-      @interp.unsigned_short_t
+      unsigned_short_t
     end
   end
 
@@ -7763,11 +7879,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_long_t
+      unsigned_long_t
     end
 
     def to_type
-      @interp.unsigned_int_t
+      unsigned_int_t
     end
   end
 
@@ -7780,11 +7896,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_long_long_t
+      signed_long_long_t
     end
 
     def to_type
-      @interp.signed_char_t
+      signed_char_t
     end
   end
 
@@ -7797,11 +7913,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_long_long_t
+      signed_long_long_t
     end
 
     def to_type
-      @interp.signed_short_t
+      signed_short_t
     end
   end
 
@@ -7814,11 +7930,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_long_long_t
+      signed_long_long_t
     end
 
     def to_type
-      @interp.signed_int_t
+      signed_int_t
     end
   end
 
@@ -7831,11 +7947,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_long_long_t
+      signed_long_long_t
     end
 
     def to_type
-      @interp.signed_long_t
+      signed_long_t
     end
   end
 
@@ -7848,11 +7964,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_long_long_t
+      unsigned_long_long_t
     end
 
     def to_type
-      @interp.unsigned_char_t
+      unsigned_char_t
     end
   end
 
@@ -7865,11 +7981,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_long_long_t
+      unsigned_long_long_t
     end
 
     def to_type
-      @interp.unsigned_short_t
+      unsigned_short_t
     end
   end
 
@@ -7882,11 +7998,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_long_long_t
+      unsigned_long_long_t
     end
 
     def to_type
-      @interp.unsigned_int_t
+      unsigned_int_t
     end
   end
 
@@ -7899,11 +8015,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_long_long_t
+      unsigned_long_long_t
     end
 
     def to_type
-      @interp.unsigned_long_t
+      unsigned_long_t
     end
   end
 
@@ -7916,11 +8032,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_char_t
+      unsigned_char_t
     end
 
     def to_type
-      @interp.signed_short_t
+      signed_short_t
     end
   end
 
@@ -7933,11 +8049,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_char_t
+      unsigned_char_t
     end
 
     def to_type
-      @interp.signed_int_t
+      signed_int_t
     end
   end
 
@@ -7950,11 +8066,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_char_t
+      unsigned_char_t
     end
 
     def to_type
-      @interp.signed_long_t
+      signed_long_t
     end
   end
 
@@ -7967,11 +8083,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_short_t
+      unsigned_short_t
     end
 
     def to_type
-      @interp.signed_int_t
+      signed_int_t
     end
   end
 
@@ -7984,11 +8100,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_short_t
+      unsigned_short_t
     end
 
     def to_type
-      @interp.signed_long_t
+      signed_long_t
     end
   end
 
@@ -8001,11 +8117,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_int_t
+      unsigned_int_t
     end
 
     def to_type
-      @interp.signed_long_t
+      signed_long_t
     end
   end
 
@@ -8018,11 +8134,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_char_t
+      unsigned_char_t
     end
 
     def to_type
-      @interp.signed_long_long_t
+      signed_long_long_t
     end
   end
 
@@ -8035,11 +8151,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_short_t
+      unsigned_short_t
     end
 
     def to_type
-      @interp.signed_long_long_t
+      signed_long_long_t
     end
   end
 
@@ -8052,11 +8168,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_int_t
+      unsigned_int_t
     end
 
     def to_type
-      @interp.signed_long_long_t
+      signed_long_long_t
     end
   end
 
@@ -8069,11 +8185,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_long_t
+      unsigned_long_t
     end
 
     def to_type
-      @interp.signed_long_long_t
+      signed_long_long_t
     end
   end
 
@@ -8253,6 +8369,8 @@ module CBuiltin #:nodoc:
   class W0421 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
 
+    include Cc1::InterpreterMediator
+
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
     mark_as_unique
@@ -8267,38 +8385,50 @@ module CBuiltin #:nodoc:
 
     private
     def check_indirection(expr, ptr_var, *)
-      unless @interp.constant_expression?(expr.operand)
-        if ptr_var.value.scalar? &&
-            ptr_var.value.must_be_equal_to?(@interp.scalar_value_of(0))
-          W(expr.location)
+      return unless ptr_var.value.scalar?
+
+      unless constant_expression?(expr.operand)
+        test = ptr_var.value.test_must_be_null
+        if test.true?
+          W(expr.location, *test.basis.emit_context_messages(self))
         end
       end
     end
 
     def check_member_access(expr, outer_var, *)
       return unless outer_var.type.pointer?
-      unless @interp.constant_expression?(expr.expression)
-        if outer_var.value.scalar? &&
-            outer_var.value.must_be_equal_to?(@interp.scalar_value_of(0))
-          W(expr.location)
+      return unless outer_var.value.scalar?
+
+      unless constant_expression?(expr.expression)
+        test = outer_var.value.test_must_be_null
+        if test.true?
+          W(expr.location, *test.basis.emit_context_messages(self))
         end
       end
     end
 
     def check_array_subscript(expr, ary_or_ptr, *)
       return unless ary_or_ptr.type.pointer?
-      unless @interp.constant_expression?(expr.expression)
-        if ary_or_ptr.value.scalar? &&
-            ary_or_ptr.value.must_be_equal_to?(@interp.scalar_value_of(0))
-          W(expr.location)
+      return unless ary_or_ptr.value.scalar?
+
+      unless constant_expression?(expr.expression)
+        test = ary_or_ptr.value.test_must_be_null
+        if test.true?
+          W(expr.location, *test.basis.emit_context_messages(self))
         end
       end
+    end
+
+    def interpreter
+      @interp
     end
   end
 
   class W0422 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
 
+    include Cc1::InterpreterMediator
+
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
     mark_as_unique
@@ -8313,35 +8443,48 @@ module CBuiltin #:nodoc:
 
     private
     def check_indirection(expr, ptr_var, *)
-      return if @interp.constant_expression?(expr.operand)
       return unless ptr_var.value.scalar?
 
-      if !ptr_var.value.must_be_equal_to?(@interp.scalar_value_of(0)) &&
-          ptr_var.value.may_be_equal_to?(@interp.scalar_value_of(0))
-        W(expr.location)
+      unless constant_expression?(expr.operand)
+        if ptr_var.value.test_must_be_null.false?
+          test = ptr_var.value.test_may_be_null
+          if test.true?
+            W(expr.location, *test.basis.emit_context_messages(self))
+          end
+        end
       end
     end
 
     def check_member_access(expr, outer_var, *)
       return unless outer_var.type.pointer?
-      return if @interp.constant_expression?(expr.expression)
       return unless outer_var.value.scalar?
 
-      if !outer_var.value.must_be_equal_to?(@interp.scalar_value_of(0)) &&
-          outer_var.value.may_be_equal_to?(@interp.scalar_value_of(0))
-        W(expr.location)
+      unless constant_expression?(expr.expression)
+        if outer_var.value.test_must_be_null.false?
+          test = outer_var.value.test_may_be_null
+          if test.true?
+            W(expr.location, *test.basis.emit_context_messages(self))
+          end
+        end
       end
     end
 
     def check_array_subscript(expr, ary_or_ptr, *)
       return unless ary_or_ptr.type.pointer?
-      return if @interp.constant_expression?(expr.expression)
       return unless ary_or_ptr.value.scalar?
 
-      if !ary_or_ptr.value.must_be_equal_to?(@interp.scalar_value_of(0)) &&
-          ary_or_ptr.value.may_be_equal_to?(@interp.scalar_value_of(0))
-        W(expr.location)
+      unless constant_expression?(expr.expression)
+        if ary_or_ptr.value.test_must_be_null.false?
+          test = ary_or_ptr.value.test_may_be_null
+          if test.true?
+            W(expr.location, *test.basis.emit_context_messages(self))
+          end
+        end
       end
+    end
+
+    def interpreter
+      @interp
     end
   end
 
@@ -8354,17 +8497,17 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      @interp = phase_ctxt[:cc1_interpreter]
-      @interp.on_multiplicative_expr_evaled    += T(:check_binary)
-      @interp.on_additive_expr_evaled          += T(:check_binary)
-      @interp.on_shift_expr_evaled             += T(:check_binary)
-      @interp.on_and_expr_evaled               += T(:check_binary)
-      @interp.on_exclusive_or_expr_evaled      += T(:check_binary)
-      @interp.on_inclusive_or_expr_evaled      += T(:check_binary)
-      @interp.on_prefix_increment_expr_evaled  += T(:check_unary_prefix)
-      @interp.on_postfix_increment_expr_evaled += T(:check_unary_postfix)
-      @interp.on_prefix_decrement_expr_evaled  += T(:check_unary_prefix)
-      @interp.on_postfix_decrement_expr_evaled += T(:check_unary_postfix)
+      interp = phase_ctxt[:cc1_interpreter]
+      interp.on_multiplicative_expr_evaled    += T(:check_binary)
+      interp.on_additive_expr_evaled          += T(:check_binary)
+      interp.on_shift_expr_evaled             += T(:check_binary)
+      interp.on_and_expr_evaled               += T(:check_binary)
+      interp.on_exclusive_or_expr_evaled      += T(:check_binary)
+      interp.on_inclusive_or_expr_evaled      += T(:check_binary)
+      interp.on_prefix_increment_expr_evaled  += T(:check_unary_prefix)
+      interp.on_postfix_increment_expr_evaled += T(:check_unary_postfix)
+      interp.on_prefix_decrement_expr_evaled  += T(:check_unary_prefix)
+      interp.on_postfix_decrement_expr_evaled += T(:check_unary_postfix)
     end
 
     private
@@ -8372,30 +8515,40 @@ module CBuiltin #:nodoc:
       lhs_type, lhs_val = lhs_var.type, lhs_var.value
       rhs_type, rhs_val = rhs_var.type, rhs_var.value
 
-      if lhs_type.pointer? &&
-          lhs_val.must_be_equal_to?(@interp.scalar_value_of(0))
-        W(expr.lhs_operand.location)
+      if lhs_type.pointer?
+        test = lhs_val.test_must_be_null
+        if test.true?
+          W(expr.lhs_operand.location, *test.basis.emit_context_messages(self))
+        end
       end
 
-      if rhs_type.pointer? &&
-          rhs_val.must_be_equal_to?(@interp.scalar_value_of(0))
-        W(expr.rhs_operand.location)
+      if rhs_type.pointer?
+        test = rhs_val.test_must_be_null
+        if test.true?
+          W(expr.rhs_operand.location, *test.basis.emit_context_messages(self))
+        end
       end
     end
 
     def check_unary_prefix(expr, ope_var, orig_val)
       type, val = ope_var.type, orig_val
 
-      if type.pointer? && val.must_be_equal_to?(@interp.scalar_value_of(0))
-        W(expr.operand.location)
+      if type.pointer?
+        test = val.test_must_be_null
+        if test.true?
+          W(expr.operand.location, *test.basis.emit_context_messages(self))
+        end
       end
     end
 
     def check_unary_postfix(expr, ope_var, *)
       type, val = ope_var.type, ope_var.value
 
-      if type.pointer? && val.must_be_equal_to?(@interp.scalar_value_of(0))
-        W(expr.operand.location)
+      if type.pointer?
+        test = val.test_must_be_null
+        if test.true?
+          W(expr.operand.location, *test.basis.emit_context_messages(self))
+        end
       end
     end
   end
@@ -8409,17 +8562,17 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      @interp = phase_ctxt[:cc1_interpreter]
-      @interp.on_multiplicative_expr_evaled    += T(:check_binary)
-      @interp.on_additive_expr_evaled          += T(:check_binary)
-      @interp.on_shift_expr_evaled             += T(:check_binary)
-      @interp.on_and_expr_evaled               += T(:check_binary)
-      @interp.on_exclusive_or_expr_evaled      += T(:check_binary)
-      @interp.on_inclusive_or_expr_evaled      += T(:check_binary)
-      @interp.on_prefix_increment_expr_evaled  += T(:check_unary_prefix)
-      @interp.on_postfix_increment_expr_evaled += T(:check_unary_postfix)
-      @interp.on_prefix_decrement_expr_evaled  += T(:check_unary_prefix)
-      @interp.on_postfix_decrement_expr_evaled += T(:check_unary_postfix)
+      interp = phase_ctxt[:cc1_interpreter]
+      interp.on_multiplicative_expr_evaled    += T(:check_binary)
+      interp.on_additive_expr_evaled          += T(:check_binary)
+      interp.on_shift_expr_evaled             += T(:check_binary)
+      interp.on_and_expr_evaled               += T(:check_binary)
+      interp.on_exclusive_or_expr_evaled      += T(:check_binary)
+      interp.on_inclusive_or_expr_evaled      += T(:check_binary)
+      interp.on_prefix_increment_expr_evaled  += T(:check_unary_prefix)
+      interp.on_postfix_increment_expr_evaled += T(:check_unary_postfix)
+      interp.on_prefix_decrement_expr_evaled  += T(:check_unary_prefix)
+      interp.on_postfix_decrement_expr_evaled += T(:check_unary_postfix)
     end
 
     private
@@ -8427,36 +8580,40 @@ module CBuiltin #:nodoc:
       lhs_type, lhs_val = lhs_var.type, lhs_var.value
       rhs_type, rhs_val = rhs_var.type, rhs_var.value
 
-      if lhs_type.pointer? &&
-          !lhs_val.must_be_equal_to?(@interp.scalar_value_of(0)) &&
-           lhs_val.may_be_equal_to?(@interp.scalar_value_of(0))
-        W(expr.lhs_operand.location)
+      if lhs_type.pointer? && lhs_val.test_must_be_null.false?
+        test = lhs_val.test_may_be_null
+        if test.true?
+          W(expr.lhs_operand.location, *test.basis.emit_context_messages(self))
+        end
       end
 
-      if rhs_type.pointer? &&
-          !rhs_val.must_be_equal_to?(@interp.scalar_value_of(0)) &&
-           rhs_val.may_be_equal_to?(@interp.scalar_value_of(0))
-        W(expr.rhs_operand.location)
+      if rhs_type.pointer? && rhs_val.test_must_be_null.false?
+        test = rhs_val.test_may_be_null
+        if test.true?
+          W(expr.rhs_operand.location, *test.basis.emit_context_messages(self))
+        end
       end
     end
 
     def check_unary_prefix(expr, ope_var, orig_val)
       type, val = ope_var.type, orig_val
 
-      if type.pointer? &&
-          !val.must_be_equal_to?(@interp.scalar_value_of(0)) &&
-           val.may_be_equal_to?(@interp.scalar_value_of(0))
-        W(expr.operand.location)
+      if type.pointer? && val.test_must_be_null.false?
+        test = val.test_may_be_null
+        if test.true?
+          W(expr.operand.location, *test.basis.emit_context_messages(self))
+        end
       end
     end
 
     def check_unary_postfix(expr, ope_var, *)
       type, val = ope_var.type, ope_var.value
 
-      if type.pointer? and
-          !val.must_be_equal_to?(@interp.scalar_value_of(0)) &&
-           val.may_be_equal_to?(@interp.scalar_value_of(0))
-        W(expr.operand.location)
+      if type.pointer? && val.test_must_be_null.false?
+        test = val.test_may_be_null
+        if test.true?
+          W(expr.operand.location, *test.basis.emit_context_messages(self))
+        end
       end
     end
   end
@@ -8858,8 +9015,8 @@ module CBuiltin #:nodoc:
         widths_idx = @indent_level
       end
 
-      expected_col_no = @indent_widths[widths_idx]
-      if tok.location.appearance_column_no < expected_col_no
+      expected_column_no = @indent_widths[widths_idx]
+      if tok.location.appearance_column_no < expected_column_no
         W(tok.location) if tok.analysis_target?(traits)
       end
 
@@ -9065,21 +9222,21 @@ module CBuiltin #:nodoc:
       case tok.type
       when "{"
         if @indent_level == 0
-          expected_col_no = expected_indent_width(tok)
+          expected_column_no = expected_indent_width(tok)
         else
-          expected_col_no = expected_indent_width(tok, -1)
+          expected_column_no = expected_indent_width(tok, -1)
         end
       when "}"
         if indent_style == INDENT_STYLE_GNU && @indent_level > 0
-          expected_col_no = expected_indent_width(tok, +1)
+          expected_column_no = expected_indent_width(tok, +1)
         else
-          expected_col_no = expected_indent_width(tok)
+          expected_column_no = expected_indent_width(tok)
         end
       else
-        expected_col_no = expected_indent_width(tok)
+        expected_column_no = expected_indent_width(tok)
       end
 
-      unless tok.location.appearance_column_no == expected_col_no
+      unless tok.location.appearance_column_no == expected_column_no
         W(tok.location) if tok.analysis_target?(traits)
       end
     end
@@ -9130,6 +9287,8 @@ module CBuiltin #:nodoc:
   class W0441 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
 
+    include Cc1::InterpreterMediator
+
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
     mark_as_unique
@@ -9145,9 +9304,13 @@ module CBuiltin #:nodoc:
       return unless var.type.scalar? && var.type.integer?
       return if const_spec.character?
 
-      if const_spec.suffix.nil? && var.type != @interp.int_t
+      if const_spec.suffix.nil? && var.type != int_t
         W(const_spec.location)
       end
+    end
+
+    def interpreter
+      @interp
     end
   end
 
@@ -9381,9 +9544,12 @@ module CBuiltin #:nodoc:
     def check(expr, var)
       return if var.scope.global? || var.binding.memory.static?
 
-      if var.named? && var.value.must_be_undefined?
-        var = var.owner while var.inner?
-        W(expr.location, var.name)
+      if var.named?
+        test = var.value.test_must_be_undefined
+        if test.true?
+          var = var.owner while var.inner?
+          W(expr.location, var.name, *test.basis.emit_context_messages(self))
+        end
       end
     end
   end
@@ -9404,17 +9570,23 @@ module CBuiltin #:nodoc:
     private
     def check(expr, var)
       return if var.scope.global? || var.binding.memory.static?
-      return if var.value.must_be_undefined?
 
-      if var.named? && var.value.may_be_undefined?
-        var = var.owner while var.inner?
-        W(expr.location, var.name)
+      if var.named?
+        if var.value.test_must_be_undefined.false?
+          test = var.value.test_may_be_undefined
+          if test.true?
+            var = var.owner while var.inner?
+            W(expr.location, var.name, *test.basis.emit_context_messages(self))
+          end
+        end
       end
     end
   end
 
   class W0461 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
+
+    include Cc1::InterpreterMediator
 
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
@@ -9436,17 +9608,27 @@ module CBuiltin #:nodoc:
         base_type = type.unqualify.base_type
         next unless !base_type.function? && base_type.const?
 
-        if pointee = @interp.pointee_of(arg) and pointee.variable?
-          if !pointee.temporary? && pointee.value.must_be_undefined?
-            W(funcall_expr.argument_expressions[idx].location)
+        if pointee = pointee_of(arg) and pointee.variable?
+          if !pointee.temporary?
+            test = pointee.value.test_must_be_undefined
+            if test.true?
+              arg_expr = funcall_expr.argument_expressions[idx]
+              W(arg_expr.location, *test.basis.emit_context_messages(self))
+            end
           end
         end
       end
+    end
+
+    def interpreter
+      @interp
     end
   end
 
   class W0462 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
+
+    include Cc1::InterpreterMediator
 
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
@@ -9466,13 +9648,21 @@ module CBuiltin #:nodoc:
         next unless type && type.pointer?
         next unless type.unqualify.base_type.const?
 
-        if pointee = @interp.pointee_of(arg) and pointee.variable?
-          next if pointee.value.must_be_undefined?
-          if !pointee.temporary? && pointee.value.may_be_undefined?
-            W(funcall_expr.argument_expressions[idx].location)
+        if pointee = pointee_of(arg) and pointee.variable?
+          next if pointee.value.test_must_be_undefined.true?
+          if !pointee.temporary?
+            test = pointee.value.test_may_be_undefined
+            if test.true?
+              arg_expr = funcall_expr.argument_expressions[idx]
+              W(arg_expr.location, *test.basis.emit_context_messages(self))
+            end
           end
         end
       end
+    end
+
+    def interpreter
+      @interp
     end
   end
 
@@ -12045,6 +12235,7 @@ module CBuiltin #:nodoc:
   class W0534 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
 
+    include Cc1::InterpreterMediator
     include Cc1::SyntaxNodeCollector
 
     # NOTE: All messages of cc1-phase code check should be unique till function
@@ -12093,8 +12284,12 @@ module CBuiltin #:nodoc:
       }.each { |obj_name| histo.include?(obj_name) and histo[obj_name] += 1 }
 
       histo.to_a.sort { |a, b| b.last <=> a.last }.map(&:first).find do |name|
-        var = @interp.variable_named(name) and !var.type.const?
+        var = variable_named(name) and !var.type.const?
       end
+    end
+
+    def interpreter
+      @interp
     end
   end
 
@@ -12269,6 +12464,7 @@ module CBuiltin #:nodoc:
   class W0543 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
 
+    include Cc1::InterpreterMediator
     include Cc1::SyntaxNodeCollector
 
     # NOTE: All messages of cc1-phase code check should be unique till function
@@ -12284,7 +12480,7 @@ module CBuiltin #:nodoc:
 
     private
     def check(node)
-      fun = @interp.function_named(node.identifier.value)
+      fun = function_named(node.identifier.value)
       return unless fun
 
       params = fun.declarations_and_definitions.map { |dcl_or_def|
@@ -12309,6 +12505,10 @@ module CBuiltin #:nodoc:
     def extract_param_names(node)
       collect_identifier_declarators(node).map { |decl| decl.identifier.value }
     end
+
+    def interpreter
+      @interp
+    end
   end
 
   class W0544 < PassiveCodeCheck
@@ -12320,9 +12520,9 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      @interp = phase_ctxt[:cc1_interpreter]
-      @interp.on_variable_initialized   += T(:check_initialization)
-      @interp.on_assignment_expr_evaled += T(:check_assignment)
+      interp = phase_ctxt[:cc1_interpreter]
+      interp.on_variable_initialized   += T(:check_initialization)
+      interp.on_assignment_expr_evaled += T(:check_assignment)
     end
 
     private
@@ -12532,10 +12732,10 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      @interp = phase_ctxt[:cc1_interpreter]
-      @interp.on_function_started          += T(:enter_function)
-      @interp.on_function_ended            += T(:leave_function)
-      @interp.on_function_call_expr_evaled += T(:check)
+      interp = phase_ctxt[:cc1_interpreter]
+      interp.on_function_started          += T(:enter_function)
+      interp.on_function_ended            += T(:leave_function)
+      interp.on_function_call_expr_evaled += T(:check)
       @functions = []
     end
 
@@ -12911,6 +13111,8 @@ module CBuiltin #:nodoc:
   class W0568 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
 
+    include Cc1::InterpreterMediator
+
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
     mark_as_unique
@@ -12925,27 +13127,35 @@ module CBuiltin #:nodoc:
     def check(expr, lhs_var, rhs_var, *)
       op = expr.operator.type
       return unless op == "<<" || op == "<<="
+      return unless constant_expression?(expr.lhs_operand)
 
-      return unless @interp.constant_expression?(expr.lhs_operand)
-      return unless lhs_var.type.signed?
+      if lhs_var.type.signed?
+        test = lhs_var.value.test_must_be_less_than(scalar_value_of(0))
+        if test.true?
+          W(expr.location, *test.basis.emit_context_messages(self))
+          return
+        end
 
-      if lhs_var.value.must_be_less_than?(@interp.scalar_value_of(0)) or
-          lhs_var.value.must_be_greater_than?(@interp.scalar_value_of(0)) &&
-          must_overflow?(lhs_var, rhs_var)
-        W(expr.location)
+        if lhs_var.value.test_must_be_greater_than(scalar_value_of(0)).true?
+          lhs_limit = scalar_value_of(lhs_var.type.max) >> rhs_var.value
+          test = lhs_var.value.test_must_be_greater_than(lhs_limit)
+          if test.true?
+            W(expr.location, *test.basis.emit_context_messages(self))
+          end
+        end
       end
     end
 
-    def must_overflow?(lhs_var, rhs_var)
-      comp_val = lhs_var.value << rhs_var.value
-      lhs_max_val = @interp.scalar_value_of(lhs_var.type.max)
-      comp_val.must_be_greater_than?(lhs_max_val)
+    def interpreter
+      @interp
     end
   end
 
   class W0569 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
 
+    include Cc1::InterpreterMediator
+
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
     mark_as_unique
@@ -12960,27 +13170,35 @@ module CBuiltin #:nodoc:
     def check(expr, lhs_var, rhs_var, *)
       op = expr.operator.type
       return unless op == "<<" || op == "<<="
+      return if constant_expression?(expr.lhs_operand)
 
-      return if @interp.constant_expression?(expr.lhs_operand)
-      return unless lhs_var.type.signed?
+      if lhs_var.type.signed?
+        test = lhs_var.value.test_must_be_less_than(scalar_value_of(0))
+        if test.true?
+          W(expr.location, *test.basis.emit_context_messages(self))
+          return
+        end
 
-      if lhs_var.value.must_be_less_than?(@interp.scalar_value_of(0)) or
-          lhs_var.value.must_be_greater_than?(@interp.scalar_value_of(0)) &&
-          must_overflow?(lhs_var, rhs_var)
-        W(expr.location)
+        if lhs_var.value.test_must_be_greater_than(scalar_value_of(0)).true?
+          lhs_limit = scalar_value_of(lhs_var.type.max) >> rhs_var.value
+          test = lhs_var.value.test_must_be_greater_than(lhs_limit)
+          if test.true?
+            W(expr.location, *test.basis.emit_context_messages(self))
+          end
+        end
       end
     end
 
-    def must_overflow?(lhs_var, rhs_var)
-      comp_val = lhs_var.value << rhs_var.value
-      lhs_max_val = @interp.scalar_value_of(lhs_var.type.max)
-      comp_val.must_be_greater_than?(lhs_max_val)
+    def interpreter
+      @interp
     end
   end
 
   class W0570 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
 
+    include Cc1::InterpreterMediator
+
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
     mark_as_unique
@@ -12995,27 +13213,28 @@ module CBuiltin #:nodoc:
     def check(expr, lhs_var, rhs_var, *)
       op = expr.operator.type
       return unless op == "<<" || op == "<<="
+      return if constant_expression?(expr.lhs_operand)
 
-      return if @interp.constant_expression?(expr.lhs_operand)
-      return unless lhs_var.type.signed?
+      if lhs_var.type.signed?
+        if lhs_var.value.test_must_be_less_than(scalar_value_of(0)).false?
+          test = lhs_var.value.test_may_be_less_than(scalar_value_of(0))
+          if test.true?
+            W(expr.location, *test.basis.emit_context_messages(self))
+            return
+          end
+        end
 
-      if !lhs_var.value.must_be_less_than?(@interp.scalar_value_of(0)) &&
-          lhs_var.value.may_be_less_than?(@interp.scalar_value_of(0)) or
-         !must_overflow?(lhs_var, rhs_var) && may_overflow?(lhs_var, rhs_var)
-        W(expr.location)
+        if lhs_var.value.test_must_be_greater_than(scalar_value_of(0)).false?
+          test = lhs_var.value.test_may_be_greater_than(scalar_value_of(0))
+          if test.true?
+            W(expr.location, *test.basis.emit_context_messages(self))
+          end
+        end
       end
     end
 
-    def must_overflow?(lhs_var, rhs_var)
-      comp_val = lhs_var.value << rhs_var.value
-      lhs_max_val = @interp.scalar_value_of(lhs_var.type.max)
-      comp_val.must_be_greater_than?(lhs_max_val)
-    end
-
-    def may_overflow?(lhs_var, rhs_var)
-      comp_val = lhs_var.value << rhs_var.value
-      lhs_max_val = @interp.scalar_value_of(lhs_var.type.max)
-      comp_val.may_be_greater_than?(lhs_max_val)
+    def interpreter
+      @interp
     end
   end
 
@@ -13222,6 +13441,8 @@ module CBuiltin #:nodoc:
   class W0580 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
 
+    include Cc1::InterpreterMediator
+
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
     mark_as_unique
@@ -13265,7 +13486,7 @@ module CBuiltin #:nodoc:
       return unless @params && @ptr_relat
       return unless lhs_var.type.pointer? && rhs_var.type.pointer?
 
-      if rhs_pointee = @interp.pointee_of(rhs_var) and
+      if rhs_pointee = pointee_of(rhs_var) and
           rhs_pointee.variable? && rhs_pointee.named? &&
           rhs_pointee.scope.local? && rhs_pointee.binding.memory.static?
         if lhs_var.scope.global?
@@ -13278,6 +13499,10 @@ module CBuiltin #:nodoc:
           end
         end
       end
+    end
+
+    def interpreter
+      @interp
     end
   end
 
@@ -13364,7 +13589,7 @@ module CBuiltin #:nodoc:
           types = args.map { |ary| ary.first }.zip(param_types)
           conformed = types.each_with_index.all? { |(atype, ptype), idx|
             arg_expr = funcall_expr.argument_expressions[idx]
-            @interp.constant_expression?(arg_expr) &&
+            constant_expression?(arg_expr) &&
               untyped_pointer_conversion?(atype, ptype, args[idx].last) or
             atype.convertible?(ptype)
           }
@@ -13418,7 +13643,7 @@ module CBuiltin #:nodoc:
           types = args.map { |ary| ary.first }.zip(param_types)
           conformed = types.each_with_index.all? { |(atype, ptype), idx|
             arg_expr = funcall_expr.argument_expressions[idx]
-            @interp.constant_expression?(arg_expr) &&
+            constant_expression?(arg_expr) &&
               untyped_pointer_conversion?(atype, ptype, args[idx].last) or
             atype.convertible?(ptype)
           }
@@ -13471,7 +13696,7 @@ module CBuiltin #:nodoc:
 
       args.zip(param_types).each_with_index do |(arg, ptype), idx|
         arg_expr = funcall_expr.argument_expressions[idx]
-        if @interp.constant_expression?(arg_expr)
+        if constant_expression?(arg_expr)
           next if untyped_pointer_conversion?(arg.first, ptype, arg.last)
         end
 
@@ -13495,6 +13720,7 @@ module CBuiltin #:nodoc:
   class W0585 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
 
+    include Cc1::InterpreterMediator
     include Cc1::SyntaxNodeCollector
 
     # NOTE: All messages of cc1-phase code check should be unique till function
@@ -13549,7 +13775,7 @@ module CBuiltin #:nodoc:
       }.each { |obj_name| histo.include?(obj_name) and histo[obj_name] += 1 }
 
       histo.to_a.sort { |a, b| b.last <=> a.last }.map(&:first).find do |name|
-        var = @interp.variable_named(name) and !var.type.const?
+        var = variable_named(name) and !var.type.const?
       end
     end
 
@@ -13593,6 +13819,10 @@ module CBuiltin #:nodoc:
       end
 
       varying_var_names.uniq
+    end
+
+    def interpreter
+      @interp
     end
   end
 
@@ -13808,6 +14038,8 @@ module CBuiltin #:nodoc:
   class W0607 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
 
+    include Cc1::InterpreterMediator
+
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
     mark_as_unique
@@ -13828,20 +14060,24 @@ module CBuiltin #:nodoc:
         return
       end
 
-      orig_val = orig_var.value
-      return unless orig_val.scalar?
-
-      lower_test = orig_val < @interp.scalar_value_of(0)
-
-      if lower_test.must_be_true?
-        W(expr.location)
+      if orig_var.value.scalar?
+        test = orig_var.value.test_must_be_less_than(scalar_value_of(0))
+        if test.true?
+          W(expr.location, *test.basis.emit_context_messages(self))
+        end
       end
+    end
+
+    def interpreter
+      @interp
     end
   end
 
   class W0608 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
 
+    include Cc1::InterpreterMediator
+
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
     mark_as_unique
@@ -13862,14 +14098,17 @@ module CBuiltin #:nodoc:
         return
       end
 
-      orig_val = orig_var.value
-      return unless orig_val.scalar?
-
-      lower_test = orig_val < @interp.scalar_value_of(0)
-
-      if !lower_test.must_be_true? && lower_test.may_be_true?
-        W(expr.location)
+      if orig_var.value.scalar? &&
+          orig_var.value.test_must_be_less_than(scalar_value_of(0)).false?
+        test = orig_var.value.test_may_be_less_than(scalar_value_of(0))
+        if test.true?
+          W(expr.location, *test.basis.emit_context_messages(self))
+        end
       end
+    end
+
+    def interpreter
+      @interp
     end
   end
 
@@ -13900,7 +14139,7 @@ module CBuiltin #:nodoc:
 
     private
     def check(expr, *, rslt_var)
-      if rslt_var.value.must_be_true? && !should_not_check?(expr)
+      if rslt_var.value.test_must_be_true.true? && !should_not_check?(expr)
         W(expr.location)
       end
     end
@@ -13958,7 +14197,7 @@ module CBuiltin #:nodoc:
 
     private
     def check(expr, *, rslt_var)
-      if rslt_var.value.must_be_false? && !should_not_check?(expr)
+      if rslt_var.value.test_must_be_false.true? && !should_not_check?(expr)
         W(expr.location)
       end
     end
@@ -13992,6 +14231,7 @@ module CBuiltin #:nodoc:
   class W0611 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
 
+    include Cc1::InterpreterMediator
     include Cc1::SyntaxNodeCollector
 
     # NOTE: All messages of cc1-phase code check should be unique till function
@@ -14048,7 +14288,7 @@ module CBuiltin #:nodoc:
 
     def deduct_ctrl_vars(ctrlexpr)
       collect_object_specifiers(ctrlexpr).each_with_object({}) do |os, hash|
-        if ctrl_var = @interp.variable_named(os.identifier.value)
+        if ctrl_var = variable_named(os.identifier.value)
           hash[os.identifier.value] = false unless ctrl_var.type.const?
         end
       end
@@ -14070,10 +14310,10 @@ module CBuiltin #:nodoc:
 
     def check(*)
       if ctrlexpr = @iter_stmts.last.ctrlexpr
-        unless @interp.constant_expression?(ctrlexpr)
+        unless constant_expression?(ctrlexpr)
           ctrlexpr_val = @iter_stmts.last.ctrlexpr_val
           ctrl_vars = @iter_stmts.last.ctrl_vars
-          if ctrlexpr_val && ctrlexpr_val.must_be_true? and
+          if ctrlexpr_val && ctrlexpr_val.test_must_be_true.true? and
               ctrl_vars && ctrl_vars.values.none?
             W(ctrlexpr.location)
           end
@@ -14081,10 +14321,16 @@ module CBuiltin #:nodoc:
       end
       @iter_stmts.pop
     end
+
+    def interpreter
+      @interp
+    end
   end
 
   class W0612 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
+
+    include Cc1::InterpreterMediator
 
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
@@ -14100,10 +14346,14 @@ module CBuiltin #:nodoc:
     private
     def check(selection_stmt, ctrlexpr_val)
       if ctrlexpr = selection_stmt.expression
-        unless @interp.constant_expression?(ctrlexpr)
-          W(ctrlexpr.location) if ctrlexpr_val.must_be_true?
+        unless constant_expression?(ctrlexpr)
+          W(ctrlexpr.location) if ctrlexpr_val.test_must_be_true.true?
         end
       end
+    end
+
+    def interpreter
+      @interp
     end
   end
 
@@ -14126,19 +14376,19 @@ module CBuiltin #:nodoc:
 
     private
     def check_if_stmt(if_stmt, ctrlexpr_val)
-      if ctrlexpr_val.must_be_false?
+      if ctrlexpr_val.test_must_be_false.true?
         W(if_stmt.expression.location)
       end
     end
 
     def check_if_else_stmt(if_else_stmt, ctrlexpr_val)
-      if ctrlexpr_val.must_be_false?
+      if ctrlexpr_val.test_must_be_false.true?
         W(if_else_stmt.expression.location)
       end
     end
 
     def check_while_stmt(while_stmt, ctrlexpr_val)
-      if ctrlexpr_val.must_be_false?
+      if ctrlexpr_val.test_must_be_false.true?
         W(while_stmt.expression.location)
       end
     end
@@ -14146,7 +14396,7 @@ module CBuiltin #:nodoc:
     def check_for_stmt(for_stmt, ctrlexpr_val)
       # NOTE: This method is called only if the for-statement has a controlling
       #       expression.
-      if ctrlexpr_val.must_be_false?
+      if ctrlexpr_val.test_must_be_false.true?
         W(for_stmt.condition_statement.expression.location)
       end
     end
@@ -14154,7 +14404,7 @@ module CBuiltin #:nodoc:
     def check_c99_for_stmt(c99_for_stmt, ctrlexpr_val)
       # NOTE: This method is called only if the c99-for-statement has a
       #       controlling expression.
-      if ctrlexpr_val.must_be_false?
+      if ctrlexpr_val.test_must_be_false.true?
         W(c99_for_stmt.condition_statement.expression.location)
       end
     end
@@ -14162,6 +14412,8 @@ module CBuiltin #:nodoc:
 
   class W0614 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
+
+    include Cc1::InterpreterMediator
 
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
@@ -14175,11 +14427,15 @@ module CBuiltin #:nodoc:
 
     private
     def check(do_stmt, ctrlexpr_val)
-      unless @interp.constant_expression?(do_stmt.expression)
-        if ctrlexpr_val.must_be_false?
+      unless constant_expression?(do_stmt.expression)
+        if ctrlexpr_val.test_must_be_false.true?
           W(do_stmt.expression.location)
         end
       end
+    end
+
+    def interpreter
+      @interp
     end
   end
 
@@ -14827,6 +15083,8 @@ module CBuiltin #:nodoc:
   class W0649 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
 
+    include Cc1::InterpreterMediator
+
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
     mark_as_unique
@@ -14839,17 +15097,23 @@ module CBuiltin #:nodoc:
 
     private
     def check(expr, lhs_var, rhs_var, *)
-      if @interp.constant_expression?(expr.rhs_operand)
-        if rhs_var.value.must_be_less_than?(@interp.scalar_value_of(0))
+      if constant_expression?(expr.rhs_operand)
+        if rhs_var.value.test_must_be_less_than(scalar_value_of(0)).true?
           W(expr.location)
         end
       end
+    end
+
+    def interpreter
+      @interp
     end
   end
 
   class W0650 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
 
+    include Cc1::InterpreterMediator
+
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
     mark_as_unique
@@ -14862,14 +15126,18 @@ module CBuiltin #:nodoc:
 
     private
     def check(expr, lhs_var, rhs_var, *)
-      if @interp.constant_expression?(expr.rhs_operand)
+      if constant_expression?(expr.rhs_operand)
         promoted_type = lhs_var.type.integer_promoted_type
-        promoted_bit_size = @interp.scalar_value_of(promoted_type.bit_size)
-        if rhs_var.value.must_be_equal_to?(promoted_bit_size) ||
-            rhs_var.value.must_be_greater_than?(promoted_bit_size)
+        promoted_bit_size = scalar_value_of(promoted_type.bit_size)
+        if rhs_var.value.test_must_be_equal_to(promoted_bit_size).true? ||
+            rhs_var.value.test_must_be_greater_than(promoted_bit_size).true?
           W(expr.location, promoted_type.brief_image)
         end
       end
+    end
+
+    def interpreter
+      @interp
     end
   end
 
@@ -15848,8 +16116,9 @@ module CBuiltin #:nodoc:
   class W0705 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
 
-    include Cc1::SyntaxNodeCollector
+    include Cc1::InterpreterMediator
     include Cc1::InterpreterOptions
+    include Cc1::SyntaxNodeCollector
 
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
@@ -15866,7 +16135,7 @@ module CBuiltin #:nodoc:
     def check_array_subscript(expr, ary_or_ptr, subs, ary, *)
       return unless ary
 
-      unless @interp.constant_expression?(expr.array_subscript)
+      unless constant_expression?(expr.array_subscript)
         warn_array_oob_access(expr.array_subscript, ary, subs)
       end
     end
@@ -15875,23 +16144,29 @@ module CBuiltin #:nodoc:
       ary, subs_expr = extract_array_and_subscript(expr.operand)
       return unless ary
 
-      unless @interp.constant_expression?(subs_expr)
-        subs = @interp.interpret(subs_expr, QUIET_WITHOUT_SIDE_EFFECT)
+      unless constant_expression?(subs_expr)
+        subs = interpret(subs_expr, QUIET_WITHOUT_SIDE_EFFECT)
         warn_array_oob_access(expr.operand, ary, subs)
       end
     end
 
     def warn_array_oob_access(expr, ary, subs)
       if ary_len = ary.type.length
-        lower_bound = @interp.scalar_value_of(0)
-        upper_bound = @interp.scalar_value_of(ary_len - 1)
+        lower_bound = scalar_value_of(0)
+        if subs.value.test_must_be_less_than(lower_bound).false?
+          test = subs.value.test_may_be_less_than(lower_bound)
+          if test.true?
+            W(expr.location, *test.basis.emit_context_messages(self))
+            return
+          end
+        end
 
-        lower_test = subs.value < lower_bound
-        upper_test = subs.value > upper_bound
-
-        if !lower_test.must_be_true? && lower_test.may_be_true? or
-            !upper_test.must_be_true? && upper_test.may_be_true?
-          W(expr.location)
+        upper_bound = scalar_value_of(ary_len - 1)
+        if subs.value.test_must_be_greater_than(upper_bound).false?
+          test = subs.value.test_may_be_greater_than(upper_bound)
+          if test.true?
+            W(expr.location, *test.basis.emit_context_messages(self))
+          end
         end
       end
     end
@@ -15904,12 +16179,12 @@ module CBuiltin #:nodoc:
 
     def extract_array(expr)
       collect_object_specifiers(expr).each do |os|
-        if obj = @interp.variable_named(os.identifier.value)
+        if obj = variable_named(os.identifier.value)
           case
           when obj.type.array?
             return obj, os.identifier.value
           when obj.type.pointer?
-            if obj = @interp.pointee_of(obj) and obj.type.array?
+            if obj = pointee_of(obj) and obj.type.array?
               return obj, os.identifier.value
             end
           end
@@ -15920,6 +16195,10 @@ module CBuiltin #:nodoc:
 
     def create_subscript_expr(expr, ary_name)
       expr.accept(ExpressionTransformer.new(ary_name))
+    end
+
+    def interpreter
+      @interp
     end
 
     class ExpressionTransformer < Cc1::SyntaxTreeVisitor
@@ -16166,8 +16445,9 @@ module CBuiltin #:nodoc:
   class W0707 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
 
-    include Cc1::SyntaxNodeCollector
+    include Cc1::InterpreterMediator
     include Cc1::InterpreterOptions
+    include Cc1::SyntaxNodeCollector
 
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
@@ -16184,7 +16464,7 @@ module CBuiltin #:nodoc:
     def check_array_subscript(expr, ary_or_ptr, subs, ary, *)
       return unless ary
 
-      if @interp.constant_expression?(expr.array_subscript)
+      if constant_expression?(expr.array_subscript)
         warn_array_oob_access(expr.array_subscript, ary, subs)
       end
     end
@@ -16193,23 +16473,26 @@ module CBuiltin #:nodoc:
       ary, subs_expr = extract_array_and_subscript(expr.operand)
       return unless ary
 
-      if @interp.constant_expression?(subs_expr)
+      if constant_expression?(subs_expr)
         # NOTE: A constant-expression has no side-effects.
-        subs = @interp.interpret(subs_expr, QUIET)
+        subs = interpret(subs_expr, QUIET)
         warn_array_oob_access(expr.operand, ary, subs)
       end
     end
 
     def warn_array_oob_access(expr, ary, subs)
       if ary_len = ary.type.length
-        lower_bound = @interp.scalar_value_of(0)
-        upper_bound = @interp.scalar_value_of(ary_len - 1)
+        lower_bound = scalar_value_of(0)
+        test = subs.value.test_must_be_less_than(lower_bound)
+        if test.true?
+          W(expr.location, *test.basis.emit_context_messages(self))
+          return
+        end
 
-        lower_test = subs.value < lower_bound
-        upper_test = subs.value > upper_bound
-
-        if lower_test.must_be_true? || upper_test.must_be_true?
-          W(expr.location)
+        upper_bound = scalar_value_of(ary_len - 1)
+        test = subs.value.test_must_be_greater_than(upper_bound)
+        if test.true?
+          W(expr.location, *test.basis.emit_context_messages(self))
         end
       end
     end
@@ -16222,12 +16505,12 @@ module CBuiltin #:nodoc:
 
     def extract_array(expr)
       collect_object_specifiers(expr).each do |os|
-        if obj = @interp.variable_named(os.identifier.value)
+        if obj = variable_named(os.identifier.value)
           case
           when obj.type.array?
             return obj, os.identifier.value
           when obj.type.pointer?
-            if obj = @interp.pointee_of(obj) and obj.type.array?
+            if obj = pointee_of(obj) and obj.type.array?
               return obj, os.identifier.value
             end
           end
@@ -16238,6 +16521,10 @@ module CBuiltin #:nodoc:
 
     def create_subscript_expr(expr, ary_name)
       expr.accept(ExpressionTransformer.new(ary_name))
+    end
+
+    def interpreter
+      @interp
     end
 
     class ExpressionTransformer < Cc1::SyntaxTreeVisitor
@@ -16484,6 +16771,7 @@ module CBuiltin #:nodoc:
   class W0708 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
 
+    include Cc1::InterpreterMediator
     include Cc1::SyntaxNodeCollector
 
     # NOTE: All messages of cc1-phase code check should be unique till function
@@ -16548,7 +16836,7 @@ module CBuiltin #:nodoc:
       }.each { |obj_name| histo.include?(obj_name) and histo[obj_name] += 1 }
 
       histo.to_a.sort { |a, b| b.last <=> a.last }.map(&:first).find do |name|
-        var = @interp.variable_named(name) and !var.type.const?
+        var = variable_named(name) and !var.type.const?
       end
     end
 
@@ -16566,6 +16854,10 @@ module CBuiltin #:nodoc:
 
     def contain_expr?(node, expr)
       node ? Visitor.new(expr).tap { |v| node.accept(v) }.result : false
+    end
+
+    def interpreter
+      @interp
     end
 
     class Visitor < Cc1::SyntaxTreeVisitor
@@ -16614,6 +16906,8 @@ module CBuiltin #:nodoc:
   class W0719 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
 
+    include Cc1::InterpreterMediator
+
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
     mark_as_unique
@@ -16626,23 +16920,30 @@ module CBuiltin #:nodoc:
 
     private
     def check(expr, lhs_var, rhs_var, *)
-      if @interp.constant_expression?(expr.rhs_operand)
+      if constant_expression?(expr.rhs_operand)
         underlying_type     = lhs_var.type
-        underlying_bit_size = @interp.scalar_value_of(underlying_type.bit_size)
+        underlying_bit_size = scalar_value_of(underlying_type.bit_size)
         promoted_type       = lhs_var.type.integer_promoted_type
-        promoted_bit_size   = @interp.scalar_value_of(promoted_type.bit_size)
+        promoted_bit_size   = scalar_value_of(promoted_type.bit_size)
 
-        if rhs_var.value.must_be_equal_to?(underlying_bit_size) ||
-            rhs_var.value.must_be_greater_than?(underlying_bit_size) and
-            rhs_var.value.must_be_less_than?(promoted_bit_size)
+        rhs_val = rhs_var.value
+        if rhs_val.test_must_be_equal_to(underlying_bit_size).true? ||
+            rhs_val.test_must_be_greater_than(underlying_bit_size).true? and
+            rhs_val.test_must_be_less_than(promoted_bit_size).true?
           W(expr.location, underlying_type.brief_image)
         end
       end
+    end
+
+    def interpreter
+      @interp
     end
   end
 
   class W0720 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
+
+    include Cc1::InterpreterMediator
 
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
@@ -16667,12 +16968,22 @@ module CBuiltin #:nodoc:
       orig_val = orig_var.value
       return unless orig_val.scalar?
 
-      lower_test = orig_val < @interp.scalar_value_of(rslt_type.min - 1)
-      upper_test = orig_val > @interp.scalar_value_of(rslt_type.max + 1)
-
-      if lower_test.must_be_true? || upper_test.must_be_true?
-        W(expr.location)
+      lower_bound = scalar_value_of(rslt_type.min - 1)
+      test = orig_val.test_must_be_less_than(lower_bound)
+      if test.true?
+        W(expr.location, *test.basis.emit_context_messages(self))
+        return
       end
+
+      upper_bound = scalar_value_of(rslt_type.max + 1)
+      test = orig_val.test_must_be_greater_than(upper_bound)
+      if test.true?
+        W(expr.location, *test.basis.emit_context_messages(self))
+      end
+    end
+
+    def interpreter
+      @interp
     end
   end
 
@@ -16707,6 +17018,8 @@ module CBuiltin #:nodoc:
   class W0722 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
 
+    include Cc1::InterpreterMediator
+
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
     mark_as_unique
@@ -16736,18 +17049,25 @@ module CBuiltin #:nodoc:
         return
       end
 
-      lower_test = unbound_val < @interp.scalar_value_of(rslt_var.type.min)
-      upper_test = unbound_val > @interp.scalar_value_of(rslt_var.type.max)
+      lower_test = unbound_val < scalar_value_of(rslt_var.type.min)
+      upper_test = unbound_val > scalar_value_of(rslt_var.type.max)
 
-      if lower_test.must_be_true? || upper_test.must_be_true?
+      if lower_test.test_must_be_true.true? ||
+          upper_test.test_must_be_true.true?
         W(expr.location)
       end
+    end
+
+    def interpreter
+      @interp
     end
   end
 
   class W0723 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
 
+    include Cc1::InterpreterMediator
+
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
     mark_as_unique
@@ -16777,13 +17097,19 @@ module CBuiltin #:nodoc:
         return
       end
 
-      lower_test = unbound_val < @interp.scalar_value_of(rslt_var.type.min)
-      upper_test = unbound_val > @interp.scalar_value_of(rslt_var.type.max)
+      lower_test = unbound_val < scalar_value_of(rslt_var.type.min)
+      upper_test = unbound_val > scalar_value_of(rslt_var.type.max)
 
-      if !lower_test.must_be_true? && lower_test.may_be_true? or
-          !upper_test.must_be_true? && upper_test.may_be_true?
+      if !lower_test.test_must_be_true.true? &&
+          lower_test.test_may_be_true.true? or
+         !upper_test.test_must_be_true.true? &&
+          upper_test.test_may_be_true.true?
         W(expr.location)
       end
+    end
+
+    def interpreter
+      @interp
     end
   end
 
@@ -16815,6 +17141,8 @@ module CBuiltin #:nodoc:
   class W0728 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
 
+    include Cc1::InterpreterMediator
+
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
     mark_as_unique
@@ -16832,17 +17160,23 @@ module CBuiltin #:nodoc:
         next unless param_type && param_type.enum?
 
         arg_expr = expr.argument_expressions[idx]
-        if @interp.constant_expression?(arg_expr)
+        if constant_expression?(arg_expr)
           if arg_var.type.enum?
             W(arg_expr.location) unless arg_var.type.same_as?(param_type)
           end
         end
       end
     end
+
+    def interpreter
+      @interp
+    end
   end
 
   class W0729 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
+
+    include Cc1::InterpreterMediator
 
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
@@ -16857,16 +17191,22 @@ module CBuiltin #:nodoc:
     private
     def check(expr, lhs_var, rhs_var)
       return unless lhs_var.type.enum?
-      if @interp.constant_expression?(expr.rhs_operand)
+      if constant_expression?(expr.rhs_operand)
         if rhs_var.type.enum? && !lhs_var.type.same_as?(rhs_var.type)
           W(expr.location)
         end
       end
     end
+
+    def interpreter
+      @interp
+    end
   end
 
   class W0730 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
+
+    include Cc1::InterpreterMediator
 
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
@@ -16895,11 +17235,15 @@ module CBuiltin #:nodoc:
       return unless ret_type = @cur_fun.type.return_type
       return unless ret_type.enum?
 
-      if @interp.constant_expression?(ret_stmt.expression)
+      if constant_expression?(ret_stmt.expression)
         if ret_var.type.enum? && !ret_type.same_as?(ret_var.type)
           W(ret_stmt.expression.location)
         end
       end
+    end
+
+    def interpreter
+      @interp
     end
   end
 
@@ -17015,6 +17359,8 @@ module CBuiltin #:nodoc:
   class W0738 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
 
+    include Cc1::InterpreterMediator
+
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
     mark_as_unique
@@ -17036,7 +17382,7 @@ module CBuiltin #:nodoc:
         expr = init_or_expr
       end
 
-      return unless @interp.constant_expression?(expr)
+      return unless constant_expression?(expr)
 
       orig_type = orig_var.type
       rslt_type = rslt_var.type
@@ -17049,14 +17395,20 @@ module CBuiltin #:nodoc:
       orig_val = orig_var.value
       return unless orig_val.scalar?
 
-      upper_test = orig_val > @interp.scalar_value_of(rslt_type.max)
+      upper_test = orig_val > scalar_value_of(rslt_type.max)
 
-      W(expr.location) if upper_test.must_be_true?
+      W(expr.location) if upper_test.test_must_be_true.true?
+    end
+
+    def interpreter
+      @interp
     end
   end
 
   class W0739 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
+
+    include Cc1::InterpreterMediator
 
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
@@ -17072,8 +17424,8 @@ module CBuiltin #:nodoc:
     def check(expr, lhs_var, rhs_var, rslt_var)
       return unless expr.operator.type == "-"
 
-      return unless @interp.constant_expression?(expr.lhs_operand)
-      return unless @interp.constant_expression?(expr.rhs_operand)
+      return unless constant_expression?(expr.lhs_operand)
+      return unless constant_expression?(expr.rhs_operand)
 
       return unless lhs_var.type.scalar? && lhs_var.type.unsigned?
       return unless rhs_var.type.scalar? && rhs_var.type.unsigned?
@@ -17081,14 +17433,20 @@ module CBuiltin #:nodoc:
       return unless lhs_var.value.scalar? && rhs_var.value.scalar?
 
       unbound_val = lhs_var.value - rhs_var.value
-      lower_test = unbound_val < @interp.scalar_value_of(rslt_var.type.min)
+      lower_test = unbound_val < scalar_value_of(rslt_var.type.min)
 
-      W(expr.location) if lower_test.must_be_true?
+      W(expr.location) if lower_test.test_must_be_true.true?
+    end
+
+    def interpreter
+      @interp
     end
   end
 
   class W0740 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
+
+    include Cc1::InterpreterMediator
 
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
@@ -17104,8 +17462,8 @@ module CBuiltin #:nodoc:
     def check(expr, lhs_var, rhs_var, rslt_var)
       return unless expr.operator.type == "+"
 
-      return unless @interp.constant_expression?(expr.lhs_operand)
-      return unless @interp.constant_expression?(expr.rhs_operand)
+      return unless constant_expression?(expr.lhs_operand)
+      return unless constant_expression?(expr.rhs_operand)
 
       return unless lhs_var.type.scalar? && lhs_var.type.unsigned?
       return unless rhs_var.type.scalar? && rhs_var.type.unsigned?
@@ -17113,14 +17471,20 @@ module CBuiltin #:nodoc:
       return unless lhs_var.value.scalar? && rhs_var.value.scalar?
 
       unbound_val = lhs_var.value + rhs_var.value
-      upper_test = unbound_val > @interp.scalar_value_of(rslt_var.type.max)
+      upper_test = unbound_val > scalar_value_of(rslt_var.type.max)
 
-      W(expr.location) if upper_test.must_be_true?
+      W(expr.location) if upper_test.test_must_be_true.true?
+    end
+
+    def interpreter
+      @interp
     end
   end
 
   class W0741 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
+
+    include Cc1::InterpreterMediator
 
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
@@ -17136,8 +17500,8 @@ module CBuiltin #:nodoc:
     def check(expr, lhs_var, rhs_var, rslt_var)
       return unless expr.operator.type == "*"
 
-      return unless @interp.constant_expression?(expr.lhs_operand)
-      return unless @interp.constant_expression?(expr.rhs_operand)
+      return unless constant_expression?(expr.lhs_operand)
+      return unless constant_expression?(expr.rhs_operand)
 
       return unless lhs_var.type.scalar? && lhs_var.type.unsigned?
       return unless rhs_var.type.scalar? && rhs_var.type.unsigned?
@@ -17145,14 +17509,20 @@ module CBuiltin #:nodoc:
       return unless lhs_var.value.scalar? && rhs_var.value.scalar?
 
       unbound_val = lhs_var.value * rhs_var.value
-      upper_test = unbound_val > @interp.scalar_value_of(rslt_var.type.max)
+      upper_test = unbound_val > scalar_value_of(rslt_var.type.max)
 
-      W(expr.location) if upper_test.must_be_true?
+      W(expr.location) if upper_test.test_must_be_true.true?
+    end
+
+    def interpreter
+      @interp
     end
   end
 
   class W0742 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
+
+    include Cc1::InterpreterMediator
 
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
@@ -17177,15 +17547,21 @@ module CBuiltin #:nodoc:
         expr = init_or_expr
       end
 
-      if expr && @interp.constant_expression?(expr) &&
-          orig_var.value.must_be_less_than?(@interp.scalar_value_of(0))
+      if expr && constant_expression?(expr) &&
+          orig_var.value.test_must_be_less_than(scalar_value_of(0)).true?
         W(expr.location)
       end
+    end
+
+    def interpreter
+      @interp
     end
   end
 
   class W0743 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
+
+    include Cc1::InterpreterMediator
 
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
@@ -17208,7 +17584,7 @@ module CBuiltin #:nodoc:
         expr = init_or_expr
       end
 
-      return unless @interp.constant_expression?(expr)
+      return unless constant_expression?(expr)
 
       orig_type = orig_var.type
       rslt_type = rslt_var.type
@@ -17221,17 +17597,24 @@ module CBuiltin #:nodoc:
       orig_val = orig_var.value
       return unless orig_val.scalar?
 
-      lower_test = orig_val < @interp.scalar_value_of(rslt_type.min)
-      upper_test = orig_val > @interp.scalar_value_of(rslt_type.max)
+      lower_test = orig_val < scalar_value_of(rslt_type.min)
+      upper_test = orig_val > scalar_value_of(rslt_type.max)
 
-      if lower_test.must_be_true? || upper_test.must_be_true?
+      if lower_test.test_must_be_true.true? ||
+          upper_test.test_must_be_true.true?
         W(expr.location)
       end
+    end
+
+    def interpreter
+      @interp
     end
   end
 
   class W0744 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
+
+    include Cc1::InterpreterMediator
 
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
@@ -17250,45 +17633,55 @@ module CBuiltin #:nodoc:
     private
     def check_if_statement(if_stmt, ctrlexpr_val)
       ctrlexpr = if_stmt.expression
-      if @interp.constant_expression?(ctrlexpr) && ctrlexpr_val.must_be_false?
+      if constant_expression?(ctrlexpr) &&
+          ctrlexpr_val.test_must_be_false.true?
         W(ctrlexpr.location)
       end
     end
 
     def check_if_else_statement(if_else_stmt, ctrlexpr_val)
       ctrlexpr = if_else_stmt.expression
-      if @interp.constant_expression?(ctrlexpr) && ctrlexpr_val.must_be_false?
+      if constant_expression?(ctrlexpr) &&
+          ctrlexpr_val.test_must_be_false.true?
         W(ctrlexpr.location)
       end
     end
 
     def check_while_statement(while_stmt, ctrlexpr_val)
       ctrlexpr = while_stmt.expression
-      if @interp.constant_expression?(ctrlexpr) && ctrlexpr_val.must_be_false?
+      if constant_expression?(ctrlexpr) &&
+          ctrlexpr_val.test_must_be_false.true?
         W(ctrlexpr.location)
       end
     end
 
     def check_for_statement(for_stmt, ctrlexpr_val)
       ctrlexpr = for_stmt.condition_statement.expression
-      if @interp.constant_expression?(ctrlexpr) && ctrlexpr_val.must_be_false?
+      if constant_expression?(ctrlexpr) &&
+          ctrlexpr_val.test_must_be_false.true?
         W(ctrlexpr.location)
       end
     end
 
     def check_c99_for_statement(c99_for_stmt, ctrlexpr_val)
       ctrlexpr = c99_for_stmt.condition_statement.expression
-      if @interp.constant_expression?(ctrlexpr) && ctrlexpr_val.must_be_false?
+      if constant_expression?(ctrlexpr) &&
+          ctrlexpr_val.test_must_be_false.true?
         W(ctrlexpr.location)
       end
+    end
+
+    def interpreter
+      @interp
     end
   end
 
   class W0745 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
 
-    include Cc1::SyntaxNodeCollector
+    include Cc1::InterpreterMediator
     include Cc1::InterpreterOptions
+    include Cc1::SyntaxNodeCollector
 
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
@@ -17305,7 +17698,7 @@ module CBuiltin #:nodoc:
     def check_array_subscript(expr, ary_or_ptr, subs, ary, *)
       return unless ary
 
-      unless @interp.constant_expression?(expr.array_subscript)
+      unless constant_expression?(expr.array_subscript)
         warn_array_oob_access(expr.array_subscript, ary, subs)
       end
     end
@@ -17314,19 +17707,25 @@ module CBuiltin #:nodoc:
       ary, subs_expr = extract_array_and_subscript(expr.operand)
       return unless ary
 
-      unless @interp.constant_expression?(subs_expr)
-        subs = @interp.interpret(subs_expr, QUIET_WITHOUT_SIDE_EFFECT)
+      unless constant_expression?(subs_expr)
+        subs = interpret(subs_expr, QUIET_WITHOUT_SIDE_EFFECT)
         warn_array_oob_access(expr.operand, ary, subs)
       end
     end
 
     def warn_array_oob_access(expr, ary, subs)
       if ary_len = ary.type.length
-        lower_test = subs.value < @interp.scalar_value_of(0)
-        upper_test = subs.value > @interp.scalar_value_of(ary_len - 1)
+        lower_bound = scalar_value_of(0)
+        test = subs.value.test_must_be_less_than(lower_bound)
+        if test.true?
+          W(expr.location, *test.basis.emit_context_messages(self))
+          return
+        end
 
-        if lower_test.must_be_true? || upper_test.must_be_true?
-          W(expr.location)
+        upper_bound = scalar_value_of(ary_len - 1)
+        test = subs.value.test_must_be_greater_than(upper_bound)
+        if test.true?
+          W(expr.location, *test.basis.emit_context_messages(self))
         end
       end
     end
@@ -17339,12 +17738,12 @@ module CBuiltin #:nodoc:
 
     def extract_array(expr)
       collect_object_specifiers(expr).each do |obj_spec|
-        if obj = @interp.variable_named(obj_spec.identifier.value)
+        if obj = variable_named(obj_spec.identifier.value)
           case
           when obj.type.array?
             return obj, obj_spec.identifier.value
           when obj.type.pointer?
-            if obj = @interp.pointee_of(obj) and obj.type.array?
+            if obj = pointee_of(obj) and obj.type.array?
               return obj, obj_spec.identifier.value
             end
           end
@@ -17355,6 +17754,10 @@ module CBuiltin #:nodoc:
 
     def create_subscript_expr(expr, ary_name)
       expr.accept(ExpressionTransformer.new(ary_name))
+    end
+
+    def interpreter
+      @interp
     end
 
     class ExpressionTransformer < Cc1::SyntaxTreeVisitor
@@ -17608,11 +18011,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_short_t
+      signed_short_t
     end
 
     def to_type
-      @interp.signed_char_t
+      signed_char_t
     end
   end
 
@@ -17625,11 +18028,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_short_t
+      unsigned_short_t
     end
 
     def to_type
-      @interp.unsigned_char_t
+      unsigned_char_t
     end
   end
 
@@ -17642,11 +18045,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_int_t
+      signed_int_t
     end
 
     def to_type
-      @interp.signed_char_t
+      signed_char_t
     end
   end
 
@@ -17659,11 +18062,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_int_t
+      signed_int_t
     end
 
     def to_type
-      @interp.signed_short_t
+      signed_short_t
     end
   end
 
@@ -17676,11 +18079,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_int_t
+      unsigned_int_t
     end
 
     def to_type
-      @interp.unsigned_char_t
+      unsigned_char_t
     end
   end
 
@@ -17693,11 +18096,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_int_t
+      unsigned_int_t
     end
 
     def to_type
-      @interp.unsigned_short_t
+      unsigned_short_t
     end
   end
 
@@ -17710,11 +18113,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_long_t
+      signed_long_t
     end
 
     def to_type
-      @interp.signed_char_t
+      signed_char_t
     end
   end
 
@@ -17727,11 +18130,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_long_t
+      signed_long_t
     end
 
     def to_type
-      @interp.signed_short_t
+      signed_short_t
     end
   end
 
@@ -17744,11 +18147,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_long_t
+      signed_long_t
     end
 
     def to_type
-      @interp.signed_int_t
+      signed_int_t
     end
   end
 
@@ -17761,11 +18164,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_long_t
+      unsigned_long_t
     end
 
     def to_type
-      @interp.unsigned_char_t
+      unsigned_char_t
     end
   end
 
@@ -17778,11 +18181,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_long_t
+      unsigned_long_t
     end
 
     def to_type
-      @interp.unsigned_short_t
+      unsigned_short_t
     end
   end
 
@@ -17795,11 +18198,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_long_t
+      unsigned_long_t
     end
 
     def to_type
-      @interp.unsigned_int_t
+      unsigned_int_t
     end
   end
 
@@ -17812,11 +18215,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_long_long_t
+      signed_long_long_t
     end
 
     def to_type
-      @interp.signed_char_t
+      signed_char_t
     end
   end
 
@@ -17829,11 +18232,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_long_long_t
+      signed_long_long_t
     end
 
     def to_type
-      @interp.signed_short_t
+      signed_short_t
     end
   end
 
@@ -17846,11 +18249,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_long_long_t
+      signed_long_long_t
     end
 
     def to_type
-      @interp.signed_int_t
+      signed_int_t
     end
   end
 
@@ -17863,11 +18266,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.signed_long_long_t
+      signed_long_long_t
     end
 
     def to_type
-      @interp.signed_long_t
+      signed_long_t
     end
   end
 
@@ -17880,11 +18283,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_long_long_t
+      unsigned_long_long_t
     end
 
     def to_type
-      @interp.unsigned_char_t
+      unsigned_char_t
     end
   end
 
@@ -17897,11 +18300,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_long_long_t
+      unsigned_long_long_t
     end
 
     def to_type
-      @interp.unsigned_short_t
+      unsigned_short_t
     end
   end
 
@@ -17914,11 +18317,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_long_long_t
+      unsigned_long_long_t
     end
 
     def to_type
-      @interp.unsigned_int_t
+      unsigned_int_t
     end
   end
 
@@ -17931,11 +18334,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.unsigned_long_long_t
+      unsigned_long_long_t
     end
 
     def to_type
-      @interp.unsigned_long_t
+      unsigned_long_t
     end
   end
 
@@ -17948,11 +18351,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.double_t
+      double_t
     end
 
     def to_type
-      @interp.float_t
+      float_t
     end
   end
 
@@ -17965,11 +18368,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.long_double_t
+      long_double_t
     end
 
     def to_type
-      @interp.float_t
+      float_t
     end
   end
 
@@ -17982,11 +18385,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.long_double_t
+      long_double_t
     end
 
     def to_type
-      @interp.double_t
+      double_t
     end
   end
 
@@ -18043,11 +18446,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.double_t
+      double_t
     end
 
     def to_type
-      @interp.float_t
+      float_t
     end
   end
 
@@ -18060,11 +18463,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.long_double_t
+      long_double_t
     end
 
     def to_type
-      @interp.float_t
+      float_t
     end
   end
 
@@ -18077,16 +18480,18 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.long_double_t
+      long_double_t
     end
 
     def to_type
-      @interp.double_t
+      double_t
     end
   end
 
   class W0777 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
+
+    include Cc1::InterpreterMediator
 
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
@@ -18132,11 +18537,15 @@ module CBuiltin #:nodoc:
     end
 
     def from_type
-      @interp.float_t
+      float_t
     end
 
     def to_type
-      @interp.double_t
+      double_t
+    end
+
+    def interpreter
+      @interp
     end
   end
 
@@ -18149,11 +18558,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.float_t
+      float_t
     end
 
     def to_type
-      @interp.long_double_t
+      long_double_t
     end
   end
 
@@ -18166,16 +18575,18 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.double_t
+      double_t
     end
 
     def to_type
-      @interp.long_double_t
+      long_double_t
     end
   end
 
   class W0780 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
+
+    include Cc1::InterpreterMediator
 
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
@@ -18192,7 +18603,7 @@ module CBuiltin #:nodoc:
       op = expr.operator.type
       return unless op == "<<" || op == "<<="
 
-      if lhs_var.type.unsigned? && @interp.constant_expression?(expr)
+      if lhs_var.type.unsigned? && constant_expression?(expr)
         if must_overflow?(lhs_var, rhs_var)
           W(expr.location)
         end
@@ -18201,8 +18612,12 @@ module CBuiltin #:nodoc:
 
     def must_overflow?(lhs_var, rhs_var)
       unbound_val = lhs_var.value << rhs_var.value
-      lhs_max_val = @interp.scalar_value_of(lhs_var.type.max)
-      unbound_val.must_be_greater_than?(lhs_max_val)
+      lhs_max_val = scalar_value_of(lhs_var.type.max)
+      unbound_val.test_must_be_greater_than(lhs_max_val).true?
+    end
+
+    def interpreter
+      @interp
     end
   end
 
@@ -18264,6 +18679,8 @@ module CBuiltin #:nodoc:
   class W0786 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
 
+    include Cc1::InterpreterMediator
+
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
     mark_as_unique
@@ -18283,14 +18700,18 @@ module CBuiltin #:nodoc:
           type = memb_dcl.type
           next unless type.scalar? && type.integer? && type.bitfield?
 
-          unless type.base_type.same_as?(@interp.int_t) ||
-              type.base_type.same_as?(@interp.unsigned_int_t) ||
-              type.base_type.same_as?(@interp.signed_int_t)
+          unless type.base_type.same_as?(int_t) ||
+              type.base_type.same_as?(unsigned_int_t) ||
+              type.base_type.same_as?(signed_int_t)
             W(node.location)
             return
           end
         end
       end
+    end
+
+    def interpreter
+      @interp
     end
   end
 
@@ -18685,6 +19106,8 @@ module CBuiltin #:nodoc:
   class W0794 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
 
+    include Cc1::InterpreterMediator
+
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
     mark_as_unique
@@ -18699,10 +19122,14 @@ module CBuiltin #:nodoc:
     def check(expr, lhs_var, *)
       case expr.operator.type
       when "<<", "<<="
-        unless @interp.constant_expression?(expr.lhs_operand)
+        unless constant_expression?(expr.lhs_operand)
           W(expr.location) if lhs_var.type.signed?
         end
       end
+    end
+
+    def interpreter
+      @interp
     end
   end
 
@@ -19233,6 +19660,7 @@ module CBuiltin #:nodoc:
   class W0949 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
 
+    include Cc1::InterpreterMediator
     include Cc1::InterpreterOptions
 
     # NOTE: All messages of cc1-phase code check should be unique till function
@@ -19258,12 +19686,16 @@ module CBuiltin #:nodoc:
     end
 
     def compute_bitfield_width(expr)
-      obj = @interp.execute(expr, QUIET)
+      obj = interpret(expr, QUIET)
       if obj.variable? && obj.value.scalar?
         obj.value.unique_sample || 0
       else
         0
       end
+    end
+
+    def interpreter
+      @interp
     end
   end
 
@@ -19613,6 +20045,7 @@ module CBuiltin #:nodoc:
   class W1047 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
 
+    include Cc1::InterpreterMediator
     include Cc1::SyntaxNodeCollector
 
     # NOTE: All messages of cc1-phase code check should be unique till function
@@ -19634,17 +20067,23 @@ module CBuiltin #:nodoc:
         Cc1::ExpressionExtractor.new.tap { |extr|
           init.accept(extr)
         }.expressions.each do |expr|
-          unless @interp.constant_expression?(expr)
+          unless constant_expression?(expr)
             W(var_def.location)
             break
           end
         end
       end
     end
+
+    def interpreter
+      @interp
+    end
   end
 
   class W1049 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
+
+    include Cc1::InterpreterMediator
 
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
@@ -19669,19 +20108,34 @@ module CBuiltin #:nodoc:
       orig_val = orig_var.value
       return unless orig_val.scalar?
 
-      lower_test = orig_val < @interp.scalar_value_of(rslt_type.min)
-      upper_test = orig_val > @interp.scalar_value_of(rslt_type.max)
-
-      if !lower_test.must_be_true? && lower_test.may_be_true? or
-          !upper_test.must_be_true? && upper_test.may_be_true?
-        W(expr.location)
+      lower_bound = scalar_value_of(rslt_type.min)
+      if orig_val.test_must_be_less_than(lower_bound).false?
+        test = orig_val.test_may_be_less_than(lower_bound)
+        if test.true?
+          W(expr.location, *test.basis.emit_context_messages(self))
+          return
+        end
       end
+
+      upper_bound = scalar_value_of(rslt_type.max)
+      if orig_val.test_must_be_greater_than(upper_bound).false?
+        test = orig_val.test_may_be_greater_than(upper_bound)
+        if test.true?
+          W(expr.location, *test.basis.emit_context_messages(self))
+        end
+      end
+    end
+
+    def interpreter
+      @interp
     end
   end
 
   class W1050 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
 
+    include Cc1::InterpreterMediator
+
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
     mark_as_unique
@@ -19705,18 +20159,30 @@ module CBuiltin #:nodoc:
       orig_val = orig_var.value
       return unless orig_val.scalar?
 
-      lower_test = orig_val < @interp.scalar_value_of(rslt_type.min)
-      upper_test = orig_val > @interp.scalar_value_of(rslt_type.max)
-
-      if lower_test.must_be_true? || upper_test.must_be_true?
-        W(expr.location)
+      lower_bound = scalar_value_of(rslt_type.min)
+      test = orig_val.test_must_be_less_than(lower_bound)
+      if test.true?
+        W(expr.location, *test.basis.emit_context_messages(self))
+        return
       end
+
+      upper_bound = scalar_value_of(rslt_type.max)
+      test = orig_val.test_must_be_greater_than(upper_bound)
+      if test.true?
+        W(expr.location, *test.basis.emit_context_messages(self))
+      end
+    end
+
+    def interpreter
+      @interp
     end
   end
 
   class W1051 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
 
+    include Cc1::InterpreterMediator
+
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
     mark_as_unique
@@ -19745,18 +20211,25 @@ module CBuiltin #:nodoc:
         return
       end
 
-      lower_test = unbound_val < @interp.scalar_value_of(rslt_var.type.min)
-      upper_test = unbound_val > @interp.scalar_value_of(rslt_var.type.max)
+      lower_test = unbound_val < scalar_value_of(rslt_var.type.min)
+      upper_test = unbound_val > scalar_value_of(rslt_var.type.max)
 
-      if lower_test.must_be_true? || upper_test.must_be_true?
+      if lower_test.test_must_be_true.true? ||
+          upper_test.test_must_be_true.true?
         W(expr.location, rslt_var.type.brief_image)
       end
+    end
+
+    def interpreter
+      @interp
     end
   end
 
   class W1052 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
 
+    include Cc1::InterpreterMediator
+
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
     mark_as_unique
@@ -19785,18 +20258,26 @@ module CBuiltin #:nodoc:
         return
       end
 
-      lower_test = unbound_val < @interp.scalar_value_of(rslt_var.type.min)
-      upper_test = unbound_val > @interp.scalar_value_of(rslt_var.type.max)
+      lower_test = unbound_val < scalar_value_of(rslt_var.type.min)
+      upper_test = unbound_val > scalar_value_of(rslt_var.type.max)
 
-      if !lower_test.must_be_true? && lower_test.may_be_true? or
-          !upper_test.must_be_true? && upper_test.may_be_true?
+      if !lower_test.test_must_be_true.true? &&
+          lower_test.test_may_be_true.true? or
+         !upper_test.test_must_be_true.true? &&
+          upper_test.test_may_be_true.true?
         W(expr.location, rslt_var.type.brief_image)
       end
+    end
+
+    def interpreter
+      @interp
     end
   end
 
   class W1053 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
+
+    include Cc1::InterpreterMediator
 
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
@@ -19815,10 +20296,14 @@ module CBuiltin #:nodoc:
         next unless param_type && param_type.enum?
 
         arg_expr = expr.argument_expressions[idx]
-        if @interp.constant_expression?(arg_expr)
+        if constant_expression?(arg_expr)
           W(arg_expr.location) unless arg_var.type.enum?
         end
       end
+    end
+
+    def interpreter
+      @interp
     end
   end
 
@@ -19880,6 +20365,8 @@ module CBuiltin #:nodoc:
   class W1056 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
 
+    include Cc1::InterpreterMediator
+
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
     mark_as_unique
@@ -19897,17 +20384,23 @@ module CBuiltin #:nodoc:
         next unless param_type && param_type.enum?
 
         arg_expr = expr.argument_expressions[idx]
-        unless @interp.constant_expression?(arg_expr)
+        unless constant_expression?(arg_expr)
           if arg_var.type.enum?
             W(arg_expr.location) unless arg_var.type.same_as?(param_type)
           end
         end
       end
     end
+
+    def interpreter
+      @interp
+    end
   end
 
   class W1057 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
+
+    include Cc1::InterpreterMediator
 
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
@@ -19923,16 +20416,22 @@ module CBuiltin #:nodoc:
     def check(expr, lhs_var, rhs_var)
       return unless lhs_var.type.enum?
 
-      if rhs_var.type.enum? && !@interp.constant_expression?(expr.rhs_operand)
+      if rhs_var.type.enum? && !constant_expression?(expr.rhs_operand)
         unless lhs_var.type.same_as?(rhs_var.type)
           W(expr.location)
         end
       end
     end
+
+    def interpreter
+      @interp
+    end
   end
 
   class W1058 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
+
+    include Cc1::InterpreterMediator
 
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
@@ -19958,13 +20457,17 @@ module CBuiltin #:nodoc:
 
     def check(ret_stmt, ret_var)
       return unless @cur_fun && ret_var
-      return if @interp.constant_expression?(ret_stmt.expression)
+      return if constant_expression?(ret_stmt.expression)
 
       if ret_type = @cur_fun.type.return_type and ret_type.enum?
         if ret_var.type.enum? && !ret_type.same_as?(ret_var.type)
           W(ret_stmt.expression.location)
         end
       end
+    end
+
+    def interpreter
+      @interp
     end
   end
 
@@ -20029,6 +20532,8 @@ module CBuiltin #:nodoc:
   class W1061 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
 
+    include Cc1::InterpreterMediator
+
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
     mark_as_unique
@@ -20046,17 +20551,23 @@ module CBuiltin #:nodoc:
         next unless param_type && param_type.enum?
 
         arg_expr = expr.argument_expressions[idx]
-        unless @interp.constant_expression?(arg_expr)
+        unless constant_expression?(arg_expr)
           unless arg_var.type.same_as?(param_type)
             W(arg_expr.location)
           end
         end
       end
     end
+
+    def interpreter
+      @interp
+    end
   end
 
   class W1062 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
+
+    include Cc1::InterpreterMediator
 
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
@@ -20070,16 +20581,22 @@ module CBuiltin #:nodoc:
 
     private
     def check(expr, lhs_var, rhs_var)
-      if lhs_var.type.enum? && !@interp.constant_expression?(expr.rhs_operand)
+      if lhs_var.type.enum? && !constant_expression?(expr.rhs_operand)
         unless lhs_var.type.same_as?(rhs_var.type)
           W(expr.location)
         end
       end
     end
+
+    def interpreter
+      @interp
+    end
   end
 
   class W1063 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
+
+    include Cc1::InterpreterMediator
 
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
@@ -20107,12 +20624,16 @@ module CBuiltin #:nodoc:
       return unless @cur_fun && ret_var
 
       if ret_type = @cur_fun.type.return_type and ret_type.enum?
-        unless @interp.constant_expression?(ret_stmt.expression)
+        unless constant_expression?(ret_stmt.expression)
           unless ret_var.type.same_as?(ret_type)
             W(ret_stmt.expression.location)
           end
         end
       end
+    end
+
+    def interpreter
+      @interp
     end
   end
 
@@ -20455,13 +20976,13 @@ module CBuiltin #:nodoc:
       case init_or_expr
       when Cc1::Initializer
         expr = init_or_expr.expression
-        if expr && @interp.constant_expression?(expr)
+        if expr && constant_expression?(expr)
           if untyped_pointer_conversion?(from_type, to_type, orig_var.value)
             return
           end
         end
       when Cc1::Expression
-        if @interp.constant_expression?(init_or_expr)
+        if constant_expression?(init_or_expr)
           if untyped_pointer_conversion?(from_type, to_type, orig_var.value)
             return
           end

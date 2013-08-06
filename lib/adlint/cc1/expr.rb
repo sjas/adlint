@@ -304,7 +304,7 @@ module Cc1 #:nodoc:
       notify_sequence_point_reached(SequencePoint.new(node.lhs_operand))
       lhs_val = lhs_var.value
 
-      if lhs_val.scalar? && lhs_val.must_be_false?
+      if lhs_val.scalar? && lhs_val.test_must_be_false.true?
         # NOTE: Doing the short-circuit evaluation.
         notify_variable_value_referred(node, lhs_var)
         return create_tmpvar(int_t, scalar_value_of_false)
@@ -356,7 +356,7 @@ module Cc1 #:nodoc:
       notify_sequence_point_reached(SequencePoint.new(node.lhs_operand))
       lhs_val = lhs_var.value
 
-      if lhs_val.scalar? && lhs_val.must_be_true?
+      if lhs_val.scalar? && lhs_val.test_must_be_true.true?
         # NOTE: Doing the short-circuit evaluation.
         notify_variable_value_referred(node, lhs_var)
         return create_tmpvar(int_t, scalar_value_of_true)
@@ -634,7 +634,7 @@ module Cc1 #:nodoc:
         # _notify_variable_value_referred(node, var)
 
         if var.value.scalar?
-          var.assign!(var.value + scalar_value_of(1), node, current_ctrlexpr)
+          var.assign!(var.value + scalar_value_of(1), node, current_branch)
           _notify_variable_value_updated(node, var)
         end
 
@@ -657,7 +657,7 @@ module Cc1 #:nodoc:
         # _notify_variable_value_referred(node, var)
 
         if var.value.scalar?
-          var.assign!(var.value - scalar_value_of(1), node, current_ctrlexpr)
+          var.assign!(var.value - scalar_value_of(1), node, current_branch)
           _notify_variable_value_updated(node, var)
         end
 
@@ -680,7 +680,7 @@ module Cc1 #:nodoc:
         # _notify_variable_value_referred(node, var)
 
         if var.value.scalar?
-          var.assign!(var.value + scalar_value_of(1), node, current_ctrlexpr)
+          var.assign!(var.value + scalar_value_of(1), node, current_branch)
           _notify_variable_value_updated(node, var)
         end
 
@@ -703,7 +703,7 @@ module Cc1 #:nodoc:
         # _notify_variable_value_referred(node, var)
 
         if var.value.scalar?
-          var.assign!(var.value - scalar_value_of(1), node, current_ctrlexpr)
+          var.assign!(var.value - scalar_value_of(1), node, current_branch)
           _notify_variable_value_updated(node, var)
         end
 
@@ -1167,7 +1167,7 @@ module Cc1 #:nodoc:
         #       instantiated in value-coercing.
         #       So, value-aliasing never occurs.
         defined_val = rhs_conved.value.to_defined_value
-        lhs_var.assign!(defined_val, node, current_ctrlexpr)
+        lhs_var.assign!(defined_val, node, current_branch)
         _notify_variable_value_referred(node, rhs_var)
         _notify_variable_value_updated(node, lhs_var)
 
@@ -1455,7 +1455,7 @@ module Cc1 #:nodoc:
         # NOTE: Domain of the arithmetic result value will be restricted by
         #       min-max of the variable type.
         defined_val = rhs_conved.value.to_defined_value
-        lhs_var.assign!(defined_val, node, current_ctrlexpr)
+        lhs_var.assign!(defined_val, node, current_branch)
         _notify_variable_value_updated(node, lhs_var)
 
         notify_assignment_expr_evaled(node, lhs_var, rhs_conved)

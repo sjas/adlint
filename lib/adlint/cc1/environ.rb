@@ -81,21 +81,14 @@ module Cc1 #:nodoc:
     end
 
     def enter_branch_group(*opts)
-      @branch_groups[@branch_depth] =
-        BranchGroup.new(self, @branch_groups[@branch_depth - 1], *opts)
+      if trunk_group = @branch_groups[@branch_depth - 1]
+        trunk = trunk_group.current_branch
+      end
+      @branch_groups[@branch_depth] = BranchGroup.new(self, trunk, *opts)
     end
 
     def current_branch_group
       @branch_groups[@branch_depth]
-    end
-
-    def current_ctrlexpr
-      if group = current_branch_group and branch = group.current_branch
-        if ctrlexpr = branch.controlling_expression
-          return ctrlexpr.target_expr
-        end
-      end
-      nil
     end
 
     def leave_branch_group
@@ -111,6 +104,14 @@ module Cc1 #:nodoc:
       else
         group = enter_branch_group(*opts)
         group.create_first_branch(*opts)
+      end
+    end
+
+    def current_branch
+      if cur_group = current_branch_group
+        cur_group.current_branch
+      else
+        nil
       end
     end
 

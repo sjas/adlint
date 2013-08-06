@@ -2996,3 +2996,31 @@ message_definition:
     classes:
       - "INF:X99"
     format: "A warning is detected as a pair of this identifier `%s'."
+  C1000:
+    classes:
+      - "INF:X99"
+    format: "Warning above is detected in the following context."
+  C1001:
+    classes:
+      - "INF:X99"
+    format: "This controlling-expression is evaluated to be true."
+  C1002:
+    classes:
+      - "INF:X99"
+    format: "This controlling-expression is evaluated to be false."
+  C1003:
+    classes:
+      - "INF:X99"
+    format: "The problematic variable is defined here without initializer."
+  C1004:
+    classes:
+      - "INF:X99"
+    format: "NULL value is assigned to the the problematic variable."
+  C1005:
+    classes:
+      - "INF:X99"
+    format: "A value possibly be NULL is assigned to the problematic variable."
+  C1006:
+    classes:
+      - "INF:X99"
+    format: "New value is assigned to the problematic variable."

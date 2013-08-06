@@ -102,9 +102,13 @@ class Integer
 
   def logical_right_shift(rhs)
     return self if rhs < 0
-    bits = to_s(2).split("")
+    bits = to_s(2)
     shift_width = [rhs, SHIFT_MAX_BITS].min
-    bits.length < shift_width ? 0 : bits[-1..(-shift_width - 1)].join.to_i(2)
+    if bits.length < shift_width
+      0
+    else
+      ("0" * shift_width + bits[0..-(shift_width + 1)]).to_i(2)
+    end
   end
 
   def arithmetic_right_shift(rhs)

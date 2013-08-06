@@ -782,6 +782,8 @@ module CBuiltin #:nodoc:
   class W1066 < PassiveCodeCheck
     def_registrant_phase Cc1::Prepare2Phase
 
+    include Cc1::InterpreterMediator
+
     # NOTE: All messages of cc1-phase code check should be unique till function
     #       step-in analysis is supported.
     mark_as_unique
@@ -827,11 +829,15 @@ module CBuiltin #:nodoc:
     end
 
     def from_type
-      @interp.float_t
+      float_t
     end
 
     def to_type
-      @interp.double_t
+      double_t
+    end
+
+    def interpreter
+      @interp
     end
   end
 
@@ -844,11 +850,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.float_t
+      float_t
     end
 
     def to_type
-      @interp.long_double_t
+      long_double_t
     end
   end
 
@@ -861,11 +867,11 @@ module CBuiltin #:nodoc:
 
     private
     def from_type
-      @interp.double_t
+      double_t
     end
 
     def to_type
-      @interp.long_double_t
+      long_double_t
     end
   end
 

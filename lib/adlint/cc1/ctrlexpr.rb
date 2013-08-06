@@ -66,8 +66,6 @@ module Cc1 #:nodoc:
       @manipulators = []
     end
 
-    attr_reader :target_expr
-
     def ensure_true_by_narrowing(alt_expr = nil)
       expr = alt_expr || @target_expr
 
@@ -124,6 +122,10 @@ module Cc1 #:nodoc:
       # NOTE: This method determines whether the controlling expression is too
       #       complex to thin value domains of controlling variables.
       @target_expr && !collect_logical_and_expressions(@target_expr).empty?
+    end
+
+    def to_expr
+      @target_expr
     end
 
     private
@@ -934,6 +936,7 @@ module Cc1 #:nodoc:
     end
 
     Summary = Struct.new(:object_id, :name, :type, :value)
+    private_constant :Summary
   end
 
 end

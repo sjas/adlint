@@ -228,3 +228,41 @@ Feature: W0460
       | C1002 | 5    | 11     |
       | W0104 | 1    | 14     |
       | W0628 | 1    | 6      |
+
+  Scenario: possible uninitialized value reference because of an incomplete
+            if-else-if statement
+    Given a target source named "fixture.c" with:
+      """
+      int foo(int i)
+      {
+          int j;
+
+          if (i > 2) { /* true */
+              if (i == 5) { /* false */
+                  j = 5;
+              }
+              else if (i == 6) { /* false */
+                  j = 6;
+              }
+          }
+          else if (i < 0) {
+              j = -1;
+          }
+
+          return j; /* W0460 */
+      }
+      """
+    When I successfully run `adlint fixture.c` on noarch
+    Then the output should exactly match with:
+      | mesg  | line | column |
+      | W0117 | 1    | 5      |
+      | W0460 | 17   | 12     |
+      | C1000 |      |        |
+      | C1003 | 3    | 9      |
+      | C1001 | 5    | 11     |
+      | C1002 | 6    | 15     |
+      | C1002 | 9    | 20     |
+      | W0104 | 1    | 13     |
+      | W1069 | 5    | 5      |
+      | W1069 | 6    | 9      |
+      | W0628 | 1    | 5      |

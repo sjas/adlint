@@ -1,3 +1,11 @@
+Wed Aug  7 13:40:55 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/cc1/trace.rb : Fix bad context message emission of
+	  undefinable variables.
+
+	* features/code_check/W0460.feature : Add scenario to reproduce bad
+	  context message problem.
+
 Wed Aug  7 10:28:42 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* lib/adlint/**/* : Support context-tracing to improve readability of

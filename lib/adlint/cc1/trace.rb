@@ -77,7 +77,7 @@ module Cc1 #:nodoc:
         while cur_br
           emit_positive_ctrlexpr(msgs, reporter, traced, cur_br.ctrlexpr)
           traced_groups.add(cur_br.group)
-          cur_br = cur_br.group.trunk
+          cur_br = cur_br.trunk
         end
       } + unr_groups.each_with_object([]) { |gr, msgs|
         cur_br = gr.trunk
@@ -86,7 +86,7 @@ module Cc1 #:nodoc:
             emit_negative_ctrlexpr(msgs, reporter, traced, cur_br.ctrlexpr)
             break
           end
-          cur_br = cur_br.group.trunk
+          cur_br = cur_br.trunk
         end
       }
     end
@@ -142,17 +142,6 @@ module Cc1 #:nodoc:
       pos_trans.each_with_object(Array.new) do |ss, msgs|
         val = ss.value
         src = ss.by_tag
-
-        branch = ss.at_tag.find { |br| br.ctrlexpr.to_expr }
-        while branch
-          if expr = branch.ctrlexpr.to_expr and expr.location
-            unless traced.include?(expr)
-              msgs.push(reporter.C(:C1001, expr.location))
-              traced.add(expr)
-            end
-          end
-          branch = branch.trunk
-        end
 
         if src && src.location && !traced.include?(src)
           if src.kind_of?(VariableDefinition)

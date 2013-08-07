@@ -297,3 +297,37 @@ Feature: W0422
       | W0628 | 3    | 5      |
       | W0589 | 1    | 6      |
       | W0593 | 1    | 6      |
+
+  Scenario: possible null-dereference because of an incomplete if statement
+    Given a target source named "fixture.c" with:
+      """
+      int *bar(void);
+
+      int foo(int i)
+      {
+          int *p;
+
+          if (i == 0) { /* true */
+              p = bar();
+          }
+
+          return *p; /* W0422 */
+      }
+      """
+    When I successfully run `adlint fixture.c` on noarch
+    Then the output should exactly match with:
+      | mesg  | line | column |
+      | W0118 | 1    | 6      |
+      | W0117 | 3    | 5      |
+      | W0460 | 11   | 12     |
+      | C1000 |      |        |
+      | C1003 | 5    | 10     |
+      | C1002 | 7    | 11     |
+      | W0422 | 11   | 12     |
+      | C1000 |      |        |
+      | C1006 | 5    | 10     |
+      | C1001 | 7    | 11     |
+      | C1006 | 8    | 11     |
+      | W0100 | 5    | 10     |
+      | W0104 | 3    | 13     |
+      | W0628 | 3    | 5      |

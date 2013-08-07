@@ -49,8 +49,8 @@ module Cc1 #:nodoc:
   #    <-- TrivialTestBasis
   #    <-- NontrivialTestBasis
   #          <-- UndefinableTestBasis
+  #          <-- NullabilityTestBasis
   #          <-- DefinableTestBasis
-  #          <-- NullableTestBasis
   class TestBasis
     def fulfilled?
       subclass_responsibility
@@ -2707,9 +2707,8 @@ module Cc1 #:nodoc:
       case
       when current_versioning_group.sticky?
         fork_all_versions
-
-        base_values = base_ver.values.map { |mval| mval.descendants }.flatten
-        base_ver.values = base_values.each_with_object(Hash.new) { |mval, hash|
+        base_vals = base_ver.values.map { |mval| mval.descendants }.flatten
+        base_ver.values = base_vals.each_with_object(Hash.new) { |mval, hash|
           if eql_mval = hash[mval]
             eql_mval._base.at_tag += mval._base.at_tag
           else

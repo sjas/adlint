@@ -1,3 +1,11 @@
+Wed Aug  7 10:28:42 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/**/* : Support context-tracing to improve readability of
+	  warning messages.
+	* lib/adlint/cc1/trace.rb : Add new context tracing module.
+
+	* features/code_check/* : Add scenarios for testing context-tracing.
+
 Wed Jul 10 15:14:43 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* lib/adlint/cc1/value.rb : Refactor relationships between VersionGroup

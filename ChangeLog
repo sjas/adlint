@@ -1,3 +1,38 @@
+Thu Aug 22 14:17:54 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/cc1/interp.rb : Fix bad context-tracing during or after
+	  evaluation of an iteration statement.
+	* lib/adlint/cc1/object.rb : Ditto.
+	* lib/adlint/cc1/value.rb : Ditto.
+
+	* lib/adlint/cc1/trace.rb : Revise context-tracing interface in order
+	  not to output context messages about futural controlling-expressions.
+	* lib/adlint/exam/c_builtin/cc1_check.rb : Ditto.
+
+Wed Aug  7 15:01:04 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/exam/c_builtin/cc1_check.rb : Fix bad W0570 code check
+	  degraded during supporting context-tracing.
+
+	* features/code_check/W0570.feature : Add scenario to reproduce a known
+	  bug.
+
+Wed Aug  7 13:40:55 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/cc1/trace.rb : Fix bad context message emission of
+	  undefinable variables.
+
+	* features/code_check/W0460.feature : Add scenario to reproduce bad
+	  context message problem.
+
+Wed Aug  7 10:28:42 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/**/* : Support context-tracing to improve readability of
+	  warning messages.
+	* lib/adlint/cc1/trace.rb : Add new context tracing module.
+
+	* features/code_check/* : Add scenarios for testing context-tracing.
+
 Wed Jul 10 15:14:43 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* lib/adlint/cc1/value.rb : Refactor relationships between VersionGroup

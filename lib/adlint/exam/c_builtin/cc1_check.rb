@@ -2094,7 +2094,8 @@ module CBuiltin #:nodoc:
         if rhs_var.value.test_must_be_equal_to(scalar_value_of(0)).false?
           test = rhs_var.value.test_may_be_equal_to(scalar_value_of(0))
           if test.true?
-            W(expr.location, *test.basis.emit_context_messages(self))
+            W(expr.location,
+              *test.basis.emit_context_messages(self, expr.location))
           end
         end
       end
@@ -2128,7 +2129,8 @@ module CBuiltin #:nodoc:
       if constant_expression?(expr.rhs_operand)
         test = rhs_var.value.test_must_be_equal_to(scalar_value_of(0))
         if test.true?
-          W(expr.location, *test.basis.emit_context_messages(self))
+          W(expr.location,
+            *test.basis.emit_context_messages(self, expr.location))
         end
       end
     end
@@ -2161,7 +2163,8 @@ module CBuiltin #:nodoc:
       unless constant_expression?(expr.rhs_operand)
         test = rhs_var.value.test_must_be_equal_to(scalar_value_of(0))
         if test.true?
-          W(expr.location, *test.basis.emit_context_messages(self))
+          W(expr.location,
+            *test.basis.emit_context_messages(self, expr.location))
         end
       end
     end
@@ -2993,7 +2996,8 @@ module CBuiltin #:nodoc:
         lhs_limit = scalar_value_of(lhs_var.type.max) >> rhs_var.value
         test = lhs_var.value.test_must_be_greater_than(lhs_limit)
         if test.true?
-          W(shift_expr.location, *test.basis.emit_context_messages(self))
+          W(shift_expr.location,
+            *test.basis.emit_context_messages(self, shift_expr.location))
         end
       end
     end
@@ -3028,7 +3032,8 @@ module CBuiltin #:nodoc:
         if lhs_var.value.test_must_be_greater_than(lhs_limit).false?
           test = lhs_var.value.test_may_be_greater_than(lhs_limit)
           if test.true?
-            W(shift_expr.location, *test.basis.emit_context_messages(self))
+            W(shift_expr.location,
+              *test.basis.emit_context_messages(self, shift_expr.location))
           end
         end
       end
@@ -8390,7 +8395,8 @@ module CBuiltin #:nodoc:
       unless constant_expression?(expr.operand)
         test = ptr_var.value.test_must_be_null
         if test.true?
-          W(expr.location, *test.basis.emit_context_messages(self))
+          W(expr.location,
+            *test.basis.emit_context_messages(self, expr.location))
         end
       end
     end
@@ -8402,7 +8408,8 @@ module CBuiltin #:nodoc:
       unless constant_expression?(expr.expression)
         test = outer_var.value.test_must_be_null
         if test.true?
-          W(expr.location, *test.basis.emit_context_messages(self))
+          W(expr.location,
+            *test.basis.emit_context_messages(self, expr.location))
         end
       end
     end
@@ -8414,7 +8421,8 @@ module CBuiltin #:nodoc:
       unless constant_expression?(expr.expression)
         test = ary_or_ptr.value.test_must_be_null
         if test.true?
-          W(expr.location, *test.basis.emit_context_messages(self))
+          W(expr.location,
+            *test.basis.emit_context_messages(self, expr.location))
         end
       end
     end
@@ -8449,7 +8457,8 @@ module CBuiltin #:nodoc:
         if ptr_var.value.test_must_be_null.false?
           test = ptr_var.value.test_may_be_null
           if test.true?
-            W(expr.location, *test.basis.emit_context_messages(self))
+            W(expr.location,
+              *test.basis.emit_context_messages(self, expr.location))
           end
         end
       end
@@ -8463,7 +8472,8 @@ module CBuiltin #:nodoc:
         if outer_var.value.test_must_be_null.false?
           test = outer_var.value.test_may_be_null
           if test.true?
-            W(expr.location, *test.basis.emit_context_messages(self))
+            W(expr.location,
+              *test.basis.emit_context_messages(self, expr.location))
           end
         end
       end
@@ -8477,7 +8487,8 @@ module CBuiltin #:nodoc:
         if ary_or_ptr.value.test_must_be_null.false?
           test = ary_or_ptr.value.test_may_be_null
           if test.true?
-            W(expr.location, *test.basis.emit_context_messages(self))
+            W(expr.location,
+              *test.basis.emit_context_messages(self, expr.location))
           end
         end
       end
@@ -8518,14 +8529,16 @@ module CBuiltin #:nodoc:
       if lhs_type.pointer?
         test = lhs_val.test_must_be_null
         if test.true?
-          W(expr.lhs_operand.location, *test.basis.emit_context_messages(self))
+          W(expr.lhs_operand.location,
+            *test.basis.emit_context_messages(self, expr.lhs_operand.location))
         end
       end
 
       if rhs_type.pointer?
         test = rhs_val.test_must_be_null
         if test.true?
-          W(expr.rhs_operand.location, *test.basis.emit_context_messages(self))
+          W(expr.rhs_operand.location,
+            *test.basis.emit_context_messages(self, expr.rhs_operand.location))
         end
       end
     end
@@ -8536,7 +8549,8 @@ module CBuiltin #:nodoc:
       if type.pointer?
         test = val.test_must_be_null
         if test.true?
-          W(expr.operand.location, *test.basis.emit_context_messages(self))
+          W(expr.operand.location,
+            *test.basis.emit_context_messages(self, expr.operand.location))
         end
       end
     end
@@ -8547,7 +8561,8 @@ module CBuiltin #:nodoc:
       if type.pointer?
         test = val.test_must_be_null
         if test.true?
-          W(expr.operand.location, *test.basis.emit_context_messages(self))
+          W(expr.operand.location,
+            *test.basis.emit_context_messages(self, expr.operand.location))
         end
       end
     end
@@ -8583,14 +8598,16 @@ module CBuiltin #:nodoc:
       if lhs_type.pointer? && lhs_val.test_must_be_null.false?
         test = lhs_val.test_may_be_null
         if test.true?
-          W(expr.lhs_operand.location, *test.basis.emit_context_messages(self))
+          W(expr.lhs_operand.location,
+            *test.basis.emit_context_messages(self, expr.lhs_operand.location))
         end
       end
 
       if rhs_type.pointer? && rhs_val.test_must_be_null.false?
         test = rhs_val.test_may_be_null
         if test.true?
-          W(expr.rhs_operand.location, *test.basis.emit_context_messages(self))
+          W(expr.rhs_operand.location,
+            *test.basis.emit_context_messages(self, expr.rhs_operand.location))
         end
       end
     end
@@ -8601,7 +8618,8 @@ module CBuiltin #:nodoc:
       if type.pointer? && val.test_must_be_null.false?
         test = val.test_may_be_null
         if test.true?
-          W(expr.operand.location, *test.basis.emit_context_messages(self))
+          W(expr.operand.location,
+            *test.basis.emit_context_messages(self, expr.operand.location))
         end
       end
     end
@@ -8612,7 +8630,8 @@ module CBuiltin #:nodoc:
       if type.pointer? && val.test_must_be_null.false?
         test = val.test_may_be_null
         if test.true?
-          W(expr.operand.location, *test.basis.emit_context_messages(self))
+          W(expr.operand.location,
+            *test.basis.emit_context_messages(self, expr.operand.location))
         end
       end
     end
@@ -9548,7 +9567,8 @@ module CBuiltin #:nodoc:
         test = var.value.test_must_be_undefined
         if test.true?
           var = var.owner while var.inner?
-          W(expr.location, var.name, *test.basis.emit_context_messages(self))
+          W(expr.location, var.name,
+            *test.basis.emit_context_messages(self, expr.location))
         end
       end
     end
@@ -9576,7 +9596,8 @@ module CBuiltin #:nodoc:
           test = var.value.test_may_be_undefined
           if test.true?
             var = var.owner while var.inner?
-            W(expr.location, var.name, *test.basis.emit_context_messages(self))
+            W(expr.location, var.name,
+              *test.basis.emit_context_messages(self, expr.location))
           end
         end
       end
@@ -9613,7 +9634,8 @@ module CBuiltin #:nodoc:
             test = pointee.value.test_must_be_undefined
             if test.true?
               arg_expr = funcall_expr.argument_expressions[idx]
-              W(arg_expr.location, *test.basis.emit_context_messages(self))
+              W(arg_expr.location,
+                *test.basis.emit_context_messages(self, arg_expr.location))
             end
           end
         end
@@ -9654,7 +9676,8 @@ module CBuiltin #:nodoc:
             test = pointee.value.test_may_be_undefined
             if test.true?
               arg_expr = funcall_expr.argument_expressions[idx]
-              W(arg_expr.location, *test.basis.emit_context_messages(self))
+              W(arg_expr.location,
+                *test.basis.emit_context_messages(self, arg_expr.location))
             end
           end
         end
@@ -13132,7 +13155,8 @@ module CBuiltin #:nodoc:
       if lhs_var.type.signed?
         test = lhs_var.value.test_must_be_less_than(scalar_value_of(0))
         if test.true?
-          W(expr.location, *test.basis.emit_context_messages(self))
+          W(expr.location,
+            *test.basis.emit_context_messages(self, expr.location))
           return
         end
 
@@ -13140,7 +13164,8 @@ module CBuiltin #:nodoc:
           lhs_limit = scalar_value_of(lhs_var.type.max) >> rhs_var.value
           test = lhs_var.value.test_must_be_greater_than(lhs_limit)
           if test.true?
-            W(expr.location, *test.basis.emit_context_messages(self))
+            W(expr.location,
+              *test.basis.emit_context_messages(self, expr.location))
           end
         end
       end
@@ -13175,7 +13200,8 @@ module CBuiltin #:nodoc:
       if lhs_var.type.signed?
         test = lhs_var.value.test_must_be_less_than(scalar_value_of(0))
         if test.true?
-          W(expr.location, *test.basis.emit_context_messages(self))
+          W(expr.location,
+            *test.basis.emit_context_messages(self, expr.location))
           return
         end
 
@@ -13183,7 +13209,8 @@ module CBuiltin #:nodoc:
           lhs_limit = scalar_value_of(lhs_var.type.max) >> rhs_var.value
           test = lhs_var.value.test_must_be_greater_than(lhs_limit)
           if test.true?
-            W(expr.location, *test.basis.emit_context_messages(self))
+            W(expr.location,
+              *test.basis.emit_context_messages(self, expr.location))
           end
         end
       end
@@ -13219,15 +13246,18 @@ module CBuiltin #:nodoc:
         if lhs_var.value.test_must_be_less_than(scalar_value_of(0)).false?
           test = lhs_var.value.test_may_be_less_than(scalar_value_of(0))
           if test.true?
-            W(expr.location, *test.basis.emit_context_messages(self))
+            W(expr.location,
+              *test.basis.emit_context_messages(self, expr.location))
             return
           end
         end
 
-        if lhs_var.value.test_must_be_greater_than(scalar_value_of(0)).false?
-          test = lhs_var.value.test_may_be_greater_than(scalar_value_of(0))
+        lhs_limit = scalar_value_of(lhs_var.type.max) >> rhs_var.value
+        if lhs_var.value.test_must_be_greater_than(lhs_limit).false?
+          test = lhs_var.value.test_may_be_greater_than(lhs_limit)
           if test.true?
-            W(expr.location, *test.basis.emit_context_messages(self))
+            W(expr.location,
+              *test.basis.emit_context_messages(self, expr.location))
           end
         end
       end
@@ -14063,7 +14093,8 @@ module CBuiltin #:nodoc:
       if orig_var.value.scalar?
         test = orig_var.value.test_must_be_less_than(scalar_value_of(0))
         if test.true?
-          W(expr.location, *test.basis.emit_context_messages(self))
+          W(expr.location,
+            *test.basis.emit_context_messages(self, expr.location))
         end
       end
     end
@@ -14102,7 +14133,8 @@ module CBuiltin #:nodoc:
           orig_var.value.test_must_be_less_than(scalar_value_of(0)).false?
         test = orig_var.value.test_may_be_less_than(scalar_value_of(0))
         if test.true?
-          W(expr.location, *test.basis.emit_context_messages(self))
+          W(expr.location,
+            *test.basis.emit_context_messages(self, expr.location))
         end
       end
     end
@@ -16156,7 +16188,8 @@ module CBuiltin #:nodoc:
         if subs.value.test_must_be_less_than(lower_bound).false?
           test = subs.value.test_may_be_less_than(lower_bound)
           if test.true?
-            W(expr.location, *test.basis.emit_context_messages(self))
+            W(expr.location,
+              *test.basis.emit_context_messages(self, expr.location))
             return
           end
         end
@@ -16165,7 +16198,8 @@ module CBuiltin #:nodoc:
         if subs.value.test_must_be_greater_than(upper_bound).false?
           test = subs.value.test_may_be_greater_than(upper_bound)
           if test.true?
-            W(expr.location, *test.basis.emit_context_messages(self))
+            W(expr.location,
+              *test.basis.emit_context_messages(self, expr.location))
           end
         end
       end
@@ -16485,14 +16519,16 @@ module CBuiltin #:nodoc:
         lower_bound = scalar_value_of(0)
         test = subs.value.test_must_be_less_than(lower_bound)
         if test.true?
-          W(expr.location, *test.basis.emit_context_messages(self))
+          W(expr.location,
+            *test.basis.emit_context_messages(self, expr.location))
           return
         end
 
         upper_bound = scalar_value_of(ary_len - 1)
         test = subs.value.test_must_be_greater_than(upper_bound)
         if test.true?
-          W(expr.location, *test.basis.emit_context_messages(self))
+          W(expr.location,
+            *test.basis.emit_context_messages(self, expr.location))
         end
       end
     end
@@ -16971,14 +17007,16 @@ module CBuiltin #:nodoc:
       lower_bound = scalar_value_of(rslt_type.min - 1)
       test = orig_val.test_must_be_less_than(lower_bound)
       if test.true?
-        W(expr.location, *test.basis.emit_context_messages(self))
+        W(expr.location,
+          *test.basis.emit_context_messages(self, expr.location))
         return
       end
 
       upper_bound = scalar_value_of(rslt_type.max + 1)
       test = orig_val.test_must_be_greater_than(upper_bound)
       if test.true?
-        W(expr.location, *test.basis.emit_context_messages(self))
+        W(expr.location,
+          *test.basis.emit_context_messages(self, expr.location))
       end
     end
 
@@ -17718,14 +17756,16 @@ module CBuiltin #:nodoc:
         lower_bound = scalar_value_of(0)
         test = subs.value.test_must_be_less_than(lower_bound)
         if test.true?
-          W(expr.location, *test.basis.emit_context_messages(self))
+          W(expr.location,
+            *test.basis.emit_context_messages(self, expr.location))
           return
         end
 
         upper_bound = scalar_value_of(ary_len - 1)
         test = subs.value.test_must_be_greater_than(upper_bound)
         if test.true?
-          W(expr.location, *test.basis.emit_context_messages(self))
+          W(expr.location,
+            *test.basis.emit_context_messages(self, expr.location))
         end
       end
     end
@@ -20112,7 +20152,8 @@ module CBuiltin #:nodoc:
       if orig_val.test_must_be_less_than(lower_bound).false?
         test = orig_val.test_may_be_less_than(lower_bound)
         if test.true?
-          W(expr.location, *test.basis.emit_context_messages(self))
+          W(expr.location,
+            *test.basis.emit_context_messages(self, expr.location))
           return
         end
       end
@@ -20121,7 +20162,8 @@ module CBuiltin #:nodoc:
       if orig_val.test_must_be_greater_than(upper_bound).false?
         test = orig_val.test_may_be_greater_than(upper_bound)
         if test.true?
-          W(expr.location, *test.basis.emit_context_messages(self))
+          W(expr.location,
+            *test.basis.emit_context_messages(self, expr.location))
         end
       end
     end
@@ -20162,14 +20204,16 @@ module CBuiltin #:nodoc:
       lower_bound = scalar_value_of(rslt_type.min)
       test = orig_val.test_must_be_less_than(lower_bound)
       if test.true?
-        W(expr.location, *test.basis.emit_context_messages(self))
+        W(expr.location,
+          *test.basis.emit_context_messages(self, expr.location))
         return
       end
 
       upper_bound = scalar_value_of(rslt_type.max)
       test = orig_val.test_must_be_greater_than(upper_bound)
       if test.true?
-        W(expr.location, *test.basis.emit_context_messages(self))
+        W(expr.location,
+          *test.basis.emit_context_messages(self, expr.location))
       end
     end
 

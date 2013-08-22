@@ -49,14 +49,14 @@ module Cc1 #:nodoc:
   #    <-- TrivialTestBasis
   #    <-- NontrivialTestBasis
   #          <-- UndefinableTestBasis
+  #          <-- NullabilityTestBasis
   #          <-- DefinableTestBasis
-  #          <-- NullableTestBasis
   class TestBasis
     def fulfilled?
       subclass_responsibility
     end
 
-    def emit_context_messages(reporter)
+    def emit_context_messages(report, loc)
       subclass_responsibility
     end
   end
@@ -134,7 +134,7 @@ module Cc1 #:nodoc:
       subclass_responsibility
     end
 
-    def overwrite!(val, by_tag, at_tag)
+    def overwrite!(val, tag)
       subclass_responsibility
     end
 
@@ -342,7 +342,7 @@ module Cc1 #:nodoc:
       true
     end
 
-    def emit_context_messages(reporter)
+    def emit_context_messages(report, loc)
       # NOTE: Basis of the test result about SingleValue-s is trivial.
       #       So, nothing to be complemented.
       []
@@ -516,9 +516,7 @@ module Cc1 #:nodoc:
     def narrow_domain!(op, ope_val)
       case ope_sval = ope_val.to_single_value
       when ScalarValue
-        orig_dom = @domain
         @domain = @domain.narrow(op, ope_sval.domain)
-        !@domain.equal?(orig_dom)
       else
         raise TypeError, "cannot narrow scalar value domain with non-scalar."
       end
@@ -527,9 +525,7 @@ module Cc1 #:nodoc:
     def widen_domain!(op, ope_val)
       case ope_sval = ope_val.to_single_value
       when ScalarValue
-        orig_dom = @domain
         @domain = @domain.widen(op, ope_sval.domain)
-        !@domain.equal?(orig_dom)
       else
         raise TypeError, "cannot widen scalar value domain with non-scalar."
       end
@@ -925,11 +921,11 @@ module Cc1 #:nodoc:
       @values.empty? ? false : @values.all? { |val| val.ambiguous? }
     end
 
-    def overwrite!(val, by_tag, at_tag)
+    def overwrite!(val, tag)
       case sval = val.to_single_value
       when ArrayValue
         @values.zip(sval.values).each do |lhs, rhs|
-          rhs && lhs.overwrite!(rhs, by_tag, at_tag)
+          rhs && lhs.overwrite!(rhs, tag)
         end
       else
         raise TypeError, "cannot overwrite array with non-array."
@@ -939,13 +935,13 @@ module Cc1 #:nodoc:
     def narrow_domain!(op, ope_val)
       case ope_sval = ope_val.to_single_value
       when ArrayValue
-        @values.zip(ope_sval.values).map { |lhs, rhs|
+        @values.zip(ope_sval.values).each do |lhs, rhs|
           if rhs
             lhs.narrow_domain!(op, rhs)
           else
             next
           end
-        }.any?
+        end
       else
         raise TypeError, "cannot narrow array value domain with non-array."
       end
@@ -954,13 +950,13 @@ module Cc1 #:nodoc:
     def widen_domain!(op, ope_val)
       case ope_sval = ope_val.to_single_value
       when ArrayValue
-        @values.zip(ope_sval.values).map { |lhs, rhs|
+        @values.zip(ope_sval.values).each do |lhs, rhs|
           if rhs
             lhs.widen_domain!(op, rhs)
           else
             next
           end
-        }.any?
+        end
       else
         raise TypeError, "cannot widen array value domain with non-array."
       end
@@ -1432,11 +1428,11 @@ module Cc1 #:nodoc:
       @values.empty? ? false : @values.all? { |val| val.ambiguous? }
     end
 
-    def overwrite!(val, by_tag, at_tag)
+    def overwrite!(val, tag)
       case sval = val.to_single_value
       when CompositeValue
         @values.zip(sval.values).each do |lhs, rhs|
-          rhs && lhs.overwrite!(rhs, by_tag, at_tag)
+          rhs && lhs.overwrite!(rhs, tag)
         end
       else
         raise TypeError, "cannot overwrite composite with non-composite."
@@ -1446,13 +1442,13 @@ module Cc1 #:nodoc:
     def narrow_domain!(op, ope_val)
       case ope_sval = ope_val.to_single_value
       when CompositeValue
-        @values.zip(ope_sval.values).map { |lhs, rhs|
+        @values.zip(ope_sval.values).each do |lhs, rhs|
           if rhs
             lhs.narrow_domain!(op, rhs)
           else
             next
           end
-        }.any?
+        end
       else
         raise TypeError,
           "cannot narrow composite value domain with non-composite."
@@ -1462,13 +1458,13 @@ module Cc1 #:nodoc:
     def widen_domain!(op, ope_val)
       case ope_sval = ope_val.to_single_value
       when CompositeValue
-        @values.zip(ope_sval.values).map { |lhs, rhs|
+        @values.zip(ope_sval.values).each do |lhs, rhs|
           if rhs
             lhs.widen_domain!(op, rhs)
           else
             next
           end
-        }.any?
+        end
       else
         raise TypeError,
           "cannot widen composite value domain with non-composite."
@@ -1865,9 +1861,10 @@ module Cc1 #:nodoc:
 
     def fulfilled?
       if @exact
-        !@negative_contribs.empty?
+        @negative_contribs.any? { |mval| mval._base.tag.traceable? }
       else
-        !@positive_contribs.empty? && !@negative_contribs.empty?
+        @positive_contribs.any? { |mval| mval._base.tag.traceable? } &&
+          @negative_contribs.any? { |mval| mval._base.tag.traceable? }
       end
     end
 
@@ -1914,10 +1911,54 @@ module Cc1 #:nodoc:
     end
   end
 
+  class TransitionTag
+    def initialize(by = nil, at = nil)
+      self.by = by
+      self.at = at
+    end
+
+    # NOTE: This value is generated by `by' points to AST nodes.
+    attr_reader :by
+
+    def by=(by)
+      @by = by ? by.dup.compact.uniq : []
+    end
+
+    # NOTE: This value is generated in `at' points to branch trees.
+    attr_reader :at
+
+    def at=(at)
+      @at = at ? at.dup.compact.uniq : []
+    end
+
+    def traceable?
+      !@by.empty?
+    end
+
+    def merge!(tag)
+      if tag
+        if at == tag.at
+          self.by = tag.by + by
+          self.at = tag.at + at
+        else
+          self.by = tag.by
+          self.at = tag.at
+        end
+      end
+    end
+
+    def pretty_print(pp)
+      {
+        by: @by.map(&:location),
+        at: @at.map { |br| br.ctrlexpr.to_expr }.compact.map(&:location)
+      }.pretty_print(pp)
+    end
+  end
+
   class ValueTransition
     include Enumerable
 
-    Snapshot = Struct.new(:value, :by_tag, :at_tag)
+    Snapshot = Struct.new(:value, :tag)
     private_constant :Snapshot
 
     def initialize(mval)
@@ -1931,25 +1972,6 @@ module Cc1 #:nodoc:
     def last
       @ordered_snapshots.last
     end
-
-    #def ctrlexprs
-    #  @ordered_snapshots.each_with_object(Array.new) do |ss, ary|
-    #    ary.concat(ss.ctrlexprs)
-    #  end
-    #end
-
-    #def ctrlexprs_on(base_trans)
-    #  expr_num = base_trans.ctrlexprs.size + 1
-    #  last_val = nil
-    #  @ordered_snapshots.each do |cur_ss|
-    #    if last_val.nil? || base_trans.any? { |ss| ss.value.equal?(last_val) }
-    #      last_val = cur_ss.value
-    #    else
-    #      return cur_ss.ctrlexprs.slice(0, expr_num)
-    #    end
-    #  end
-    #  @ordered_snapshots.last.ctrlexprs
-    #end
 
     def each(&block)
       if block_given?
@@ -1966,46 +1988,16 @@ module Cc1 #:nodoc:
       else
         older = []
       end
-      older.push(Snapshot.new(mval._base.value,
-                              mval._base.by_tag, mval._base.at_tag))
+      older.push(Snapshot.new(mval._base.value, mval._base.tag))
     end
   end
 
   class MultipleValue < Value
-    class Base
-      def initialize(val, by_tag, at_tag)
-        @value = val
-        self.by_tag = by_tag
-        self.at_tag = at_tag
-      end
-
-      attr_reader :value
-
-      # NOTE: This value is generated by `by_tag' points to the AST node.
-      attr_accessor :by_tag
-
-      # NOTE: This value is generated in `at_tag' points to the branch tree.
-      attr_reader :at_tag
-
-      def at_tag=(at_tag)
-        if at_tag
-          @at_tag = at_tag.dup.compact.uniq
-        else
-          @at_tag = []
-        end
-      end
-
-      def pretty_print(pp)
-        Summary.new(@value, @by_tag ? @by_tag.location : nil).pretty_print(pp)
-      end
-
-      Summary = Struct.new(:value, :by)
-      private_constant :Summary
-    end
+    Base = Struct.new(:value, :tag)
     private_constant :Base
 
-    def initialize(val, ancestor, by_tag, at_tag)
-      @base = Base.new(val.to_single_value, by_tag, at_tag)
+    def initialize(val, ancestor, tag)
+      @base = Base.new(val.to_single_value, tag)
       @ancestor = ancestor
       @descendants = []
     end
@@ -2042,40 +2034,50 @@ module Cc1 #:nodoc:
 
     def contain?(val)
       sval = val.to_single_value
-      effective_values.all? { |mval| mval._base.value.contain?(sval) }
+      effective_values.any? { |mval| mval._base.value.contain?(sval) }
     end
 
     def multiple?
       true
     end
 
-    def overwrite!(val, by_tag, at_tag)
+    def overwrite!(val, tag)
       sval = val.to_single_value
       effective_values.each do |mval|
-        mval._base.value.overwrite!(sval, nil, nil)
-        mval._base.by_tag = by_tag if by_tag
-        mval._base.at_tag = at_tag if at_tag
+        mval._base.value.overwrite!(sval, nil)
+        mval._base.tag.merge!(tag)
       end
     end
 
     def narrow_domain!(op, ope_val)
       ope_sval = ope_val.to_single_value
-      effective_values.map { |mval|
+      effective_values.each do |mval|
         if anc = mval.ancestor
           anc._base.value.narrow_domain!(op.for_complement, ope_sval)
         end
         mval._base.value.narrow_domain!(op, ope_sval)
-      }.any?
+      end
     end
 
     def widen_domain!(op, ope_val)
       ope_sval = ope_val.to_single_value
-      effective_values.map { |mval|
-        if anc = mval.ancestor
-          anc._base.value.narrow_domain!(op.for_complement, ope_sval)
-        end
+      effective_values.each do |mval|
+        # NOTE: Value domain widening is used to widen the controlling
+        #       variables's value only when the interpreter simulates an
+        #       iteration statement.
+        #       So, domain complementing is unnecessary for this purpose.
+        #
+        # if anc = mval.ancestor
+        #   anc._base.value.narrow_domain!(op.for_complement, ope_sval)
+        # end
+
         mval._base.value.widen_domain!(op, ope_sval)
-      }.any?
+
+        # NOTE: No code is corresponding to the controlling variable's value
+        #       widenning.
+        mval._base.tag.by = nil
+        mval._base.tag.at = nil
+      end
     end
 
     def invert_domain!
@@ -2089,14 +2091,8 @@ module Cc1 #:nodoc:
     end
 
     def fork
-      same_val = @descendants.find { |mval| mval.eql?(_base.value) }
-      if same_val
-        same_val
-      else
-        new_desc = MultipleValue.new(_base.value.dup, self,
-                                     _base.by_tag, _base.at_tag)
-        @descendants.push(new_desc)
-        new_desc
+      MultipleValue.new(_base.value.dup, self, _base.tag.dup).tap do |desc|
+        @descendants.push(desc)
       end
     end
 
@@ -2367,10 +2363,9 @@ module Cc1 #:nodoc:
       if non_nil_vals.empty?
         TrivialValueTest.new(false)
       else
-        pred = lambda { |val| val.test_must_be_null.true? }
-        basis = DefinableTestBasis.new(pred, true)
+        basis = NullabilityTestBasis.new(true)
         non_nil_vals.each do |mval|
-          if pred.call(mval._base.value)
+          if mval._base.value.test_must_be_null.true?
             basis.add_positive_contributor(mval)
           else
             basis.add_negative_contributor(mval)
@@ -2382,10 +2377,9 @@ module Cc1 #:nodoc:
     end
 
     def test_may_be_null
-      pred = lambda { |val| val.test_may_be_null.true? }
-      basis = DefinableTestBasis.new(pred, false)
+      basis = NullabilityTestBasis.new(false)
       effective_values.each do |mval|
-        if pred.call(mval._base.value)
+        if mval._base.value.test_may_be_null.true?
           basis.add_positive_contributor(mval)
         else
           basis.add_negative_contributor(mval)
@@ -2467,7 +2461,7 @@ module Cc1 #:nodoc:
 
     def coerce_to(type)
       sval = to_single_value.coerce_to(type)
-      MultipleValue.new(sval, nil, _base.by_tag, _base.at_tag)
+      MultipleValue.new(sval, nil, _base.tag.dup)
     end
 
     def to_enum
@@ -2495,7 +2489,7 @@ module Cc1 #:nodoc:
     end
 
     def dup
-      MultipleValue.new(to_single_value.dup, nil, _base.by_tag, _base.at_tag)
+      MultipleValue.new(to_single_value.dup, nil, _base.tag.dup)
     end
 
     def effective_values
@@ -2517,10 +2511,10 @@ module Cc1 #:nodoc:
   end
 
   class VersionedValue < MultipleValue
-    def initialize(orig_val, by_tag, at_tag)
+    def initialize(orig_val, tag)
       # NOTE: `orig_val.to_single_value' will be done in
       #       MultipleValue#initialize.
-      super(orig_val, nil, by_tag, at_tag)
+      super(orig_val, nil, tag)
 
       @version_controller = ValueVersionController.new(self)
     end
@@ -2554,14 +2548,14 @@ module Cc1 #:nodoc:
       delete_descendants!
       orig_val = @version_controller.original_value
       @version_controller = nil
-      _orig_overwrite!(orig_val, nil, nil)
+      _orig_overwrite!(orig_val, TransitionTag.new)
       @version_controller = ValueVersionController.new(self)
       invalidate_memo!
     end
 
     alias :_orig_overwrite! :overwrite!
 
-    def overwrite!(val, by_tag, at_tag)
+    def overwrite!(val, tag)
       @version_controller.fork_current_version
       super
       @version_controller.mark_current_versioning_group_as_sticky
@@ -2571,8 +2565,8 @@ module Cc1 #:nodoc:
     def force_overwrite!(val)
       # NOTE: This method will be invoked only from VariableTable#define.
       sval = val.to_single_value
-      @version_controller.original_value.overwrite!(sval, nil, nil)
-      _orig_overwrite!(sval, nil, nil)
+      @version_controller.original_value.overwrite!(sval, nil)
+      _orig_overwrite!(sval, nil)
       invalidate_memo!
     end
 
@@ -2585,6 +2579,7 @@ module Cc1 #:nodoc:
     def widen_domain!(op, ope_val)
       @version_controller.fork_current_version
       super
+      @version_controller.mark_current_versioning_group_as_sticky
       invalidate_memo!
     end
 
@@ -2595,8 +2590,7 @@ module Cc1 #:nodoc:
     end
 
     def coerce_to(type)
-      VersionedValue.new(to_single_value.coerce_to(type),
-                         _base.by_tag, _base.at_tag)
+      VersionedValue.new(to_single_value.coerce_to(type), _base.tag.dup)
     end
 
     def effective_values
@@ -2662,7 +2656,7 @@ module Cc1 #:nodoc:
         base_vals = current_versioning_group.base_values
         base_vals.zip(initial_vals).each do |mval, init_val|
           mval.rollback! if forked
-          mval.overwrite!(init_val, nil, nil) if init_val
+          mval.overwrite!(init_val, TransitionTag.new) if init_val
         end
         begin_forking
       else
@@ -2686,16 +2680,10 @@ module Cc1 #:nodoc:
     end
 
     def copy_current_version
-      return unless current_versioning_group.sticky?
-
       # NOTE: This method must be called between ending of the forking section
       #       and ending of the versioning group.
-      current_values.each do |mval|
-        base_val = mval._base.value
-        already_exist = mval.descendants.any? { |desc_mval|
-          !desc_mval.equal?(mval) && desc_mval.eql?(base_val)
-        }
-        mval.fork unless already_exist
+      if current_versioning_group.sticky?
+        current_values.each { |mval| mval.fork }
       end
     end
 
@@ -2707,11 +2695,11 @@ module Cc1 #:nodoc:
       case
       when current_versioning_group.sticky?
         fork_all_versions
-
-        base_values = base_ver.values.map { |mval| mval.descendants }.flatten
-        base_ver.values = base_values.each_with_object(Hash.new) { |mval, hash|
+        base_vals = base_ver.values.map { |mval| mval.descendants }.flatten
+        base_ver.values = base_vals.each_with_object({}) { |mval, hash|
           if eql_mval = hash[mval]
-            eql_mval._base.at_tag += mval._base.at_tag
+            eql_mval._base.tag.by += mval._base.tag.by
+            eql_mval._base.tag.at += mval._base.tag.at
           else
             hash[mval] = mval
           end
@@ -2726,9 +2714,9 @@ module Cc1 #:nodoc:
         vals.each do |base_mval, init_sval|
           base_mval.delete_descendants!
           if base_mval.kind_of?(VersionedValue)
-            base_mval._orig_overwrite!(init_sval, nil, nil)
+            base_mval._orig_overwrite!(init_sval, TransitionTag.new)
           else
-            base_mval.overwrite!(init_sval, nil, nil)
+            base_mval.overwrite!(init_sval, TransitionTag.new)
           end
         end
       else

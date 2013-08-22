@@ -331,3 +331,149 @@ Feature: W0422
       | W0100 | 5    | 10     |
       | W0104 | 3    | 13     |
       | W0628 | 3    | 5      |
+
+  Scenario: possible null-dereference because of an incomplete selection
+            statement
+    Given a target source named "fixture.c" with:
+      """
+      static void foo(void)
+      {
+          int i;
+          int *p;
+
+          switch (rand()) {
+          case 0: /* false */
+              p = &i;
+              break;
+          case 1: /* true */
+              p = NULL;
+              break;
+          default:
+              return;
+          }
+
+          *p = 5; /* W0422 */
+
+          if (i < rand()) { /* false */
+              p = &i;
+          }
+
+          *p = 6; /* W0422 */
+
+          if (rand() < 1) { /* false */
+              p = &i;
+          }
+
+          *p = 7; /* W0422 */
+      }
+      """
+    When I successfully run `adlint fixture.c` on noarch
+    Then the output should exactly match with:
+      | mesg  | line | column |
+      | W1076 | 1    | 13     |
+      | W0109 | 6    | 13     |
+      | W0459 | 8    | 13     |
+      | C1000 |      |        |
+      | C1003 | 3    | 9      |
+      | W0422 | 17   | 5      |
+      | C1000 |      |        |
+      | C1005 | 4    | 10     |
+      | C1002 | 7    | 5      |
+      | C1001 | 10   | 5      |
+      | C1004 | 11   | 11     |
+      | W0459 | 19   | 11     |
+      | C1000 |      |        |
+      | C1003 | 3    | 9      |
+      | W0459 | 20   | 13     |
+      | C1000 |      |        |
+      | C1003 | 3    | 9      |
+      | W0422 | 23   | 5      |
+      | C1000 |      |        |
+      | C1005 | 4    | 10     |
+      | C1002 | 7    | 5      |
+      | C1001 | 10   | 5      |
+      | C1004 | 11   | 11     |
+      | C1002 | 19   | 11     |
+      | W0459 | 26   | 13     |
+      | C1000 |      |        |
+      | C1003 | 3    | 9      |
+      | W0422 | 29   | 5      |
+      | C1000 |      |        |
+      | C1005 | 4    | 10     |
+      | C1002 | 7    | 5      |
+      | C1001 | 10   | 5      |
+      | C1004 | 11   | 11     |
+      | C1002 | 19   | 11     |
+      | C1002 | 25   | 16     |
+      | W0100 | 3    | 9      |
+      | W1071 | 1    | 13     |
+      | W0629 | 1    | 13     |
+      | W0628 | 1    | 13     |
+
+  Scenario: possible null-dereference because of an incomplete iteration
+            statement
+    Given a target source named "fixture.c" with:
+      """
+      static void foo(void)
+      {
+          int i;
+          int *p;
+
+          switch (rand()) {
+          case 0: /* false */
+              p = &i;
+              break;
+          case 1: /* true */
+              p = NULL;
+              break;
+          default:
+              return;
+          }
+
+          *p = 5; /* W0422 */
+
+          for (i = 0; i < rand(); ++i) { /* false */
+              p = &i;
+          }
+
+          *p = 6; /* W0422 */
+
+          while (rand() < 1) { /* false */
+              p = &i;
+          }
+
+          *p = 7; /* W0422 */
+      }
+      """
+    When I successfully run `adlint fixture.c` on noarch
+    Then the output should exactly match with:
+      | mesg  | line | column |
+      | W1076 | 1    | 13     |
+      | W0109 | 6    | 13     |
+      | W0459 | 8    | 13     |
+      | C1000 |      |        |
+      | C1003 | 3    | 9      |
+      | W0422 | 17   | 5      |
+      | C1000 |      |        |
+      | C1005 | 4    | 10     |
+      | C1002 | 7    | 5      |
+      | C1001 | 10   | 5      |
+      | C1004 | 11   | 11     |
+      | W0422 | 23   | 5      |
+      | C1000 |      |        |
+      | C1005 | 4    | 10     |
+      | C1002 | 7    | 5      |
+      | C1001 | 10   | 5      |
+      | C1004 | 11   | 11     |
+      | C1002 | 19   | 19     |
+      | W0422 | 29   | 5      |
+      | C1000 |      |        |
+      | C1005 | 4    | 10     |
+      | C1002 | 7    | 5      |
+      | C1001 | 10   | 5      |
+      | C1004 | 11   | 11     |
+      | C1002 | 19   | 19     |
+      | C1002 | 25   | 19     |
+      | W1071 | 1    | 13     |
+      | W0629 | 1    | 13     |
+      | W0628 | 1    | 13     |

@@ -222,6 +222,7 @@ features/code_check/W0501.feature
 features/code_check/W0502.feature
 features/code_check/W0534.feature
 features/code_check/W0542.feature
+features/code_check/W0570.feature
 features/code_check/W0573.feature
 features/code_check/W0580.feature
 features/code_check/W0582.feature

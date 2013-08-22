@@ -13224,8 +13224,9 @@ module CBuiltin #:nodoc:
           end
         end
 
-        if lhs_var.value.test_must_be_greater_than(scalar_value_of(0)).false?
-          test = lhs_var.value.test_may_be_greater_than(scalar_value_of(0))
+        lhs_limit = scalar_value_of(lhs_var.type.max) >> rhs_var.value
+        if lhs_var.value.test_must_be_greater_than(lhs_limit).false?
+          test = lhs_var.value.test_may_be_greater_than(lhs_limit)
           if test.true?
             W(expr.location, *test.basis.emit_context_messages(self))
           end

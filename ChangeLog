@@ -1,3 +1,11 @@
+Wed Aug  7 15:01:04 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/exam/c_builtin/cc1_check.rb : Fix bad W0570 code check
+	  degraded during supporting context-tracing.
+
+	* features/code_check/W0570.feature : Add scenario to reproduce a known
+	  bug.
+
 Wed Aug  7 13:40:55 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* lib/adlint/cc1/trace.rb : Fix bad context message emission of

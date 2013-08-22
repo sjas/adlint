@@ -1076,11 +1076,10 @@ module Cc1 #:nodoc:
       node.executed = true
       notify_while_stmt_started(node)
 
-      widen_varying_variable_value_domain(node)
-
-      ctrlexpr_obj = interpret(node.expression)
+      ctrlexpr_obj = interpret_iteration_ctrlexpr(node, node.expression)
       ctrlexpr_var = object_to_variable(ctrlexpr_obj, node.expression)
       ctrlexpr_val = value_of(ctrlexpr_var)
+
       notify_variable_value_referred(node.expression, ctrlexpr_var)
       notify_sequence_point_reached(SequencePoint.new(node.expression))
       notify_while_ctrlexpr_evaled(node, ctrlexpr_val)
@@ -1248,9 +1247,8 @@ module Cc1 #:nodoc:
         ctrlexpr_var = object_to_variable(ctrlexpr_obj, ctrlexpr)
         ctrlexpr_val = value_of(ctrlexpr_var)
 
-        widen_varying_variable_value_domain(node)
-        ctrlexpr_var = interpret(ctrlexpr)
-
+        ctrlexpr_obj = interpret_iteration_ctrlexpr(node, ctrlexpr)
+        ctrlexpr_var = object_to_variable(ctrlexpr_obj, ctrlexpr)
         notify_variable_value_referred(ctrlexpr, ctrlexpr_var)
         notify_sequence_point_reached(SequencePoint.new(ctrlexpr))
       else
@@ -1316,27 +1314,35 @@ module Cc1 #:nodoc:
       end
     end
 
-    def widen_varying_variable_value_domain(iteration_stmt)
-      varying_vars = {}
-      iteration_stmt.varying_variable_names.each do |name|
-        if var = variable_named(name)
-          varying_vars[var] = var.value.dup
-          var.widen_value_domain!(Operator::EQ, var.type.arbitrary_value)
-        end
+    def interpret_iteration_ctrlexpr(iter_stmt, ctrlexpr)
+      environment.enter_branch(FINAL).execute(interpreter, nil) do
+        widen_varying_variable_value_domain(iter_stmt)
       end
+      interpret(ctrlexpr)
+    ensure
+      environment.leave_branch_group
+      environment.leave_branch
+    end
 
-      varying_vars.each do |var, orig_val|
-        case deduct_variable_varying_path(var, iteration_stmt)
-        when :increase
-          var.narrow_value_domain!(Operator::GE, orig_val)
-        when :decrease
-          var.narrow_value_domain!(Operator::LE, orig_val)
+    def widen_varying_variable_value_domain(iter_stmt)
+      iter_stmt.varying_variable_names.each do |name|
+        if var = variable_named(name)
+          widened_sval = var.type.arbitrary_value
+
+          case deduct_variable_varying_path(var, iter_stmt)
+          when :increase
+            widened_sval.narrow_domain!(Operator::GE, var.value)
+          when :decrease
+            widened_sval.narrow_domain!(Operator::LE, var.value)
+          end
+
+          var.widen_value_domain!(Operator::EQ, widened_sval)
         end
       end
     end
 
-    def deduct_variable_varying_path(var, iteration_stmt)
-      histogram = iteration_stmt.varying_expressions.map { |expr|
+    def deduct_variable_varying_path(var, iter_stmt)
+      histogram = iter_stmt.varying_expressions.map { |expr|
         case expr
         when SimpleAssignmentExpression
           deduct_ctrl_var_path_by_simple_assignment_expr(var, expr)

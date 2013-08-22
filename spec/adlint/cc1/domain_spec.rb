@@ -834,6 +834,15 @@ module Cc1
         #  (subject / rhs).to_s.should == "((< 10) && (> 0))"
         #end
       end
+
+      context "(== 0)" do
+        subject { value_domain_equal_to(0) }
+
+        it "narrowed by == ((== 3) || (== 4)) should be (== Nil)" do
+          rhs = value_domain_equal_to(3).union(value_domain_equal_to(4))
+          subject.narrow(Operator::EQ, rhs).to_s.should == "(== Nil)"
+        end
+      end
     end
 
     private

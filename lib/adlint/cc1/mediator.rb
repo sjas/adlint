@@ -311,12 +311,12 @@ module Cc1 #:nodoc:
     end
 
     def branched_eval(expr = nil, *opts, &block)
-      current_branch = environment.enter_branch(*opts)
-      interpreter.notify_branch_started(current_branch)
-      current_branch.execute(interpreter, expr, &block)
+      cur_branch = environment.enter_branch(*opts)
+      interpreter.notify_branch_started(cur_branch)
+      cur_branch.execute(interpreter, expr, &block)
     ensure
-      interpreter.notify_branch_ended(current_branch)
-      environment.leave_branch_group if current_branch.final?
+      interpreter.notify_branch_ended(cur_branch)
+      environment.leave_branch_group if cur_branch.final?
       environment.leave_branch
     end
 

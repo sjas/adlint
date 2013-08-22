@@ -3015,12 +3015,12 @@ message_definition:
   C1004:
     classes:
       - "INF:X99"
-    format: "この式で該当変数に NULL の値を割り当てました。"
+    format: "ここで該当変数に NULL の値を割り当てました。"
   C1005:
     classes:
       - "INF:X99"
-    format: "この式で該当変数に NULL の可能性がある値を割り当てました。"
+    format: "ここで該当変数に NULL の可能性がある値を割り当てました。"
   C1006:
     classes:
       - "INF:X99"
-    format: "この式で該当変数に値を割り当てました。"
+    format: "ここで該当変数に値を割り当てました。"

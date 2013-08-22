@@ -242,13 +242,13 @@ module Cc1 #:nodoc:
       binding.memory.read
     end
 
-    def assign!(val, src = nil, branch = nil)
+    def assign!(val, src = nil, br = nil)
       # NOTE: Length of the incomplete array type should be deducted while
       #       initializer evaluation.  So, adjustment of the assigning value
       #       can be done at this point by Value#coerce_to(type).
       # NOTE: Domain of the assigning value must be narrowed before writing to
       #       the memory by Value#coerce_to(type).
-      binding.memory.write(val.coerce_to(type), src, branch)
+      binding.memory.write(val.coerce_to(type), src, br)
     end
 
     def uninitialize!
@@ -343,7 +343,7 @@ module Cc1 #:nodoc:
 
     attr_reader :representative_element
 
-    def assign!(val, src = nil, branch = nil)
+    def assign!(val, src = nil, br = nil)
       super
       if @representative_element
         if val.undefined?
@@ -351,7 +351,7 @@ module Cc1 #:nodoc:
         else
           repr_val = @representative_element.type.arbitrary_value
         end
-        @representative_element.assign!(repr_val, src, branch)
+        @representative_element.assign!(repr_val, src, br)
       end
     end
 
@@ -688,18 +688,18 @@ module Cc1 #:nodoc:
       rollback_all_global_variables_value! if current_scope.global?
     end
 
-    def declare(dcl, branch)
+    def declare(dcl, br)
       if var = lookup(dcl.identifier.value)
         var.declarations_and_definitions.push(dcl)
         return var
       end
 
       # NOTE: External variable may have undefined values.
-      define_variable(dcl, branch, dcl.type, allocate_memory(dcl),
+      define_variable(dcl, br, dcl.type, allocate_memory(dcl),
                       dcl.type.undefined_value)
     end
 
-    def define(dcl_or_def, branch, init_val = nil)
+    def define(dcl_or_def, br, init_val = nil)
       if storage_duration_of(dcl_or_def) == :static && !dcl_or_def.type.const?
         # NOTE: Value of the inconstant static duration variable should be
         #       arbitrary because execution of its accessors are out of order.
@@ -722,7 +722,7 @@ module Cc1 #:nodoc:
 
       # NOTE: Domain of the init-value will be restricted by type's min-max in
       #       define_variable.
-      define_variable(dcl_or_def, branch, dcl_or_def.type,
+      define_variable(dcl_or_def, br, dcl_or_def.type,
                       allocate_memory(dcl_or_def), init_val)
     end
 
@@ -836,9 +836,9 @@ module Cc1 #:nodoc:
     end
 
     private
-    def define_variable(dcl_or_def, branch, type, mem, init_val)
+    def define_variable(dcl_or_def, br, type, mem, init_val)
       var = create_variable(dcl_or_def, type, mem)
-      var.assign!(init_val, dcl_or_def, branch)
+      var.assign!(init_val, dcl_or_def, br)
 
       if var.named?
         @named_variables.last[var.name] = var
@@ -1176,15 +1176,15 @@ module Cc1 #:nodoc:
       @value
     end
 
-    def write(val, src, branch)
+    def write(val, src, br)
       if @value
-        @value.overwrite!(val, src, [branch])
+        @value.overwrite!(val, TransitionTag.new([src], [br]))
       else
-        @value = VersionedValue.new(val, src, [branch])
+        @value = VersionedValue.new(val, TransitionTag.new([src], [br]))
       end
     end
 
-    def _cascade_update(src, branch)
+    def _cascade_update(src, br)
       # NOTE: This method will be called only from # #narrow_value_domain! and
       #       #widen_value_domain! of Variable to propagate memory mutation to
       #       the upper MemoryBlock from MemoryWindow.
@@ -1213,12 +1213,12 @@ module Cc1 #:nodoc:
     end
 
     alias :_orig_write :write
-    def write(val, src, branch)
+    def write(val, src, br)
       super
       if !@windows.empty? and
           @value.array? && val.array? or @value.composite? && val.composite?
         @windows.zip(val.to_single_value.values).each do |win, inner_val|
-          win.write(inner_val, src, branch, false)
+          win.write(inner_val, src, br, false)
         end
       end
     end
@@ -1242,12 +1242,12 @@ module Cc1 #:nodoc:
     end
 
     private
-    def handle_written_through_window(win, src, branch)
+    def handle_written_through_window(win, src, br)
       if val = create_value_from_windows
         unless win.read.test_must_be_undefined.true?
           val = val.to_defined_value
         end
-        _orig_write(val, src, branch)
+        _orig_write(val, src, br)
       end
     end
   end
@@ -1270,19 +1270,19 @@ module Cc1 #:nodoc:
       @owner.dynamic?
     end
 
-    def write(val, src, branch, cascade = true)
-      super(val, src, branch)
-      _cascade_update(src, branch) if cascade
+    def write(val, src, br, cascade = true)
+      super(val, src, br)
+      _cascade_update(src, br) if cascade
     end
 
-    def _cascade_update(src, branch)
-      on_written.invoke(self, src, branch)
+    def _cascade_update(src, br)
+      on_written.invoke(self, src, br)
     end
 
     private
-    def handle_written_through_window(win, src, branch)
+    def handle_written_through_window(win, src, br)
       super
-      _cascade_update(src, branch)
+      _cascade_update(src, br)
     end
   end
 

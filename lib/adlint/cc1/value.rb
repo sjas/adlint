@@ -1859,6 +1859,9 @@ module Cc1 #:nodoc:
       @negative_contribs = []
     end
 
+    attr_reader :positive_contribs
+    attr_reader :negative_contribs
+
     def fulfilled?
       if @exact
         @negative_contribs.any? { |mval| mval._base.tag.traceable? }
@@ -2091,8 +2094,15 @@ module Cc1 #:nodoc:
     end
 
     def fork
-      MultipleValue.new(_base.value.dup, self, _base.tag.dup).tap do |desc|
-        @descendants.push(desc)
+      same_val = @descendants.find { |desc| desc.eql?(_base.value) }
+      if same_val
+        same_val._base.tag.by = _base.tag.by + same_val._base.tag.by
+        same_val._base.tag.at = _base.tag.at + same_val._base.tag.at
+        same_val
+      else
+        MultipleValue.new(_base.value.dup, self, _base.tag.dup).tap do |desc|
+          @descendants.push(desc)
+        end
       end
     end
 
@@ -2698,8 +2708,8 @@ module Cc1 #:nodoc:
         base_vals = base_ver.values.map { |mval| mval.descendants }.flatten
         base_ver.values = base_vals.each_with_object({}) { |mval, hash|
           if eql_mval = hash[mval]
-            eql_mval._base.tag.by += mval._base.tag.by
-            eql_mval._base.tag.at += mval._base.tag.at
+            eql_mval._base.tag.by = mval._base.tag.by + eql_mval._base.tag.by
+            eql_mval._base.tag.at = mval._base.tag.at + eql_mval._base.tag.at
           else
             hash[mval] = mval
           end

@@ -266,3 +266,104 @@ Feature: W0460
       | W1069 | 5    | 5      |
       | W1069 | 6    | 9      |
       | W0628 | 1    | 5      |
+
+  Scenario: variable is not possibly initialized because of an incomplete
+            selection statement
+    Given a target source named "fixture.c" with:
+      """
+      struct bar {
+          int x;
+          int y;
+      };
+      
+      struct bar a[3];
+      
+      int foo(int i, int j)
+      {
+          int k;
+      
+          if (i < 0) {
+              struct bar b;
+              if (j == 0) {
+                  return 0;
+              }
+              k = j < 10 ? b.x : b.y;
+          }
+          else if (i > 10) {
+              k = j ? a[0].x : a[1].y;
+          }
+      
+          return k; /* W0460 */
+      }
+      """
+    When I successfully run `adlint fixture.c` on noarch
+    Then the output should exactly match with:
+      | mesg  | line | column |
+      | W0117 | 6    | 12     |
+      | W0117 | 8    | 5      |
+      | W0459 | 17   | 20     |
+      | C1000 |      |        |
+      | C1003 | 13   | 20     |
+      | W0100 | 13   | 20     |
+      | W0460 | 23   | 12     |
+      | C1000 |      |        |
+      | C1003 | 10   | 9      |
+      | C1002 | 12   | 11     |
+      | C1002 | 19   | 16     |
+      | W0104 | 8    | 13     |
+      | W0104 | 8    | 20     |
+      | W1071 | 8    | 5      |
+      | W0950 | 6    | 14     |
+      | W1069 | 12   | 5      |
+      | W0501 | 17   | 20     |
+      | W0114 | 20   | 13     |
+      | W0628 | 8    | 5      |
+      | W0589 | 6    | 12     |
+      | W0593 | 6    | 12     |
+
+  Scenario: variable is initialized by a complete selection statement
+    Given a target source named "fixture.c" with:
+      """
+      struct bar {
+          int x;
+          int y;
+      };
+      
+      struct bar a[3];
+      
+      int foo(int i, int j)
+      {
+          int k;
+      
+          if (i < 0) {
+              struct bar b;
+              if (j == 0) {
+                  return 0;
+              }
+              k = j < 10 ? b.x : b.y;
+          }
+          else {
+              k = j ? a[0].x : a[1].y;
+          }
+      
+          return k; /* OK */
+      }
+      """
+    When I successfully run `adlint fixture.c` on noarch
+    Then the output should exactly match with:
+      | mesg  | line | column |
+      | W0117 | 6    | 12     |
+      | W0117 | 8    | 5      |
+      | W0459 | 17   | 20     |
+      | C1000 |      |        |
+      | C1003 | 13   | 20     |
+      | W0100 | 13   | 20     |
+      | W0104 | 8    | 13     |
+      | W0104 | 8    | 20     |
+      | W1071 | 8    | 5      |
+      | W0950 | 6    | 14     |
+      | W0501 | 17   | 20     |
+      | W0114 | 20   | 13     |
+      | W0628 | 8    | 5      |
+      | W0589 | 6    | 12     |
+      | W0593 | 6    | 12     |

@@ -1,3 +1,11 @@
+Fri Aug 23 15:55:53 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/cc1/value.rb : Fix value version management degraded
+	  during supporting context-tracing.
+
+	* features/code_check/W0460.feature : Add scenario to reproduce
+	  false-positive of W0460 code check.
+
 Thu Aug 22 14:17:54 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* lib/adlint/cc1/interp.rb : Fix bad context-tracing during or after

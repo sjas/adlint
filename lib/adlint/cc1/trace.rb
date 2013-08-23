@@ -36,11 +36,8 @@ module AdLint #:nodoc:
 module Cc1 #:nodoc:
 
   module ContextTracing
-    # NOTE: Host class of this module must have instance variables named
-    #       @positive_contribs and @negative_contribs.
-    attr_reader :positive_contribs
-    attr_reader :negative_contribs
-
+    # NOTE: Host class of this module must respond to #positive_contribs and
+    #       #negative_contribs.
     def traceable_positive_contribs
       positive_contribs.select { |mval| mval.transition.last.tag.traceable? }
     end

@@ -44,14 +44,14 @@ module Cc1 #:nodoc:
   end
 
   # == DESCRIPTION
-  # === TestBasis class hierarchy
-  #  TestBasis
-  #    <-- TrivialTestBasis
-  #    <-- NontrivialTestBasis
-  #          <-- UndefinableTestBasis
-  #          <-- NullabilityTestBasis
-  #          <-- DefinableTestBasis
-  class TestBasis
+  # === TestEvidence class hierarchy
+  #  TestEvidence
+  #    <-- TrivialTestEvidence
+  #    <-- NontrivialTestEvidence
+  #          <-- UndefinableTestEvidence
+  #          <-- NullabilityTestEvidence
+  #          <-- DefinableTestEvidence
+  class TestEvidence
     def fulfilled?
       subclass_responsibility
     end
@@ -67,11 +67,11 @@ module Cc1 #:nodoc:
   #    <-- TrivialValueTest
   #    <-- NontrivialValueTest
   class ValueTest
-    def initialize(basis)
-      @basis = basis
+    def initialize(evid)
+      @evidence = evid
     end
 
-    attr_reader :basis
+    attr_reader :evidence
 
     def result
       subclass_responsibility
@@ -337,13 +337,13 @@ module Cc1 #:nodoc:
     end
   end
 
-  class TrivialTestBasis < TestBasis
+  class TrivialTestEvidence < TestEvidence
     def fulfilled?
       true
     end
 
     def emit_context_messages(report, loc)
-      # NOTE: Basis of the test result about SingleValue-s is trivial.
+      # NOTE: Evidence of the test result about SingleValue-s is trivial.
       #       So, nothing to be complemented.
       []
     end
@@ -351,7 +351,7 @@ module Cc1 #:nodoc:
 
   class TrivialValueTest < ValueTest
     def initialize(rslt)
-      super(TrivialTestBasis.new)
+      super(TrivialTestEvidence.new)
       @result = rslt
     end
 
@@ -1852,7 +1852,7 @@ module Cc1 #:nodoc:
     memoize :logical_shr?
   end
 
-  class NontrivialTestBasis < TestBasis
+  class NontrivialTestEvidence < TestEvidence
     def initialize(exact)
       @exact = exact
       @positive_contribs = []
@@ -1880,15 +1880,15 @@ module Cc1 #:nodoc:
     end
   end
 
-  class UndefinableTestBasis < NontrivialTestBasis
+  class UndefinableTestEvidence < NontrivialTestEvidence
     # NOTE: Context tracing feature will be mixed-in at trace.rb later.
   end
 
-  class NullabilityTestBasis < NontrivialTestBasis
+  class NullabilityTestEvidence < NontrivialTestEvidence
     # NOTE: Context tracing feature will be mixed-in at trace.rb later.
   end
 
-  class DefinableTestBasis < NontrivialTestBasis
+  class DefinableTestEvidence < NontrivialTestEvidence
     # NOTE: Context tracing feature will be mixed-in at trace.rb later.
 
     def initialize(pred, exact)
@@ -1898,18 +1898,18 @@ module Cc1 #:nodoc:
   end
 
   class NontrivialValueTest < ValueTest
-    def initialize(basis, exact)
-      super(basis)
+    def initialize(evid, exact)
+      super(evid)
       @exact = exact
     end
 
     def result
-      # NOTE: TestBasis of an NontrivialValueTest must be a kind of
-      #       NontrivialTestBasis.
+      # NOTE: TestEvidence of an NontrivialValueTest must be a kind of
+      #       NontrivialTestEvidence.
       if @exact
-        !@basis.positive_contribs.empty? && @basis.negative_contribs.empty?
+        !evidence.positive_contribs.empty? && evidence.negative_contribs.empty?
       else
-        !@basis.positive_contribs.empty?
+        !evidence.positive_contribs.empty?
       end
     end
   end
@@ -2203,29 +2203,29 @@ module Cc1 #:nodoc:
     end
 
     def test_must_be_undefined
-      basis = UndefinableTestBasis.new(true)
+      evid = UndefinableTestEvidence.new(true)
       effective_values.each do |mval|
         if mval._base.value.test_must_be_undefined.true?
-          basis.add_positive_contributor(mval)
+          evid.add_positive_contributor(mval)
         else
-          basis.add_negative_contributor(mval)
+          evid.add_negative_contributor(mval)
         end
-        break if basis.fulfilled?
+        break if evid.fulfilled?
       end
-      NontrivialValueTest.new(basis, true)
+      NontrivialValueTest.new(evid, true)
     end
 
     def test_may_be_undefined
-      basis = UndefinableTestBasis.new(false)
+      evid = UndefinableTestEvidence.new(false)
       effective_values.each do |mval|
         if mval._base.value.test_may_be_undefined.true?
-          basis.add_positive_contributor(mval)
+          evid.add_positive_contributor(mval)
         else
-          basis.add_negative_contributor(mval)
+          evid.add_negative_contributor(mval)
         end
-        break if basis.fulfilled?
+        break if evid.fulfilled?
       end
-      NontrivialValueTest.new(basis, false)
+      NontrivialValueTest.new(evid, false)
     end
 
     def test_must_be_equal_to(val)
@@ -2234,33 +2234,33 @@ module Cc1 #:nodoc:
       if non_nil_vals.empty?
         TrivialValueTest.new(false)
       else
-        pred = lambda { |val| val.test_must_be_equal_to(sval).true? }
-        basis = DefinableTestBasis.new(pred, true)
+        pred = lambda { |v| v.test_must_be_equal_to(sval).true? }
+        evid = DefinableTestEvidence.new(pred, true)
         non_nil_vals.each do |mval|
           if pred.call(mval._base.value)
-            basis.add_positive_contributor(mval)
+            evid.add_positive_contributor(mval)
           else
-            basis.add_negative_contributor(mval)
+            evid.add_negative_contributor(mval)
           end
-          break if basis.fulfilled?
+          break if evid.fulfilled?
         end
-        NontrivialValueTest.new(basis, true)
+        NontrivialValueTest.new(evid, true)
       end
     end
 
     def test_may_be_equal_to(val)
       sval = val.to_single_value
-      pred = lambda { |val| val.test_may_be_equal_to(sval).true? }
-      basis = DefinableTestBasis.new(pred, false)
+      pred = lambda { |v| v.test_may_be_equal_to(sval).true? }
+      evid = DefinableTestEvidence.new(pred, false)
       effective_values.each do |mval|
         if pred.call(mval._base.value)
-          basis.add_positive_contributor(mval)
+          evid.add_positive_contributor(mval)
         else
-          basis.add_negative_contributor(mval)
+          evid.add_negative_contributor(mval)
         end
-        break if basis.fulfilled?
+        break if evid.fulfilled?
       end
-      NontrivialValueTest.new(basis, false)
+      NontrivialValueTest.new(evid, false)
     end
 
     def test_must_not_be_equal_to(val)
@@ -2269,33 +2269,33 @@ module Cc1 #:nodoc:
       if non_nil_vals.empty?
         TrivialValueTest.new(false)
       else
-        pred = lambda { |val| val.test_must_not_be_equal_to(sval).true? }
-        basis = DefinableTestBasis.new(pred, true)
+        pred = lambda { |v| v.test_must_not_be_equal_to(sval).true? }
+        evid = DefinableTestEvidence.new(pred, true)
         non_nil_vals.each do |mval|
           if pred.call(mval._base.value)
-            basis.add_positive_contributor(mval)
+            evid.add_positive_contributor(mval)
           else
-            basis.add_negative_contributor(mval)
+            evid.add_negative_contributor(mval)
           end
-          break if basis.fulfilled?
+          break if evid.fulfilled?
         end
-        NontrivialValueTest.new(basis, true)
+        NontrivialValueTest.new(evid, true)
       end
     end
 
     def test_may_not_be_equal_to(val)
       sval = val.to_single_value
-      pred = lambda { |val| val.test_may_not_be_equal_to(sval).true? }
-      basis = DefinableTestBasis.new(pred, false)
+      pred = lambda { |v| v.test_may_not_be_equal_to(sval).true? }
+      evid = DefinableTestEvidence.new(pred, false)
       effective_values.each do |mval|
         if pred.call(mval._base.value)
-          basis.add_positive_contributor(mval)
+          evid.add_positive_contributor(mval)
         else
-          basis.add_negative_contributor(mval)
+          evid.add_negative_contributor(mval)
         end
-        break if basis.fulfilled?
+        break if evid.fulfilled?
       end
-      NontrivialValueTest.new(basis, false)
+      NontrivialValueTest.new(evid, false)
     end
 
     def test_must_be_less_than(val)
@@ -2304,33 +2304,33 @@ module Cc1 #:nodoc:
       if non_nil_vals.empty?
         TrivialValueTest.new(false)
       else
-        pred = lambda { |val| val.test_must_be_less_than(sval).true? }
-        basis = DefinableTestBasis.new(pred, true)
+        pred = lambda { |v| v.test_must_be_less_than(sval).true? }
+        evid = DefinableTestEvidence.new(pred, true)
         non_nil_vals.each do |mval|
           if pred.call(mval._base.value)
-            basis.add_positive_contributor(mval)
+            evid.add_positive_contributor(mval)
           else
-            basis.add_negative_contributor(mval)
+            evid.add_negative_contributor(mval)
           end
-          break if basis.fulfilled?
+          break if evid.fulfilled?
         end
-        NontrivialValueTest.new(basis, true)
+        NontrivialValueTest.new(evid, true)
       end
     end
 
     def test_may_be_less_than(val)
       sval = val.to_single_value
-      pred = lambda { |val| val.test_may_be_less_than(sval).true? }
-      basis = DefinableTestBasis.new(pred, false)
+      pred = lambda { |v| v.test_may_be_less_than(sval).true? }
+      evid = DefinableTestEvidence.new(pred, false)
       effective_values.each do |mval|
         if pred.call(mval._base.value)
-          basis.add_positive_contributor(mval)
+          evid.add_positive_contributor(mval)
         else
-          basis.add_negative_contributor(mval)
+          evid.add_negative_contributor(mval)
         end
-        break if basis.fulfilled?
+        break if evid.fulfilled?
       end
-      NontrivialValueTest.new(basis, false)
+      NontrivialValueTest.new(evid, false)
     end
 
     def test_must_be_greater_than(val)
@@ -2339,33 +2339,33 @@ module Cc1 #:nodoc:
       if non_nil_vals.empty?
         TrivialValueTest.new(false)
       else
-        pred = lambda { |val| val.test_must_be_greater_than(sval).true? }
-        basis = DefinableTestBasis.new(pred, true)
+        pred = lambda { |v| v.test_must_be_greater_than(sval).true? }
+        evid = DefinableTestEvidence.new(pred, true)
         non_nil_vals.each do |mval|
           if pred.call(mval._base.value)
-            basis.add_positive_contributor(mval)
+            evid.add_positive_contributor(mval)
           else
-            basis.add_negative_contributor(mval)
+            evid.add_negative_contributor(mval)
           end
-          break if basis.fulfilled?
+          break if evid.fulfilled?
         end
-        NontrivialValueTest.new(basis, true)
+        NontrivialValueTest.new(evid, true)
       end
     end
 
     def test_may_be_greater_than(val)
       sval = val.to_single_value
-      pred = lambda { |val| val.test_may_be_greater_than(sval).true? }
-      basis = DefinableTestBasis.new(pred, false)
+      pred = lambda { |v| v.test_may_be_greater_than(sval).true? }
+      evid = DefinableTestEvidence.new(pred, false)
       effective_values.any? do |mval|
         if pred.call(mval._base.value)
-          basis.add_positive_contributor(mval)
+          evid.add_positive_contributor(mval)
         else
-          basis.add_negative_contributor(mval)
+          evid.add_negative_contributor(mval)
         end
-        break if basis.fulfilled?
+        break if evid.fulfilled?
       end
-      NontrivialValueTest.new(basis, false)
+      NontrivialValueTest.new(evid, false)
     end
 
     def test_must_be_null
@@ -2373,30 +2373,30 @@ module Cc1 #:nodoc:
       if non_nil_vals.empty?
         TrivialValueTest.new(false)
       else
-        basis = NullabilityTestBasis.new(true)
+        evid = NullabilityTestEvidence.new(true)
         non_nil_vals.each do |mval|
           if mval._base.value.test_must_be_null.true?
-            basis.add_positive_contributor(mval)
+            evid.add_positive_contributor(mval)
           else
-            basis.add_negative_contributor(mval)
+            evid.add_negative_contributor(mval)
           end
-          break if basis.fulfilled?
+          break if evid.fulfilled?
         end
-        NontrivialValueTest.new(basis, true)
+        NontrivialValueTest.new(evid, true)
       end
     end
 
     def test_may_be_null
-      basis = NullabilityTestBasis.new(false)
+      evid = NullabilityTestEvidence.new(false)
       effective_values.each do |mval|
         if mval._base.value.test_may_be_null.true?
-          basis.add_positive_contributor(mval)
+          evid.add_positive_contributor(mval)
         else
-          basis.add_negative_contributor(mval)
+          evid.add_negative_contributor(mval)
         end
-        break if basis.fulfilled?
+        break if evid.fulfilled?
       end
-      NontrivialValueTest.new(basis, false)
+      NontrivialValueTest.new(evid, false)
     end
 
     def test_must_be_true
@@ -2405,31 +2405,31 @@ module Cc1 #:nodoc:
         TrivialValueTest.new(false)
       else
         pred = lambda { |val| val.test_must_be_true.true? }
-        basis = DefinableTestBasis.new(pred, true)
+        evid = DefinableTestEvidence.new(pred, true)
         non_nil_vals.each do |mval|
           if pred.call(mval._base.value)
-            basis.add_positive_contributor(mval)
+            evid.add_positive_contributor(mval)
           else
-            basis.add_negative_contributor(mval)
+            evid.add_negative_contributor(mval)
           end
-          break if basis.fulfilled?
+          break if evid.fulfilled?
         end
-        NontrivialValueTest.new(basis, true)
+        NontrivialValueTest.new(evid, true)
       end
     end
 
     def test_may_be_true
       pred = lambda { |val| val.test_may_be_true.true? }
-      basis = DefinableTestBasis.new(pred, false)
+      evid = DefinableTestEvidence.new(pred, false)
       effective_values.each do |mval|
         if pred.call(mval._base.value)
-          basis.add_positive_contributor(mval)
+          evid.add_positive_contributor(mval)
         else
-          basis.add_negative_contributor(mval)
+          evid.add_negative_contributor(mval)
         end
-        break if basis.fulfilled?
+        break if evid.fulfilled?
       end
-      NontrivialValueTest.new(basis, false)
+      NontrivialValueTest.new(evid, false)
     end
 
     def test_must_be_false
@@ -2438,31 +2438,31 @@ module Cc1 #:nodoc:
         TrivialValueTest.new(false)
       else
         pred = lambda { |val| val.test_must_be_false.true? }
-        basis = DefinableTestBasis.new(pred, true)
+        evid = DefinableTestEvidence.new(pred, true)
         non_nil_vals.each do |mval|
           if pred.call(mval._base.value)
-            basis.add_positive_contributor(mval)
+            evid.add_positive_contributor(mval)
           else
-            basis.add_negative_contributor(mval)
+            evid.add_negative_contributor(mval)
           end
-          break if basis.fulfilled?
+          break if evid.fulfilled?
         end
-        NontrivialValueTest.new(basis, true)
+        NontrivialValueTest.new(evid, true)
       end
     end
 
     def test_may_be_false
       pred = lambda { |val| val.test_may_be_false.true? }
-      basis = DefinableTestBasis.new(pred, false)
+      evid = DefinableTestEvidence.new(pred, false)
       effective_values.each do |mval|
         if pred.call(mval._base.value)
-          basis.add_positive_contributor(mval)
+          evid.add_positive_contributor(mval)
         else
-          basis.add_negative_contributor(mval)
+          evid.add_negative_contributor(mval)
         end
-        break if basis.fulfilled?
+        break if evid.fulfilled?
       end
-      NontrivialValueTest.new(basis, false)
+      NontrivialValueTest.new(evid, false)
     end
 
     def transition

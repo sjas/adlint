@@ -148,8 +148,8 @@ module Cc1 #:nodoc:
 
     private
     def trace_positive_paths(report, loc, traced)
-      # TODO: Basis of the test result might have two or more contributors.
-      #       All the basis should be complemented by context messages?
+      # TODO: Evidence of the test result might have two or more contributors.
+      #       All the evidences should be complemented by context messages?
       unless pos_trans = sample_positive_transition
         return []
       end
@@ -166,8 +166,8 @@ module Cc1 #:nodoc:
       end
     end
 
-    # NOTE: Mix-in this module to AdLint::Cc1::UndefinableTestBasis.
-    UndefinableTestBasis.class_eval { include UndefinableContextTracing }
+    # NOTE: Mix-in this module to AdLint::Cc1::UndefinableTestEvidence.
+    UndefinableTestEvidence.class_eval { include UndefinableContextTracing }
   end
 
   module NullabilityContextTracing
@@ -189,8 +189,8 @@ module Cc1 #:nodoc:
 
     private
     def trace_positive_paths(report, loc, traced)
-      # TODO: Basis of the test result might have two or more contributors.
-      #       All the basis should be complemented by context messages?
+      # TODO: Evidence of the test result might have two or more contributors.
+      #       All the evidences should be complemented by context messages?
       unless pos_trans = sample_positive_transition
         return []
       end
@@ -224,8 +224,8 @@ module Cc1 #:nodoc:
       end
     end
 
-    # NOTE: Mix-in this module to AdLint::Cc1::NullabilityTestBasis.
-    NullabilityTestBasis.class_eval { include NullabilityContextTracing }
+    # NOTE: Mix-in this module to AdLint::Cc1::NullabilityTestEvidence.
+    NullabilityTestEvidence.class_eval { include NullabilityContextTracing }
   end
 
   module DefinableContextTracing
@@ -250,8 +250,8 @@ module Cc1 #:nodoc:
 
     private
     def trace_positive_paths(report, loc, traced)
-      # TODO: Basis of the test result might have two or more contributors.
-      #       All the basis should be complemented by context messages?
+      # TODO: Evidence of the test result might have two or more contributors.
+      #       All the evidences should be complemented by context messages?
       unless pos_trans = sample_positive_transition
         return []
       end
@@ -279,8 +279,8 @@ module Cc1 #:nodoc:
       end
     end
 
-    # NOTE: Mix-in this module to AdLint::Cc1::DefinableTestBasis.
-    DefinableTestBasis.class_eval { include DefinableContextTracing }
+    # NOTE: Mix-in this module to AdLint::Cc1::DefinableTestEvidence.
+    DefinableTestEvidence.class_eval { include DefinableContextTracing }
   end
 
 end

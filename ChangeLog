@@ -1,3 +1,9 @@
+Mon Aug 26 11:44:55 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* release.rc : 3.1.0
+	  - Support experimental context-tracing feature so that the warning
+	    message can be complemented with the context messages.
+
 Fri Aug 23 15:55:53 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* lib/adlint/cc1/value.rb : Fix value version management degraded

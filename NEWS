@@ -21,6 +21,16 @@
 
 ++
 
+=== \AdLint 3.2.0 is released (2013-08-27)
+
+==== Changes since the 3.0.10 release
+
+* Support experimental context-tracing feature so that the warning message can
+  be complemented with the context messages
+
+See the file {ChangeLog}[https://github.com/yanoh/adlint/blob/master/ChangeLog]
+for more details.
+
 === \AdLint 3.0.10 is released (2013-06-28)
 
 ==== Changes since the 3.0.8 release
@@ -42,9 +52,6 @@
   break-statement in the iteration
 * Fix bypassing inner-variable's value mutation in order to correctly propagate
   mutation to the outer-variable
-
-See the file {ChangeLog}[https://github.com/yanoh/adlint/blob/master/ChangeLog]
-for more details.
 
 === \AdLint 3.0.8 is released (2013-05-31)
 

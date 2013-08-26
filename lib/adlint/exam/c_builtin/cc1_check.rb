@@ -2095,7 +2095,7 @@ module CBuiltin #:nodoc:
           test = rhs_var.value.test_may_be_equal_to(scalar_value_of(0))
           if test.true?
             W(expr.location,
-              *test.basis.emit_context_messages(self, expr.location))
+              *test.evidence.emit_context_messages(self, expr.location))
           end
         end
       end
@@ -2130,7 +2130,7 @@ module CBuiltin #:nodoc:
         test = rhs_var.value.test_must_be_equal_to(scalar_value_of(0))
         if test.true?
           W(expr.location,
-            *test.basis.emit_context_messages(self, expr.location))
+            *test.evidence.emit_context_messages(self, expr.location))
         end
       end
     end
@@ -2164,7 +2164,7 @@ module CBuiltin #:nodoc:
         test = rhs_var.value.test_must_be_equal_to(scalar_value_of(0))
         if test.true?
           W(expr.location,
-            *test.basis.emit_context_messages(self, expr.location))
+            *test.evidence.emit_context_messages(self, expr.location))
         end
       end
     end
@@ -2997,7 +2997,7 @@ module CBuiltin #:nodoc:
         test = lhs_var.value.test_must_be_greater_than(lhs_limit)
         if test.true?
           W(shift_expr.location,
-            *test.basis.emit_context_messages(self, shift_expr.location))
+            *test.evidence.emit_context_messages(self, shift_expr.location))
         end
       end
     end
@@ -3033,7 +3033,7 @@ module CBuiltin #:nodoc:
           test = lhs_var.value.test_may_be_greater_than(lhs_limit)
           if test.true?
             W(shift_expr.location,
-              *test.basis.emit_context_messages(self, shift_expr.location))
+              *test.evidence.emit_context_messages(self, shift_expr.location))
           end
         end
       end
@@ -8396,7 +8396,7 @@ module CBuiltin #:nodoc:
         test = ptr_var.value.test_must_be_null
         if test.true?
           W(expr.location,
-            *test.basis.emit_context_messages(self, expr.location))
+            *test.evidence.emit_context_messages(self, expr.location))
         end
       end
     end
@@ -8409,7 +8409,7 @@ module CBuiltin #:nodoc:
         test = outer_var.value.test_must_be_null
         if test.true?
           W(expr.location,
-            *test.basis.emit_context_messages(self, expr.location))
+            *test.evidence.emit_context_messages(self, expr.location))
         end
       end
     end
@@ -8422,7 +8422,7 @@ module CBuiltin #:nodoc:
         test = ary_or_ptr.value.test_must_be_null
         if test.true?
           W(expr.location,
-            *test.basis.emit_context_messages(self, expr.location))
+            *test.evidence.emit_context_messages(self, expr.location))
         end
       end
     end
@@ -8458,7 +8458,7 @@ module CBuiltin #:nodoc:
           test = ptr_var.value.test_may_be_null
           if test.true?
             W(expr.location,
-              *test.basis.emit_context_messages(self, expr.location))
+              *test.evidence.emit_context_messages(self, expr.location))
           end
         end
       end
@@ -8473,7 +8473,7 @@ module CBuiltin #:nodoc:
           test = outer_var.value.test_may_be_null
           if test.true?
             W(expr.location,
-              *test.basis.emit_context_messages(self, expr.location))
+              *test.evidence.emit_context_messages(self, expr.location))
           end
         end
       end
@@ -8488,7 +8488,7 @@ module CBuiltin #:nodoc:
           test = ary_or_ptr.value.test_may_be_null
           if test.true?
             W(expr.location,
-              *test.basis.emit_context_messages(self, expr.location))
+              *test.evidence.emit_context_messages(self, expr.location))
           end
         end
       end
@@ -8529,16 +8529,18 @@ module CBuiltin #:nodoc:
       if lhs_type.pointer?
         test = lhs_val.test_must_be_null
         if test.true?
-          W(expr.lhs_operand.location,
-            *test.basis.emit_context_messages(self, expr.lhs_operand.location))
+          lhs_operand = expr.lhs_operand
+          W(lhs_operand.location,
+            *test.evidence.emit_context_messages(self, lhs_operand.location))
         end
       end
 
       if rhs_type.pointer?
         test = rhs_val.test_must_be_null
         if test.true?
-          W(expr.rhs_operand.location,
-            *test.basis.emit_context_messages(self, expr.rhs_operand.location))
+          rhs_operand = expr.rhs_operand
+          W(rhs_operand.location,
+            *test.evidence.emit_context_messages(self, rhs_operand.location))
         end
       end
     end
@@ -8550,7 +8552,7 @@ module CBuiltin #:nodoc:
         test = val.test_must_be_null
         if test.true?
           W(expr.operand.location,
-            *test.basis.emit_context_messages(self, expr.operand.location))
+            *test.evidence.emit_context_messages(self, expr.operand.location))
         end
       end
     end
@@ -8562,7 +8564,7 @@ module CBuiltin #:nodoc:
         test = val.test_must_be_null
         if test.true?
           W(expr.operand.location,
-            *test.basis.emit_context_messages(self, expr.operand.location))
+            *test.evidence.emit_context_messages(self, expr.operand.location))
         end
       end
     end
@@ -8598,16 +8600,18 @@ module CBuiltin #:nodoc:
       if lhs_type.pointer? && lhs_val.test_must_be_null.false?
         test = lhs_val.test_may_be_null
         if test.true?
-          W(expr.lhs_operand.location,
-            *test.basis.emit_context_messages(self, expr.lhs_operand.location))
+          lhs_operand = expr.lhs_operand
+          W(lhs_operand.location,
+            *test.evidence.emit_context_messages(self, lhs_operand.location))
         end
       end
 
       if rhs_type.pointer? && rhs_val.test_must_be_null.false?
         test = rhs_val.test_may_be_null
         if test.true?
-          W(expr.rhs_operand.location,
-            *test.basis.emit_context_messages(self, expr.rhs_operand.location))
+          rhs_operand = expr.rhs_operand
+          W(rhs_operand.location,
+            *test.evidence.emit_context_messages(self, rhs_operand.location))
         end
       end
     end
@@ -8619,7 +8623,7 @@ module CBuiltin #:nodoc:
         test = val.test_may_be_null
         if test.true?
           W(expr.operand.location,
-            *test.basis.emit_context_messages(self, expr.operand.location))
+            *test.evidence.emit_context_messages(self, expr.operand.location))
         end
       end
     end
@@ -8631,7 +8635,7 @@ module CBuiltin #:nodoc:
         test = val.test_may_be_null
         if test.true?
           W(expr.operand.location,
-            *test.basis.emit_context_messages(self, expr.operand.location))
+            *test.evidence.emit_context_messages(self, expr.operand.location))
         end
       end
     end
@@ -9568,7 +9572,7 @@ module CBuiltin #:nodoc:
         if test.true?
           var = var.owner while var.inner?
           W(expr.location, var.name,
-            *test.basis.emit_context_messages(self, expr.location))
+            *test.evidence.emit_context_messages(self, expr.location))
         end
       end
     end
@@ -9597,7 +9601,7 @@ module CBuiltin #:nodoc:
           if test.true?
             var = var.owner while var.inner?
             W(expr.location, var.name,
-              *test.basis.emit_context_messages(self, expr.location))
+              *test.evidence.emit_context_messages(self, expr.location))
           end
         end
       end
@@ -9635,7 +9639,7 @@ module CBuiltin #:nodoc:
             if test.true?
               arg_expr = funcall_expr.argument_expressions[idx]
               W(arg_expr.location,
-                *test.basis.emit_context_messages(self, arg_expr.location))
+                *test.evidence.emit_context_messages(self, arg_expr.location))
             end
           end
         end
@@ -9677,7 +9681,7 @@ module CBuiltin #:nodoc:
             if test.true?
               arg_expr = funcall_expr.argument_expressions[idx]
               W(arg_expr.location,
-                *test.basis.emit_context_messages(self, arg_expr.location))
+                *test.evidence.emit_context_messages(self, arg_expr.location))
             end
           end
         end
@@ -13156,7 +13160,7 @@ module CBuiltin #:nodoc:
         test = lhs_var.value.test_must_be_less_than(scalar_value_of(0))
         if test.true?
           W(expr.location,
-            *test.basis.emit_context_messages(self, expr.location))
+            *test.evidence.emit_context_messages(self, expr.location))
           return
         end
 
@@ -13165,7 +13169,7 @@ module CBuiltin #:nodoc:
           test = lhs_var.value.test_must_be_greater_than(lhs_limit)
           if test.true?
             W(expr.location,
-              *test.basis.emit_context_messages(self, expr.location))
+              *test.evidence.emit_context_messages(self, expr.location))
           end
         end
       end
@@ -13201,7 +13205,7 @@ module CBuiltin #:nodoc:
         test = lhs_var.value.test_must_be_less_than(scalar_value_of(0))
         if test.true?
           W(expr.location,
-            *test.basis.emit_context_messages(self, expr.location))
+            *test.evidence.emit_context_messages(self, expr.location))
           return
         end
 
@@ -13210,7 +13214,7 @@ module CBuiltin #:nodoc:
           test = lhs_var.value.test_must_be_greater_than(lhs_limit)
           if test.true?
             W(expr.location,
-              *test.basis.emit_context_messages(self, expr.location))
+              *test.evidence.emit_context_messages(self, expr.location))
           end
         end
       end
@@ -13247,7 +13251,7 @@ module CBuiltin #:nodoc:
           test = lhs_var.value.test_may_be_less_than(scalar_value_of(0))
           if test.true?
             W(expr.location,
-              *test.basis.emit_context_messages(self, expr.location))
+              *test.evidence.emit_context_messages(self, expr.location))
             return
           end
         end
@@ -13257,7 +13261,7 @@ module CBuiltin #:nodoc:
           test = lhs_var.value.test_may_be_greater_than(lhs_limit)
           if test.true?
             W(expr.location,
-              *test.basis.emit_context_messages(self, expr.location))
+              *test.evidence.emit_context_messages(self, expr.location))
           end
         end
       end
@@ -14094,7 +14098,7 @@ module CBuiltin #:nodoc:
         test = orig_var.value.test_must_be_less_than(scalar_value_of(0))
         if test.true?
           W(expr.location,
-            *test.basis.emit_context_messages(self, expr.location))
+            *test.evidence.emit_context_messages(self, expr.location))
         end
       end
     end
@@ -14134,7 +14138,7 @@ module CBuiltin #:nodoc:
         test = orig_var.value.test_may_be_less_than(scalar_value_of(0))
         if test.true?
           W(expr.location,
-            *test.basis.emit_context_messages(self, expr.location))
+            *test.evidence.emit_context_messages(self, expr.location))
         end
       end
     end
@@ -16189,7 +16193,7 @@ module CBuiltin #:nodoc:
           test = subs.value.test_may_be_less_than(lower_bound)
           if test.true?
             W(expr.location,
-              *test.basis.emit_context_messages(self, expr.location))
+              *test.evidence.emit_context_messages(self, expr.location))
             return
           end
         end
@@ -16199,7 +16203,7 @@ module CBuiltin #:nodoc:
           test = subs.value.test_may_be_greater_than(upper_bound)
           if test.true?
             W(expr.location,
-              *test.basis.emit_context_messages(self, expr.location))
+              *test.evidence.emit_context_messages(self, expr.location))
           end
         end
       end
@@ -16520,7 +16524,7 @@ module CBuiltin #:nodoc:
         test = subs.value.test_must_be_less_than(lower_bound)
         if test.true?
           W(expr.location,
-            *test.basis.emit_context_messages(self, expr.location))
+            *test.evidence.emit_context_messages(self, expr.location))
           return
         end
 
@@ -16528,7 +16532,7 @@ module CBuiltin #:nodoc:
         test = subs.value.test_must_be_greater_than(upper_bound)
         if test.true?
           W(expr.location,
-            *test.basis.emit_context_messages(self, expr.location))
+            *test.evidence.emit_context_messages(self, expr.location))
         end
       end
     end
@@ -17008,7 +17012,7 @@ module CBuiltin #:nodoc:
       test = orig_val.test_must_be_less_than(lower_bound)
       if test.true?
         W(expr.location,
-          *test.basis.emit_context_messages(self, expr.location))
+          *test.evidence.emit_context_messages(self, expr.location))
         return
       end
 
@@ -17016,7 +17020,7 @@ module CBuiltin #:nodoc:
       test = orig_val.test_must_be_greater_than(upper_bound)
       if test.true?
         W(expr.location,
-          *test.basis.emit_context_messages(self, expr.location))
+          *test.evidence.emit_context_messages(self, expr.location))
       end
     end
 
@@ -17757,7 +17761,7 @@ module CBuiltin #:nodoc:
         test = subs.value.test_must_be_less_than(lower_bound)
         if test.true?
           W(expr.location,
-            *test.basis.emit_context_messages(self, expr.location))
+            *test.evidence.emit_context_messages(self, expr.location))
           return
         end
 
@@ -17765,7 +17769,7 @@ module CBuiltin #:nodoc:
         test = subs.value.test_must_be_greater_than(upper_bound)
         if test.true?
           W(expr.location,
-            *test.basis.emit_context_messages(self, expr.location))
+            *test.evidence.emit_context_messages(self, expr.location))
         end
       end
     end
@@ -20153,7 +20157,7 @@ module CBuiltin #:nodoc:
         test = orig_val.test_may_be_less_than(lower_bound)
         if test.true?
           W(expr.location,
-            *test.basis.emit_context_messages(self, expr.location))
+            *test.evidence.emit_context_messages(self, expr.location))
           return
         end
       end
@@ -20163,7 +20167,7 @@ module CBuiltin #:nodoc:
         test = orig_val.test_may_be_greater_than(upper_bound)
         if test.true?
           W(expr.location,
-            *test.basis.emit_context_messages(self, expr.location))
+            *test.evidence.emit_context_messages(self, expr.location))
         end
       end
     end
@@ -20205,7 +20209,7 @@ module CBuiltin #:nodoc:
       test = orig_val.test_must_be_less_than(lower_bound)
       if test.true?
         W(expr.location,
-          *test.basis.emit_context_messages(self, expr.location))
+          *test.evidence.emit_context_messages(self, expr.location))
         return
       end
 
@@ -20213,7 +20217,7 @@ module CBuiltin #:nodoc:
       test = orig_val.test_must_be_greater_than(upper_bound)
       if test.true?
         W(expr.location,
-          *test.basis.emit_context_messages(self, expr.location))
+          *test.evidence.emit_context_messages(self, expr.location))
       end
     end
 

@@ -3120,6 +3120,13 @@ context_line
 * W9002::There is no line feed character at the end of file.
 * W9003::An object typed `%s' is implicitly converted into an object of type `%s'.
 * C0001::A warning is detected as a pair of this identifier `%s'.
+* C1000::Warning above is detected in the following context.
+* C1001::This controlling-expression is evaluated to be true.
+* C1002::This controlling-expression is evaluated to be false.
+* C1003::The problematic variable is defined here without initializer.
+* C1004::NULL value is assigned to the the problematic variable.
+* C1005::A value possibly be NULL is assigned to the problematic variable.
+* C1006::New value is assigned to the problematic variable.
 @end menu
 
 @node X0001
@@ -5569,7 +5576,12 @@ int func(int a, int b)
 
 @subsection Related message
 
-None.
+@itemize
+@item @ref{C1000} Warning above is detected in the following context.
+@item @ref{C1001} This controlling-expression is evaluated to be true.
+@item @ref{C1002} This controlling-expression is evaluated to be false.
+@item @ref{C1006} New value is assigned to the problematic variable.
+@end itemize
 
 @subsection Since
 
@@ -5597,7 +5609,12 @@ int b = 10 / A; /* W0096 */
 
 @subsection Related message
 
-None.
+@itemize
+@item @ref{C1000} Warning above is detected in the following context.
+@item @ref{C1001} This controlling-expression is evaluated to be true.
+@item @ref{C1002} This controlling-expression is evaluated to be false.
+@item @ref{C1006} New value is assigned to the problematic variable.
+@end itemize
 
 @subsection Since
 
@@ -5634,7 +5651,12 @@ int func(int a, int b)
 
 @subsection Related message
 
-None.
+@itemize
+@item @ref{C1000} Warning above is detected in the following context.
+@item @ref{C1001} This controlling-expression is evaluated to be true.
+@item @ref{C1002} This controlling-expression is evaluated to be false.
+@item @ref{C1006} New value is assigned to the problematic variable.
+@end itemize
 
 @subsection Since
 
@@ -6037,6 +6059,10 @@ unsigned int func(unsigned int a)
 
 @itemize
 @item @ref{W0116} Unsigned left shift operator `<<' can be drop high-order bit.
+@item @ref{C1000} Warning above is detected in the following context.
+@item @ref{C1001} This controlling-expression is evaluated to be true.
+@item @ref{C1002} This controlling-expression is evaluated to be false.
+@item @ref{C1006} New value is assigned to the problematic variable.
 @end itemize
 
 @subsection Since
@@ -6070,6 +6096,10 @@ unsigned int func(unsigned int a)
 
 @itemize
 @item @ref{W0115} Unsigned left shift operator `<<' drop the high-order bit.
+@item @ref{C1000} Warning above is detected in the following context.
+@item @ref{C1001} This controlling-expression is evaluated to be true.
+@item @ref{C1002} This controlling-expression is evaluated to be false.
+@item @ref{C1006} New value is assigned to the problematic variable.
 @end itemize
 
 @subsection Since
@@ -22134,7 +22164,13 @@ void func(int a, int *p)
 
 @subsection Related message
 
-None.
+@itemize
+@item @ref{C1000} Warning above is detected in the following context.
+@item @ref{C1001} This controlling-expression is evaluated to be true.
+@item @ref{C1002} This controlling-expression is evaluated to be false.
+@item @ref{C1004} NULL value is assigned to the the problematic variable.
+@item @ref{C1005} A value possibly be NULL is assigned to the problematic variable.
+@end itemize
 
 @subsection Since
 
@@ -22169,7 +22205,13 @@ void func(int a, int *p)
 
 @subsection Related message
 
-None.
+@itemize
+@item @ref{C1000} Warning above is detected in the following context.
+@item @ref{C1001} This controlling-expression is evaluated to be true.
+@item @ref{C1002} This controlling-expression is evaluated to be false.
+@item @ref{C1004} NULL value is assigned to the the problematic variable.
+@item @ref{C1005} A value possibly be NULL is assigned to the problematic variable.
+@end itemize
 
 @subsection Since
 
@@ -22203,7 +22245,13 @@ int *func(int *p)
 
 @subsection Related message
 
-None.
+@itemize
+@item @ref{C1000} Warning above is detected in the following context.
+@item @ref{C1001} This controlling-expression is evaluated to be true.
+@item @ref{C1002} This controlling-expression is evaluated to be false.
+@item @ref{C1004} NULL value is assigned to the the problematic variable.
+@item @ref{C1005} A value possibly be NULL is assigned to the problematic variable.
+@end itemize
 
 @subsection Since
 
@@ -22238,7 +22286,13 @@ int *func(int *p)
 
 @subsection Related message
 
-None.
+@itemize
+@item @ref{C1000} Warning above is detected in the following context.
+@item @ref{C1001} This controlling-expression is evaluated to be true.
+@item @ref{C1002} This controlling-expression is evaluated to be false.
+@item @ref{C1004} NULL value is assigned to the the problematic variable.
+@item @ref{C1005} A value possibly be NULL is assigned to the problematic variable.
+@end itemize
 
 @subsection Since
 
@@ -22703,6 +22757,10 @@ if(a > 0) { /* W0459 */
 @item @ref{W0460} A value of variable `%s' wouldn't set when this expression is evaluated.
 @item @ref{W0461} A pointer which points the undetermined variable is used for the actual argument of the function. This program is danger.
 @item @ref{W0462} A pointer which the value will probably not set is used for the actual argument of the function.
+@item @ref{C1000} Warning above is detected in the following context.
+@item @ref{C1001} This controlling-expression is evaluated to be true.
+@item @ref{C1002} This controlling-expression is evaluated to be false.
+@item @ref{C1003} The problematic variable is defined here without initializer.
 @end itemize
 
 @subsection Since
@@ -22743,6 +22801,10 @@ void func(int a)
 @item @ref{W0459} A value of variable `%s' doesn't set when this expression is evaluated. This program is danger.
 @item @ref{W0461} A pointer which points the undetermined variable is used for the actual argument of the function. This program is danger.
 @item @ref{W0462} A pointer which the value will probably not set is used for the actual argument of the function.
+@item @ref{C1000} Warning above is detected in the following context.
+@item @ref{C1001} This controlling-expression is evaluated to be true.
+@item @ref{C1002} This controlling-expression is evaluated to be false.
+@item @ref{C1003} The problematic variable is defined here without initializer.
 @end itemize
 
 @subsection Since
@@ -22780,6 +22842,10 @@ void func2(int a)
 @item @ref{W0459} A value of variable `%s' doesn't set when this expression is evaluated. This program is danger.
 @item @ref{W0460} A value of variable `%s' wouldn't set when this expression is evaluated.
 @item @ref{W0462} A pointer which the value will probably not set is used for the actual argument of the function.
+@item @ref{C1000} Warning above is detected in the following context.
+@item @ref{C1001} This controlling-expression is evaluated to be true.
+@item @ref{C1002} This controlling-expression is evaluated to be false.
+@item @ref{C1003} The problematic variable is defined here without initializer.
 @end itemize
 
 @subsection Since
@@ -22821,6 +22887,10 @@ int func2(int a)
 @item @ref{W0459} A value of variable `%s' doesn't set when this expression is evaluated. This program is danger.
 @item @ref{W0460} A value of variable `%s' wouldn't set when this expression is evaluated.
 @item @ref{W0461} A pointer which points the undetermined variable is used for the actual argument of the function. This program is danger.
+@item @ref{C1000} Warning above is detected in the following context.
+@item @ref{C1001} This controlling-expression is evaluated to be true.
+@item @ref{C1002} This controlling-expression is evaluated to be false.
+@item @ref{C1003} The problematic variable is defined here without initializer.
 @end itemize
 
 @subsection Since
@@ -24654,6 +24724,10 @@ int b = -5 << 1; /* W0568 */
 @itemize
 @item @ref{W0569} The result of left shift operation against the signed expression value is undefined.
 @item @ref{W0570} This signed left shift operation may make undefined value.
+@item @ref{C1000} Warning above is detected in the following context.
+@item @ref{C1001} This controlling-expression is evaluated to be true.
+@item @ref{C1002} This controlling-expression is evaluated to be false.
+@item @ref{C1006} New value is assigned to the problematic variable.
 @end itemize
 
 @subsection Since
@@ -24694,6 +24768,10 @@ int func(int a)
 @itemize
 @item @ref{W0568} The result of left shift operation against the signed constant expression value is undefined.
 @item @ref{W0570} This signed left shift operation may make undefined value.
+@item @ref{C1000} Warning above is detected in the following context.
+@item @ref{C1001} This controlling-expression is evaluated to be true.
+@item @ref{C1002} This controlling-expression is evaluated to be false.
+@item @ref{C1006} New value is assigned to the problematic variable.
 @end itemize
 
 @subsection Since
@@ -24734,6 +24812,10 @@ int func(int a)
 @itemize
 @item @ref{W0568} The result of left shift operation against the signed constant expression value is undefined.
 @item @ref{W0569} The result of left shift operation against the signed expression value is undefined.
+@item @ref{C1000} Warning above is detected in the following context.
+@item @ref{C1001} This controlling-expression is evaluated to be true.
+@item @ref{C1002} This controlling-expression is evaluated to be false.
+@item @ref{C1006} New value is assigned to the problematic variable.
 @end itemize
 
 @subsection Since
@@ -25674,6 +25756,10 @@ void func(int a)
 
 @itemize
 @item @ref{W0608} An integer expression which the value might be minus converted to unsigned type.
+@item @ref{C1000} Warning above is detected in the following context.
+@item @ref{C1001} This controlling-expression is evaluated to be true.
+@item @ref{C1002} This controlling-expression is evaluated to be false.
+@item @ref{C1006} New value is assigned to the problematic variable.
 @end itemize
 
 @subsection Since
@@ -25709,6 +25795,10 @@ void fuu(int a)
 
 @itemize
 @item @ref{W0607} An integer expression which the value which the value is minus converted to unsigned type.
+@item @ref{C1000} Warning above is detected in the following context.
+@item @ref{C1001} This controlling-expression is evaluated to be true.
+@item @ref{C1002} This controlling-expression is evaluated to be false.
+@item @ref{C1006} New value is assigned to the problematic variable.
 @end itemize
 
 @subsection Since
@@ -29368,7 +29458,12 @@ void func(unsigned int a)
 
 @subsection Related message
 
-None.
+@itemize
+@item @ref{C1000} Warning above is detected in the following context.
+@item @ref{C1001} This controlling-expression is evaluated to be true.
+@item @ref{C1002} This controlling-expression is evaluated to be false.
+@item @ref{C1006} New value is assigned to the problematic variable.
+@end itemize
 
 @subsection Since
 
@@ -29400,7 +29495,12 @@ int foo(void)
 
 @subsection Related message
 
-None.
+@itemize
+@item @ref{C1000} Warning above is detected in the following context.
+@item @ref{C1001} This controlling-expression is evaluated to be true.
+@item @ref{C1002} This controlling-expression is evaluated to be false.
+@item @ref{C1006} New value is assigned to the problematic variable.
+@end itemize
 
 @subsection Since
 
@@ -29756,7 +29856,12 @@ signed char sc4 = (signed char) -129.5; /* W0720 */
 
 @subsection Related message
 
-None.
+@itemize
+@item @ref{C1000} Warning above is detected in the following context.
+@item @ref{C1001} This controlling-expression is evaluated to be true.
+@item @ref{C1002} This controlling-expression is evaluated to be false.
+@item @ref{C1006} New value is assigned to the problematic variable.
+@end itemize
 
 @subsection Since
 
@@ -30583,7 +30688,12 @@ void func(unsigned int a)
 
 @subsection Related message
 
-None.
+@itemize
+@item @ref{C1000} Warning above is detected in the following context.
+@item @ref{C1001} This controlling-expression is evaluated to be true.
+@item @ref{C1002} This controlling-expression is evaluated to be false.
+@item @ref{C1006} New value is assigned to the problematic variable.
+@end itemize
 
 @subsection Since
 
@@ -34128,6 +34238,10 @@ void func(unsigned int ui)
 @item @ref{W1050} The result of conversion to signed integer type in integer expression is not express by a signed type.
 @item @ref{W1051} The result of unsigned arithmetic expression typed `%s' is going around 0 by overflow.
 @item @ref{W1052} The result of unsigned arithmetic expression typed `%s' can be going around by overflow.
+@item @ref{C1000} Warning above is detected in the following context.
+@item @ref{C1001} This controlling-expression is evaluated to be true.
+@item @ref{C1002} This controlling-expression is evaluated to be false.
+@item @ref{C1006} New value is assigned to the problematic variable.
 @end itemize
 
 @subsection Since
@@ -34174,6 +34288,10 @@ void func(unsigned int ui)
 @item @ref{W1049} The result of conversion to signed integer type in integer expression might not be expressed by a signed type.
 @item @ref{W1051} The result of unsigned arithmetic expression typed `%s' is going around 0 by overflow.
 @item @ref{W1052} The result of unsigned arithmetic expression typed `%s' can be going around by overflow.
+@item @ref{C1000} Warning above is detected in the following context.
+@item @ref{C1001} This controlling-expression is evaluated to be true.
+@item @ref{C1002} This controlling-expression is evaluated to be false.
+@item @ref{C1006} New value is assigned to the problematic variable.
 @end itemize
 
 @subsection Since
@@ -35392,6 +35510,433 @@ int very_long_long_long_long_long_long_long_identifier_2 = 1; /* W0052 */
 @subsection Since
 
 1.0.0
+
+@node C1000
+@section C1000
+@cindex C1000
+
+@subsection Message body
+
+Warning above is detected in the following context.
+
+@subsection Content
+
+This message indicates that the above @ref{W0093,W0093}, @ref{W0096,W0096},
+@ref{W0097,W0097}, @ref{W0115,W0115}, @ref{W0116,W0116}, @ref{W0421,W0421},
+@ref{W0422,W0422}, @ref{W0423,W0423}, @ref{W0424,W0424}, @ref{W0459,W0459},
+@ref{W0460,W0460}, @ref{W0461,W0461}, @ref{W0462,W0462}, @ref{W0568,W0568},
+@ref{W0569,W0569}, @ref{W0570,W0570}, @ref{W0607,W0607}, @ref{W0608,W0608},
+@ref{W0705,W0705}, @ref{W0707,W0707}, @ref{W0720,W0720}, @ref{W0745,W0745},
+@ref{W1049,W1049} and @ref{W1050,W1050} warnings are detected in the context
+described by the following messages.
+
+@subsection Sample code
+
+@verbatim
+ 1: int foo(int i)
+ 2: {
+ 3:     int j; /* C1003 */
+ 4: 
+ 5:     if (i < 0) { /* C1001 */
+ 6:         if (i < -10) { /* C1002 */
+ 7:             j = 2;
+ 8:         }
+ 9:         else if (i < -5) { /* C1002 */
+10:             j = 3;
+11:         }
+12:     }
+13:     else {
+14:         j = 1;
+15:     }
+16: 
+17:     return j; /* W0460 */
+18: }
+
+a.c:17:12:warning:c_builtin:W0460:UNC:X99:A value of variable `j' wouldn't set when this expression is evaluated.
+:::context:c_builtin:C1000:INF:X99:Warning above is detected in the following context.
+a.c:3:9:context:c_builtin:C1003:INF:X99:The problematic variable is defined here without initializer.
+a.c:5:11:context:c_builtin:C1001:INF:X99:This controlling-expression is evaluated to be true.
+a.c:6:15:context:c_builtin:C1002:INF:X99:This controlling-expression is evaluated to be false.
+a.c:9:20:context:c_builtin:C1002:INF:X99:This controlling-expression is evaluated to be false.
+@end verbatim
+
+@subsection Related message
+
+@itemize
+@item @ref{C1001} This controlling-expression is evaluated to be true.
+@item @ref{C1002} This controlling-expression is evaluated to be false.
+@item @ref{C1003} The problematic variable is defined here without initializer.
+@item @ref{C1004} NULL value is assigned to the the problematic variable.
+@item @ref{C1005} A value possibly be NULL is assigned to the problematic variable.
+@item @ref{C1006} New value is assigned to the problematic variable.
+@end itemize
+
+@subsection Since
+
+3.2.0
+
+@node C1001
+@section C1001
+@cindex C1001
+
+@subsection Message body
+
+This controlling-expression is evaluated to be true.
+
+@subsection Content
+
+This message indicates that the controlling-expression was evaluated as true in
+the context of detecting @ref{W0093,W0093}, @ref{W0096,W0096},
+@ref{W0097,W0097}, @ref{W0115,W0115}, @ref{W0116,W0116}, @ref{W0421,W0421},
+@ref{W0422,W0422}, @ref{W0423,W0423}, @ref{W0424,W0424}, @ref{W0459,W0459},
+@ref{W0460,W0460}, @ref{W0461,W0461}, @ref{W0462,W0462}, @ref{W0568,W0568},
+@ref{W0569,W0569}, @ref{W0570,W0570}, @ref{W0607,W0607}, @ref{W0608,W0608},
+@ref{W0705,W0705}, @ref{W0707,W0707}, @ref{W0720,W0720}, @ref{W0745,W0745},
+@ref{W1049,W1049} and @ref{W1050,W1050} warnings.
+
+@subsection Sample code
+
+@verbatim
+int foo(int i)
+{
+    int j; /* C1003 */
+
+    if (i < 0) { /* C1001 */
+        if (i < -10) { /* C1002 */
+            j = 2;
+        }
+        else if (i < -5) { /* C1002 */
+            j = 3;
+        }
+    }
+    else {
+        j = 1;
+    }
+
+    return j; /* W0460 */
+}
+@end verbatim
+
+@subsection Related message
+
+@itemize
+@item @ref{W0093} This expression may cause division-by-zero.
+@item @ref{W0096} It divided by a constant expression which definitely zero.
+@item @ref{W0097} This expression must cause division-by-zero.
+@item @ref{W0115} Unsigned left shift operator `<<' drop the high-order bit.
+@item @ref{W0116} Unsigned left shift operator `<<' can be drop high-order bit.
+@item @ref{W0421} Value of the dereferencing pointer must be NULL.
+@item @ref{W0422} Value of the dereferencing pointer may be NULL.
+@item @ref{W0423} Arithmetic operation is being made to the pointer which its value will be NULL.
+@item @ref{W0424} Arithmetic operation is being made to the pointer which its value might be NULL.
+@item @ref{W0459} A value of variable `%s' doesn't set when this expression is evaluated. This program is danger.
+@item @ref{W0460} A value of variable `%s' wouldn't set when this expression is evaluated.
+@item @ref{W0461} A pointer which points the undetermined variable is used for the actual argument of the function. This program is danger.
+@item @ref{W0462} A pointer which the value will probably not set is used for the actual argument of the function.
+@item @ref{W0568} The result of left shift operation against the signed constant expression value is undefined.
+@item @ref{W0569} The result of left shift operation against the signed expression value is undefined.
+@item @ref{W0570} This signed left shift operation may make undefined value.
+@item @ref{W0607} An integer expression which the value which the value is minus converted to unsigned type.
+@item @ref{W0608} An integer expression which the value might be minus converted to unsigned type.
+@item @ref{W0705} This non-constant array subscript may cause out-of-range access.
+@item @ref{W0707} This constant array subscript must cause out-of-range access.
+@item @ref{W0720} The value with floating-point type doesn't fit in the range of converted type.
+@item @ref{W0745} This non-constant array subscript may cause out-of-range access.
+@item @ref{W1049} The result of conversion to signed integer type in integer expression might not be expressed by a signed type.
+@item @ref{W1050} The result of conversion to signed integer type in integer expression is not express by a signed type.
+@end itemize
+
+@subsection Since
+
+3.2.0
+
+@node C1002
+@section C1002
+@cindex C1002
+
+@subsection Message body
+
+This controlling-expression is evaluated to be false.
+
+@subsection Content
+
+This message indicates that the controlling-expression was evaluated as false
+in the context of detecting @ref{W0093,W0093}, @ref{W0096,W0096},
+@ref{W0097,W0097}, @ref{W0115,W0115}, @ref{W0116,W0116}, @ref{W0421,W0421},
+@ref{W0422,W0422}, @ref{W0423,W0423}, @ref{W0424,W0424}, @ref{W0459,W0459},
+@ref{W0460,W0460}, @ref{W0461,W0461}, @ref{W0462,W0462}, @ref{W0568,W0568},
+@ref{W0569,W0569}, @ref{W0570,W0570}, @ref{W0607,W0607}, @ref{W0608,W0608},
+@ref{W0705,W0705}, @ref{W0707,W0707}, @ref{W0720,W0720}, @ref{W0745,W0745},
+@ref{W1049,W1049} and @ref{W1050,W1050} warnings.
+
+@subsection Sample code
+
+@verbatim
+int foo(int i)
+{
+    int j; /* C1003 */
+
+    if (i < 0) { /* C1001 */
+        if (i < -10) { /* C1002 */
+            j = 2;
+        }
+        else if (i < -5) { /* C1002 */
+            j = 3;
+        }
+    }
+    else {
+        j = 1;
+    }
+
+    return j; /* W0460 */
+}
+@end verbatim
+
+@subsection Related message
+
+@itemize
+@item @ref{W0093} This expression may cause division-by-zero.
+@item @ref{W0096} It divided by a constant expression which definitely zero.
+@item @ref{W0097} This expression must cause division-by-zero.
+@item @ref{W0115} Unsigned left shift operator `<<' drop the high-order bit.
+@item @ref{W0116} Unsigned left shift operator `<<' can be drop high-order bit.
+@item @ref{W0421} Value of the dereferencing pointer must be NULL.
+@item @ref{W0422} Value of the dereferencing pointer may be NULL.
+@item @ref{W0423} Arithmetic operation is being made to the pointer which its value will be NULL.
+@item @ref{W0424} Arithmetic operation is being made to the pointer which its value might be NULL.
+@item @ref{W0459} A value of variable `%s' doesn't set when this expression is evaluated. This program is danger.
+@item @ref{W0460} A value of variable `%s' wouldn't set when this expression is evaluated.
+@item @ref{W0461} A pointer which points the undetermined variable is used for the actual argument of the function. This program is danger.
+@item @ref{W0462} A pointer which the value will probably not set is used for the actual argument of the function.
+@item @ref{W0568} The result of left shift operation against the signed constant expression value is undefined.
+@item @ref{W0569} The result of left shift operation against the signed expression value is undefined.
+@item @ref{W0570} This signed left shift operation may make undefined value.
+@item @ref{W0607} An integer expression which the value which the value is minus converted to unsigned type.
+@item @ref{W0608} An integer expression which the value might be minus converted to unsigned type.
+@item @ref{W0705} This non-constant array subscript may cause out-of-range access.
+@item @ref{W0707} This constant array subscript must cause out-of-range access.
+@item @ref{W0720} The value with floating-point type doesn't fit in the range of converted type.
+@item @ref{W0745} This non-constant array subscript may cause out-of-range access.
+@item @ref{W1049} The result of conversion to signed integer type in integer expression might not be expressed by a signed type.
+@item @ref{W1050} The result of conversion to signed integer type in integer expression is not express by a signed type.
+@end itemize
+
+@subsection Since
+
+3.2.0
+
+@node C1003
+@section C1003
+@cindex C1003
+
+@subsection Message body
+
+The problematic variable is defined here without initializer.
+
+@subsection Content
+
+This message indicates where the problematic variable is defined in the context
+of detecting @ref{W0459,W0459}, @ref{W0460,W0460}, @ref{W0461,W0461} and
+@ref{W0462,W0462} warnings.
+
+@subsection Sample code
+
+@verbatim
+int foo(int i)
+{
+    int j; /* C1003 */
+
+    if (i < 0) { /* C1001 */
+        if (i < -10) { /* C1002 */
+            j = 2;
+        }
+        else if (i < -5) { /* C1002 */
+            j = 3;
+        }
+    }
+    else {
+        j = 1;
+    }
+
+    return j; /* W0460 */
+}
+@end verbatim
+
+@subsection Related message
+
+@itemize
+@item @ref{W0459} A value of variable `%s' doesn't set when this expression is evaluated. This program is danger.
+@item @ref{W0460} A value of variable `%s' wouldn't set when this expression is evaluated.
+@item @ref{W0461} A pointer which points the undetermined variable is used for the actual argument of the function. This program is danger.
+@item @ref{W0462} A pointer which the value will probably not set is used for the actual argument of the function.
+@end itemize
+
+@subsection Since
+
+3.2.0
+
+@node C1004
+@section C1004
+@cindex C1004
+
+@subsection Message body
+
+NULL value is assigned to the the problematic variable.
+
+@subsection Content
+
+This message indicates where the NULL value was assigned to the problematic
+variable in the context of detecting @ref{W0421,W0421}, @ref{W0422,W0422},
+@ref{W0423,W0423} and @ref{W0424,W0424} warnings.
+
+@subsection Sample code
+
+@verbatim
+extern int *bar(void);
+extern int *baz(void);
+
+void foo(int i)
+{
+    int *p = NULL; /* C1004 */
+
+    if (i < 0) { /* C1002 */
+        p = bar();
+        if (!p) {
+            return;
+        }
+    }
+    else {
+        p = baz(); /* C1005 */
+    }
+
+    *p += 2; /* W0422 */
+}
+@end verbatim
+
+@subsection Related message
+
+@itemize
+@item @ref{W0421} Value of the dereferencing pointer must be NULL.
+@item @ref{W0422} Value of the dereferencing pointer may be NULL.
+@item @ref{W0423} Arithmetic operation is being made to the pointer which its value will be NULL.
+@item @ref{W0424} Arithmetic operation is being made to the pointer which its value might be NULL.
+@end itemize
+
+@subsection Since
+
+3.2.0
+
+@node C1005
+@section C1005
+@cindex C1005
+
+@subsection Message body
+
+A value possibly be NULL is assigned to the problematic variable.
+
+@subsection Content
+
+This message indicates where the value possible be NULL was assigned to the
+problematic variable in the context of detecting @ref{W0421,W0421},
+@ref{W0422,W0422}, @ref{W0423,W0423} and @ref{W0424,W0424} warnings.
+
+@subsection Sample code
+
+@verbatim
+extern int *bar(void);
+extern int *baz(void);
+
+void foo(int i)
+{
+    int *p = NULL; /* C1004 */
+
+    if (i < 0) { /* C1002 */
+        p = bar();
+        if (!p) {
+            return;
+        }
+    }
+    else {
+        p = baz(); /* C1005 */
+    }
+
+    *p += 2; /* W0422 */
+}
+@end verbatim
+
+@subsection Related message
+
+@itemize
+@item @ref{W0421} Value of the dereferencing pointer must be NULL.
+@item @ref{W0422} Value of the dereferencing pointer may be NULL.
+@item @ref{W0423} Arithmetic operation is being made to the pointer which its value will be NULL.
+@item @ref{W0424} Arithmetic operation is being made to the pointer which its value might be NULL.
+@end itemize
+
+@subsection Since
+
+3.2.0
+
+@node C1006
+@section C1006
+@cindex C1006
+
+@subsection Message body
+
+New value is assigned to the problematic variable.
+
+@subsection Content
+
+This message indicates where a value was assigned to the problematic variable
+in the context of detecting @ref{W0093,W0093}, @ref{W0096,W0096},
+@ref{W0097,W0097}, @ref{W0115,W0115}, @ref{W0116,W0116}, @ref{W0568,W0568},
+@ref{W0569,W0569}, @ref{W0570,W0570}, @ref{W0607,W0607}, @ref{W0608,W0608},
+@ref{W0705,W0705}, @ref{W0707,W0707}, @ref{W0720,W0720}, @ref{W0745,W0745},
+@ref{W1049,W1049} and @ref{W1050,W1050} warnings.
+
+@subsection Sample code
+
+@verbatim
+int foo(int i)
+{
+    int j = 0; /* C1006 */
+
+    if (i < 0) { /* C1002 */
+        j = -i;
+    }
+    else if (i > 0) { /* C1002 */
+        j = i;
+    }
+
+    return 5 / j; /* W0093 */
+}
+@end verbatim
+
+@subsection Related message
+
+@itemize
+@item @ref{W0093} This expression may cause division-by-zero.
+@item @ref{W0096} It divided by a constant expression which definitely zero.
+@item @ref{W0097} This expression must cause division-by-zero.
+@item @ref{W0115} Unsigned left shift operator `<<' drop the high-order bit.
+@item @ref{W0116} Unsigned left shift operator `<<' can be drop high-order bit.
+@item @ref{W0568} The result of left shift operation against the signed constant expression value is undefined.
+@item @ref{W0569} The result of left shift operation against the signed expression value is undefined.
+@item @ref{W0570} This signed left shift operation may make undefined value.
+@item @ref{W0607} An integer expression which the value which the value is minus converted to unsigned type.
+@item @ref{W0608} An integer expression which the value might be minus converted to unsigned type.
+@item @ref{W0705} This non-constant array subscript may cause out-of-range access.
+@item @ref{W0707} This constant array subscript must cause out-of-range access.
+@item @ref{W0720} The value with floating-point type doesn't fit in the range of converted type.
+@item @ref{W0745} This non-constant array subscript may cause out-of-range access.
+@item @ref{W1049} The result of conversion to signed integer type in integer expression might not be expressed by a signed type.
+@item @ref{W1050} The result of conversion to signed integer type in integer expression is not express by a signed type.
+@end itemize
+
+@subsection Since
+
+3.2.0
+
 
 @node Metrics
 @chapter Metrics List

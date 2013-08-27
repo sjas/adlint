@@ -1,3 +1,9 @@
+Tue Aug 27 19:35:30 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* share/doc/users_guide_ja.texi : Add descriptions about newly added
+	  context-messages supporting context-tracing.
+	* share/doc/users_guide_en.texi : Ditto.
+
 Mon Aug 26 11:44:55 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* release.rc : 3.1.0

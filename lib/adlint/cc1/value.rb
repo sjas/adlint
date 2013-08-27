@@ -343,7 +343,7 @@ module Cc1 #:nodoc:
     end
 
     def emit_context_messages(report, loc)
-      # NOTE: Evidence of the test result about SingleValue-s is trivial.
+      # NOTE: Evidence of the test result about SingleValue is trivial.
       #       So, nothing to be complemented.
       []
     end

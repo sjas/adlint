@@ -1,3 +1,9 @@
+Wed Aug 28 10:51:30 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* release.ga : 3.2.0
+	  - Support experimental context-tracing feature so that the warning
+	    message can be complemented with the context messages.
+
 Tue Aug 27 19:35:30 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* share/doc/users_guide_ja.texi : Add descriptions about newly added

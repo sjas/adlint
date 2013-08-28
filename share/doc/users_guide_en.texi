@@ -2,7 +2,7 @@
 @setfilename users_guide_en.info
 @documentlanguage en
 @documentencoding utf-8
-@settitle AdLint 3.1.0 User's Guide
+@settitle AdLint 3.2.0 User's Guide
 
 @copying
 Copyright (C) 2010-2013, OGIS-RI Co.,Ltd.
@@ -35836,7 +35836,7 @@ A value possibly be NULL is assigned to the problematic variable.
 
 @subsection Content
 
-This message indicates where the value possible be NULL was assigned to the
+This message indicates where the value possibly be NULL was assigned to the
 problematic variable in the context of detecting @ref{W0421,W0421},
 @ref{W0422,W0422}, @ref{W0423,W0423} and @ref{W0424,W0424} warnings.
 

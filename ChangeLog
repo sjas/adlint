@@ -1,3 +1,10 @@
+Fri Aug 30 15:46:16 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* release.rc : 3.2.1
+	  - Refine Examination.def_registrant_phase so that code check in the
+	    optional examination package can be derived from the builtin code
+	    check class.
+
 Fri Aug 30 15:12:10 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* lib/adlint/exam.rb : Refine Examination.def_registrant_phase so that

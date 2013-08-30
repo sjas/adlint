@@ -42,7 +42,14 @@ module AdLint #:nodoc:
     include LogUtil
 
     class << self
-      attr_reader :registrant_phase_class
+      def registrant_phase_class
+        self.ancestors.each do |klass|
+          if phase_class = @@registrant_phase_classes[klass]
+            return phase_class
+          end
+        end
+        nil
+      end
 
       def required?(phase_ctxt)
         subclass_responsibility
@@ -59,7 +66,8 @@ module AdLint #:nodoc:
       end
 
       def def_registrant_phase(phase_class)
-        @registrant_phase_class = phase_class
+        @@registrant_phase_classes ||= {}
+        @@registrant_phase_classes[self] = phase_class
       end
     end
 

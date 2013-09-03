@@ -220,6 +220,7 @@ contributor            -> contrib
 positive               -> pos
 negative               -> neg
 evidence               -> evid
+traversal              -> trav
 @end verbatim
 
 

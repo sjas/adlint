@@ -1,3 +1,8 @@
+Tue Sep  3 17:56:45 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/exam/c_builtin/cc1_check.rb : Abbreviate wordy names.
+	* share/doc/developers_guide_ja.texi : Ditto.
+
 Fri Aug 30 15:46:16 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* release.rc : 3.2.1

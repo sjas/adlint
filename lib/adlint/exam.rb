@@ -154,7 +154,7 @@ module AdLint #:nodoc:
     attr_reader :name
 
     def load
-      require "adlint/exam/#{@name}.rb"
+      require "adlint/exam/#{@name}"
       true
     rescue LoadError
       false

@@ -102,23 +102,23 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      traversal = phase_ctxt[:cpp_ast_traversal]
-      traversal.enter_if_statement                 += T(:extract_if)
-      traversal.enter_ifdef_statement              += T(:extract_ifdef)
-      traversal.enter_ifndef_statement             += T(:extract_ifndef)
-      traversal.enter_elif_statement               += T(:extract_elif)
-      traversal.enter_else_statement               += T(:extract_else)
-      traversal.enter_endif_line                   += T(:extract_endif)
-      traversal.enter_user_include_line            += T(:extract_usr_include)
-      traversal.enter_system_include_line          += T(:extract_sys_include)
-      traversal.enter_object_like_define_line      += T(:extract_define)
-      traversal.enter_function_like_define_line    += T(:extract_define)
-      traversal.enter_va_function_like_define_line += T(:extract_define)
-      traversal.enter_undef_line                   += T(:extract_undef)
-      traversal.enter_line_line                    += T(:extract_line)
-      traversal.enter_error_line                   += T(:extract_error)
-      traversal.enter_pragma_line                  += T(:extract_pragma)
-      traversal.enter_null_directive               += T(:extract_null)
+      trav = phase_ctxt[:cpp_ast_traversal]
+      trav.enter_if_statement                 += T(:extract_if)
+      trav.enter_ifdef_statement              += T(:extract_ifdef)
+      trav.enter_ifndef_statement             += T(:extract_ifndef)
+      trav.enter_elif_statement               += T(:extract_elif)
+      trav.enter_else_statement               += T(:extract_else)
+      trav.enter_endif_line                   += T(:extract_endif)
+      trav.enter_user_include_line            += T(:extract_usr_include)
+      trav.enter_system_include_line          += T(:extract_sys_include)
+      trav.enter_object_like_define_line      += T(:extract_define)
+      trav.enter_function_like_define_line    += T(:extract_define)
+      trav.enter_va_function_like_define_line += T(:extract_define)
+      trav.enter_undef_line                   += T(:extract_undef)
+      trav.enter_line_line                    += T(:extract_line)
+      trav.enter_error_line                   += T(:extract_error)
+      trav.enter_pragma_line                  += T(:extract_pragma)
+      trav.enter_null_directive               += T(:extract_null)
     end
 
     private

@@ -43,11 +43,11 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      traversal = phase_ctxt[:cc1_ast_traversal]
-      traversal.enter_typedef_declaration     += T(:extract_typedef)
-      traversal.enter_struct_type_declaration += T(:extract_struct)
-      traversal.enter_union_type_declaration  += T(:extract_union)
-      traversal.enter_enum_type_declaration   += T(:extract_enum)
+      trav = phase_ctxt[:cc1_ast_traversal]
+      trav.enter_typedef_declaration     += T(:extract_typedef)
+      trav.enter_struct_type_declaration += T(:extract_struct)
+      trav.enter_union_type_declaration  += T(:extract_union)
+      trav.enter_enum_type_declaration   += T(:extract_enum)
     end
 
     private
@@ -246,8 +246,8 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      traversal = phase_ctxt[:cc1_ast_traversal]
-      traversal.enter_generic_labeled_statement += T(:extract)
+      trav = phase_ctxt[:cc1_ast_traversal]
+      trav.enter_generic_labeled_statement += T(:extract)
     end
 
     private
@@ -264,8 +264,8 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      traversal = phase_ctxt[:cc1_ast_traversal]
-      traversal.enter_variable_definition += T(:extract)
+      trav = phase_ctxt[:cc1_ast_traversal]
+      trav.enter_variable_definition += T(:extract)
     end
 
     private
@@ -285,9 +285,9 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      traversal = phase_ctxt[:cc1_ast_traversal]
-      traversal.enter_simple_assignment_expression   += T(:extract)
-      traversal.enter_compound_assignment_expression += T(:extract)
+      trav = phase_ctxt[:cc1_ast_traversal]
+      trav.enter_simple_assignment_expression   += T(:extract)
+      trav.enter_compound_assignment_expression += T(:extract)
     end
 
     private
@@ -418,9 +418,9 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      traversal = phase_ctxt[:cc1_ast_traversal]
-      traversal.enter_constant_specifier       += T(:extract_constant)
-      traversal.enter_string_literal_specifier += T(:extract_string_literal)
+      trav = phase_ctxt[:cc1_ast_traversal]
+      trav.enter_constant_specifier       += T(:extract_constant)
+      trav.enter_string_literal_specifier += T(:extract_string_literal)
     end
 
     private

@@ -68,8 +68,8 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      traversal = phase_ctxt[:cpp_ast_traversal]
-      traversal.enter_line_line += T(:check)
+      trav = phase_ctxt[:cpp_ast_traversal]
+      trav.enter_line_line += T(:check)
     end
 
     private

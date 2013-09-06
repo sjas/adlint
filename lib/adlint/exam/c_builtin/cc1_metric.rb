@@ -44,24 +44,24 @@ module CBuiltin #:nodoc:
     def initialize(phase_ctxt)
       super
       @fpath = phase_ctxt[:sources].first.fpath
-      traversal = phase_ctxt[:cc1_ast_traversal]
-      traversal.enter_error_statement           += T(:count_statement)
-      traversal.enter_generic_labeled_statement += T(:count_statement)
-      traversal.enter_case_labeled_statement    += T(:count_statement)
-      traversal.enter_default_labeled_statement += T(:count_statement)
-      traversal.enter_expression_statement      += T(:count_statement)
-      traversal.enter_if_statement              += T(:count_statement)
-      traversal.enter_if_else_statement         += T(:count_statement)
-      traversal.enter_switch_statement          += T(:count_statement)
-      traversal.enter_while_statement           += T(:count_statement)
-      traversal.enter_do_statement              += T(:count_statement)
-      traversal.enter_for_statement             += T(:count_statement)
-      traversal.enter_c99_for_statement         += T(:count_statement)
-      traversal.enter_goto_statement            += T(:count_statement)
-      traversal.enter_continue_statement        += T(:count_statement)
-      traversal.enter_break_statement           += T(:count_statement)
-      traversal.enter_return_statement          += T(:count_statement)
-      traversal.leave_translation_unit          += M(:measure)
+      trav = phase_ctxt[:cc1_ast_traversal]
+      trav.enter_error_statement           += T(:count_statement)
+      trav.enter_generic_labeled_statement += T(:count_statement)
+      trav.enter_case_labeled_statement    += T(:count_statement)
+      trav.enter_default_labeled_statement += T(:count_statement)
+      trav.enter_expression_statement      += T(:count_statement)
+      trav.enter_if_statement              += T(:count_statement)
+      trav.enter_if_else_statement         += T(:count_statement)
+      trav.enter_switch_statement          += T(:count_statement)
+      trav.enter_while_statement           += T(:count_statement)
+      trav.enter_do_statement              += T(:count_statement)
+      trav.enter_for_statement             += T(:count_statement)
+      trav.enter_c99_for_statement         += T(:count_statement)
+      trav.enter_goto_statement            += T(:count_statement)
+      trav.enter_continue_statement        += T(:count_statement)
+      trav.enter_break_statement           += T(:count_statement)
+      trav.enter_return_statement          += T(:count_statement)
+      trav.leave_translation_unit          += M(:measure)
       @stmt_cnt = 0
     end
 
@@ -86,10 +86,10 @@ module CBuiltin #:nodoc:
     def initialize(phase_ctxt)
       super
       @fpath = phase_ctxt[:sources].first.fpath
-      traversal = phase_ctxt[:cc1_ast_traversal]
-      traversal.enter_ansi_function_definition  += T(:count_function)
-      traversal.enter_kandr_function_definition += T(:count_function)
-      traversal.leave_translation_unit          += M(:measure)
+      trav = phase_ctxt[:cc1_ast_traversal]
+      trav.enter_ansi_function_definition  += T(:count_function)
+      trav.enter_kandr_function_definition += T(:count_function)
+      trav.leave_translation_unit          += M(:measure)
       @fun_cnt = 0
     end
 
@@ -114,27 +114,27 @@ module CBuiltin #:nodoc:
     def initialize(phase_ctxt)
       super
       @fpath = phase_ctxt[:sources].first.fpath
-      traversal = phase_ctxt[:cc1_ast_traversal]
-      traversal.enter_ansi_function_definition  += T(:enter_function)
-      traversal.leave_ansi_function_definition  += T(:leave_function)
-      traversal.enter_kandr_function_definition += T(:enter_function)
-      traversal.leave_kandr_function_definition += T(:leave_function)
-      traversal.enter_error_statement           += T(:count_statement)
-      traversal.enter_generic_labeled_statement += T(:count_statement)
-      traversal.enter_case_labeled_statement    += T(:count_statement)
-      traversal.enter_default_labeled_statement += T(:count_statement)
-      traversal.enter_expression_statement      += T(:count_statement)
-      traversal.enter_if_statement              += T(:count_statement)
-      traversal.enter_if_else_statement         += T(:count_statement)
-      traversal.enter_switch_statement          += T(:count_statement)
-      traversal.enter_while_statement           += T(:count_statement)
-      traversal.enter_do_statement              += T(:count_statement)
-      traversal.enter_for_statement             += T(:count_statement)
-      traversal.enter_c99_for_statement         += T(:count_statement)
-      traversal.enter_goto_statement            += T(:count_statement)
-      traversal.enter_continue_statement        += T(:count_statement)
-      traversal.enter_break_statement           += T(:count_statement)
-      traversal.enter_return_statement          += T(:count_statement)
+      trav = phase_ctxt[:cc1_ast_traversal]
+      trav.enter_ansi_function_definition  += T(:enter_function)
+      trav.leave_ansi_function_definition  += T(:leave_function)
+      trav.enter_kandr_function_definition += T(:enter_function)
+      trav.leave_kandr_function_definition += T(:leave_function)
+      trav.enter_error_statement           += T(:count_statement)
+      trav.enter_generic_labeled_statement += T(:count_statement)
+      trav.enter_case_labeled_statement    += T(:count_statement)
+      trav.enter_default_labeled_statement += T(:count_statement)
+      trav.enter_expression_statement      += T(:count_statement)
+      trav.enter_if_statement              += T(:count_statement)
+      trav.enter_if_else_statement         += T(:count_statement)
+      trav.enter_switch_statement          += T(:count_statement)
+      trav.enter_while_statement           += T(:count_statement)
+      trav.enter_do_statement              += T(:count_statement)
+      trav.enter_for_statement             += T(:count_statement)
+      trav.enter_c99_for_statement         += T(:count_statement)
+      trav.enter_goto_statement            += T(:count_statement)
+      trav.enter_continue_statement        += T(:count_statement)
+      trav.enter_break_statement           += T(:count_statement)
+      trav.enter_return_statement          += T(:count_statement)
       @cur_fun = nil
       @stmt_cnt = 0
     end
@@ -172,27 +172,27 @@ module CBuiltin #:nodoc:
     def initialize(phase_ctxt)
       super
       @fpath = phase_ctxt[:sources].first.fpath
-      traversal = phase_ctxt[:cc1_ast_traversal]
-      traversal.enter_ansi_function_definition  += T(:enter_function)
-      traversal.leave_ansi_function_definition  += T(:leave_function)
-      traversal.enter_kandr_function_definition += T(:enter_function)
-      traversal.leave_kandr_function_definition += T(:leave_function)
-      traversal.enter_error_statement           += T(:count_statement)
-      traversal.enter_generic_labeled_statement += T(:count_statement)
-      traversal.enter_case_labeled_statement    += T(:count_statement)
-      traversal.enter_default_labeled_statement += T(:count_statement)
-      traversal.enter_expression_statement      += T(:count_statement)
-      traversal.enter_if_statement              += T(:count_statement)
-      traversal.enter_if_else_statement         += T(:count_statement)
-      traversal.enter_switch_statement          += T(:count_statement)
-      traversal.enter_while_statement           += T(:count_statement)
-      traversal.enter_do_statement              += T(:count_statement)
-      traversal.enter_for_statement             += T(:count_statement)
-      traversal.enter_c99_for_statement         += T(:count_statement)
-      traversal.enter_goto_statement            += T(:count_statement)
-      traversal.enter_continue_statement        += T(:count_statement)
-      traversal.enter_break_statement           += T(:count_statement)
-      traversal.enter_return_statement          += T(:count_statement)
+      trav = phase_ctxt[:cc1_ast_traversal]
+      trav.enter_ansi_function_definition  += T(:enter_function)
+      trav.leave_ansi_function_definition  += T(:leave_function)
+      trav.enter_kandr_function_definition += T(:enter_function)
+      trav.leave_kandr_function_definition += T(:leave_function)
+      trav.enter_error_statement           += T(:count_statement)
+      trav.enter_generic_labeled_statement += T(:count_statement)
+      trav.enter_case_labeled_statement    += T(:count_statement)
+      trav.enter_default_labeled_statement += T(:count_statement)
+      trav.enter_expression_statement      += T(:count_statement)
+      trav.enter_if_statement              += T(:count_statement)
+      trav.enter_if_else_statement         += T(:count_statement)
+      trav.enter_switch_statement          += T(:count_statement)
+      trav.enter_while_statement           += T(:count_statement)
+      trav.enter_do_statement              += T(:count_statement)
+      trav.enter_for_statement             += T(:count_statement)
+      trav.enter_c99_for_statement         += T(:count_statement)
+      trav.enter_goto_statement            += T(:count_statement)
+      trav.enter_continue_statement        += T(:count_statement)
+      trav.enter_break_statement           += T(:count_statement)
+      trav.enter_return_statement          += T(:count_statement)
       @cur_fun = nil
       @unreached_stmt_cnt = 0
     end
@@ -231,9 +231,9 @@ module CBuiltin #:nodoc:
     def initialize(phase_ctxt)
       super
       @fpath = phase_ctxt[:sources].first.fpath
-      traversal = phase_ctxt[:cc1_ast_traversal]
-      traversal.enter_ansi_function_definition  += T(:measure)
-      traversal.enter_kandr_function_definition += T(:measure)
+      trav = phase_ctxt[:cc1_ast_traversal]
+      trav.enter_ansi_function_definition  += T(:measure)
+      trav.enter_kandr_function_definition += T(:measure)
     end
 
     private
@@ -255,9 +255,9 @@ module CBuiltin #:nodoc:
     def initialize(phase_ctxt)
       super
       @fpath = phase_ctxt[:sources].first.fpath
-      traversal = phase_ctxt[:cc1_ast_traversal]
-      traversal.enter_ansi_function_definition  += T(:measure_ansi_function)
-      traversal.enter_kandr_function_definition += T(:measure_kandr_function)
+      trav = phase_ctxt[:cc1_ast_traversal]
+      trav.enter_ansi_function_definition  += T(:measure_ansi_function)
+      trav.enter_kandr_function_definition += T(:measure_kandr_function)
     end
 
     private
@@ -364,12 +364,12 @@ module CBuiltin #:nodoc:
     def initialize(phase_ctxt)
       super
       @fpath = phase_ctxt[:sources].first.fpath
-      traversal = phase_ctxt[:cc1_ast_traversal]
-      traversal.enter_ansi_function_definition  += T(:enter_function)
-      traversal.leave_ansi_function_definition  += T(:leave_function)
-      traversal.enter_kandr_function_definition += T(:enter_function)
-      traversal.leave_kandr_function_definition += T(:leave_function)
-      traversal.enter_function_call_expression  += T(:count_function_call)
+      trav = phase_ctxt[:cc1_ast_traversal]
+      trav.enter_ansi_function_definition  += T(:enter_function)
+      trav.leave_ansi_function_definition  += T(:leave_function)
+      trav.enter_kandr_function_definition += T(:enter_function)
+      trav.leave_kandr_function_definition += T(:leave_function)
+      trav.enter_function_call_expression  += T(:count_function_call)
       @cur_fun = nil
       @funcall_cnt = 0
     end
@@ -408,12 +408,12 @@ module CBuiltin #:nodoc:
     def initialize(phase_ctxt)
       super
       @fpath = phase_ctxt[:sources].first.fpath
-      traversal = phase_ctxt[:cc1_ast_traversal]
-      traversal.enter_ansi_function_definition  += T(:enter_function)
-      traversal.leave_ansi_function_definition  += T(:leave_function)
-      traversal.enter_kandr_function_definition += T(:enter_function)
-      traversal.leave_kandr_function_definition += T(:leave_function)
-      traversal.enter_goto_statement            += T(:count_goto)
+      trav = phase_ctxt[:cc1_ast_traversal]
+      trav.enter_ansi_function_definition  += T(:enter_function)
+      trav.leave_ansi_function_definition  += T(:leave_function)
+      trav.enter_kandr_function_definition += T(:enter_function)
+      trav.leave_kandr_function_definition += T(:leave_function)
+      trav.enter_goto_statement            += T(:count_goto)
       @cur_fun = nil
       @goto_cnt = 0
     end
@@ -452,27 +452,27 @@ module CBuiltin #:nodoc:
     def initialize(phase_ctxt)
       super
       @fpath = phase_ctxt[:sources].first.fpath
-      traversal = phase_ctxt[:cc1_ast_traversal]
-      traversal.enter_ansi_function_definition  += T(:enter_function)
-      traversal.leave_ansi_function_definition  += T(:leave_function)
-      traversal.enter_kandr_function_definition += T(:enter_function)
-      traversal.leave_kandr_function_definition += T(:leave_function)
-      traversal.enter_error_statement           += T(:enter_statement)
-      traversal.enter_generic_labeled_statement += T(:enter_statement)
-      traversal.enter_case_labeled_statement    += T(:enter_statement)
-      traversal.enter_default_labeled_statement += T(:enter_statement)
-      traversal.enter_expression_statement      += T(:enter_statement)
-      traversal.enter_if_statement              += T(:enter_statement)
-      traversal.enter_if_else_statement         += T(:enter_statement)
-      traversal.enter_switch_statement          += T(:enter_statement)
-      traversal.enter_while_statement           += T(:enter_statement)
-      traversal.enter_do_statement              += T(:enter_statement)
-      traversal.enter_for_statement             += T(:enter_statement)
-      traversal.enter_c99_for_statement         += T(:enter_statement)
-      traversal.enter_goto_statement            += T(:enter_statement)
-      traversal.enter_continue_statement        += T(:enter_statement)
-      traversal.enter_break_statement           += T(:enter_statement)
-      traversal.enter_return_statement          += T(:count_return)
+      trav = phase_ctxt[:cc1_ast_traversal]
+      trav.enter_ansi_function_definition  += T(:enter_function)
+      trav.leave_ansi_function_definition  += T(:leave_function)
+      trav.enter_kandr_function_definition += T(:enter_function)
+      trav.leave_kandr_function_definition += T(:leave_function)
+      trav.enter_error_statement           += T(:enter_statement)
+      trav.enter_generic_labeled_statement += T(:enter_statement)
+      trav.enter_case_labeled_statement    += T(:enter_statement)
+      trav.enter_default_labeled_statement += T(:enter_statement)
+      trav.enter_expression_statement      += T(:enter_statement)
+      trav.enter_if_statement              += T(:enter_statement)
+      trav.enter_if_else_statement         += T(:enter_statement)
+      trav.enter_switch_statement          += T(:enter_statement)
+      trav.enter_while_statement           += T(:enter_statement)
+      trav.enter_do_statement              += T(:enter_statement)
+      trav.enter_for_statement             += T(:enter_statement)
+      trav.enter_c99_for_statement         += T(:enter_statement)
+      trav.enter_goto_statement            += T(:enter_statement)
+      trav.enter_continue_statement        += T(:enter_statement)
+      trav.enter_break_statement           += T(:enter_statement)
+      trav.enter_return_statement          += T(:count_return)
       @cur_fun  = nil
       @ret_cnt  = 0
       @lst_stmt = nil
@@ -528,13 +528,13 @@ module CBuiltin #:nodoc:
     def initialize(phase_ctxt)
       super
       @fpath = phase_ctxt[:sources].first.fpath
-      traversal = phase_ctxt[:cc1_ast_traversal]
-      traversal.enter_ansi_function_definition  += T(:enter_function)
-      traversal.leave_ansi_function_definition  += T(:leave_function)
-      traversal.enter_kandr_function_definition += T(:enter_function)
-      traversal.leave_kandr_function_definition += T(:leave_function)
-      traversal.enter_if_else_statement         += T(:enter_if_else_statement)
-      traversal.leave_if_else_statement         += T(:leave_if_else_statement)
+      trav = phase_ctxt[:cc1_ast_traversal]
+      trav.enter_ansi_function_definition  += T(:enter_function)
+      trav.leave_ansi_function_definition  += T(:leave_function)
+      trav.enter_kandr_function_definition += T(:enter_function)
+      trav.leave_kandr_function_definition += T(:leave_function)
+      trav.enter_if_else_statement         += T(:enter_if_else_statement)
+      trav.leave_if_else_statement         += T(:leave_if_else_statement)
       @cur_fun = nil
       @if_else_stmt_chain = 0
       @incomplete_if_else_stmt_cnt = 0
@@ -584,19 +584,19 @@ module CBuiltin #:nodoc:
     def initialize(phase_ctxt)
       super
       @fpath = phase_ctxt[:sources].first.fpath
-      traversal = phase_ctxt[:cc1_ast_traversal]
-      traversal.enter_ansi_function_definition  += T(:enter_function)
-      traversal.leave_ansi_function_definition  += T(:leave_function)
-      traversal.enter_kandr_function_definition += T(:enter_function)
-      traversal.leave_kandr_function_definition += T(:leave_function)
-      traversal.enter_compound_statement        += T(:enter_block)
-      traversal.leave_compound_statement        += T(:leave_block)
-      traversal.enter_if_statement              += T(:check_statement)
-      traversal.enter_if_else_statement         += T(:check_statement)
-      traversal.enter_while_statement           += T(:check_statement)
-      traversal.enter_do_statement              += T(:check_statement)
-      traversal.enter_for_statement             += T(:check_statement)
-      traversal.enter_c99_for_statement         += T(:check_statement)
+      trav = phase_ctxt[:cc1_ast_traversal]
+      trav.enter_ansi_function_definition  += T(:enter_function)
+      trav.leave_ansi_function_definition  += T(:leave_function)
+      trav.enter_kandr_function_definition += T(:enter_function)
+      trav.leave_kandr_function_definition += T(:leave_function)
+      trav.enter_compound_statement        += T(:enter_block)
+      trav.leave_compound_statement        += T(:leave_block)
+      trav.enter_if_statement              += T(:check_statement)
+      trav.enter_if_else_statement         += T(:check_statement)
+      trav.enter_while_statement           += T(:check_statement)
+      trav.enter_do_statement              += T(:check_statement)
+      trav.enter_for_statement             += T(:check_statement)
+      trav.enter_c99_for_statement         += T(:check_statement)
       @cur_fun = nil
     end
 
@@ -752,14 +752,14 @@ module CBuiltin #:nodoc:
     def initialize(phase_ctxt)
       super
       @fpath = phase_ctxt[:sources].first.fpath
-      traversal = phase_ctxt[:cc1_ast_traversal]
-      traversal.enter_ansi_function_definition  += T(:enter_function)
-      traversal.leave_ansi_function_definition  += T(:leave_function)
-      traversal.enter_kandr_function_definition += T(:enter_function)
-      traversal.leave_kandr_function_definition += T(:leave_function)
-      traversal.enter_if_statement              += T(:enter_selection)
-      traversal.enter_if_else_statement         += T(:enter_selection)
-      traversal.enter_case_labeled_statement    += T(:enter_selection)
+      trav = phase_ctxt[:cc1_ast_traversal]
+      trav.enter_ansi_function_definition  += T(:enter_function)
+      trav.leave_ansi_function_definition  += T(:leave_function)
+      trav.enter_kandr_function_definition += T(:enter_function)
+      trav.leave_kandr_function_definition += T(:leave_function)
+      trav.enter_if_statement              += T(:enter_selection)
+      trav.enter_if_else_statement         += T(:enter_selection)
+      trav.enter_case_labeled_statement    += T(:enter_selection)
       @cur_fun = nil
       @cycl_compl = 0
     end

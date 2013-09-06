@@ -48,9 +48,9 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      traversal = phase_ctxt[:cpp_ast_traversal]
-      traversal.enter_grouped_expression += T(:enter_grouped_expression)
-      traversal.leave_grouped_expression += T(:leave_grouped_expression)
+      trav = phase_ctxt[:cpp_ast_traversal]
+      trav.enter_grouped_expression += T(:enter_grouped_expression)
+      trav.leave_grouped_expression += T(:leave_grouped_expression)
       @group_depth = 0
     end
 
@@ -155,9 +155,9 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      traversal = phase_ctxt[:cpp_ast_traversal]
-      traversal.enter_if_section += T(:enter_if_section)
-      traversal.leave_if_section += T(:leave_if_section)
+      trav = phase_ctxt[:cpp_ast_traversal]
+      trav.enter_if_section += T(:enter_if_section)
+      trav.leave_if_section += T(:leave_if_section)
       @if_depth = 0
     end
 
@@ -355,9 +355,9 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      traversal = phase_ctxt[:cpp_ast_traversal]
-      traversal.enter_user_include_line   += T(:check_user_include_line)
-      traversal.enter_system_include_line += T(:check_system_include_line)
+      trav = phase_ctxt[:cpp_ast_traversal]
+      trav.enter_user_include_line   += T(:check_user_include_line)
+      trav.enter_system_include_line += T(:check_system_include_line)
     end
 
     private
@@ -383,11 +383,11 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      traversal = phase_ctxt[:cpp_ast_traversal]
-      traversal.enter_user_include_line   += T(:enter_include_line)
-      traversal.enter_system_include_line += T(:enter_include_line)
-      traversal.enter_text_line           += T(:enter_text_line)
-      traversal.enter_if_section          += T(:enter_if_section)
+      trav = phase_ctxt[:cpp_ast_traversal]
+      trav.enter_user_include_line   += T(:enter_include_line)
+      trav.enter_system_include_line += T(:enter_include_line)
+      trav.enter_text_line           += T(:enter_text_line)
+      trav.enter_if_section          += T(:enter_if_section)
       @main_fpath = phase_ctxt[:sources].first.fpath
       @last_fpath = nil
       @enclosed_by_if_section = false
@@ -496,9 +496,9 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      traversal = phase_ctxt[:cpp_ast_traversal]
-      traversal.enter_function_like_define_line    += T(:check)
-      traversal.enter_va_function_like_define_line += T(:check)
+      trav = phase_ctxt[:cpp_ast_traversal]
+      trav.enter_function_like_define_line    += T(:check)
+      trav.enter_va_function_like_define_line += T(:check)
     end
 
     private
@@ -663,10 +663,10 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      traversal = phase_ctxt[:cpp_ast_traversal]
-      traversal.enter_object_like_define_line      += T(:check)
-      traversal.enter_function_like_define_line    += T(:check)
-      traversal.enter_va_function_like_define_line += T(:check)
+      trav = phase_ctxt[:cpp_ast_traversal]
+      trav.enter_object_like_define_line      += T(:check)
+      trav.enter_function_like_define_line    += T(:check)
+      trav.enter_va_function_like_define_line += T(:check)
     end
 
     private
@@ -693,8 +693,8 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      traversal = phase_ctxt[:cpp_ast_traversal]
-      traversal.enter_object_like_define_line += T(:check)
+      trav = phase_ctxt[:cpp_ast_traversal]
+      trav.enter_object_like_define_line += T(:check)
     end
 
     private
@@ -716,10 +716,10 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      traversal = phase_ctxt[:cpp_ast_traversal]
-      traversal.enter_object_like_define_line      += T(:check)
-      traversal.enter_function_like_define_line    += T(:check)
-      traversal.enter_va_function_like_define_line += T(:check)
+      trav = phase_ctxt[:cpp_ast_traversal]
+      trav.enter_object_like_define_line      += T(:check)
+      trav.enter_function_like_define_line    += T(:check)
+      trav.enter_va_function_like_define_line += T(:check)
     end
 
     private
@@ -741,10 +741,10 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      traversal = phase_ctxt[:cpp_ast_traversal]
-      traversal.enter_object_like_define_line      += T(:check)
-      traversal.enter_function_like_define_line    += T(:check)
-      traversal.enter_va_function_like_define_line += T(:check)
+      trav = phase_ctxt[:cpp_ast_traversal]
+      trav.enter_object_like_define_line      += T(:check)
+      trav.enter_function_like_define_line    += T(:check)
+      trav.enter_va_function_like_define_line += T(:check)
     end
 
     private
@@ -764,8 +764,8 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      traversal = phase_ctxt[:cpp_ast_traversal]
-      traversal.enter_object_like_define_line += T(:check)
+      trav = phase_ctxt[:cpp_ast_traversal]
+      trav.enter_object_like_define_line += T(:check)
     end
 
     private
@@ -801,8 +801,8 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      traversal = phase_ctxt[:cpp_ast_traversal]
-      traversal.enter_object_like_define_line += T(:check)
+      trav = phase_ctxt[:cpp_ast_traversal]
+      trav.enter_object_like_define_line += T(:check)
     end
 
     private
@@ -1066,9 +1066,9 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      traversal = phase_ctxt[:cpp_ast_traversal]
-      traversal.enter_system_include_line      += T(:check)
-      traversal.enter_system_include_next_line += T(:check)
+      trav = phase_ctxt[:cpp_ast_traversal]
+      trav.enter_system_include_line      += T(:check)
+      trav.enter_system_include_next_line += T(:check)
     end
 
     private
@@ -1088,9 +1088,9 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      traversal = phase_ctxt[:cpp_ast_traversal]
-      traversal.enter_user_include_line      += T(:check)
-      traversal.enter_user_include_next_line += T(:check)
+      trav = phase_ctxt[:cpp_ast_traversal]
+      trav.enter_user_include_line      += T(:check)
+      trav.enter_user_include_next_line += T(:check)
     end
 
     private
@@ -1110,11 +1110,11 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      traversal = phase_ctxt[:cpp_ast_traversal]
-      traversal.enter_user_include_line        += T(:check)
-      traversal.enter_user_include_next_line   += T(:check)
-      traversal.enter_system_include_line      += T(:check)
-      traversal.enter_system_include_next_line += T(:check)
+      trav = phase_ctxt[:cpp_ast_traversal]
+      trav.enter_user_include_line        += T(:check)
+      trav.enter_user_include_next_line   += T(:check)
+      trav.enter_system_include_line      += T(:check)
+      trav.enter_system_include_next_line += T(:check)
     end
 
     private
@@ -1327,8 +1327,8 @@ module CBuiltin #:nodoc:
 
     def initialize(phase_ctxt)
       super
-      traversal = phase_ctxt[:cpp_ast_traversal]
-      traversal.enter_unknown_directive += T(:check)
+      trav = phase_ctxt[:cpp_ast_traversal]
+      trav.enter_unknown_directive += T(:check)
     end
 
     private

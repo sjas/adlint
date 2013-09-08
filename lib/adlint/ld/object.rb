@@ -632,7 +632,7 @@ module Ld #:nodoc:
       caller_fun = @fun_map.lookup_functions(
         funcall_rec.caller_function.name).find { |fun|
           fun.location.fpath == funcall_rec.location.fpath
-      }
+        }
       if caller_fun
         caller_ref = ObjectReferrer.of_function(caller_fun)
       else

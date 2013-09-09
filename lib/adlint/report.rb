@@ -432,7 +432,7 @@ module AdLint #:nodoc:
     # Writes a function cross reference information on the report.
     #
     # Abbreviation below is available.
-    #  write_xref_function(...) => XREF_FUNC(...)
+    #  write_xref_function(...) => XREF_FUN(...)
     #
     # === PARAMETER
     # _loc_:: Location -- Location where the cross-ref appears.
@@ -445,7 +445,7 @@ module AdLint #:nodoc:
     def write_xref_function(loc, referrer, ref_type, fun)
       write_code_struct(XRefFun.new(loc, referrer, ref_type, fun))
     end
-    alias :XREF_FUNC :write_xref_function
+    alias :XREF_FUN :write_xref_function
 
     def write_literal(loc, lit_type, prefix, suffix, value)
       write_code_struct(Literal.new(loc, lit_type, prefix, suffix, value))

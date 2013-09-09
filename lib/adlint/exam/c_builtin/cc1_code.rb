@@ -38,44 +38,44 @@ module AdLint #:nodoc:
 module Exam #:nodoc:
 module CBuiltin #:nodoc:
 
-  class TypeDeclExtraction < CodeExtraction
+  class TypeDclExtraction < CodeExtraction
     def_registrant_phase Cc1::Prepare2Phase
 
     def initialize(phase_ctxt)
       super
       trav = phase_ctxt[:cc1_ast_traversal]
-      trav.enter_typedef_declaration     += T(:extract_typedef)
-      trav.enter_struct_type_declaration += T(:extract_struct)
-      trav.enter_union_type_declaration  += T(:extract_union)
-      trav.enter_enum_type_declaration   += T(:extract_enum)
+      trav.enter_typedef_declaration     += T(:extract_typedef_dcl)
+      trav.enter_struct_type_declaration += T(:extract_struct_dcl)
+      trav.enter_union_type_declaration  += T(:extract_union_dcl)
+      trav.enter_enum_type_declaration   += T(:extract_enum_dcl)
     end
 
     private
     def do_prepare(*) end
     def do_execute(*) end
 
-    def extract_typedef(typedef_dcl)
+    def extract_typedef_dcl(typedef_dcl)
       TYPEDCL(typedef_dcl.identifier.location, "T",
               typedef_dcl.type.name, typedef_dcl.type.image)
     end
 
-    def extract_struct(struct_type_dcl)
+    def extract_struct_dcl(struct_type_dcl)
       TYPEDCL(struct_type_dcl.identifier.location, "S",
               struct_type_dcl.type.name, struct_type_dcl.type.image)
     end
 
-    def extract_union(union_type_dcl)
+    def extract_union_dcl(union_type_dcl)
       TYPEDCL(union_type_dcl.identifier.location, "U",
               union_type_dcl.type.name, union_type_dcl.type.image)
     end
 
-    def extract_enum(enum_type_dcl)
+    def extract_enum_dcl(enum_type_dcl)
       TYPEDCL(enum_type_dcl.identifier.location, "E",
               enum_type_dcl.type.name, enum_type_dcl.type.image)
     end
   end
 
-  class GVarDeclExtraction < CodeExtraction
+  class GVarDclExtraction < CodeExtraction
     def_registrant_phase Cc1::Prepare2Phase
 
     def initialize(phase_ctxt)
@@ -407,8 +407,8 @@ module CBuiltin #:nodoc:
         else
           referrer = FunctionId.of_ctors_section
         end
-        XREF_FUNC(expr.location, referrer, "R",
-                  FunctionId.new(fun.name, fun.signature.to_s))
+        XREF_FUN(expr.location, referrer, "R",
+                 FunctionId.new(fun.name, fun.signature.to_s))
       end
     end
   end

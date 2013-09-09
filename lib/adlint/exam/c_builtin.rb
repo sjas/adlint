@@ -790,8 +790,8 @@ module CBuiltin #:nodoc:
       FN_CYCM,
       FN_CALL,
 
-      TypeDeclExtraction,
-      GVarDeclExtraction,
+      TypeDclExtraction,
+      GVarDclExtraction,
       FunDclExtraction,
       VarDefExtraction,
       FunDefExtraction,

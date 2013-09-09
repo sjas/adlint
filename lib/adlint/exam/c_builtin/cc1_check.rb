@@ -794,16 +794,16 @@ module CBuiltin #:nodoc:
     def initialize(phase_ctxt)
       super
       trav = phase_ctxt[:cc1_ast_traversal]
-      trav.enter_init_declarator           += T(:check_init_decl)
-      trav.enter_struct_declarator         += T(:check_struct_decl)
-      trav.enter_parameter_declaration     += T(:check_parameter_decl)
+      trav.enter_init_declarator           += T(:check_init_dcr)
+      trav.enter_struct_declarator         += T(:check_struct_dcr)
+      trav.enter_parameter_declaration     += T(:check_parameter_dcl)
       trav.enter_kandr_function_definition += T(:check_kandr_fundef)
       trav.enter_ansi_function_definition  += T(:check_ansi_fundef)
       trav.enter_type_name                 += T(:check_type_name)
     end
 
     private
-    def check_init_decl(init_dcr)
+    def check_init_dcr(init_dcr)
       dcr_num = DeclaratorCounter.new.tap { |cnt|
         init_dcr.declarator.accept(cnt)
       }.result
@@ -811,14 +811,14 @@ module CBuiltin #:nodoc:
       W(init_dcr.location) if dcr_num > 12
     end
 
-    def check_struct_decl(struct_dcr)
+    def check_struct_dcr(struct_dcr)
       if dcr = struct_dcr.declarator
         dcr_num = DeclaratorCounter.new.tap { |cnt| dcr.accept(cnt) }.result
         W(struct_dcr.location) if dcr_num > 12
       end
     end
 
-    def check_parameter_decl(param_dcl)
+    def check_parameter_dcl(param_dcl)
       if dcr = param_dcl.declarator
         dcr_num = DeclaratorCounter.new.tap { |cnt| dcr.accept(cnt) }.result
         W(param_dcl.location) if dcr_num > 12
@@ -1020,8 +1020,8 @@ module CBuiltin #:nodoc:
     private
     def check(node)
       node.struct_declarations.each do |struct_dcl|
-        struct_dcl.items.each do |memb_decl|
-          memb_type = memb_decl.type
+        struct_dcl.items.each do |memb_dcl|
+          memb_type = memb_dcl.type
           next unless memb_type.scalar? && memb_type.integer?
           if memb_type.bitfield? && !memb_type.explicitly_signed?
             W(node.location)
@@ -8694,7 +8694,7 @@ module CBuiltin #:nodoc:
 
       def visit_member_declaration(node)
         if node.analysis_target?(traits)
-          check_member_decl(node)
+          check_member_dcl(node)
           @lst_memb_dcl_loc = node.location
         end
       end
@@ -8822,7 +8822,7 @@ module CBuiltin #:nodoc:
         end
       end
 
-      def check_member_decl(node)
+      def check_member_dcl(node)
         if @lst_memb_dcl_loc.fpath == node.location.fpath &&
             @lst_memb_dcl_loc.line_no == node.location.line_no
           W(node.location)
@@ -12530,7 +12530,7 @@ module CBuiltin #:nodoc:
     end
 
     def extract_param_names(node)
-      collect_identifier_declarators(node).map { |decl| decl.identifier.value }
+      collect_identifier_declarators(node).map { |dcr| dcr.identifier.value }
     end
 
     def interpreter
@@ -18769,12 +18769,12 @@ module CBuiltin #:nodoc:
     def initialize(phase_ctxt)
       super
       interp = phase_ctxt[:cc1_interpreter]
-      interp.on_variable_declared          += T(:check_object_declaration)
-      interp.on_variable_defined           += T(:check_object_declaration)
-      interp.on_explicit_function_declared += T(:check_object_declaration)
-      interp.on_explicit_function_defined  += T(:check_object_declaration)
-      interp.on_typedef_declared           += T(:check_typedef_declaration)
-      interp.on_enum_declared              += T(:check_enum_declaration)
+      interp.on_variable_declared          += T(:check_object_dcl)
+      interp.on_variable_defined           += T(:check_object_dcl)
+      interp.on_explicit_function_declared += T(:check_object_dcl)
+      interp.on_explicit_function_defined  += T(:check_object_dcl)
+      interp.on_typedef_declared           += T(:check_typedef_dcl)
+      interp.on_enum_declared              += T(:check_enum_dcl)
       interp.on_block_started              += T(:enter_scope)
       interp.on_block_ended                += T(:leave_scope)
 
@@ -18788,7 +18788,7 @@ module CBuiltin #:nodoc:
     end
 
     private
-    def check_object_declaration(obj_dcl, obj)
+    def check_object_dcl(obj_dcl, obj)
       return unless obj.declared_as_extern?
 
       name = obj_dcl.identifier.value
@@ -18807,7 +18807,7 @@ module CBuiltin #:nodoc:
       @obj_dcls.last[name].push(obj_dcl)
     end
 
-    def check_typedef_declaration(typedef_dcl)
+    def check_typedef_dcl(typedef_dcl)
       name = typedef_dcl.identifier.value
       type = typedef_dcl.type
 
@@ -18825,7 +18825,7 @@ module CBuiltin #:nodoc:
       @typedef_dcls.last[name].push(typedef_dcl)
     end
 
-    def check_enum_declaration(enum_dcl)
+    def check_enum_dcl(enum_dcl)
       enum_dcl.enumerators.each { |enum| check_enumerator(enum) }
     end
 
@@ -18879,12 +18879,12 @@ module CBuiltin #:nodoc:
     def initialize(phase_ctxt)
       super
       interp = phase_ctxt[:cc1_interpreter]
-      interp.on_variable_declared          += T(:check_object_declaration)
-      interp.on_variable_defined           += T(:check_object_declaration)
-      interp.on_explicit_function_declared += T(:check_object_declaration)
-      interp.on_explicit_function_defined  += T(:check_object_declaration)
-      interp.on_typedef_declared           += T(:check_typedef_declaration)
-      interp.on_enum_declared              += T(:check_enum_declaration)
+      interp.on_variable_declared          += T(:check_object_dcl)
+      interp.on_variable_defined           += T(:check_object_dcl)
+      interp.on_explicit_function_declared += T(:check_object_dcl)
+      interp.on_explicit_function_defined  += T(:check_object_dcl)
+      interp.on_typedef_declared           += T(:check_typedef_dcl)
+      interp.on_enum_declared              += T(:check_enum_dcl)
       interp.on_block_started              += T(:enter_scope)
       interp.on_block_ended                += T(:leave_scope)
 
@@ -18894,7 +18894,7 @@ module CBuiltin #:nodoc:
     end
 
     private
-    def check_object_declaration(obj_dcl, *)
+    def check_object_dcl(obj_dcl, *)
       name = obj_dcl.identifier.value
       type = obj_dcl.type
 
@@ -18910,7 +18910,7 @@ module CBuiltin #:nodoc:
       @obj_dcls.last[name].push(obj_dcl)
     end
 
-    def check_typedef_declaration(typedef_dcl)
+    def check_typedef_dcl(typedef_dcl)
       name = typedef_dcl.identifier.value
       type = typedef_dcl.type
 
@@ -18927,7 +18927,7 @@ module CBuiltin #:nodoc:
       @typedef_dcls.last[name].push(typedef_dcl)
     end
 
-    def check_enum_declaration(enum_dcl)
+    def check_enum_dcl(enum_dcl)
       enum_dcl.enumerators.each { |enum| check_enumerator(enum) }
     end
 
@@ -18969,12 +18969,12 @@ module CBuiltin #:nodoc:
     def initialize(phase_ctxt)
       super
       interp = phase_ctxt[:cc1_interpreter]
-      interp.on_variable_declared          += T(:check_object_declaration)
-      interp.on_variable_defined           += T(:check_object_declaration)
-      interp.on_explicit_function_declared += T(:check_object_declaration)
-      interp.on_explicit_function_defined  += T(:check_object_declaration)
-      interp.on_typedef_declared           += T(:check_typedef_declaration)
-      interp.on_enum_declared              += T(:check_enum_declaration)
+      interp.on_variable_declared          += T(:check_object_dcl)
+      interp.on_variable_defined           += T(:check_object_dcl)
+      interp.on_explicit_function_declared += T(:check_object_dcl)
+      interp.on_explicit_function_defined  += T(:check_object_dcl)
+      interp.on_typedef_declared           += T(:check_typedef_dcl)
+      interp.on_enum_declared              += T(:check_enum_dcl)
       interp.on_block_started              += T(:enter_scope)
       interp.on_block_ended                += T(:leave_scope)
 
@@ -18984,7 +18984,7 @@ module CBuiltin #:nodoc:
     end
 
     private
-    def check_object_declaration(obj_dcl, *)
+    def check_object_dcl(obj_dcl, *)
       name = obj_dcl.identifier.value
       type = obj_dcl.type
 
@@ -19002,7 +19002,7 @@ module CBuiltin #:nodoc:
       @obj_dcls.last[name].push(obj_dcl)
     end
 
-    def check_typedef_declaration(typedef_dcl)
+    def check_typedef_dcl(typedef_dcl)
       name = typedef_dcl.identifier.value
       type = typedef_dcl.type
 
@@ -19020,7 +19020,7 @@ module CBuiltin #:nodoc:
       @typedef_dcls.last[name].push(typedef_dcl)
     end
 
-    def check_enum_declaration(enum_dcl)
+    def check_enum_dcl(enum_dcl)
       enum_dcl.enumerators.each { |enum| check_enumerator(enum) }
     end
 
@@ -19569,20 +19569,20 @@ module CBuiltin #:nodoc:
     def initialize(phase_ctxt)
       super
       trav = phase_ctxt[:cc1_ast_traversal]
-      trav.enter_member_declaration        += T(:check_member_decl)
-      trav.enter_typedef_declaration       += T(:check_declspec_holder)
-      trav.enter_function_declaration      += T(:check_declspec_holder)
-      trav.enter_parameter_declaration     += T(:check_declspec_holder)
-      trav.enter_variable_declaration      += T(:check_declspec_holder)
-      trav.enter_variable_definition       += T(:check_declspec_holder)
-      trav.enter_ansi_function_definition  += T(:check_declspec_holder)
-      trav.enter_kandr_function_definition += T(:check_declspec_holder)
-      trav.enter_parameter_definition      += T(:check_declspec_holder)
+      trav.enter_member_declaration        += T(:check_member_dcl)
+      trav.enter_typedef_declaration       += T(:check_dcl_spec_holder)
+      trav.enter_function_declaration      += T(:check_dcl_spec_holder)
+      trav.enter_parameter_declaration     += T(:check_dcl_spec_holder)
+      trav.enter_variable_declaration      += T(:check_dcl_spec_holder)
+      trav.enter_variable_definition       += T(:check_dcl_spec_holder)
+      trav.enter_ansi_function_definition  += T(:check_dcl_spec_holder)
+      trav.enter_kandr_function_definition += T(:check_dcl_spec_holder)
+      trav.enter_parameter_definition      += T(:check_dcl_spec_holder)
       trav.enter_type_name                 += T(:check_type_name)
     end
 
     private
-    def check_member_decl(node)
+    def check_member_dcl(node)
       type_specs = node.specifier_qualifier_list.type_specifiers
       if fst_ts = type_specs.first
         node.type.accept(Visitor.new(@phase_ctxt, fst_ts.location))
@@ -19596,7 +19596,7 @@ module CBuiltin #:nodoc:
       end
     end
 
-    def check_declspec_holder(dcl_spec_holder)
+    def check_dcl_spec_holder(dcl_spec_holder)
       type_specs = dcl_spec_holder.type_specifiers
       if fst_ts = type_specs.first
         dcl_spec_holder.type.accept(Visitor.new(@phase_ctxt, fst_ts.location))

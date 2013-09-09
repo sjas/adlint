@@ -2783,7 +2783,7 @@ module Cc1 #:nodoc:
           "struct #{identifier.value} {}"
         else
           "struct #{identifier.value} { " +
-            @struct_declarations.map { |decl| decl.to_s }.join(" ") + " }"
+            @struct_declarations.map { |dcl| dcl.to_s }.join(" ") + " }"
         end
       else
         "struct #{identifier.value}"
@@ -2815,7 +2815,7 @@ module Cc1 #:nodoc:
           "union #{identifier.value} {}"
         else
           "union #{identifier.value} { " +
-            @struct_declarations.map { |decl| decl.to_s }.join(" ") +
+            @struct_declarations.map { |dcl| dcl.to_s }.join(" ") +
             " }"
         end
       else

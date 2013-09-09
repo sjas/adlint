@@ -644,7 +644,7 @@ module CBuiltin #:nodoc:
       trav.enter_ansi_function_definition  += T(:enter_function)
       trav.leave_kandr_function_definition += T(:leave_function)
       trav.leave_ansi_function_definition  += T(:leave_function)
-      @function_def_level = 0
+      @fun_def_level = 0
     end
 
     private
@@ -687,11 +687,11 @@ module CBuiltin #:nodoc:
 
     def enter_function(node)
       check_object_name(node)
-      @function_def_level += 1
+      @fun_def_level += 1
     end
 
     def leave_function(node)
-      @function_def_level -= 1
+      @fun_def_level -= 1
     end
 
     def check_object_name(dcl_or_def)
@@ -706,7 +706,7 @@ module CBuiltin #:nodoc:
     end
 
     def check_filelocal_object_name(name, dcl_or_def)
-      if @function_def_level == 0
+      if @fun_def_level == 0
         if sc_spec = dcl_or_def.storage_class_specifier
           if sc_spec.type == :STATIC
             W(dcl_or_def.location, name)

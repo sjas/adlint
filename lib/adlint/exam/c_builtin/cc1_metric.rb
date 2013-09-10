@@ -70,9 +70,7 @@ module CBuiltin #:nodoc:
     def do_execute(*) end
 
     def count_statement(stmt)
-      if @fpath == stmt.location.fpath
-        @stmt_cnt += 1
-      end
+      @stmt_cnt += 1
     end
 
     def measure(*)
@@ -98,9 +96,7 @@ module CBuiltin #:nodoc:
     def do_execute(*) end
 
     def count_function(fun_def)
-      if @fpath == fun_def.location.fpath
-        @fun_cnt += 1
-      end
+      @fun_cnt += 1
     end
 
     def measure(*)
@@ -144,10 +140,8 @@ module CBuiltin #:nodoc:
     def do_execute(*) end
 
     def enter_function(fun_def)
-      if @fpath == fun_def.location.fpath
-        @cur_fun = fun_def
-        @stmt_cnt = 0
-      end
+      @cur_fun = fun_def
+      @stmt_cnt = 0
     end
 
     def leave_function(*)
@@ -202,10 +196,8 @@ module CBuiltin #:nodoc:
     def do_execute(*) end
 
     def enter_function(fun_def)
-      if @fpath == fun_def.location.fpath
-        @cur_fun = fun_def
-        @unreached_stmt_cnt = 0
-      end
+      @cur_fun = fun_def
+      @unreached_stmt_cnt = 0
     end
 
     def leave_function(*)
@@ -241,11 +233,8 @@ module CBuiltin #:nodoc:
     def do_execute(*) end
 
     def measure(fun_def)
-      if @fpath == fun_def.location.fpath
-        FN_LINE(FunctionId.new(fun_def.identifier.value,
-                               fun_def.signature.to_s),
-                fun_def.location, fun_def.lines)
-      end
+      FN_LINE(FunctionId.new(fun_def.identifier.value, fun_def.signature.to_s),
+              fun_def.location, fun_def.lines)
     end
   end
 
@@ -265,28 +254,23 @@ module CBuiltin #:nodoc:
     def do_execute(*) end
 
     def measure_ansi_function(fun_def)
-      if @fpath == fun_def.location.fpath
-        # TODO: Determine how many parameters if function has va_list.
-        if fun_def.parameter_type_list
-          params = fun_def.parameter_definitions
-          FN_PARA(FunctionId.new(fun_def.identifier.value,
-                                 fun_def.signature.to_s),
-                  fun_def.location, params.count { |param| !param.type.void? })
-        else
-          # TODO: Determine how many parameters if signature is abbreviated.
-          FN_PARA(FunctionId.new(fun_def.identifier.value,
-                                 fun_def.signature.to_s),
-                  fun_def.location, 0)
-        end
+      # TODO: Determine how many parameters if function has va_list.
+      if fun_def.parameter_type_list
+        params = fun_def.parameter_definitions
+        FN_PARA(FunctionId.new(fun_def.identifier.value,
+                               fun_def.signature.to_s),
+                fun_def.location, params.count { |param| !param.type.void? })
+      else
+        # TODO: Determine how many parameters if signature is abbreviated.
+        FN_PARA(FunctionId.new(fun_def.identifier.value,
+                               fun_def.signature.to_s),
+                fun_def.location, 0)
       end
     end
 
     def measure_kandr_function(fun_def)
-      if @fpath == fun_def.location.fpath
-        FN_PARA(FunctionId.new(fun_def.identifier.value,
-                               fun_def.signature.to_s),
-                fun_def.location, fun_def.identifier_list.size)
-      end
+      FN_PARA(FunctionId.new(fun_def.identifier.value, fun_def.signature.to_s),
+              fun_def.location, fun_def.identifier_list.size)
     end
   end
 
@@ -313,10 +297,8 @@ module CBuiltin #:nodoc:
     def do_execute(*) end
 
     def enter_function(fun_def, *)
-      if @fpath == fun_def.location.fpath
-        @cur_fun = fun_def
-        @vars = {}
-      end
+      @cur_fun = fun_def
+      @vars = {}
     end
 
     def leave_function(*)
@@ -379,10 +361,8 @@ module CBuiltin #:nodoc:
     def do_execute(*) end
 
     def enter_function(fun_def)
-      if @fpath == fun_def.location.fpath
-        @cur_fun = fun_def
-        @funcall_cnt = 0
-      end
+      @cur_fun = fun_def
+      @funcall_cnt = 0
     end
 
     def leave_function(*)
@@ -423,10 +403,8 @@ module CBuiltin #:nodoc:
     def do_execute(*) end
 
     def enter_function(fun_def)
-      if @fpath == fun_def.location.fpath
-        @cur_fun = fun_def
-        @goto_cnt = 0
-      end
+      @cur_fun = fun_def
+      @goto_cnt = 0
     end
 
     def leave_function(*)
@@ -483,11 +461,9 @@ module CBuiltin #:nodoc:
     def do_execute(*) end
 
     def enter_function(fun_def)
-      if @fpath == fun_def.location.fpath
-        @cur_fun  = fun_def
-        @ret_cnt  = 0
-        @lst_stmt = nil
-      end
+      @cur_fun  = fun_def
+      @ret_cnt  = 0
+      @lst_stmt = nil
     end
 
     def leave_function(*)
@@ -545,11 +521,9 @@ module CBuiltin #:nodoc:
     def do_execute(*) end
 
     def enter_function(fun_def)
-      if @fpath == fun_def.location.fpath
-        @cur_fun = fun_def
-        @if_else_stmt_chain = 0
-        @incomplete_if_else_stmt_cnt = 0
-      end
+      @cur_fun = fun_def
+      @if_else_stmt_chain = 0
+      @incomplete_if_else_stmt_cnt = 0
     end
 
     def leave_function(*)
@@ -605,13 +579,11 @@ module CBuiltin #:nodoc:
     def do_execute(*) end
 
     def enter_function(fun_def)
-      if @fpath == fun_def.location.fpath
-        @cur_fun = fun_def
-        # NOTE: Nest level of the top of the function is 0.
-        #       Function definition must have a compound-statement as the
-        #       function body.
-        @max_nest_level = @cur_nest_level = -1
-      end
+      @cur_fun = fun_def
+      # NOTE: Nest level of the top of the function is 0.
+      #       Function definition must have a compound-statement as the
+      #       function body.
+      @max_nest_level = @cur_nest_level = -1
     end
 
     def leave_function(fun_def)
@@ -682,18 +654,15 @@ module CBuiltin #:nodoc:
     def do_execute(*) end
 
     def enter_function(fun_def, *)
-      if @fpath == fun_def.location.fpath
-        @cur_fun = fun_def
-
-        # NOTE: Number of paths in the current function.
-        @paths_in_fun = 1
-        # NOTE: Stack of the number of paths to enter the current branch group.
-        @paths_to_enter_branch_group = [@paths_in_fun]
-        # NOTE: Stack of the number of paths in the current branch.
-        @paths_in_branch = [@paths_in_fun]
-        # NOTE: Stack of the number of paths in the current branch group.
-        @paths_in_branch_group = [@paths_in_fun]
-      end
+      @cur_fun = fun_def
+      # NOTE: Number of paths in the current function.
+      @paths_in_fun = 1
+      # NOTE: Stack of the number of paths to enter the current branch group.
+      @paths_to_enter_branch_group = [@paths_in_fun]
+      # NOTE: Stack of the number of paths in the current branch.
+      @paths_in_branch = [@paths_in_fun]
+      # NOTE: Stack of the number of paths in the current branch group.
+      @paths_in_branch_group = [@paths_in_fun]
     end
 
     def leave_function(*)
@@ -769,10 +738,8 @@ module CBuiltin #:nodoc:
     def do_execute(*) end
 
     def enter_function(fun_def)
-      if @fpath == fun_def.location.fpath
-        @cur_fun = fun_def
-        @cycl_compl = 0
-      end
+      @cur_fun = fun_def
+      @cycl_compl = 0
     end
 
     def leave_function(*)

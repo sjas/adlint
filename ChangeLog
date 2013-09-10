@@ -1,3 +1,9 @@
+Tue Sep 10 12:56:04 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/exam/c_builtin/cc1_metric.rb : Fix code metric measurement
+	  so that metrics of the function defined in the header file can be
+	  measured.
+
 Fri Sep  6 18:46:53 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* lib/adlint/exam/c_builtin/cpp_check.rb : Abbreviate wordy names.

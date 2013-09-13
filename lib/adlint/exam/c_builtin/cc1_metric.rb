@@ -70,7 +70,9 @@ module CBuiltin #:nodoc:
     def do_execute(*) end
 
     def count_statement(stmt)
-      @stmt_cnt += 1
+      if @fpath == stmt.location.fpath
+        @stmt_cnt += 1
+      end
     end
 
     def measure(*)
@@ -96,7 +98,9 @@ module CBuiltin #:nodoc:
     def do_execute(*) end
 
     def count_function(fun_def)
-      @fun_cnt += 1
+      if @fpath == fun_def.location.fpath
+        @fun_cnt += 1
+      end
     end
 
     def measure(*)

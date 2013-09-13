@@ -26,6 +26,8 @@ etc/conf.d/noarch/GNUmakefile.erb
 etc/conf.d/noarch/adlint_all_bat.erb
 etc/conf.d/noarch/adlint_all_sh.erb
 etc/conf.d/noarch/pinit.erb
+etc/conf.d/x86_64-centos_6.4/cinit-gcc_4.4.7.erb
+etc/conf.d/x86_64-centos_6.4/traits-gcc_4.4.7.erb
 etc/conf.d/x86_64-ubuntu_12.04/cinit-gcc_4.6.3.erb
 etc/conf.d/x86_64-ubuntu_12.04/traits-gcc_4.6.3.erb
 etc/mesg.d/c_builtin/en_US/messages.yml

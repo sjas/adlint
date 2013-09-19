@@ -5579,6 +5579,21 @@ module Cc1 #:nodoc:
       # NOTE: To treat address of variables as an address-constant.
     end
 
+    def visit_comma_separated_expression(node)
+      # NOTE: A constant-expression should not contain comma-operators.
+      #
+      # NOTE: The ISO C99 standard says;
+      #
+      # 6.6 Constant expressions
+      #
+      # Constraints
+      #
+      # 3 Constant expressions shall not contain assignment, increment,
+      #   decrement, function-call, or comma operators, except when they are
+      #   contained within a subexpression that is not evaluated.
+      break_as_inconstant
+    end
+
     def break_as_inconstant(*)
       throw(:constancy, false)
     end

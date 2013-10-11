@@ -380,7 +380,7 @@ module Cc1 #:nodoc:
 
     private
     def scalar_value_of_null
-      ScalarValue.of(0, logical_shr?)
+      ScalarValue.of_null(logical_shr?)
     end
 
     def scalar_value_of_true
@@ -436,6 +436,12 @@ module Cc1 #:nodoc:
     end
 
     def of_false(logical_shr)
+      of(0, logical_shr)
+    end
+
+    def of_null(logical_shr)
+      # TODO: NULL may not be 0 on some environments. Representation of NULL
+      #       should be configurable?
       of(0, logical_shr)
     end
 

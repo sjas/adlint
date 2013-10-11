@@ -221,6 +221,16 @@ positive               -> pos
 negative               -> neg
 evidence               -> evid
 traversal              -> trav
+increment              -> inc
+decrement              -> dec
+prefix-increment       -> preinc
+prefix-decrement       -> predec
+postfix-increment      -> pstinc
+postfix-decrement      -> pstdec
+string-literal         -> strlit
+compound-literal       -> complit
+exclusive-or           -> xor
+inclusive-or           -> ior
 @end verbatim
 
 

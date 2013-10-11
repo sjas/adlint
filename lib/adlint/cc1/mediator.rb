@@ -173,8 +173,16 @@ module Cc1 #:nodoc:
     def_delegator :interpreter, :notify_variable_value_updated
     def_delegator :interpreter, :notify_function_referred
     def_delegator :interpreter, :notify_implicit_function_declared
+    def_delegator :interpreter, :notify_error_expr_evaled
+    def_delegator :interpreter, :notify_object_specifier_evaled
+    def_delegator :interpreter, :notify_constant_specifier_evaled
+    def_delegator :interpreter, :notify_string_literal_specifier_evaled
+    def_delegator :interpreter, :notify_null_constant_specifier_evaled
     def_delegator :interpreter, :notify_sizeof_expr_evaled
     def_delegator :interpreter, :notify_sizeof_type_expr_evaled
+    def_delegator :interpreter, :notify_alignof_expr_evaled
+    def_delegator :interpreter, :notify_alignof_type_expr_evaled
+    def_delegator :interpreter, :notify_cast_expr_evaled
     def_delegator :interpreter, :notify_explicit_conv_performed
     def_delegator :interpreter, :notify_implicit_conv_performed
     def_delegator :interpreter, :notify_address_derivation_performed
@@ -195,10 +203,12 @@ module Cc1 #:nodoc:
     def_delegator :interpreter, :notify_address_expr_evaled
     def_delegator :interpreter, :notify_indirection_expr_evaled
     def_delegator :interpreter, :notify_member_access_expr_evaled
+    def_delegator :interpreter, :notify_bit_access_expr_evaled
     def_delegator :interpreter, :notify_prefix_increment_expr_evaled
     def_delegator :interpreter, :notify_postfix_increment_expr_evaled
     def_delegator :interpreter, :notify_prefix_decrement_expr_evaled
     def_delegator :interpreter, :notify_postfix_decrement_expr_evaled
+    def_delegator :interpreter, :notify_compound_literal_expr_evaled
     def_delegator :interpreter, :notify_assignment_expr_evaled
     def_delegator :interpreter, :notify_expression_stmt_started
     def_delegator :interpreter, :notify_expression_stmt_ended
@@ -268,6 +278,10 @@ module Cc1 #:nodoc:
 
     def scalar_value_of_false
       ScalarValue.of_false(logical_right_shift?)
+    end
+
+    def scalar_value_of_null
+      ScalarValue.of_null(logical_right_shift?)
     end
 
     def scalar_value_of_arbitrary

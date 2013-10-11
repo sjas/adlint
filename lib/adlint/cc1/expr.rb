@@ -47,7 +47,7 @@ module Cc1 #:nodoc:
 
     def visit_error_expression(node)
       checkpoint(node.location)
-      create_tmpvar
+      create_tmpvar.tap { |rslt_var| notify_error_expr_evaled(node, rslt_var) }
     end
 
     def visit_object_specifier(node)
@@ -60,10 +60,13 @@ module Cc1 #:nodoc:
 
       if const_var = eval_constant(node)
         notify_constant_referred(node, const_var)
-        const_var
+        rslt_var = const_var
       else
-        create_tmpvar
+        rslt_var = create_tmpvar
       end
+
+      notify_constant_specifier_evaled(node, rslt_var)
+      rslt_var
     end
 
     def visit_string_literal_specifier(node)
@@ -71,21 +74,24 @@ module Cc1 #:nodoc:
 
       case node.literal.value
       when /\A"(.*)"\z/
-        create_tmpvar(array_type(char_t, $1.length + 1),
-                      create_array_value_of_string($1))
+        rslt_var = create_tmpvar(array_type(char_t, $1.length + 1),
+                                 create_array_value_of_string($1))
       when /\AL"(.*)"\z/i
-        create_tmpvar(array_type(wchar_t, $1.length + 1),
-                      create_array_value_of_string($1))
+        rslt_var = create_tmpvar(array_type(wchar_t, $1.length + 1),
+                                 create_array_value_of_string($1))
       else
-        create_tmpvar(array_type(char_t))
+        rslt_var = create_tmpvar(array_type(char_t))
       end
+
+      notify_string_literal_specifier_evaled(node, rslt_var)
+      rslt_var
     end
 
     def visit_null_constant_specifier(node)
       checkpoint(node.location)
-      # TODO: NULL may not be 0 on some environments.
-      #       Representation of NULL should be configurable?
-      create_tmpvar(pointer_type(void_t), scalar_value_of(0))
+      rslt_var = create_tmpvar(pointer_type(void_t), scalar_value_of_null)
+      notify_null_constant_specifier_evaled(node, rslt_var)
+      rslt_var
     end
 
     def visit_grouped_expression(node)
@@ -117,14 +123,12 @@ module Cc1 #:nodoc:
 
     def visit_bit_access_by_value_expression(node)
       checkpoint(node.location)
-      # TODO: Should support the GCC extension.
-      create_tmpvar
+      eval_bit_access_by_value_expr(node, node.expression.accept(self))
     end
 
     def visit_bit_access_by_pointer_expression(node)
       checkpoint(node.location)
-      # TODO: Should support the GCC extension.
-      create_tmpvar
+      eval_bit_access_by_pointer_expr(node, node.expression.accept(self))
     end
 
     def visit_postfix_increment_expression(node)
@@ -139,8 +143,7 @@ module Cc1 #:nodoc:
 
     def visit_compound_literal_expression(node)
       checkpoint(node.location)
-      # TODO: Should support C99 features.
-      create_tmpvar(node.type_name.type)
+      eval_compound_literal_expr(node)
     end
 
     def visit_prefix_increment_expression(node)
@@ -179,7 +182,7 @@ module Cc1 #:nodoc:
           size = ope_obj.type.aligned_byte_size
           rslt_var = create_tmpvar(rslt_type, scalar_value_of(size))
         else
-          return create_tmpvar(rslt_type)
+          rslt_var = create_tmpvar(rslt_type)
         end
       end
 
@@ -205,27 +208,35 @@ module Cc1 #:nodoc:
     def visit_alignof_expression(node)
       checkpoint(node.location)
 
+      ope_obj = rslt_var = nil
       eval_without_side_effect do
         rslt_type = type_of(UserTypeId.new("size_t")) || unsigned_long_t
         ope_obj = node.operand.accept(self)
         if ope_obj.variable?
           align = ope_obj.type.byte_alignment
-          create_tmpvar(rslt_type, scalar_value_of(align))
+          rslt_var = create_tmpvar(rslt_type, scalar_value_of(align))
         else
-          create_tmpvar(rslt_type)
+          rslt_var = create_tmpvar(rslt_type)
         end
       end
+
+      notify_alignof_expr_evaled(node, ope_obj, rslt_var)
+      rslt_var
     end
 
     def visit_alignof_type_expression(node)
       checkpoint(node.location)
       resolve_unresolved_type(node.operand)
 
+      rslt_var = nil
       eval_without_side_effect do
         rslt_type = type_of(UserTypeId.new("size_t")) || unsigned_long_t
         align = node.operand.type.aligned_byte_size
-        create_tmpvar(rslt_type, scalar_value_of(align))
+        rslt_var = create_tmpvar(rslt_type, scalar_value_of(align))
       end
+
+      notify_alignof_type_expr_evaled(node, node.operand.type, rslt_var)
+      rslt_var
     end
 
     def visit_cast_expression(node)
@@ -430,7 +441,8 @@ module Cc1 #:nodoc:
       #       NotifierMediator and Conversion.
 
       def eval_object_specifier(node)
-        if var = variable_named(node.identifier.value)
+        case
+        when var = variable_named(node.identifier.value)
           var.declarations_and_definitions.each do |dcl_or_def|
             dcl_or_def.mark_as_referred_by(node.identifier)
           end
@@ -438,26 +450,24 @@ module Cc1 #:nodoc:
           # NOTE: Array object will be converted into its start address by the
           #       outer expression.  So, it is correct to return an array
           #       object itself.
-          return var
-        end
-
-        if fun = function_named(node.identifier.value)
+          rslt_obj = var
+        when fun = function_named(node.identifier.value)
           fun.declarations_and_definitions.each do |dcl_or_def|
             dcl_or_def.mark_as_referred_by(node.identifier)
           end
           _notify_object_referred(node, fun)
-          return fun
-        end
-
-        if enum = enumerator_named(node.identifier.value)
+          rslt_obj = fun
+        when enum = enumerator_named(node.identifier.value)
           enum.mark_as_referred_by(node.identifier)
-          return create_tmpvar(enum.type, scalar_value_of(enum.value))
+          rslt_obj = create_tmpvar(enum.type, scalar_value_of(enum.value))
+        else
+          fun = declare_implicit_function(node.identifier.value)
+          _notify_implicit_function_declared(node, fun)
+          _notify_object_referred(node, fun)
+          rslt_obj = fun
         end
-
-        fun = declare_implicit_function(node.identifier.value)
-        _notify_implicit_function_declared(node, fun)
-        _notify_object_referred(node, fun)
-        fun
+        notify_object_specifier_evaled(node, rslt_obj)
+        rslt_obj
       end
 
       def eval_array_subscript_expr(node, obj, subs)
@@ -619,6 +629,46 @@ module Cc1 #:nodoc:
         end
       end
 
+      def eval_bit_access_by_value_expr(node, obj)
+        if obj.variable? && obj.type.composite?
+          outer_var = obj
+        else
+          return create_tmpvar
+        end
+
+        # TODO: Should support the GCC extension.
+        create_tmpvar.tap do |rslt_var|
+          notify_bit_access_expr_evaled(node, outer_var, rslt_var)
+        end
+      end
+
+      def eval_bit_access_by_pointer_expr(node, obj)
+        obj_type = obj.type.unqualify
+        if obj.variable? && obj_type.pointer? && obj_type.base_type.composite?
+          ptr = obj
+        else
+          return create_tmpvar
+        end
+
+        if pointee = pointee_of(ptr)
+          if pointee.type.array?
+            if first_elem = pointee.inner_variable_at(0)
+              pointee = first_elem
+            else
+              pointee = create_tmpvar(obj_type.base_type)
+            end
+          end
+        end
+        # NOTE: A bit-access-by-pointer-expression do refers the value of the
+        #       pointer object.
+        _notify_variable_value_referred(node, ptr)
+
+        # TODO: Should support the GCC extension.
+        create_tmpvar.tap do |rslt_var|
+          notify_bit_access_expr_evaled(node, ptr, rslt_var)
+        end
+      end
+
       def eval_postfix_increment_expr(node, obj)
         var = object_to_variable(obj, node)
         if !var.type.scalar? && !var.type.void?
@@ -711,6 +761,13 @@ module Cc1 #:nodoc:
         create_tmpvar(var.type, var.value)
       end
 
+      def eval_compound_literal_expr(node)
+        # TODO: Should support C99 features.
+        create_tmpvar(node.type_name.type).tap do |rslt_var|
+          notify_compound_literal_expr_evaled(node, rslt_var)
+        end
+      end
+
       def eval_address_expr(node, obj)
         # NOTE: An address-expression does not read the value of the object.
         #       But value reference should be notified to emphasize global
@@ -799,6 +856,8 @@ module Cc1 #:nodoc:
         #       is discarded when the return value is casted before assigning
         #       to a variable.
         _notify_variable_value_referred(node, var)
+
+        notify_cast_expr_evaled(node, var, rslt_var)
         rslt_var
       end
 

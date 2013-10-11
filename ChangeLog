@@ -1,3 +1,13 @@
+Fri Oct 11 18:34:19 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/cc1/expr.rb : Add event notifications in order to cover
+	  all kinds of expression evaluations.
+	* lib/adlint/cc1/interp.rb : Ditto.
+	* lib/adlint/cc1/mediator.rb : Ditto.
+
+	* lib/adlint/cc1/value.rb : Add ScalarValueFactory#of_null method to
+	  confine a knowledge about representation of NULL to one place.
+
 Thu Sep 19 16:55:45 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* lib/adlint/cc1/syntax.rb : Fix incomplete expression-constancy check

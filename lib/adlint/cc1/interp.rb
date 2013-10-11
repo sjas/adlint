@@ -182,11 +182,35 @@ module Cc1 #:nodoc:
     #       implicit function.
     def_plugin_and_notifier :implicit_function_declared, :obj_spec, :fun
 
+    # NOTE: Notified when the interpreter evaluates an error-expression.
+    def_plugin_and_notifier :error_expr_evaled, :expr, :rslt_var
+
+    # NOTE: Notified when the interpreter evaluates an object-specifier.
+    def_plugin_and_notifier :object_specifier_evaled, :expr, :rslt_obj
+
+    # NOTE: Notified when the interpreter evaluates a constant-specifier.
+    def_plugin_and_notifier :constant_specifier_evaled, :expr, :rslt_var
+
+    # NOTE: Notified when the interpreter evaluates a string-literal-specifier.
+    def_plugin_and_notifier :string_literal_specifier_evaled, :expr, :rslt_var
+
+    # NOTE: Notified when the interpreter evaluates a null-constant-specifier.
+    def_plugin_and_notifier :null_constant_specifier_evaled, :expr, :rslt_var
+
     # NOTE: Notified when the interpreter evaluates a sizeof-expression.
     def_plugin_and_notifier :sizeof_expr_evaled, :expr, :ope_var, :rslt_var
 
     # NOTE: Notified when the interpreter evaluates a sizeof-type-expression.
     def_plugin_and_notifier :sizeof_type_expr_evaled, :expr, :type, :rslt_var
+
+    # NOTE: Notified when the interpreter evaluates an alignof-expression.
+    def_plugin_and_notifier :alignof_expr_evaled, :expr, :ope_var, :rslt_var
+
+    # NOTE: Notified when the interpreter evaluates an alignof-type-expression.
+    def_plugin_and_notifier :alignof_type_expr_evaled, :expr, :type, :rslt_var
+
+    # NOTE: Notified when the interpreter evaluates a cast-expression.
+    def_plugin_and_notifier :cast_expr_evaled, :expr, :ope_var, :rslt_var
 
     # NOTE: Notified when the interpreter evaluates a cast-expression.
     def_plugin_and_notifier :explicit_conv_performed,
@@ -277,6 +301,12 @@ module Cc1 #:nodoc:
                             :expr, :outer_var, :inner_var
 
     # NOTE: Notified when the interpreter evaluates a
+    #       bit-access-by-value-expression or a
+    #       bit-access-by-pointer-expression.
+    def_plugin_and_notifier :bit_access_expr_evaled,
+                            :expr, :outer_var, :inner_var
+
+    # NOTE: Notified when the interpreter evaluates a
     #       prefix-increment-expression.
     def_plugin_and_notifier :prefix_increment_expr_evaled,
                             :expr, :ope_var, :orig_val
@@ -295,6 +325,10 @@ module Cc1 #:nodoc:
     #       postfix-decrement-expression.
     def_plugin_and_notifier :postfix_decrement_expr_evaled,
                             :expr, :ope_var, :rslt_var
+
+    # NOTE: Notified when the interpreter evaluates a
+    #       compound-literal-expression.
+    def_plugin_and_notifier :compound_literal_expr_evaled, :expr, :rslt_var
 
     # NOTE: Notified when the interpreter evaluates a
     #       simple-assignment-expression or a compound-assignment-expression.

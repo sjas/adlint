@@ -71,6 +71,12 @@ module AdLint #:nodoc:
       end
     end
 
+    module Passivation
+      private
+      def do_prepare(phase_ctxt) end
+      def do_execute(phase_ctxt) end
+    end
+
     def initialize(phase_ctxt)
       @phase_ctxt = phase_ctxt
     end
@@ -261,9 +267,7 @@ module AdLint #:nodoc:
   end
 
   class PassiveCodeCheck < CodeCheck
-    private
-    def do_prepare(phase_ctxt) end
-    def do_execute(phase_ctxt) end
+    include Passivation
   end
 
   # == DESCRIPTION

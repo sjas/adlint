@@ -1,3 +1,9 @@
+Wed Oct 16 17:50:37 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/exam.rb : Clip code-exam passivation feature into
+	  Examination::Passivation module in order to easily create passive
+	  code-exam classes.
+
 Fri Oct 11 18:34:19 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* lib/adlint/cc1/expr.rb : Add event notifications in order to cover

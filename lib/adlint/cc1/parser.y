@@ -658,14 +658,14 @@ init_declarator
     : declarator
       {
         checkpoint(val[0].location)
-        result = InitDeclarator.new(val[0], nil)
+        result = InitDeclarator.new(val[0], nil, nil)
         result.head_token = val[0].head_token
         result.tail_token = val[0].tail_token
       }
     | declarator "=" initializer
       {
         checkpoint(val[0].location)
-        result = InitDeclarator.new(val[0], val[2])
+        result = InitDeclarator.new(val[0], val[2], val[1])
         result.head_token = val[0].head_token
         result.tail_token = val[2].tail_token
       }

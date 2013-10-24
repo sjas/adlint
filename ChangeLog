@@ -1,3 +1,10 @@
+Thu Oct 24 11:16:20 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/cc1/syntax.rb : Add equals sign to the init-declarator
+	  node in AST.
+	* lib/adlint/cc1/parser.y : Ditto.
+	* spec/adlint/cc1/ctrlexpr_spec.rb : Ditto.
+
 Wed Oct 16 17:50:37 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* lib/adlint/exam.rb : Clip code-exam passivation feature into

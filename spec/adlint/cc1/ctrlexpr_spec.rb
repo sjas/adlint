@@ -149,7 +149,7 @@ module Cc1
     end
 
     def uninitialized_int_dcl(name)
-      InitDeclarator.new(IdentifierDeclarator.new(id_of(name)), nil)
+      InitDeclarator.new(IdentifierDeclarator.new(id_of(name)), nil, nil)
     end
 
     def int_t_spec

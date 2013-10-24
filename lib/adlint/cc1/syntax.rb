@@ -2692,14 +2692,16 @@ module Cc1 #:nodoc:
   end
 
   class InitDeclarator < SyntaxNode
-    def initialize(dcr, init)
+    def initialize(dcr, init, equals_sign)
       super()
       @declarator = dcr
       @initializer = init
+      @equals_sign = equals_sign
     end
 
     attr_reader :declarator
     attr_reader :initializer
+    attr_reader :equals_sign
 
     def location
       @declarator.identifier.location
@@ -4102,7 +4104,7 @@ module Cc1 #:nodoc:
     end
 
     def implicit_parameter_definition(id, sym_tbl)
-      init_dcr = InitDeclarator.new(IdentifierDeclarator.new(id), nil)
+      init_dcr = InitDeclarator.new(IdentifierDeclarator.new(id), nil, nil)
       Declaration.new(nil, [init_dcr], sym_tbl)
     end
   end
@@ -4174,7 +4176,7 @@ module Cc1 #:nodoc:
 
     def to_variable_definition
       PseudoVariableDefinition.new(declaration_specifiers,
-                                   InitDeclarator.new(@declarator, nil),
+                                   InitDeclarator.new(@declarator, nil, nil),
                                    type)
     end
 

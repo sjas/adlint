@@ -1,3 +1,12 @@
+Fri Oct 25 13:08:26 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/cc1/interp.rb : Revise the interpreter interface in order
+	  to make evaluation modes of notification and side-effects suppression
+	  are orthogonal.
+	* lib/adlint/cc1/option.rb : Ditto.
+	* lib/adlint/cc1/expr.rb : Ditto.
+	* lib/adlint/exam/c_builtin/cc1_check.rb : Ditto.
+
 Thu Oct 24 11:16:20 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* lib/adlint/cc1/syntax.rb : Add equals sign to the init-declarator

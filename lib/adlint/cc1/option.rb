@@ -34,7 +34,7 @@ module Cc1 #:nodoc:
 
   module InterpreterOptions
     QUIET = :quiet
-    QUIET_WITHOUT_SIDE_EFFECT = :quiet_without_side_effect
+    WITHOUT_SIDE_EFFECTS = :without_side_effects
   end
 
   module BranchOptions

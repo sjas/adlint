@@ -175,7 +175,7 @@ module Cc1 #:nodoc:
       checkpoint(node.location)
 
       ope_obj = rslt_var = nil
-      eval_without_side_effect do
+      eval_quietly_without_side_effects do
         rslt_type = type_of(UserTypeId.new("size_t")) || unsigned_long_t
         ope_obj = node.operand.accept(self)
         if ope_obj.variable?
@@ -195,7 +195,7 @@ module Cc1 #:nodoc:
       resolve_unresolved_type(node.operand)
 
       rslt_var = nil
-      eval_without_side_effect do
+      eval_quietly_without_side_effects do
         rslt_type = type_of(UserTypeId.new("size_t")) || unsigned_long_t
         size = node.operand.type.aligned_byte_size
         rslt_var = create_tmpvar(rslt_type, scalar_value_of(size))
@@ -209,7 +209,7 @@ module Cc1 #:nodoc:
       checkpoint(node.location)
 
       ope_obj = rslt_var = nil
-      eval_without_side_effect do
+      eval_quietly_without_side_effects do
         rslt_type = type_of(UserTypeId.new("size_t")) || unsigned_long_t
         ope_obj = node.operand.accept(self)
         if ope_obj.variable?
@@ -229,7 +229,7 @@ module Cc1 #:nodoc:
       resolve_unresolved_type(node.operand)
 
       rslt_var = nil
-      eval_without_side_effect do
+      eval_quietly_without_side_effects do
         rslt_type = type_of(UserTypeId.new("size_t")) || unsigned_long_t
         align = node.operand.type.aligned_byte_size
         rslt_var = create_tmpvar(rslt_type, scalar_value_of(align))
@@ -414,21 +414,24 @@ module Cc1 #:nodoc:
     end
 
     private
-    def eval_without_side_effect(&block)
-      originally_quiet = interpreter.quiet_without_side_effect?
-      unless originally_quiet
-        interpreter._quiet_without_side_effect = true
+    def eval_quietly_without_side_effects(&block)
+      unless orig_quiet = interpreter.quiet?
+        interpreter._quiet = true
+      end
+      unless orig_without_side_effects = interpreter.without_side_effects?
+        interpreter._without_side_effects = true
       end
       yield
     ensure
-      unless originally_quiet
-        interpreter._quiet_without_side_effect = false
+      unless orig_quiet
+        interpreter._quiet = false
         # FIXME: Evaluation of an object-specifier doesn't refer to value
         #        of a variable.  Thus, no cross-reference record on a
         #        sizeof-expression because cross-reference extraction
         #        watches variable value reference not variable reference.
         # collect_object_specifiers(node).each { |os| os.accept(self) }
       end
+      interpreter._without_side_effects = orig_without_side_effects
     end
 
     def create_array_value_of_string(str)

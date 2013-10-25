@@ -16181,7 +16181,7 @@ module CBuiltin #:nodoc:
       return unless ary
 
       unless constant_expression?(subs_expr)
-        subs = interpret(subs_expr, QUIET_WITHOUT_SIDE_EFFECT)
+        subs = interpret(subs_expr, QUIET, WITHOUT_SIDE_EFFECTS)
         warn_array_oob_access(expr.operand, ary, subs)
       end
     end
@@ -17750,7 +17750,7 @@ module CBuiltin #:nodoc:
       return unless ary
 
       unless constant_expression?(subs_expr)
-        subs = interpret(subs_expr, QUIET_WITHOUT_SIDE_EFFECT)
+        subs = interpret(subs_expr, QUIET, WITHOUT_SIDE_EFFECTS)
         warn_array_oob_access(expr.operand, ary, subs)
       end
     end

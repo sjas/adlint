@@ -74,9 +74,9 @@ module Cc1 #:nodoc:
     include InterpreterOptions
     include BranchOptions
 
-    def initialize(type_tbl)
+    def initialize(type_tbl, env = nil)
       @type_table    = type_tbl
-      @environment   = Environment.new(type_tbl)
+      @environment   = env || Environment.new(type_tbl)
       @type_resolver = DynamicTypeResolver.new(type_tbl, self)
 
       @sub_interpreters = [
@@ -453,7 +453,7 @@ module Cc1 #:nodoc:
 
     def execute(node, *opts)
       @options_stack.push(cur_opts + opts)
-      if quiet_without_side_effect?
+      if without_side_effects?
         rslt = nil
         branched_eval(nil, FINAL) do
           rslt = node.accept(interpreter_for(node))
@@ -469,7 +469,7 @@ module Cc1 #:nodoc:
     end
 
     def quiet?
-      cur_opts.include?(QUIET) || cur_opts.include?(QUIET_WITHOUT_SIDE_EFFECT)
+      cur_opts.include?(QUIET)
     end
 
     def _quiet=(quiet)
@@ -481,16 +481,16 @@ module Cc1 #:nodoc:
       end
     end
 
-    def quiet_without_side_effect?
-      cur_opts.include?(QUIET_WITHOUT_SIDE_EFFECT)
+    def without_side_effects?
+      cur_opts.include?(WITHOUT_SIDE_EFFECTS)
     end
 
-    def _quiet_without_side_effect=(quiet_without_side_effect)
+    def _without_side_effects=(without_side_effects)
       # NOTE: This method is called only from ExpressionEvaluator.
-      if quiet_without_side_effect
-        cur_opts.add(QUIET_WITHOUT_SIDE_EFFECT)
+      if without_side_effects
+        cur_opts.add(WITHOUT_SIDE_EFFECTS)
       else
-        cur_opts.delete(QUIET_WITHOUT_SIDE_EFFECT)
+        cur_opts.delete(WITHOUT_SIDE_EFFECTS)
       end
     end
 

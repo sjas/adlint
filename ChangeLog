@@ -1,3 +1,10 @@
+Fri Oct 25 15:06:29 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/cc1/type.rb : Add predicate method Type#named? which
+	  indicates whether a type has been declared with a tag or not.
+	* lib/adlint/cc1/parser.y : Ditto.
+	* lib/adlint/cc1/syntax.rb : Ditto.
+
 Fri Oct 25 13:08:26 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* lib/adlint/cc1/interp.rb : Revise the interpreter interface in order

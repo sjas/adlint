@@ -834,28 +834,28 @@ struct_or_union_specifier
     | STRUCT "{" struct_declaration_list "}"
       {
         checkpoint(val[0].location)
-        result = StructSpecifier.new(create_anon_tag_name(val[0]), val[2])
+        result = StructSpecifier.new(create_anon_tag_name(val[0]), val[2], true)
         result.head_token = val[0]
         result.tail_token = val[3]
       }
     | STRUCT "{" "}"
       {
         checkpoint(val[0].location)
-        result = StructSpecifier.new(create_anon_tag_name(val[0]), [])
+        result = StructSpecifier.new(create_anon_tag_name(val[0]), [], true)
         result.head_token = val[0]
         result.tail_token = val[2]
       }
     | UNION "{" struct_declaration_list "}"
       {
         checkpoint(val[0].location)
-        result = UnionSpecifier.new(create_anon_tag_name(val[0]), val[2])
+        result = UnionSpecifier.new(create_anon_tag_name(val[0]), val[2], true)
         result.head_token = val[0]
         result.tail_token = val[3]
       }
     | UNION "{" "}"
       {
         checkpoint(val[0].location)
-        result = UnionSpecifier.new(create_anon_tag_name(val[0]), [])
+        result = UnionSpecifier.new(create_anon_tag_name(val[0]), [], true)
         result.head_token = val[0]
         result.tail_token = val[2]
       }
@@ -982,7 +982,8 @@ enum_specifier
     : ENUM "{" enumerator_list "}"
       {
         checkpoint(val[0].location)
-        result = EnumSpecifier.new(create_anon_tag_name(val[0]), val[2])
+        result = EnumSpecifier.new(create_anon_tag_name(val[0]),
+                                   val[2], nil, true)
         result.head_token = val[0]
         result.tail_token = val[3]
         result.enumerators.each do |enum|
@@ -1003,7 +1004,7 @@ enum_specifier
       {
         checkpoint(val[0].location)
         result = EnumSpecifier.new(create_anon_tag_name(val[0]),
-                                   val[2], val[3])
+                                   val[2], val[3], true)
         result.head_token = val[0]
         result.tail_token = val[4]
         result.enumerators.each do |enum|

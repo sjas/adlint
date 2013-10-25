@@ -2766,10 +2766,11 @@ module Cc1 #:nodoc:
   end
 
   class StructSpecifier < TypeSpecifier
-    def initialize(id, struct_dcls)
+    def initialize(id, struct_dcls, anonymous = false)
       super()
       @identifier = id
       @struct_declarations = struct_dcls
+      @anonymous = anonymous
     end
 
     attr_reader :identifier
@@ -2777,6 +2778,10 @@ module Cc1 #:nodoc:
 
     def location
       @identifier.location
+    end
+
+    def anonymous?
+      @anonymous
     end
 
     def to_s
@@ -2798,10 +2803,11 @@ module Cc1 #:nodoc:
   end
 
   class UnionSpecifier < TypeSpecifier
-    def initialize(id, struct_dcls)
+    def initialize(id, struct_dcls, anonymous = false)
       super()
       @identifier = id
       @struct_declarations = struct_dcls
+      @anonymous = anonymous
     end
 
     attr_reader :identifier
@@ -2809,6 +2815,10 @@ module Cc1 #:nodoc:
 
     def location
       @identifier.location
+    end
+
+    def anonymous?
+      @anonymous
     end
 
     def to_s
@@ -2938,11 +2948,12 @@ module Cc1 #:nodoc:
   end
 
   class EnumSpecifier < TypeSpecifier
-    def initialize(id, enums, trailing_comma = nil)
+    def initialize(id, enums, trailing_comma = nil, anonymous = false)
       super()
       @identifier = id
       @enumerators = enums
       @trailing_comma = trailing_comma
+      @anonymous = anonymous
     end
 
     attr_reader :identifier
@@ -2951,6 +2962,10 @@ module Cc1 #:nodoc:
 
     def location
       @identifier.location
+    end
+
+    def anonymous?
+      @anonymous
     end
 
     def to_s

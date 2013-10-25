@@ -164,6 +164,10 @@ module Cc1 #:nodoc:
       subclass_responsibility
     end
 
+    def named?
+      subclass_responsibility
+    end
+
     def bit_size
       subclass_responsibility
     end
@@ -668,6 +672,10 @@ module Cc1 #:nodoc:
 
     def location
       nil
+    end
+
+    def named?
+      false
     end
 
     def bit_size
@@ -1179,6 +1187,10 @@ module Cc1 #:nodoc:
 
     def location
       nil
+    end
+
+    def named?
+      false
     end
 
     def bit_size
@@ -1696,6 +1708,7 @@ module Cc1 #:nodoc:
 
     def_delegator :@base_type, :declarations
     def_delegator :@base_type, :location
+    def_delegator :@base_type, :named?
     def_delegator :@base_type, :bit_size
     def_delegator :@base_type, :bit_alignment
 
@@ -1915,6 +1928,10 @@ module Cc1 #:nodoc:
 
     def location
       nil
+    end
+
+    def named?
+      true
     end
 
     def bit_size
@@ -2431,6 +2448,10 @@ module Cc1 #:nodoc:
 
     def location
       nil
+    end
+
+    def named?
+      true
     end
 
     def bit_size
@@ -2993,6 +3014,10 @@ module Cc1 #:nodoc:
       subclass_responsibility
     end
 
+    def named?
+      subclass_responsibility
+    end
+
     def real_type
       self
     end
@@ -3537,6 +3562,10 @@ module Cc1 #:nodoc:
   class StandardIntegerType < IntegerType
     def id
       subclass_responsibility
+    end
+
+    def named?
+      true
     end
 
     def incomplete?
@@ -4821,6 +4850,10 @@ module Cc1 #:nodoc:
       @id ||= BitfieldTypeId.new(@base_type, bit_size)
     end
 
+    def named?
+      true
+    end
+
     def incomplete?
       @base_type.incomplete?
     end
@@ -4937,6 +4970,10 @@ module Cc1 #:nodoc:
 
     def id
       @id ||= EnumTypeId.new(name)
+    end
+
+    def named?
+      declarations.all? { |dcl| !dcl.enum_specifier.anonymous? }
     end
 
     def incomplete?
@@ -5069,6 +5106,10 @@ module Cc1 #:nodoc:
 
     def brief_image
       create_brief_image(@base_type)
+    end
+
+    def named?
+      true
     end
 
     def real_type
@@ -5348,6 +5389,10 @@ module Cc1 #:nodoc:
       @id ||= FloatTypeId.new
     end
 
+    def named?
+      true
+    end
+
     def argument_promoted_type
       # NOTE: The ISO C99 standard says;
       #
@@ -5514,6 +5559,10 @@ module Cc1 #:nodoc:
 
     def location
       nil
+    end
+
+    def named?
+      true
     end
 
     def bit_size
@@ -6110,6 +6159,10 @@ module Cc1 #:nodoc:
       subclass_responsibility
     end
 
+    def named?
+      subclass_responsibility
+    end
+
     def bit_size
       @members.reduce(0) { |sum, memb| sum + memb.type.bit_size }
     end
@@ -6661,6 +6714,10 @@ module Cc1 #:nodoc:
       "struct #{name}"
     end
 
+    def named?
+      declarations.all? { |dcl| !dcl.struct_specifier.anonymous? }
+    end
+
     def struct?
       true
     end
@@ -6698,6 +6755,10 @@ module Cc1 #:nodoc:
 
     def brief_image
       "union #{name}"
+    end
+
+    def named?
+      declarations.all? { |dcl| !dcl.union_specifier.anonymous? }
     end
 
     def struct?
@@ -6740,6 +6801,10 @@ module Cc1 #:nodoc:
 
     def brief_image
       name
+    end
+
+    def named?
+      true
     end
 
     def_delegator :@base_type, :bit_size
@@ -6894,6 +6959,7 @@ module Cc1 #:nodoc:
 
     def_delegator :@type, :image
     def_delegator :@type, :brief_image
+    def_delegator :@type, :named?
     def_delegator :@type, :bit_size
     def_delegator :@type, :bit_alignment
 
@@ -7017,6 +7083,10 @@ module Cc1 #:nodoc:
 
     def id
       @id ||= TypeId.new(name)
+    end
+
+    def named?
+      true
     end
 
     def incomplete?

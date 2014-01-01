@@ -1,10 +1,10 @@
 # Unit specification of AST of C language.
 #
-# Author::    Rie Shima <mailto:rkakuuchi@users.sourceforge.net>
+# Author::    Yutaka Yanoh <mailto:yanoh@users.sourceforge.net>
 # Copyright:: Copyright (C) 2010-2013, OGIS-RI Co.,Ltd.
 # License::   GPLv3+: GNU General Public License version 3 or later
 #
-# Owner::     Rie Shima <mailto:rkakuuchi@users.sourceforge.net>
+# Owner::     Yutaka Yanoh <mailto:yanoh@users.sourceforge.net>
 
 #--
 #     ___    ____  __    ___   _________

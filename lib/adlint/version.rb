@@ -64,7 +64,7 @@ module AdLint #:nodoc:
 EOS
 
   AUTHOR = <<EOS
-Written by Yutaka Yanoh, Rie Shima and OGIS-RI Co.,Ltd.
+Written by Yutaka Yanoh and OGIS-RI Co.,Ltd.
 
 EOS
 

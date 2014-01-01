@@ -412,11 +412,9 @@ lib/adlint/error.rb
 lib/adlint/exam.rb
 lib/adlint/exam/c_builtin.rb
 lib/adlint/exam/c_builtin/cc1_check.rb
-lib/adlint/exam/c_builtin/cc1_check_shima.rb
 lib/adlint/exam/c_builtin/cc1_code.rb
 lib/adlint/exam/c_builtin/cc1_metric.rb
 lib/adlint/exam/c_builtin/cpp_check.rb
-lib/adlint/exam/c_builtin/cpp_check_shima.rb
 lib/adlint/exam/c_builtin/cpp_code.rb
 lib/adlint/exam/c_builtin/ld_check.rb
 lib/adlint/exam/c_builtin/ld_metric.rb

@@ -33,11 +33,9 @@ require "adlint"
 
 require "adlint/exam/c_builtin/cc1_code"
 require "adlint/exam/c_builtin/cc1_check"
-require "adlint/exam/c_builtin/cc1_check_shima"
 require "adlint/exam/c_builtin/cc1_metric"
 require "adlint/exam/c_builtin/cpp_code"
 require "adlint/exam/c_builtin/cpp_check"
-require "adlint/exam/c_builtin/cpp_check_shima"
 require "adlint/exam/c_builtin/ld_check"
 require "adlint/exam/c_builtin/ld_metric"
 

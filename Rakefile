@@ -3,7 +3,7 @@
 #    /   |  / _  |/ /   / / | / /__  __/           Source Code Static Analyzer
 #   / /| | / / / / /   / /  |/ /  / /                   AdLint - Advanced Lint
 #  / __  |/ /_/ / /___/ / /|  /  / /
-# /_/  |_|_____/_____/_/_/ |_/  /_/   Copyright (C) 2010-2013, OGIS-RI Co.,Ltd.
+# /_/  |_|_____/_____/_/_/ |_/  /_/   Copyright (C) 2010-2014, OGIS-RI Co.,Ltd.
 #
 # This file is part of AdLint.
 #
@@ -67,7 +67,7 @@ EOS
     /   |  / _  |/ /   / / | / /__  __/            Source Code Static Analyzer
    / /| | / / / / /   / /  |/ /  / /                    AdLint - Advanced Lint
   / __  |/ /_/ / /___/ / /|  /  / /
- /_/  |_|_____/_____/_/_/ |_/  /_/    Copyright (C) 2010-2013, OGIS-RI Co.,Ltd.
+ /_/  |_|_____/_____/_/_/ |_/  /_/    Copyright (C) 2010-2014, OGIS-RI Co.,Ltd.
 
                          Thanks for installing AdLint!
      Please visit our project homepage at <http://adlint.sourceforge.net/>.

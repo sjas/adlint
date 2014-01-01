@@ -1,7 +1,7 @@
 # C preprocessor macros.
 #
 # Author::    Yutaka Yanoh <mailto:yanoh@users.sourceforge.net>
-# Copyright:: Copyright (C) 2010-2013, OGIS-RI Co.,Ltd.
+# Copyright:: Copyright (C) 2010-2014, OGIS-RI Co.,Ltd.
 # License::   GPLv3+: GNU General Public License version 3 or later
 #
 # Owner::     Yutaka Yanoh <mailto:yanoh@users.sourceforge.net>
@@ -11,7 +11,7 @@
 #    /   |  / _  |/ /   / / | / /__  __/           Source Code Static Analyzer
 #   / /| | / / / / /   / /  |/ /  / /                   AdLint - Advanced Lint
 #  / __  |/ /_/ / /___/ / /|  /  / /
-# /_/  |_|_____/_____/_/_/ |_/  /_/   Copyright (C) 2010-2013, OGIS-RI Co.,Ltd.
+# /_/  |_|_____/_____/_/_/ |_/  /_/   Copyright (C) 2010-2014, OGIS-RI Co.,Ltd.
 #
 # This file is part of AdLint.
 #

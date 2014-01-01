@@ -5,7 +5,7 @@
 @settitle AdLint 3.2.3 User's Guide
 
 @copying
-Copyright (C) 2010-2013, OGIS-RI Co.,Ltd.
+Copyright (C) 2010-2014, OGIS-RI Co.,Ltd.
 @end copying
 
 @titlepage
@@ -36,7 +36,7 @@ available for Windows, Mac OS X, GNU/Linux, FreeBSD and any other platforms
 supported by Ruby.
 
 @unnumberedsec License
-Copyright (C) 2010-2013, OGIS-RI Co.,Ltd.
+Copyright (C) 2010-2014, OGIS-RI Co.,Ltd.
 
 AdLint is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

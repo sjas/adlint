@@ -3,7 +3,7 @@
     /   |  / _  |/ /   / / | / /__  __/            Source Code Static Analyzer
    / /| | / / / / /   / /  |/ /  / /                    AdLint - Advanced Lint
   / __  |/ /_/ / /___/ / /|  /  / /
- /_/  |_|_____/_____/_/_/ |_/  /_/    Copyright (C) 2010-2013, OGIS-RI Co.,Ltd.
+ /_/  |_|_____/_____/_/_/ |_/  /_/    Copyright (C) 2010-2014, OGIS-RI Co.,Ltd.
 
  This file is part of AdLint.
 
@@ -40,7 +40,7 @@ For more details, visit our project homepage at
 
 == License
 
-Copyright (C) 2010-2013, {OGIS-RI}[http://www.ogis-ri.co.jp/] Co.,Ltd.
+Copyright (C) 2010-2014, {OGIS-RI}[http://www.ogis-ri.co.jp/] Co.,Ltd.
 
 \AdLint is free software: you can redistribute it and/or modify it under the
 terms of the GNU General Public License as published by the Free Software

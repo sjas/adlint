@@ -40,7 +40,7 @@ module Cc1 #:nodoc:
   class Lexer < TokensRelexer
     def initialize(pp_src)
       super(pp_src.pp_tokens)
-      @lst_tok = nil
+      @lst_toks = []
       @nxt_tok = nil
       @ordinary_identifiers = OrdinaryIdentifiers.new
       @identifier_translation = true
@@ -101,10 +101,12 @@ module Cc1 #:nodoc:
         when :STRING_LITERAL
           tok = concat_contiguous_string_literals(tok, lexer_ctxt)
         end
-        @lst_tok = tok
-      else
-        nil
+        @lst_toks.shift if @lst_toks.size == 3
+        @lst_toks.push(tok)
+        patch_identifier_translation_mode!
       end
+
+      tok
     end
 
     def translate_identifier(tok, lexer_ctxt)
@@ -133,15 +135,16 @@ module Cc1 #:nodoc:
         if tok.type == :IDENTIFIER
           id_type = @ordinary_identifiers.find(tok.value)
           if id_type == :typedef
-            unless @lst_tok and
-                @lst_tok.type == :STRUCT || @lst_tok.type == :UNION ||
-                @lst_tok.type == :ENUM   ||
-                @lst_tok.type == "->"    || @lst_tok.type == "."
+            unless lst_tok = @lst_toks.last and
+                lst_tok.type == :STRUCT || lst_tok.type == :UNION ||
+                lst_tok.type == :ENUM   ||
+                lst_tok.type == "->"    || lst_tok.type == "."
               tok = tok.class.new(:TYPEDEF_NAME, tok.value, tok.location)
             end
           end
         end
       end
+
       tok
     end
 
@@ -162,6 +165,36 @@ module Cc1 #:nodoc:
       tok
     end
 
+    def patch_identifier_translation_mode!
+      head_idx = @lst_toks.rindex { |tok|
+        tok.type == :STRUCT || tok.type == :UNION || tok.type == :ENUM }
+
+      if head_idx
+        toks = @lst_toks[(head_idx + 1)..-1]
+        case toks.size
+        when 1
+          patch_identifier_translation_mode1(*toks)
+        when 2
+          patch_identifier_translation_mode2(*toks)
+        end
+      end
+    end
+
+    def patch_identifier_translation_mode1(lst_tok1)
+      case lst_tok1.type
+      when :IDENTIFIER
+        @identifier_translation = false
+      when "{"
+        @identifier_translation = true
+      end
+    end
+
+    def patch_identifier_translation_mode2(lst_tok1, lst_tok2)
+      if lst_tok1.type == :IDENTIFIER && lst_tok2.type == "{"
+        @identifier_translation = true
+      end
+    end
+
     def retokenize_keyword(pp_tok, lexer_ctxt)
       if keyword = Scanner::KEYWORDS[pp_tok.value]
         pp_tok.class.new(keyword, pp_tok.value, pp_tok.location)
@@ -172,7 +205,7 @@ module Cc1 #:nodoc:
 
     def retokenize_constant(pp_tok, lexer_ctxt)
       # NOTE: For extended bit-access operators.
-      return nil if @lst_tok && @lst_tok.type == :IDENTIFIER
+      return nil if lst_tok = @lst_toks.last and lst_tok.type == :IDENTIFIER
 
       case pp_tok.value
       when /\AL?'.*'\z/,

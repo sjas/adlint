@@ -645,11 +645,13 @@ init_declarator_list
     : init_declarator
       {
         checkpoint(val[0].location)
+        @lexer.disable_identifier_translation
         result = val
       }
     | init_declarator_list "," init_declarator
       {
         checkpoint(val[0].first.location)
+        @lexer.disable_identifier_translation
         result = val[0].push(val[2])
       }
     ;

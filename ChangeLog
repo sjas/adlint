@@ -1,3 +1,15 @@
+Wed Jan  1 10:25:16 2014  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/cc1/parser.y : Add missing mode transition of identifier
+	  to typedef-name translation.
+	* lib/adlint/cc1/lexer.rb : Add patch of identifier to typedef-name
+	  translation mode in order not to abend when multiple typedefed types
+	  of struct/union/enum is redeclared in a single typedef declaration
+	  again.
+
+	* features/code_check/E0008.feature : Add scenario to reproduce a known
+	  bug.
+
 Fri Oct 25 15:06:29 2013  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* lib/adlint/cc1/type.rb : Add predicate method Type#named? which

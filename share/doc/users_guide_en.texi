@@ -35536,7 +35536,7 @@ described by the following messages.
  1: int foo(int i)
  2: {
  3:     int j; /* C1003 */
- 4: 
+ 4:
  5:     if (i < 0) { /* C1001 */
  6:         if (i < -10) { /* C1002 */
  7:             j = 2;
@@ -35548,7 +35548,7 @@ described by the following messages.
 13:     else {
 14:         j = 1;
 15:     }
-16: 
+16:
 17:     return j; /* W0460 */
 18: }
 

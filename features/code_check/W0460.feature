@@ -275,13 +275,13 @@ Feature: W0460
           int x;
           int y;
       };
-      
+
       struct bar a[3];
-      
+
       int foo(int i, int j)
       {
           int k;
-      
+
           if (i < 0) {
               struct bar b;
               if (j == 0) {
@@ -292,7 +292,7 @@ Feature: W0460
           else if (i > 10) {
               k = j ? a[0].x : a[1].y;
           }
-      
+
           return k; /* W0460 */
       }
       """
@@ -328,13 +328,13 @@ Feature: W0460
           int x;
           int y;
       };
-      
+
       struct bar a[3];
-      
+
       int foo(int i, int j)
       {
           int k;
-      
+
           if (i < 0) {
               struct bar b;
               if (j == 0) {
@@ -345,7 +345,7 @@ Feature: W0460
           else {
               k = j ? a[0].x : a[1].y;
           }
-      
+
           return k; /* OK */
       }
       """

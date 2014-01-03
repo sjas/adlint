@@ -2995,7 +2995,7 @@ message_definition:
   C0001:
     classes:
       - "INF:X99"
-    format: "この識別名 `%s' で警告を検知しました。"
+    format: "この識別子 `%s' で警告を検知しました。"
   C1000:
     classes:
       - "INF:X99"

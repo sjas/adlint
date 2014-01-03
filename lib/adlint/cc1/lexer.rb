@@ -166,8 +166,8 @@ module Cc1 #:nodoc:
     end
 
     def patch_identifier_translation_mode!
-      head_idx = @lst_toks.rindex { |tok|
-        tok.type == :STRUCT || tok.type == :UNION || tok.type == :ENUM }
+      keys = [:STRUCT, :UNION, :ENUM]
+      head_idx = @lst_toks.rindex { |tok| keys.include?(tok.type) }
 
       if head_idx
         toks = @lst_toks[(head_idx + 1)..-1]

@@ -1,3 +1,12 @@
+Tue Jan  7 17:51:42 2014  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/cpp/lexer.rb : Fix group skip logic of the preprocessor in
+	  order to treat string-literals and character-constants in the
+	  skipping group correctly.
+
+	* features/code_check/E0016.feature : Add scenario to reproduce a known
+	  bug.
+
 Tue Jan  7 13:41:16 2014  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* lib/adlint/cpp/subst.rb : Fix pattern matchig algorithm of the token

@@ -160,7 +160,17 @@ module Cpp #:nodoc:
     private_constant :GROUP_DIRECTIVE_RE
 
     def scan_until_next_directive_or_comment(cont)
-      cont.scan(/.*?(?=#{GROUP_DIRECTIVE_RE}|\/\*|\/\/)/m)
+      until cont.empty?
+        cont.scan(/.*?(?=#{GROUP_DIRECTIVE_RE}|"|'|\/\*|\/\/)/m)
+        case
+        when cont.check(/"/)
+          Language::C::scan_string_literal(cont)
+        when cont.check(/'/)
+          Language::C::scan_char_constant(cont)
+        else
+          break
+        end
+      end
     end
 
     def scan_block_comment(cont)

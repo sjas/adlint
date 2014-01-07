@@ -252,6 +252,10 @@ module Cpp #:nodoc:
               case tok.value
               when "(", "[", "{"
                 InnerAnyMatching.new(matcher, self, 1)
+              when ")", "]", "}"
+                # NOTE: Return to the upper matching state and process the
+                #       current token in order not to discard it.
+                @prv_state.process(tok)
               else
                 InnerAnyMatching.new(matcher, self, 0)
               end

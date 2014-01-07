@@ -1,3 +1,9 @@
+Tue Jan  7 13:41:16 2014  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/cpp/subst.rb : Fix pattern matchig algorithm of the token
+	  substitution feature so that the pattern `{ __adlint__any }' can
+	  match with both `{}' and `{ ... }'.
+
 Sat Jan  4 05:22:13 2014  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* etc/mesg.d/c_builtin/ja_JP/messages.yml : Fix typo in C0001 message

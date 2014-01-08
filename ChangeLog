@@ -1,3 +1,8 @@
+Wed Jan  8 11:19:39 2014  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* share/doc/developers_guide_ja.texi : Update versions of the current
+	  development environment.
+
 Tue Jan  7 18:24:17 2014  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* release.rc : 3.2.5

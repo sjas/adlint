@@ -41,16 +41,16 @@ along with AdLint.  If not, see <@uref{http://www.gnu.org/licenses/}>.
 @multitable @columnfractions .1 .1 .3
 @headitem 名称 @tab バージョン @tab 用途
 @item @uref{http://www.ruby-lang.org/, Ruby}
-@tab @code{1.9.3-p194}
+@tab @code{2.1.0p0}
 @tab ベースとなる実装言語
 @item @uref{http://rubyforge.org/projects/racc/, Racc}
-@tab @code{1.4.8}
+@tab @code{1.4.10}
 @tab 構文解析器の生成
 @item @uref{http://rspec.info/, RSpec}
-@tab @code{2.10.0}
+@tab @code{2.14.7}
 @tab 単体仕様の記述と回帰テスト
 @item @uref{http://cukes.info/, Cucumber}
-@tab @code{1.2.0}
+@tab @code{1.3.10}
 @tab 機能仕様の記述と回帰テスト
 @end multitable
 

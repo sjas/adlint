@@ -579,6 +579,12 @@ global_declaration
         result.head_token = val[0].first.head_token
         result.tail_token = val[1]
       }
+    | ";"
+      {
+        # NOTE: To accept extra semicolons in the global scope.
+        E(:E0018, val[0].location)
+        result = nil
+      }
     ;
 
 declaration_specifiers
@@ -1738,7 +1744,7 @@ translation_unit
       {
         checkpoint(val[0].location)
         result = val[0]
-        result.push(val[1])
+        val[1] and result.push(val[1])
       }
     ;
 

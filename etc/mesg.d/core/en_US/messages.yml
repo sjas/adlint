@@ -136,3 +136,7 @@ message_definition:
     classes:
       - "ERR:X99"
     format: "#include expects \"filename\" or <filename>."
+  E0018:
+    classes:
+      - "ERR:X99"
+    format: "Extra semicolon appears in the global scope."

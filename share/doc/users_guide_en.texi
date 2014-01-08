@@ -2388,6 +2388,7 @@ context_line
 * E0014::'&&' monadic operator to get a label address is GCC original add-on.
 * E0015::'goto' statement with specified label address is GCC original add-on.
 * E0016::Unfinished comment block is found.
+* E0018::Extra semicolon appears in the global scope.
 * W0001::Nesting depth of round bracket `()' exceed 32. This program doesn't meet the strict ISO C90 standards of the term.
 * W0002::Identifier and declaration of formal argument described separately in the definition of function `%s()' is old style.
 * W0003::This switch statement doesn't have default label.
@@ -3482,6 +3483,35 @@ None.
 @subsection Since
 
 1.0.0
+
+@node E0018
+@section E0018
+@cindex E0018
+
+@subsection Message body
+
+Extra semicolon appears in the global scope.
+
+@subsection Content
+
+This message indicates that a standalone semicolon appears in the global scope.
+
+@subsection Sample code
+
+@verbatim
+int foo(int i)
+{
+    return i + 1;
+}; /* E0018 */
+@end verbatim
+
+@subsection Related message
+
+None.
+
+@subsection Since
+
+3.2.6
 
 @node W0001
 @section W0001

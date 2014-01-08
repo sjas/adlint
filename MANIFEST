@@ -37,6 +37,7 @@ etc/mesg.d/core/ja_JP/messages.yml
 features/code_check/E0008.feature
 features/code_check/E0013.feature
 features/code_check/E0016.feature
+features/code_check/E0018.feature
 features/code_check/W0001.feature
 features/code_check/W0002.feature
 features/code_check/W0003.feature

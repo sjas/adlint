@@ -1,3 +1,13 @@
+Wed Jan  8 16:31:06 2014  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/cc1/parser.y : Revise the parser generation rule in order
+	  to accept extra semicolons in the global scope.
+	* features/code_check/E0018.feature : Ditto.
+	* etc/mesg.d/core/ja_JP/messages.yml : Ditto.
+	* etc/mesg.d/core/en_US/messages.yml : Ditto.
+	* share/doc/users_guide_ja.texi : Ditto.
+	* share/doc/users_guide_en.texi : Ditto.
+
 Wed Jan  8 11:19:39 2014  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* share/doc/developers_guide_ja.texi : Update versions of the current

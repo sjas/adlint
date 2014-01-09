@@ -1,3 +1,27 @@
+Thu Jan  9 15:22:32 2014  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* release.ga : 3.2.6
+	  - Fix incomplete expression-constancy check under the constraits of
+	    ISO C99 standard.
+	  - Clip code-exam passivation feature into Examination::Passivation
+	    module in order to easily create passive code-exam classes.
+	  - Revise the interpreter interface in order to make evaluation modes
+	    of notification and side-effects suppression are orthogonal.
+	  - Add predicate method Type#named? which indicates whether a type has
+	    been declared with a tag or not.
+	  - Add patch of identifier to typedef-name translation mode in order
+	    not to abend when multiple typedefed types of struct/union/enum is
+	    redeclared in a single typedef declaration again.
+	  - Fix typo in C0001 message text.
+	  - Fix pattern matchig algorithm of the token substitution feature so
+	    that the pattern `{ __adlint__any }' can match with both `{}' and
+	    `{ ... }'.
+	  - Fix group skip logic of the preprocessor in order to treat
+	    string-literals and character-constants in the skipping group
+	    correctly.
+	  - Revise the parser generation rule in order to accept extra
+	    semicolons in the global scope.
+
 Wed Jan  8 16:31:06 2014  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* lib/adlint/cc1/parser.y : Revise the parser generation rule in order

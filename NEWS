@@ -21,15 +21,30 @@
 
 ++
 
+=== \AdLint 3.2.6 is released (2014-01-09)
+
+==== Changes since the 3.2.0 release
+
+* Add patch of identifier to typedef-name translation mode in order not to
+  abend when multiple typedefed types of struct/union/enum is redeclared in a
+  single typedef declaration again
+* Fix typo in C0001 message text
+* Fix pattern matchig algorithm of the token substitution feature so that the
+  pattern \`{ __adlint__any }' can match with both \`{}' and \`{ ... }'
+* Fix group skip logic of the preprocessor in order to treat string-literals
+  and character-constants in the skipping group correctly
+* Revise the parser generation rule in order to accept extra semicolons in the
+  global scope
+
+See the file {ChangeLog}[https://github.com/yanoh/adlint/blob/master/ChangeLog]
+for more details.
+
 === \AdLint 3.2.0 is released (2013-08-28)
 
 ==== Changes since the 3.0.10 release
 
 * Support experimental context-tracing feature so that the warning message can
   be complemented with the context messages
-
-See the file {ChangeLog}[https://github.com/yanoh/adlint/blob/master/ChangeLog]
-for more details.
 
 === \AdLint 3.0.10 is released (2013-06-28)
 
@@ -68,7 +83,7 @@ for more details.
 * Fix bad variable defining behavor in order to correctly evaluate
   sizeof-expression that refers defining variable in the initializer
 * Revise specification of W0642 code check in order to warn about all the
-  illegal address derivation from the object declared as `register'
+  illegal address derivation from the object declared as \`register'
 * Fix abend problem in parsing unnamed bit-field declaration
 * Fix W0786 code check in order not to warn when a typedefed type which is same
   as signed or unsigned int is specified as a base of the bit-field
@@ -77,7 +92,8 @@ for more details.
   initialization
 * Fix incomplete object cross-reference graph and function call graph in order
   to correctly warn about useless objects
-* Fix bad `##' operator evaluation in order to comply with the ISO C99 standard
+* Fix bad \`##' operator evaluation in order to comply with the ISO C99
+  standard
 
 === \AdLint 3.0.4 is released (2013-04-12)
 
@@ -129,10 +145,11 @@ for more details.
 ==== Changes since the 2.6.12 release
 
 * Revise specification of code checks about implicit conversion from or to
-  `char' type to clarify warning's intention
+  \`char' type to clarify warning's intention
 * Improve the library interface to easily integrate \AdLint with other products
-* Support lint and \AdLint specific predefined macros; `__LINT__', `lint',
-  `__lint', `__lint__', `__ADLINT__', `adlint', `__adlint' and `__adlint__'
+* Support lint and \AdLint specific predefined macros; \`__LINT__', \`lint',
+  \`__lint', \`__lint__', \`__ADLINT__', \`adlint', \`__adlint' and
+  \`__adlint__'
 * Revise code checks' output specification of W0051, W0052, W0491, W0492,
   W0703, W0704, W0770, W0771, W0787, W0788, W0789, W0790 and W1037 to add
   context messages telling where is the problematic pair identifiers
@@ -186,7 +203,7 @@ for more details.
 * Fix W0609 and w0610 detections not to over-warn about explicit controlling
   expressions of for-statements by adding workarounds for the interpreter
 * Fix W0088 detection not to warn about controlling expression of for-statement
-* Fix W0723 detection in order to correctly warn about signed `-' expression
+* Fix W0723 detection in order to correctly warn about signed \`-' expression
 * Fix bad parameter type convertibility check and bad type convertibility check
   of pointer to arbitrary types to void-pointer
 * Revise string representation of typedefed type so that message and metric
@@ -214,7 +231,7 @@ for more details.
 
 * Fix bad controlling statement evaluation in order to manage value domain of
   the controlling variable correctly
-* Fix bad argument type specification of `%s', `%p' and `%n'
+* Fix bad argument type specification of \`%s', \`%p' and \`%n'
   conversion-specifiers of *printf standard functions in order to detect W0635
   correctly
 
@@ -224,7 +241,7 @@ for more details.
 
 * Fix W0425 detection not to warn when a selection-statement or a
   iteration-statement is written in a line
-* Fix evaluation of sizeof expression to return `size_t' value or `unsigned
+* Fix evaluation of sizeof expression to return \`size_t' value or \`unsigned
   long' value if size_t is not declared
 * Fix evaluation of function-definition in order to refer symbols of return
   type and parameter types
@@ -237,7 +254,7 @@ for more details.
 * Fix W0100 detection not to over-warn about variables updated in an
   iteration-statement
 * Fix bad preprocess behavior when an empty argument is given to a
-  function-like macro call which applies `##' operator to the empty perameter
+  function-like macro call which applies \`##' operator to the empty perameter
 * Fix #include directive evaluation in order to correctly read header file with
   an absolute path when any include_path items are not specified
 

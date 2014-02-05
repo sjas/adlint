@@ -140,3 +140,119 @@ Feature: E0008
       | W0586 | 2    | 19     |
       | W0586 | 1    | 26     |
       | W0586 | 2    | 26     |
+
+  Scenario: concatenating hexadecimal prefix and number in function-form macro
+    Given a target source named "fixture.c" with:
+      """
+      #define HEX(num) 0x##num
+
+      static void foo(void)
+      {
+          int i = HEX(123); /* should be replaced into "0x123" not "0 x123" */
+      }
+      """
+    When I successfully run `adlint fixture.c` on noarch
+    Then the output should exactly match with:
+      | mesg  | line | column |
+      | W0442 | 1    | 1      |
+      | W1076 | 3    | 13     |
+      | W0076 | 5    | 13     |
+      | W0100 | 5    | 9      |
+      | W0629 | 3    | 13     |
+      | W0628 | 3    | 13     |
+
+  Scenario: concatenating hexadecimal prefix and number in function-form macro
+    Given a target source named "fixture.c" with:
+      """
+      #define HEX(num) 0x##num
+
+      static void foo(void)
+      {
+          int i = HEX(AB123CD); /* should be replaced into "0xAB123CD" */
+      }
+      """
+    When I successfully run `adlint fixture.c` on noarch
+    Then the output should exactly match with:
+      | mesg  | line | column |
+      | W0442 | 1    | 1      |
+      | W1076 | 3    | 13     |
+      | W0076 | 5    | 13     |
+      | W0100 | 5    | 9      |
+      | W0629 | 3    | 13     |
+      | W0628 | 3    | 13     |
+
+  Scenario: concatenating hexadecimal prefix and number in function-form macro
+    Given a target source named "fixture.c" with:
+      """
+      #define HEX(num) 0x##num
+
+      static void foo(void)
+      {
+          int i = HEX(ABCD); /* should be replaced into "0xABCD" */
+      }
+      """
+    When I successfully run `adlint fixture.c` on noarch
+    Then the output should exactly match with:
+      | mesg  | line | column |
+      | W0442 | 1    | 1      |
+      | W1076 | 3    | 13     |
+      | W0076 | 5    | 13     |
+      | W0100 | 5    | 9      |
+      | W0629 | 3    | 13     |
+      | W0628 | 3    | 13     |
+
+  Scenario: concatenating hexadecimal prefix and number in function-form macro
+    Given a target source named "fixture.c" with:
+      """
+      #define HEX(num) 0##num
+
+      static void foo(void)
+      {
+          int i = HEX(x123); /* should be replaced into "0x123" not "0 x123" */
+      }
+      """
+    When I successfully run `adlint fixture.c` on noarch
+    Then the output should exactly match with:
+      | mesg  | line | column |
+      | W0442 | 1    | 1      |
+      | W1076 | 3    | 13     |
+      | W0076 | 5    | 13     |
+      | W0100 | 5    | 9      |
+      | W0629 | 3    | 13     |
+      | W0628 | 3    | 13     |
+
+  Scenario: concatenating hexadecimal prefix and number in function-form macro
+    Given a target source named "fixture.c" with:
+      """
+      #define HEX(num) 0x0##num
+
+      static void foo(void)
+      {
+          int i = HEX(123); /* should be replaced into "0x0123" */
+      }
+      """
+    When I successfully run `adlint fixture.c` on noarch
+    Then the output should exactly match with:
+      | mesg  | line | column |
+      | W0442 | 1    | 1      |
+      | W1076 | 3    | 13     |
+      | W0076 | 5    | 13     |
+      | W0100 | 5    | 9      |
+      | W0629 | 3    | 13     |
+      | W0628 | 3    | 13     |
+
+  Scenario: ill-formed standalone hexadecimal prefix
+    Given a target source named "fixture.c" with:
+      """
+      static void foo(void)
+      {
+          int i = 0x;
+      }
+      """
+    When I successfully run `adlint fixture.c` on noarch
+    Then the output should exactly match with:
+      | mesg  | line | column |
+      | W1076 | 1    | 13     |
+      | W0100 | 3    | 9      |
+      | W0629 | 1    | 13     |
+      | W0628 | 1    | 13     |

@@ -155,7 +155,7 @@ module Cc1 #:nodoc:
     # String -- Returns C integer constant string if found at head of the
     # content.
     def scan_integer_constant(cont)
-      cont.scan(/(?:0x[0-9a-f]+|0b[01]+|[0-9]+)[UL]*/i)
+      cont.scan(/(?:0x[0-9a-f]*|0b[01]*|[0-9]+)[UL]*/i)
     end
 
     FLOATING1_RE = /(?:[0-9]*\.[0-9]*E[+-]?[0-9]+|[0-9]+\.?E[+-]?[0-9]+)[FL]*/i

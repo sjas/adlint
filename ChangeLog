@@ -1,3 +1,10 @@
+Fri Feb  7 14:54:17 2014  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* release.ga : 3.2.8
+	  - Fix preprocessor in order not to abend when a function-like macro
+	    generates a hexadecimal integer-constant from standalone prefix and
+	    number by the concatenation operator.
+
 Thu Feb  6 15:22:34 2014  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* release.rc : 3.2.7

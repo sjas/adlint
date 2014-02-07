@@ -21,6 +21,17 @@
 
 ++
 
+=== \AdLint 3.2.8 is released (2014-02-07)
+
+==== Changes since the 3.2.6 release
+
+* Fix preprocessor in order not to abend when a function-like macro generates a
+  hexadecimal integer-constant from standalone prefix and number by the
+  concatenation operator
+
+See the file {ChangeLog}[https://github.com/yanoh/adlint/blob/master/ChangeLog]
+for more details.
+
 === \AdLint 3.2.6 is released (2014-01-09)
 
 ==== Changes since the 3.2.0 release
@@ -35,9 +46,6 @@
   and character-constants in the skipping group correctly
 * Revise the parser generation rule in order to accept extra semicolons in the
   global scope
-
-See the file {ChangeLog}[https://github.com/yanoh/adlint/blob/master/ChangeLog]
-for more details.
 
 === \AdLint 3.2.0 is released (2013-08-28)
 

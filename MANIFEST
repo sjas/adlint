@@ -22,6 +22,8 @@ etc/conf.d/i686-linux/cinit-gcc_4.5.1.erb
 etc/conf.d/i686-linux/traits-gcc_4.5.1.erb
 etc/conf.d/i686-mingw/cinit-gcc_4.6.1.erb
 etc/conf.d/i686-mingw/traits-gcc_4.6.1.erb
+etc/conf.d/i686-mswin/cinit-msvc_100.erb
+etc/conf.d/i686-mswin/traits-msvc_100.erb
 etc/conf.d/noarch/GNUmakefile.erb
 etc/conf.d/noarch/adlint_all_bat.erb
 etc/conf.d/noarch/adlint_all_sh.erb

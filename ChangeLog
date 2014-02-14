@@ -1,3 +1,8 @@
+Fri Feb 14 13:37:30 2014  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* release.rc : 3.2.9
+	  - Add new templates for MSVC100 (Visual C++ 2010) on 32bit Windows.
+
 Fri Feb 14 11:31:54 2014  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* etc/conf.d/i686-mswin/traits-msvc_100.erb : Add new templates for

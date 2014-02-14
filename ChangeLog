@@ -1,3 +1,9 @@
+Fri Feb 14 11:31:54 2014  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* etc/conf.d/i686-mswin/traits-msvc_100.erb : Add new templates for
+	  MSVC100 (Visual C++ 2010) on 32bit Windows.
+	* etc/conf.d/i686-mswin/cinit-msvc_100.erb : Ditto.
+
 Fri Feb  7 14:54:17 2014  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* release.ga : 3.2.8

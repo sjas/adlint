@@ -1,3 +1,9 @@
+Mon Feb 17 12:56:05 2014  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* release.ga : 3.2.10
+	  - Add new templates for MSVC100 (Visual C++ 2010) as a C compiler on
+	    32bit Windows.
+
 Fri Feb 14 13:37:30 2014  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* release.rc : 3.2.9

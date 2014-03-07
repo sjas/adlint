@@ -269,7 +269,7 @@ module CBuiltin #:nodoc:
       if fmt_str_idx
         fmt_str = funcall_expr.argument_expressions[fmt_str_idx]
         if fmt_str && fmt_str.literal.value =~ /\AL?"(.*)"\z/i
-          args = arg_vars[(fmt_str_idx + 1)..-1] || []
+          args = arg_vars.drop(fmt_str_idx + 1) || []
           return Cc1::PrintfFormat.new($1, fmt_str.location, args, env)
         end
       end
@@ -315,7 +315,7 @@ module CBuiltin #:nodoc:
       if fmt_str_idx
         fmt_str = funcall_expr.argument_expressions[fmt_str_idx]
         if fmt_str && fmt_str.literal.value =~ /\AL?"(.*)"\z/i
-          args = arg_vars[(fmt_str_idx + 1)..-1] || []
+          args = arg_vars.drop(fmt_str_idx + 1) || []
           return Cc1::ScanfFormat.new($1, fmt_str.location, args, env)
         end
       end
@@ -361,7 +361,7 @@ module CBuiltin #:nodoc:
       if fmt_str_idx
         fmt_str = funcall_expr.argument_expressions[fmt_str_idx]
         if fmt_str && fmt_str.literal.value =~ /\AL?"(.*)"\z/i
-          args = arg_vars[(fmt_str_idx + 1)..-1] || []
+          args = arg_vars.drop(fmt_str_idx + 1) || []
           return Cc1::PrintfFormat.new($1, fmt_str.location, args, env)
         end
       end
@@ -8216,7 +8216,7 @@ module CBuiltin #:nodoc:
       if enums = node.enum_specifier.enumerators
         exprs = enums.map { |enum| enum.expression }
         return if exprs.all? { |expr| expr.nil? }
-        return if exprs.first && exprs[1..-1].all? { |expr| expr.nil? }
+        return if exprs.first && exprs.drop(1).all? { |expr| expr.nil? }
         return if exprs.all? { |expr| !expr.nil? }
         W(node.location)
       end
@@ -12520,7 +12520,7 @@ module CBuiltin #:nodoc:
       }
 
       if params.size > 1
-        params.first.zip(*params[1..-1]) do |names|
+        params.first.zip(*params.drop(1)) do |names|
           unless names.tap { |ary| ary.delete("") }.uniq.size == 1
             W(node.location)
             break
@@ -13378,7 +13378,7 @@ module CBuiltin #:nodoc:
       if fmt_str_idx
         fmt_str = funcall_expr.argument_expressions[fmt_str_idx]
         if fmt_str && fmt_str.literal.value =~ /\AL?"(.*)"\z/i
-          trailing_args = arg_vars[(fmt_str_idx + 1)..-1] || []
+          trailing_args = arg_vars.drop(fmt_str_idx + 1) || []
           return Cc1::ScanfFormat.new($1, fmt_str.location, trailing_args, env)
         end
       end
@@ -14863,7 +14863,7 @@ module CBuiltin #:nodoc:
       if fmt_str_idx
         fmt_str = funcall_expr.argument_expressions[fmt_str_idx]
         if fmt_str && fmt_str.literal.value =~ /\AL?"(.*)"\z/i
-          args = arg_vars[(fmt_str_idx + 1)..-1] || []
+          args = arg_vars.drop(fmt_str_idx + 1) || []
           return Cc1::PrintfFormat.new($1, fmt_str.location, args, env)
         end
       end
@@ -14912,7 +14912,7 @@ module CBuiltin #:nodoc:
       if fmt_str_idx
         fmt_str = funcall_expr.argument_expressions[fmt_str_idx]
         if fmt_str && fmt_str.literal.value =~ /\AL?"(.*)"\z/i
-          args = arg_vars[(fmt_str_idx + 1)..-1] || []
+          args = arg_vars.drop(fmt_str_idx + 1) || []
           return Cc1::PrintfFormat.new($1, fmt_str.location, args, env)
         end
       end
@@ -14961,7 +14961,7 @@ module CBuiltin #:nodoc:
       if fmt_str_idx
         fmt_str = funcall_expr.argument_expressions[fmt_str_idx]
         if fmt_str && fmt_str.literal.value =~ /\AL?"(.*)"\z/i
-          args = arg_vars[(fmt_str_idx + 1)..-1] || []
+          args = arg_vars.drop(fmt_str_idx + 1) || []
           return Cc1::PrintfFormat.new($1, fmt_str.location, args, env)
         end
       end
@@ -15037,7 +15037,7 @@ module CBuiltin #:nodoc:
       if fmt_str_idx
         fmt_str = funcall_expr.argument_expressions[fmt_str_idx]
         if fmt_str && fmt_str.literal.value =~ /\AL?"(.*)"\z/i
-          args = arg_vars[(fmt_str_idx + 1)..-1] || []
+          args = arg_vars.drop(fmt_str_idx + 1) || []
           return Cc1::ScanfFormat.new($1, fmt_str.location, args, env)
         end
       end
@@ -15090,7 +15090,7 @@ module CBuiltin #:nodoc:
       if fmt_str_idx
         fmt_str = funcall_expr.argument_expressions[fmt_str_idx]
         if fmt_str && fmt_str.literal.value =~ /\AL?"(.*)"\z/i
-          args = arg_vars[(fmt_str_idx + 1)..-1] || []
+          args = arg_vars.drop(fmt_str_idx + 1) || []
           return Cc1::ScanfFormat.new($1, fmt_str.location, args, env)
         end
       end
@@ -15404,7 +15404,7 @@ module CBuiltin #:nodoc:
       if fmt_str_idx
         fmt_str = funcall_expr.argument_expressions[fmt_str_idx]
         if fmt_str && fmt_str.literal.value =~ /\AL?"(.*)"\z/i
-          args = arg_vars[(fmt_str_idx + 1)..-1] || []
+          args = arg_vars.drop(fmt_str_idx + 1) || []
           return Cc1::PrintfFormat.new($1, fmt_str.location, args, env)
         end
       end
@@ -15457,7 +15457,7 @@ module CBuiltin #:nodoc:
       if fmt_str_idx
         fmt_str = funcall_expr.argument_expressions[fmt_str_idx]
         if fmt_str && fmt_str.literal.value =~ /\AL?"(.*)"\z/i
-          args = arg_vars[(fmt_str_idx + 1)..-1] || []
+          args = arg_vars.drop(fmt_str_idx + 1) || []
           return Cc1::PrintfFormat.new($1, fmt_str.location, args, env)
         end
       end
@@ -15688,7 +15688,7 @@ module CBuiltin #:nodoc:
       if fmt_str_idx
         fmt_str = funcall_expr.argument_expressions[fmt_str_idx]
         if fmt_str && fmt_str.literal.value =~ /\AL?"(.*)"\z/i
-          args = arg_vars[(fmt_str_idx + 1)..-1] || []
+          args = arg_vars.drop(fmt_str_idx + 1) || []
           return Cc1::PrintfFormat.new($1, fmt_str.location, args, env)
         end
       end
@@ -15735,7 +15735,7 @@ module CBuiltin #:nodoc:
       if fmt_str_idx
         fmt_str = funcall_expr.argument_expressions[fmt_str_idx]
         if fmt_str && fmt_str.literal.value =~ /\AL?"(.*)"\z/i
-          args = arg_vars[(fmt_str_idx + 1)..-1] || []
+          args = arg_vars.drop(fmt_str_idx + 1) || []
           return Cc1::ScanfFormat.new($1, fmt_str.location, args, env)
         end
       end
@@ -15788,7 +15788,7 @@ module CBuiltin #:nodoc:
       if fmt_str_idx
         fmt_str = funcall_expr.argument_expressions[fmt_str_idx]
         if fmt_str && fmt_str.literal.value =~ /\AL?"(.*)"\z/i
-          args = arg_vars[(fmt_str_idx + 1)..-1] || []
+          args = arg_vars.drop(fmt_str_idx + 1) || []
           return Cc1::ScanfFormat.new($1, fmt_str.location, args, env)
         end
       end
@@ -15954,7 +15954,7 @@ module CBuiltin #:nodoc:
       if fmt_str_idx
         fmt_str = funcall_expr.argument_expressions[fmt_str_idx]
         if fmt_str && fmt_str.literal.value =~ /\AL?"(.*)"\z/i
-          args = arg_vars[(fmt_str_idx + 1)..-1] || []
+          args = arg_vars.drop(fmt_str_idx + 1) || []
           return Cc1::ScanfFormat.new($1, fmt_str.location, args, env)
         end
       end
@@ -20800,7 +20800,7 @@ module CBuiltin #:nodoc:
         fmt_arg = expr.argument_expressions[fmt_idx]
         if fmt_arg && fmt_arg.literal.value =~ /\AL?"(.*)"\z/i
           loc = fmt_arg.location
-          args = arg_vars[(fmt_idx + 1)..-1] || []
+          args = arg_vars.drop(fmt_idx + 1) || []
           return Cc1::PrintfFormat.new($1, loc, args, @environ)
         end
       end
@@ -20812,7 +20812,7 @@ module CBuiltin #:nodoc:
         fmt_arg = expr.argument_expressions[fmt_idx]
         if fmt_arg && fmt_arg.literal.value =~ /\AL?"(.*)"\z/i
           loc = fmt_arg.location
-          args = arg_vars[(fmt_idx + 1)..-1] || []
+          args = arg_vars.drop(fmt_idx + 1) || []
           return Cc1::ScanfFormat.new($1, loc, args, @environ)
         end
       end

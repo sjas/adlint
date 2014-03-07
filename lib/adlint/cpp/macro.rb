@@ -738,7 +738,7 @@ module Cpp #:nodoc:
       return nil unless tok = toks[idx] and macro = lookup(tok.value)
       return nil if repl_ctxt.hidden?(tok, macro.name.value)
 
-      size = macro.replaceable_size(toks[idx..-1])
+      size = macro.replaceable_size(toks.drop(idx))
 
       if toks[idx, size].all? { |t| t.need_no_further_replacement? }
         return nil

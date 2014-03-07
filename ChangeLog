@@ -1,3 +1,14 @@
+Fri Mar  7 12:57:41 2014  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/cc1/lexer.rb : Refactor a bit in order to clarify
+	  intention to take tail part of an array.
+	* lib/adlint/cc1/value.rb : Ditto.
+	* lib/adlint/cpp/eval.rb : Ditto.
+	* lib/adlint/cpp/macro.rb : Ditto.
+	* lib/adlint/cpp/subst.rb : Ditto.
+	* lib/adlint/exam/c_builtin/cc1_check.rb : Ditto.
+	* spec/adlint/cc1/syntax_spec.rb : Ditto.
+
 Mon Feb 17 12:56:05 2014  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* release.ga : 3.2.10

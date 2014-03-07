@@ -81,7 +81,7 @@ module Cpp #:nodoc:
     end
 
     def rest_pattern_tokens
-      @pattern_tokens[@pattern_index..-1]
+      @pattern_tokens.drop(@pattern_index)
     end
 
     def next_pattern_token

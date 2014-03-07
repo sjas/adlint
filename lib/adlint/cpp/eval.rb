@@ -994,7 +994,7 @@ module Cpp #:nodoc:
 
         # NOTE: It's not completed when a new-line appears after the macro
         #       name.
-        return false unless pp_toks[idx..-1].any? { |t| t.value == "(" }
+        return false unless pp_toks.drop(idx).any? { |t| t.value == "(" }
 
         paren_cnt = 0
         while tok = pp_toks[idx]

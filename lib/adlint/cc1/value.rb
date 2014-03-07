@@ -2756,7 +2756,7 @@ module Cc1 #:nodoc:
     end
 
     def active_versioning_groups
-      @versioning_group_stack[1..-1]
+      @versioning_group_stack.drop(1)
     end
 
     def current_versioning_group

@@ -170,7 +170,7 @@ module Cc1 #:nodoc:
       head_idx = @lst_toks.rindex { |tok| keys.include?(tok.type) }
 
       if head_idx
-        toks = @lst_toks[(head_idx + 1)..-1]
+        toks = @lst_toks.drop(head_idx + 1)
         case toks.size
         when 1
           patch_identifier_translation_mode1(*toks)

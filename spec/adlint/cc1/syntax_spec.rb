@@ -591,7 +591,7 @@ module Cc1
     private
     def comma_separated_expression(*exprs)
       CommaSeparatedExpression.new(exprs.first).tap do |obj|
-        exprs[1..-1].each { |expr| obj.push(expr) }
+        exprs.drop(1).each { |expr| obj.push(expr) }
       end
     end
 

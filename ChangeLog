@@ -1,3 +1,7 @@
+Thu Apr 10 13:34:44 2014  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/exam.rb : Add examination package initializer.
+
 Thu Apr 10 10:57:34 2014  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* lib/adlint/cc1/type.rb : Fix the type and object model in order to

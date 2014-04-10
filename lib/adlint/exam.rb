@@ -127,6 +127,7 @@ module AdLint #:nodoc:
   class ExaminationCatalog
     def initialize(loader_fpath)
       @loader_fpath = loader_fpath
+      @initializer = lambda {}
       yield(self) if block_given?
     end
 
@@ -136,6 +137,7 @@ module AdLint #:nodoc:
     attr_accessor :patch_version
     attr_accessor :release_date
     attr_accessor :examination_classes
+    attr_accessor :initializer
 
     def short_version
       "#{major_version}.#{minor_version}.#{patch_version}"
@@ -161,6 +163,7 @@ module AdLint #:nodoc:
 
     def load
       require "adlint/exam/#{@name}"
+      catalog.initializer.call
       true
     rescue LoadError
       false

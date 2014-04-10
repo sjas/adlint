@@ -1,3 +1,11 @@
+Thu Apr 10 15:11:38 2014  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/metric.rb : Revise behavior of the CMA code structure
+	  collection so that an optional examination package can output its own
+	  special met-records.
+	* lib/adlint/ld/object.rb : Ditto.
+	* lib/adlint/ld/typedef.rb : Ditto.
+
 Thu Apr 10 13:34:44 2014  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* lib/adlint/exam.rb : Add examination package initializer.

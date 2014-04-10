@@ -91,12 +91,13 @@ module Ld #:nodoc:
     def execute(met_fpath)
       sma_wd = Pathname.pwd
       CSV.foreach(met_fpath) do |csv_row|
-        rec = MetricRecord.of(csv_row, sma_wd)
-        case
-        when rec.version?
-          sma_wd = Pathname.new(rec.exec_working_directory)
-        when rec.typedef_declaration?
-          @map.add(Typedef.new(rec.type_name, rec.location))
+        if rec = MetricRecord.of(csv_row, sma_wd)
+          case
+          when rec.version?
+            sma_wd = Pathname.new(rec.exec_working_directory)
+          when rec.typedef_declaration?
+            @map.add(Typedef.new(rec.type_name, rec.location))
+          end
         end
       end
     end

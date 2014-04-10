@@ -190,7 +190,11 @@ module AdLint #:nodoc:
       when "MET"
         create_metric_record(csv_row, sma_wd)
       else
-        raise "invalid metric record."
+        # NOTE: Silently ignore unknown records so that an optional examination
+        #       package may output its own special ones.
+        #
+        #raise "invalid metric record."
+        nil
       end
     end
 

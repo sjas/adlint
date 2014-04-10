@@ -26,6 +26,7 @@ Feature: W0801
     When I successfully run `adlint fixture.c` on noarch
     Then the output should exactly match with:
       | mesg  | line | column |
+      | W0040 | 1    | 8      |
       | W0801 | 1    | 8      |
 
   Scenario: named member exists in the struct
@@ -65,6 +66,7 @@ Feature: W0801
     When I successfully run `adlint fixture.c` on noarch
     Then the output should exactly match with:
       | mesg  | line | column |
+      | W0040 | 1    | 7      |
       | W0551 | 1    | 7      |
       | W0801 | 1    | 7      |
 

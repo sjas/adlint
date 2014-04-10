@@ -55,6 +55,7 @@ features/code_check/W0023.feature
 features/code_check/W0024.feature
 features/code_check/W0025.feature
 features/code_check/W0026.feature
+features/code_check/W0067.feature
 features/code_check/W0070.feature
 features/code_check/W0071.feature
 features/code_check/W0088.feature

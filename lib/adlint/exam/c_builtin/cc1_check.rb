@@ -1593,15 +1593,20 @@ module CBuiltin #:nodoc:
 
     private
     def check_member_access(expr, outer_var, inner_var)
-      type = outer_var.type
-      unqual_type = type.unqualify
-
-      if type.pointer? && unqual_type.base_type.incomplete? or
-          type.composite? && type.incomplete?
+      case expr
+      when Cc1::MemberAccessByValueExpression
+        outer_type = outer_var.type.unqualify
+      when Cc1::MemberAccessByPointerExpression
+        outer_type = outer_var.type.unqualify.base_type
+      else
         return
       end
 
-      W(expr.location) unless inner_var
+      if outer_type.composite? && !outer_type.incomplete?
+        unless outer_type.member_named(expr.identifier.value)
+          W(expr.location)
+        end
+      end
     end
   end
 
@@ -10484,7 +10489,7 @@ module CBuiltin #:nodoc:
     def declare_members(struct_or_union_dcl)
       memb_dcls = MemberExtractor.new.tap { |extr|
         struct_or_union_dcl.accept(extr)
-      }.result
+      }.result.select { |memb| !memb.identifier.nil? }
 
       memb_dcls.each do |memb_dcl|
         pair_names =
@@ -12139,8 +12144,11 @@ module CBuiltin #:nodoc:
     private
     def check(node)
       return unless node.type.scalar? && node.type.integer?
-      if node.type.bitfield? && node.type.signed? && node.type.bit_size == 1
-        W(node.location)
+
+      if node.identifier
+        if node.type.bitfield? && node.type.signed? && node.type.bit_size == 1
+          W(node.location)
+        end
       end
     end
   end
@@ -19969,7 +19977,7 @@ module CBuiltin #:nodoc:
 
     private
     def check(node)
-      W(node.location) if node.type.members.empty?
+      W(node.location) if node.type.members.none? { |memb| memb.named? }
     end
   end
 

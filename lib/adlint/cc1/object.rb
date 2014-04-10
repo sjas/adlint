@@ -447,10 +447,18 @@ module Cc1 #:nodoc:
         # TODO: If linear searching is too slow, use an index of inner
         #       variables.
         target_name = CompositeMemberVariable.component_name_of(name)
-        @inner_variables.find { |inner| inner.component_name == target_name }
-      else
-        nil
+        @inner_variables.each do |inner|
+          case
+          when inner.component_name.nil?
+            if var = inner.inner_variable_named(name)
+              return var
+            end
+          when inner.component_name == target_name
+            return inner
+          end
+        end
       end
+      nil
     end
 
     private
@@ -619,10 +627,11 @@ module Cc1 #:nodoc:
     private
     def create_qualified_name(outer_var, component_name)
       if outer_var.named?
-        "#{outer_var.name}#{component_name}"
+        prefix = outer_var.name
       else
-        "__adlint__tempvar#{component_name}"
+        prefix = "__adlint__tempvar"
       end
+      component_name ? "#{prefix}#{component_name}" : prefix
     end
   end
 
@@ -638,7 +647,7 @@ module Cc1 #:nodoc:
 
   class CompositeMemberVariable < InnerVariable
     def self.component_name_of(name)
-      ".#{name}"
+      name ? ".#{name}" : nil
     end
 
     def initialize(mem, outer_var, type, name)

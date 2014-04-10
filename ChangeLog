@@ -1,3 +1,19 @@
+Thu Apr 10 10:57:34 2014  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/cc1/type.rb : Fix the type and object model in order to
+	  correctly manage unnamed struct or union members.
+	* lib/adlint/cc1/syntax.rb : Ditto.
+	* lib/adlint/cc1/resolver.rb : Ditto.
+	* lib/adlint/cc1/object.rb : Ditto.
+
+	* lib/adlint/exam/c_builtin/cc1_check.rb : Correct W0067 and W0492 code
+	  check according to changes of the type and object model.
+	* features/code_check/W0801.feature : Ditto.
+
+	* features/code_check/W0067.feature : Add scenario to reproduce
+	  false-positive of W0067 code check.
+	* MANIFEST : Ditto.
+
 Fri Mar  7 12:57:41 2014  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* lib/adlint/cc1/lexer.rb : Refactor a bit in order to clarify

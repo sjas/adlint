@@ -2867,10 +2867,14 @@ module Cc1 #:nodoc:
 
     private
     def build_items(spec_qual_list, struct_dcrs)
-      struct_dcrs.each_with_object([]) do |struct_dcr, items|
-        # FIXME: Must support unnamed bit padding.
-        next unless struct_dcr.declarator
-        items.push(MemberDeclaration.new(spec_qual_list, struct_dcr))
+      # FIXME: Must support unnamed bit padding.
+
+      if struct_dcrs.empty?
+        [MemberDeclaration.new(spec_qual_list, nil)]
+      else
+        struct_dcrs.map do |struct_dcr|
+          MemberDeclaration.new(spec_qual_list, struct_dcr)
+        end
       end
     end
   end
@@ -2888,20 +2892,35 @@ module Cc1 #:nodoc:
     attr_accessor :type
 
     def identifier
-      @struct_declarator.declarator.identifier
+      if @struct_declarator && @struct_declarator.declarator
+        @struct_declarator.declarator.identifier
+      else
+        nil
+      end
     end
 
     def location
-      identifier.location
+      case
+      when @struct_declarator && @struct_declarator.declarator
+        @struct_declarator.declarator.identifier.location
+      when @struct_declarator
+        @struct_declarator.head_location
+      else
+        @specifier_qualifier_list.head_location
+      end
     end
 
     def to_s
-      "#{type.brief_image} #{identifier.value}"
+      if id = identifier
+        "#{type.brief_image} #{id.value}"
+      else
+        type.brief_image
+      end
     end
 
     def inspect(indent = 0)
       " " * indent + "#{short_class_name} (#{location.inspect}) " +
-        identifier.value
+        ((id = identifier) ? id.value : "")
     end
   end
 

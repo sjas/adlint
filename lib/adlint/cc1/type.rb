@@ -6306,7 +6306,17 @@ module Cc1 #:nodoc:
 
     def member_named(name)
       # FIXME: Should use the member name index.
-      @members.find { |memb| memb.name == name }
+      @members.each do |memb|
+        case
+        when memb.name.nil? && memb.type.composite?
+          if inner_memb = memb.type.member_named(name)
+            return inner_memb
+          end
+        when memb.name == name
+          return memb
+        end
+      end
+      nil
     end
 
     def min
@@ -6690,6 +6700,10 @@ module Cc1 #:nodoc:
 
     attr_reader :name
     attr_reader :type
+
+    def named?
+      !@name.nil?
+    end
 
     def dup
       Member.new(@name, @type.dup)
@@ -7584,16 +7598,6 @@ module Cc1 #:nodoc:
       end
     end
 
-    def create_members(struct_dcls)
-      membs = []
-      struct_dcls.each do |struct_dcl|
-        struct_dcl.items.each do |item|
-          membs.push(Member.new(item.identifier.value, item.type))
-        end
-      end
-      membs
-    end
-
     def rewrite_struct_type(struct_type, type_dcl)
       struct_type.declarations.push(type_dcl)
       struct_type.image = type_dcl.struct_specifier.to_s
@@ -7606,6 +7610,14 @@ module Cc1 #:nodoc:
       union_type.image = type_dcl.union_specifier.to_s
       union_type.location = type_dcl.location
       union_type.members.replace(create_members(type_dcl.struct_declarations))
+    end
+
+    def create_members(struct_dcls)
+      struct_dcls.map { |struct_dcl|
+        struct_dcl.items.map do |item|
+          Member.new(item.identifier ? item.identifier.value : nil, item.type)
+        end
+      }.flatten
     end
 
     def rewrite_enum_type(enum_type, type_dcl)

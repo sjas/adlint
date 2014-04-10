@@ -69,16 +69,18 @@ module Cc1 #:nodoc:
     def visit_member_declaration(node)
       checkpoint(node.location)
       node.specifier_qualifier_list.accept(self)
-      node.struct_declarator.accept(self)
+      node.struct_declarator.accept(self) if node.struct_declarator
 
       type_quals = node.specifier_qualifier_list.type_qualifiers
       type_specs = node.specifier_qualifier_list.type_specifiers
+      struct_dcr = node.struct_declarator
+
       type = lookup_variable_type(type_quals, type_specs,
-                                  node.struct_declarator.declarator)
+                                  struct_dcr ? struct_dcr.declarator : nil)
       type = @type_table.pointer_type(type) if type.function?
 
-      if node.struct_declarator.bitfield?
-        if bit_width = compute_bitfield_width(node.struct_declarator)
+      if struct_dcr and struct_dcr.bitfield?
+        if bit_width = compute_bitfield_width(struct_dcr)
           type = @type_table.bitfield_type(type, bit_width)
         else
           type = fallback_type

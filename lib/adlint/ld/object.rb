@@ -150,16 +150,17 @@ module Ld #:nodoc:
     def execute(met_fpath)
       sma_wd = Pathname.pwd
       CSV.foreach(met_fpath) do |csv_row|
-        rec = MetricRecord.of(csv_row, sma_wd)
-        case
-        when rec.version?
-          sma_wd = Pathname.new(rec.exec_working_directory)
-        when rec.variable_definition?
-          if rec.variable_linkage_type == "X"
-            @map.add_variable(Variable.new(rec))
+        if rec = MetricRecord.of(csv_row, sma_wd)
+          case
+          when rec.version?
+            sma_wd = Pathname.new(rec.exec_working_directory)
+          when rec.variable_definition?
+            if rec.variable_linkage_type == "X"
+              @map.add_variable(Variable.new(rec))
+            end
+          when rec.global_variable_declaration?
+            @map.add_variable_declaration(VariableDeclaration.new(rec))
           end
-        when rec.global_variable_declaration?
-          @map.add_variable_declaration(VariableDeclaration.new(rec))
         end
       end
     end
@@ -308,14 +309,15 @@ module Ld #:nodoc:
     def execute(met_fpath)
       sma_wd = Pathname.pwd
       CSV.foreach(met_fpath) do |csv_row|
-        rec = MetricRecord.of(csv_row, sma_wd)
-        case
-        when rec.version?
-          sma_wd = Pathname.new(rec.exec_working_directory)
-        when rec.function_definition?
-          @map.add_function(Function.new(rec))
-        when rec.function_declaration?
-          @map.add_function_declaration(FunctionDeclaration.new(rec))
+        if rec = MetricRecord.of(csv_row, sma_wd)
+          case
+          when rec.version?
+            sma_wd = Pathname.new(rec.exec_working_directory)
+          when rec.function_definition?
+            @map.add_function(Function.new(rec))
+          when rec.function_declaration?
+            @map.add_function_declaration(FunctionDeclaration.new(rec))
+          end
         end
       end
     end
@@ -490,23 +492,27 @@ module Ld #:nodoc:
     def execute(met_fpath)
       sma_wd = Pathname.pwd
       CSV.foreach(met_fpath) do |csv_row|
-        rec = MetricRecord.of(csv_row, sma_wd)
-        case
-        when rec.version?
-          sma_wd = Pathname.new(rec.exec_working_directory)
-        when rec.variable_xref?
-          var = @var_map.lookup_variables(rec.accessee_variable).first
-          fun_id = rec.accessor_function
-          if fun_id.named?
-            fun = @fun_map.lookup_functions(fun_id.name).first
-            ref = ObjectReferrer.of_function(fun)
-          else
-            ref = ObjectReferrer.of_ctors_section(rec.location)
+        if rec = MetricRecord.of(csv_row, sma_wd)
+          case
+          when rec.version?
+            sma_wd = Pathname.new(rec.exec_working_directory)
+          when rec.variable_xref?
+            if var = @var_map.lookup_variables(rec.accessee_variable).first
+              fun_id = rec.accessor_function
+              if fun_id.named?
+                fun = @fun_map.lookup_functions(fun_id.name).first
+                ref = ObjectReferrer.of_function(fun)
+              else
+                ref = ObjectReferrer.of_ctors_section(rec.location)
+              end
+              @graph.add(ObjectReference.new(ref, var, rec.location))
+            end
+          when rec.function_xref?
+            ref, fun = lookup_referrer_and_function_by_xref(rec)
+            if ref && fun
+              @graph.add(ObjectReference.new(ref, fun, rec.location))
+            end
           end
-          @graph.add(ObjectReference.new(ref, var, rec.location)) if var
-        when rec.function_xref?
-          ref, fun = lookup_referrer_and_function_by_xref(rec)
-          @graph.add(ObjectReference.new(ref, fun, rec.location)) if ref && fun
         end
       end
     end
@@ -614,14 +620,15 @@ module Ld #:nodoc:
     def execute(met_fpath)
       sma_wd = Pathname.pwd
       CSV.foreach(met_fpath) do |csv_row|
-        rec = MetricRecord.of(csv_row, sma_wd)
-        case
-        when rec.version?
-          sma_wd = Pathname.new(rec.exec_working_directory)
-        when rec.function_call?
-          caller_ref, callee_fun = lookup_functions_by_call(rec)
-          if caller_ref && callee_fun
-            @graph.add(FunctionCall.new(caller_ref, callee_fun))
+        if rec = MetricRecord.of(csv_row, sma_wd)
+          case
+          when rec.version?
+            sma_wd = Pathname.new(rec.exec_working_directory)
+          when rec.function_call?
+            caller_ref, callee_fun = lookup_functions_by_call(rec)
+            if caller_ref && callee_fun
+              @graph.add(FunctionCall.new(caller_ref, callee_fun))
+            end
           end
         end
       end

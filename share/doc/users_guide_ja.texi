@@ -2,7 +2,7 @@
 @setfilename users_guide_ja.info
 @documentlanguage ja
 @documentencoding utf-8
-@settitle AdLint 3.2.11 利用者ガイド
+@settitle AdLint 3.2.12 利用者ガイド
 
 @copying
 Copyright (C) 2010-2014, OGIS-RI Co.,Ltd.

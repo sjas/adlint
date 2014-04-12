@@ -21,15 +21,25 @@
 
 ++
 
+=== \AdLint 3.2.12 is released (2014-04-12)
+
+==== Changes since the 3.2.10 release
+
+* Fix the type and object model in order to correctly manage unnamed struct or
+  union members
+* Add examination package initializer
+* Revise behavior of the CMA code structure collection so that an optional
+  examination package can output its own special met-records
+
+See the file {ChangeLog}[https://github.com/yanoh/adlint/blob/master/ChangeLog]
+for more details.
+
 === \AdLint 3.2.10 is released (2014-02-17)
 
 ==== Changes since the 3.2.8 release
 
 * Add new templates for MSVC100 (Visual C++ 2010) as a C compiler on 32bit
   Windows
-
-See the file {ChangeLog}[https://github.com/yanoh/adlint/blob/master/ChangeLog]
-for more details.
 
 === \AdLint 3.2.8 is released (2014-02-07)
 

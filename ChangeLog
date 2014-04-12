@@ -1,3 +1,13 @@
+Sat Apr 12 09:08:17 2014  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* release.ga : 3.2.12
+	  - Fix the type and object model in order to correctly manage unnamed
+	    struct or union members.
+	  - Add examination package initializer.
+	  - Revise behavior of the CMA code structure collection so that an
+	    optional examination package can output its own special
+	    met-records.
+
 Thu Apr 10 18:48:43 2014  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* release.rc : 3.2.11

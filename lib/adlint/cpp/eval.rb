@@ -443,7 +443,7 @@ module Cpp #:nodoc:
         if ellipsis
           define_line = VaFunctionLikeDefineLine.new(keyword, id, id_list,
                                                      repl_list, sym)
-          macro = FunctionLikeMacro.new(define_line)
+          macro = VaFunctionLikeMacro.new(define_line)
           notify_va_function_like_macro_defined(define_line, macro)
         else
           define_line = FunctionLikeDefineLine.new(keyword, id, id_list,

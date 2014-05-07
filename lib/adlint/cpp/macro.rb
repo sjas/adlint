@@ -394,6 +394,46 @@ module Cpp #:nodoc:
     end
   end
 
+  class VaFunctionLikeMacro < FunctionLikeMacro
+    def replaceable_size(toks)
+      if name.value == toks.first.value
+        args, idx = parse_arguments(toks, 1)
+        if args && @parameter_names.size <= args.size
+          return idx + 1
+        end
+      end
+      0
+    end
+
+    def expand(toks, macro_tbl, repl_ctxt)
+      super
+
+      all_args, * = parse_arguments(toks, 1)
+      args = all_args.shift(@parameter_names.size)
+      rest_args = all_args
+
+      args_hash =
+        @parameter_names.zip(args).each_with_object({}) { |(param, arg), hash|
+          hash[param] = arg
+        }
+
+      va_args = args_hash["__VA_ARGS__"] = []
+      unless rest_args.empty?
+        va_args.concat(rest_args.shift)
+        rest_args.each do |arg|
+          va_args.push(ReplacedToken.new(:PP_TOKEN, ",", Location.new))
+          va_args.concat(arg)
+        end
+      end
+
+      rslt_toks = expand_replacement_list(args_hash, toks.first.location,
+                                          macro_tbl, repl_ctxt)
+      macro_tbl.notify_function_like_macro_replacement(self, toks, args,
+                                                       rslt_toks)
+      rslt_toks
+    end
+  end
+
   class SpecialMacro < ObjectLikeMacro
     def initialize(name_str)
       super(PseudoObjectLikeDefineLine.new(name_str))

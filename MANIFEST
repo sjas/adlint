@@ -329,6 +329,7 @@ features/code_check/W0811.feature
 features/code_check/W0830.feature
 features/code_check/W0833.feature
 features/code_check/W0834.feature
+features/code_check/W0835.feature
 features/code_check/W1026.feature
 features/code_check/W1030.feature
 features/code_check/W1031.feature

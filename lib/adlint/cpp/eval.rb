@@ -441,13 +441,13 @@ module Cpp #:nodoc:
         repl_list = replacement_list(pp_ctxt)
         discard_extra_tokens_until_newline(pp_ctxt)
         if ellipsis
-          define_line = VaFunctionLikeDefineLine.new(keyword, id, id_list,
-                                                     repl_list, sym)
+          define_line =
+            VaFunctionLikeDefineLine.new(keyword, id, id_list, repl_list, sym)
           macro = VaFunctionLikeMacro.new(define_line)
           notify_va_function_like_macro_defined(define_line, macro)
         else
-          define_line = FunctionLikeDefineLine.new(keyword, id, id_list,
-                                                   repl_list, sym)
+          define_line =
+            FunctionLikeDefineLine.new(keyword, id, id_list, repl_list, sym)
           macro = FunctionLikeMacro.new(define_line)
           notify_function_like_macro_defined(define_line, macro)
         end

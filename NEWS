@@ -21,6 +21,15 @@
 
 ++
 
+=== \AdLint 3.2.14 is released (2014-05-10)
+
+==== Changes since the 3.2.12 release
+
+* Support function-like macro replacement with variable arguments.
+
+See the file {ChangeLog}[https://github.com/yanoh/adlint/blob/master/ChangeLog]
+for more details.
+
 === \AdLint 3.2.12 is released (2014-04-12)
 
 ==== Changes since the 3.2.10 release
@@ -30,9 +39,6 @@
 * Add examination package initializer
 * Revise behavior of the CMA code structure collection so that an optional
   examination package can output its own special met-records
-
-See the file {ChangeLog}[https://github.com/yanoh/adlint/blob/master/ChangeLog]
-for more details.
 
 === \AdLint 3.2.10 is released (2014-02-17)
 

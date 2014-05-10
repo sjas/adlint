@@ -2,12 +2,11 @@ Sat May 10 12:44:20 2014  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* lib/adlint/cpp/macro.rb : Support function-like macro replacement
 	  with variable arguments.
+	* lib/adlint/cpp/eval.rb : Ditto.
 
 	* features/code_check/W0835.feature : Add scenario to check that the
 	  function-like macro with __VA_ARGS__ can be replaced correctly.
 	* MANIFEST : Ditto.
-
-	* lib/adlint/cpp/eval.rb : Refactor a bit.
 
 Sat Apr 12 09:08:17 2014  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 

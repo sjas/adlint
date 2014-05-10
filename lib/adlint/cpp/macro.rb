@@ -109,16 +109,16 @@ module Cpp #:nodoc:
     attr_reader :parameter_names
 
     def replaceable_size(toks)
-      return 0 unless name.value == toks.first.value
-      args, idx = parse_arguments(toks, 1)
-      case
-      when args && @parameter_names.empty?
-        idx + 1
-      when args && @parameter_names.size >= args.size
-        idx + 1
-      else
-        0
+      if name.value == toks.first.value
+        args, idx = parse_arguments(toks, 1)
+        case
+        when args && @parameter_names.empty?
+          return idx + 1
+        when args && @parameter_names.size >= args.size
+          return idx + 1
+        end
       end
+      0
     end
 
     def expand(toks, macro_tbl, repl_ctxt)
@@ -398,11 +398,10 @@ module Cpp #:nodoc:
     def replaceable_size(toks)
       if name.value == toks.first.value
         args, idx = parse_arguments(toks, 1)
-        if args && @parameter_names.size <= args.size
-          return idx + 1
-        end
+        args ? idx + 1 : 0
+      else
+        0
       end
-      0
     end
 
     def expand(toks, macro_tbl, repl_ctxt)

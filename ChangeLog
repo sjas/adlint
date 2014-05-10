@@ -1,3 +1,10 @@
+Sat May 10 22:07:09 2014  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/cpp/macro.rb : Revise behavior of function-like macro
+	  replacement in order to enforce the replacement even if the number of
+	  arguments is less than the number of parameters.
+	* features/code_check/W0830.feature : Ditto.
+
 Sat May 10 13:58:35 2014  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* release.rc : 3.2.13

@@ -109,3 +109,19 @@ Feature: W0835
       | W0629 | 8    | 13     |
       | W0443 | 4    | 1      |
       | W0628 | 8    | 13     |
+
+  Scenario: ill-formed macro call with too few arguments
+    Given a target source named "fixture.c" with:
+      """
+      #define init(a, b, ...) { 0, a, b, __VA_ARGS__ }
+      int a[] = init(1);
+      """
+    When I successfully run `adlint fixture.c` on noarch
+    Then the output should exactly match with:
+      | mesg  | line | column |
+      | W0442 | 1    | 1      |
+      | W0549 | 1    | 30     |
+      | W0549 | 1    | 33     |
+      | W0109 | 2    | 11     |
+      | W9003 | 2    | 11     |
+      | W0117 | 2    | 5      |

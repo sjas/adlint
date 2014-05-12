@@ -42,7 +42,7 @@ It (currently) can analyze source code compliant with ANSI C89 / ISO C90 and par
 <a name="prerequisites" class="anchor" href="#prerequisites"><span class="octicon octicon-link"></span></a>Prerequisites</h3>
 
 <ul>
-<li>Ruby 1.9.3-p0 or later for normal use (*mandatory*)</li>
+<li>Ruby 1.9.3-p0 or later for normal use (<em>mandatory</em>)</li>
 <li>GNU Make 3 or later to use adlintized Makefile (optional but recommended)</li>
 <li>Racc 1.4.7 for development (optional)</li>
 </ul><h3>
@@ -75,10 +75,11 @@ You can evaluate AdLint by the following instructions.</p>
 <p>Following files will be generated.</p>
 
 <table>
-<tr>
+<thead><tr>
 <th>File</th>
 <th>Description</th>
-</tr>
+</tr></thead>
+<tbody>
 <tr>
 <td><code>GNUmakefile</code></td>
 <td>Automatic analysis makefile for GNU Make</td>
@@ -107,6 +108,7 @@ You can evaluate AdLint by the following instructions.</p>
 <td><code>adlint_files.txt</code></td>
 <td>List file for sh script and bat file</td>
 </tr>
+</tbody>
 </table><p>Finally, do analysis.</p>
 
 <pre><code>% make verbose-all
@@ -119,10 +121,11 @@ adlint --verbose -t adlint_traits.yml -o . intro_demo.c
 <p>Following files will be generated.</p>
 
 <table>
-<tr>
+<thead><tr>
 <th>File</th>
 <th>Description</th>
-</tr>
+</tr></thead>
+<tbody>
 <tr>
 <td><code>intro_demo.i</code></td>
 <td>Preprocessed source of <code>intro_demo.c</code>
@@ -144,13 +147,14 @@ adlint --verbose -t adlint_traits.yml -o . intro_demo.c
 <td><code>intro_demo.msg.csv</code></td>
 <td>Cross module warning messages</td>
 </tr>
+</tbody>
 </table><p><code>intro_demo.c.msg.csv</code> will tell you that the control will never reach to some
 statements and that division-by-zero will occur in <code>intro_demo.c</code>.</p>
 
 <h2>
 <a name="license" class="anchor" href="#license"><span class="octicon octicon-link"></span></a>License</h2>
 
-<p>Copyright (C) 2010-2013, <a href="http://www.ogis-ri.co.jp/">OGIS-RI</a> Co.,Ltd.</p>
+<p>Copyright (C) 2010-2014, <a href="http://www.ogis-ri.co.jp/">OGIS-RI</a> Co.,Ltd.</p>
 
 <p>AdLint is free software: you can redistribute it and/or modify it under the
 terms of the GNU General Public License as published by the Free Software

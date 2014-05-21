@@ -1,3 +1,8 @@
+Wed May 21 17:43:04 2014  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/cc1/type.rb : Fix Array#impl_length in order to limit
+	  size of the actual array object correctly.
+
 Wed May 14 16:50:30 2014  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* lib/adlint/cpp/eval.rb : Add checkpoints to ease preprocessing error

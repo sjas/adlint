@@ -32,6 +32,7 @@
 require "adlint/error"
 require "adlint/source"
 require "adlint/report"
+require "adlint/monitor"
 require "adlint/util"
 require "adlint/cpp/syntax"
 require "adlint/cpp/source"
@@ -48,6 +49,7 @@ module Cpp #:nodoc:
   # Preprocessor executes recursive descent parsing and evaluation at a time.
   class Preprocessor
     include ReportUtil
+    include MonitorUtil
     include LogUtil
 
     def execute(pp_ctxt, src)
@@ -81,10 +83,12 @@ module Cpp #:nodoc:
 
     private
     def preprocessing_file(pp_ctxt)
+      top_tok = pp_ctxt.top_token and checkpoint(top_tok.location)
       PreprocessingFile.new(pp_ctxt.tunit_root_fpath, group(pp_ctxt))
     end
 
     def group(pp_ctxt)
+      top_tok = pp_ctxt.top_token and checkpoint(top_tok.location)
       if group_part = group_part(pp_ctxt)
         group = Group.new.push(group_part)
         while group_part = group_part(pp_ctxt)
@@ -96,6 +100,7 @@ module Cpp #:nodoc:
     end
 
     def group_part(pp_ctxt)
+      top_tok = pp_ctxt.top_token and checkpoint(top_tok.location)
       if top_tok = pp_ctxt.top_token
         case top_tok.type
         when :IF, :IFDEF, :IFNDEF
@@ -127,6 +132,8 @@ module Cpp #:nodoc:
     end
 
     def if_section(pp_ctxt)
+      top_tok = pp_ctxt.top_token and checkpoint(top_tok.location)
+
       pp_ctxt.push_branch
       if_group = if_group(pp_ctxt)
 
@@ -149,6 +156,7 @@ module Cpp #:nodoc:
     end
 
     def if_group(pp_ctxt)
+      top_tok = pp_ctxt.top_token and checkpoint(top_tok.location)
       if keyword = pp_ctxt.top_token
         case keyword.type
         when :IF
@@ -163,6 +171,7 @@ module Cpp #:nodoc:
     end
 
     def if_statement(pp_ctxt)
+      top_tok = pp_ctxt.top_token and checkpoint(top_tok.location)
       keyword = pp_ctxt.next_token
       unless pp_toks = pp_tokens(pp_ctxt)
         return nil
@@ -179,6 +188,7 @@ module Cpp #:nodoc:
     end
 
     def ifdef_statement(pp_ctxt)
+      top_tok = pp_ctxt.top_token and checkpoint(top_tok.location)
       keyword = pp_ctxt.next_token
       unless id = pp_ctxt.next_token and id.type == :IDENTIFIER
         return nil
@@ -194,6 +204,7 @@ module Cpp #:nodoc:
     end
 
     def ifndef_statement(pp_ctxt)
+      top_tok = pp_ctxt.top_token and checkpoint(top_tok.location)
       keyword = pp_ctxt.next_token
       unless id = pp_ctxt.next_token and id.type == :IDENTIFIER
         return nil
@@ -209,6 +220,7 @@ module Cpp #:nodoc:
     end
 
     def elif_groups(pp_ctxt)
+      top_tok = pp_ctxt.top_token and checkpoint(top_tok.location)
       if elif_group = elif_group(pp_ctxt)
         elif_groups = ElifGroups.new.push(elif_group)
         while elif_group = elif_group(pp_ctxt)
@@ -220,6 +232,8 @@ module Cpp #:nodoc:
     end
 
     def elif_group(pp_ctxt)
+      top_tok = pp_ctxt.top_token and checkpoint(top_tok.location)
+
       unless top_tok = pp_ctxt.top_token and top_tok.type == :ELIF
         return nil
       end
@@ -244,6 +258,7 @@ module Cpp #:nodoc:
     end
 
     def else_group(pp_ctxt)
+      top_tok = pp_ctxt.top_token and checkpoint(top_tok.location)
       if keyword = pp_ctxt.next_token
         if keyword.type == :ELSE
           discard_extra_tokens_until_newline(pp_ctxt)
@@ -260,6 +275,7 @@ module Cpp #:nodoc:
     end
 
     def endif_line(pp_ctxt)
+      top_tok = pp_ctxt.top_token and checkpoint(top_tok.location)
       if keyword = pp_ctxt.next_token
         if keyword.type == :ENDIF
           discard_extra_tokens_until_newline(pp_ctxt)
@@ -270,6 +286,7 @@ module Cpp #:nodoc:
     end
 
     def control_line(pp_ctxt)
+      top_tok = pp_ctxt.top_token and checkpoint(top_tok.location)
       if keyword = pp_ctxt.top_token
         case keyword.type
         when :INCLUDE
@@ -292,6 +309,7 @@ module Cpp #:nodoc:
     end
 
     def include_line(pp_ctxt)
+      top_tok = pp_ctxt.top_token and checkpoint(top_tok.location)
       keyword = pp_ctxt.next_token
       if header_name = pp_ctxt.top_token
         case header_name.type
@@ -307,6 +325,7 @@ module Cpp #:nodoc:
     end
 
     def include_next_line(pp_ctxt)
+      top_tok = pp_ctxt.top_token and checkpoint(top_tok.location)
       keyword = pp_ctxt.next_token
       if header_name = pp_ctxt.top_token
         case header_name.type
@@ -322,6 +341,7 @@ module Cpp #:nodoc:
     end
 
     def user_include_line(pp_ctxt, keyword)
+      top_tok = pp_ctxt.top_token and checkpoint(top_tok.location)
       header_name = pp_ctxt.next_token
       discard_extra_tokens_until_newline(pp_ctxt)
       usr_include_line =
@@ -331,6 +351,7 @@ module Cpp #:nodoc:
     end
 
     def user_include_next_line(pp_ctxt, keyword)
+      top_tok = pp_ctxt.top_token and checkpoint(top_tok.location)
       header_name = pp_ctxt.next_token
       discard_extra_tokens_until_newline(pp_ctxt)
       usr_include_next_line =
@@ -340,6 +361,7 @@ module Cpp #:nodoc:
     end
 
     def system_include_line(pp_ctxt, keyword)
+      top_tok = pp_ctxt.top_token and checkpoint(top_tok.location)
       header_name = pp_ctxt.next_token
       discard_extra_tokens_until_newline(pp_ctxt)
       sys_include_line =
@@ -349,6 +371,7 @@ module Cpp #:nodoc:
     end
 
     def system_include_next_line(pp_ctxt, keyword)
+      top_tok = pp_ctxt.top_token and checkpoint(top_tok.location)
       header_name = pp_ctxt.next_token
       discard_extra_tokens_until_newline(pp_ctxt)
       sys_include_next_line =
@@ -358,6 +381,7 @@ module Cpp #:nodoc:
     end
 
     def macro_include_line(pp_ctxt, keyword)
+      top_tok = pp_ctxt.top_token and checkpoint(top_tok.location)
       unless pp_toks = pp_tokens(pp_ctxt)
         return nil
       end
@@ -387,6 +411,7 @@ module Cpp #:nodoc:
     end
 
     def macro_include_next_line(pp_ctxt, keyword)
+      top_tok = pp_ctxt.top_token and checkpoint(top_tok.location)
       unless pp_toks = pp_tokens(pp_ctxt)
         return nil
       end
@@ -413,6 +438,8 @@ module Cpp #:nodoc:
     end
 
     def define_line(pp_ctxt)
+      top_tok = pp_ctxt.top_token and checkpoint(top_tok.location)
+
       keyword = pp_ctxt.next_token
       unless id = pp_ctxt.next_token and id.type == :IDENTIFIER
         return nil
@@ -464,6 +491,8 @@ module Cpp #:nodoc:
     end
 
     def undef_line(pp_ctxt)
+      top_tok = pp_ctxt.top_token and checkpoint(top_tok.location)
+
       keyword = pp_ctxt.next_token
       unless id = pp_ctxt.next_token and id.type == :IDENTIFIER
         return nil
@@ -480,6 +509,8 @@ module Cpp #:nodoc:
     end
 
     def line_line(pp_ctxt)
+      top_tok = pp_ctxt.top_token and checkpoint(top_tok.location)
+
       keyword = pp_ctxt.next_token
       pp_toks = pp_tokens(pp_ctxt)
       discard_extra_tokens_until_newline(pp_ctxt)
@@ -504,6 +535,7 @@ module Cpp #:nodoc:
     end
 
     def error_line(pp_ctxt)
+      top_tok = pp_ctxt.top_token and checkpoint(top_tok.location)
       keyword = pp_ctxt.next_token
       pp_toks = pp_tokens(pp_ctxt)
       discard_extra_tokens_until_newline(pp_ctxt)
@@ -511,6 +543,7 @@ module Cpp #:nodoc:
     end
 
     def pragma_line(pp_ctxt)
+      top_tok = pp_ctxt.top_token and checkpoint(top_tok.location)
       keyword = pp_ctxt.next_token
       pp_toks = pp_tokens(pp_ctxt)
       discard_extra_tokens_until_newline(pp_ctxt)
@@ -525,6 +558,7 @@ module Cpp #:nodoc:
     end
 
     def identifier_list(pp_ctxt)
+      top_tok = pp_ctxt.top_token and checkpoint(top_tok.location)
       unless id = pp_ctxt.top_token and id.type == :IDENTIFIER
         return nil
       end
@@ -546,10 +580,12 @@ module Cpp #:nodoc:
     end
 
     def replacement_list(pp_ctxt)
+      top_tok = pp_ctxt.top_token and checkpoint(top_tok.location)
       pp_tokens(pp_ctxt)
     end
 
     def pp_tokens(pp_ctxt)
+      top_tok = pp_ctxt.top_token and checkpoint(top_tok.location)
       unless pp_tok = pp_ctxt.top_token and pp_tok.type == :PP_TOKEN
         return nil
       end
@@ -565,6 +601,7 @@ module Cpp #:nodoc:
     end
 
     def asm_section(pp_ctxt)
+      top_tok = pp_ctxt.top_token and checkpoint(top_tok.location)
       asm_line = asm_line(pp_ctxt)
       pp_ctxt.skip_group
       endasm_line = endasm_line(pp_ctxt)
@@ -574,6 +611,7 @@ module Cpp #:nodoc:
     end
 
     def asm_line(pp_ctxt)
+      top_tok = pp_ctxt.top_token and checkpoint(top_tok.location)
       if keyword = pp_ctxt.next_token
         if keyword.type == :ASM
           discard_extra_tokens_until_newline(pp_ctxt)
@@ -584,6 +622,7 @@ module Cpp #:nodoc:
     end
 
     def endasm_line(pp_ctxt)
+      top_tok = pp_ctxt.top_token and checkpoint(top_tok.location)
       if keyword = pp_ctxt.next_token
         if keyword.type == :ENDASM
           discard_extra_tokens_until_newline(pp_ctxt)
@@ -832,6 +871,9 @@ module Cpp #:nodoc:
     def_delegator :@pp_ctxt, :message_catalog
     private :message_catalog
 
+    def_delegator :@pp_ctxt, :monitor
+    private :monitor
+
     def_delegator :@pp_ctxt, :logger
     private :logger
   end
@@ -853,6 +895,7 @@ module Cpp #:nodoc:
     def_delegator :@phase_ctxt, :traits
     def_delegator :@phase_ctxt, :message_catalog
     def_delegator :@phase_ctxt, :report
+    def_delegator :@phase_ctxt, :monitor
     def_delegator :@phase_ctxt, :logger
     def_delegator :@phase_ctxt, :msg_fpath
     def_delegator :@phase_ctxt, :log_fpath

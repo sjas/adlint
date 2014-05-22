@@ -1,3 +1,10 @@
+Thu May 22 15:53:19 2014  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* release.rc : 3.2.15
+	  - Add checkpoints to ease preprocessing error investigation.
+	  - Revise object allocation behavior of a large array in order not to
+	    exhaust memory.
+
 Thu May 22 11:52:20 2014  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* lib/adlint/cc1/interp.rb : Fix initializer-list evaluation of an

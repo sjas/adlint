@@ -5546,8 +5546,9 @@ module Cc1 #:nodoc:
   end
 
   class ArrayType < Type
-    # NOTE: To avoid huge array allocation in interpreting phase.
-    LIMIT_LENGTH = 256
+    # NOTE: Limit length of the actual array object to avoid huge memory
+    #       consumption in interpreting phase.
+    LIMIT_LENGTH = 512
     private_constant :LIMIT_LENGTH
 
     def initialize(type_tbl, base_type, len = nil)

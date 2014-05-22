@@ -352,6 +352,10 @@ module Cc1 #:nodoc:
       subclass_responsibility
     end
 
+    def number_of_objects
+      subclass_responsibility
+    end
+
     def members
       subclass_responsibility
     end
@@ -824,6 +828,10 @@ module Cc1 #:nodoc:
 
     def impl_length
       0
+    end
+
+    def number_of_objects
+      1
     end
 
     def members
@@ -1341,6 +1349,10 @@ module Cc1 #:nodoc:
       0
     end
 
+    def number_of_objects
+      1
+    end
+
     def members
       []
     end
@@ -1789,6 +1801,7 @@ module Cc1 #:nodoc:
     def_delegator :@base_type, :length
     def_delegator :@base_type, :length=
     def_delegator :@base_type, :impl_length
+    def_delegator :@base_type, :number_of_objects
     def_delegator :@base_type, :members
     def_delegator :@base_type, :member_named
     def_delegator :@base_type, :min
@@ -2080,6 +2093,10 @@ module Cc1 #:nodoc:
 
     def impl_length
       0
+    end
+
+    def number_of_objects
+      1
     end
 
     def members
@@ -2597,6 +2614,10 @@ module Cc1 #:nodoc:
 
     def impl_length
       0
+    end
+
+    def number_of_objects
+      1
     end
 
     def members
@@ -3144,6 +3165,10 @@ module Cc1 #:nodoc:
 
     def impl_length
       0
+    end
+
+    def number_of_objects
+      1
     end
 
     def members
@@ -5521,26 +5546,20 @@ module Cc1 #:nodoc:
   end
 
   class ArrayType < Type
-    # NOTE: To avoid huge array allocation in interpreting phase.
-    MAX_LENGTH = 256
-    private_constant :MAX_LENGTH
+    # NOTE: Limit length of the actual array object to avoid huge memory
+    #       consumption in interpreting phase.
+    LIMIT_LENGTH = 512
+    private_constant :LIMIT_LENGTH
 
     def initialize(type_tbl, base_type, len = nil)
       super(type_tbl, create_name(base_type, len))
       @base_type = base_type
-      @length = len
+      self.length = len
     end
 
     attr_reader :base_type
-
-    # NOTE: Length of the array type may be deducted by the size of the
-    #       initializer in interpret phase.
-    attr_accessor :length
-
-    def impl_length
-      # NOTE: Implementation defined length of this array.
-      @length ? [[0, @length].max, MAX_LENGTH].min : 0
-    end
+    attr_reader :length
+    attr_reader :impl_length
 
     def id
       # NOTE: ID of the array type cannot be cached.
@@ -5732,6 +5751,29 @@ module Cc1 #:nodoc:
 
     def enumerators
       []
+    end
+
+    def length=(len)
+      # NOTE: Length of the array type may be deducted by the size of the
+      #       initializer in interpret phase.
+      if len
+        if @base_type.number_of_objects * len < LIMIT_LENGTH
+          @impl_length = len
+        else
+          @impl_length = LIMIT_LENGTH / @base_type.number_of_objects
+        end
+      else
+        @impl_length = 0
+      end
+      @length = len
+    end
+
+    def number_of_objects
+      if @length
+        @length * @base_type.number_of_objects
+      else
+        @base_type.number_of_objects
+      end
     end
 
     def members
@@ -6304,6 +6346,10 @@ module Cc1 #:nodoc:
       0
     end
 
+    def number_of_objects
+      @members.reduce(0) { |acc, memb| acc + memb.type.number_of_objects }
+    end
+
     def member_named(name)
       # FIXME: Should use the member name index.
       @members.each do |memb|
@@ -6869,6 +6915,7 @@ module Cc1 #:nodoc:
     def_delegator :@base_type, :length
     def_delegator :@base_type, :length=
     def_delegator :@base_type, :impl_length
+    def_delegator :@base_type, :number_of_objects
     def_delegator :@base_type, :members
     def_delegator :@base_type, :member_named
     def_delegator :@base_type, :min
@@ -7023,6 +7070,7 @@ module Cc1 #:nodoc:
     def_delegator :@type, :length
     def_delegator :@type, :length=
     def_delegator :@type, :impl_length
+    def_delegator :@type, :number_of_objects
     def_delegator :@type, :members
     def_delegator :@type, :member_named
     def_delegator :@type, :min

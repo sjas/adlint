@@ -1,3 +1,15 @@
+Thu May 22 11:52:20 2014  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/cc1/interp.rb : Fix initializer-list evaluation of an
+	  array variable definition in order to examine all expressions in the
+	  list even if the actual array size is limited to avoid memory
+	  exhausting.
+
+Wed May 21 17:43:04 2014  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/cc1/type.rb : Fix Array#impl_length in order to limit
+	  size of the actual array object correctly.
+
 Wed May 14 16:50:30 2014  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* lib/adlint/cpp/eval.rb : Add checkpoints to ease preprocessing error

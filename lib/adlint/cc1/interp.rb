@@ -819,7 +819,7 @@ module Cc1 #:nodoc:
         #
         # NOTE: ISO C90 does not support flexible array members.
         type = deduct_array_length_from_initializers(type, inits)
-        memb_types = [type.unqualify.base_type] * type.impl_length
+        memb_types = [type.unqualify.base_type] * type.length
       when type.struct?
         memb_types = type.members.map { |memb| memb.type }
       else

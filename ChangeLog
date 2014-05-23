@@ -1,3 +1,20 @@
+Fri May 23 18:12:24 2014  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/cc1/syntax.rb : Correct to run on ruby 2.1.2p95 without
+	  warnings.
+
+Fri May 23 18:02:39 2014  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/cc1/interp.rb : Add unused global variable elimination to
+	  reduce memory usage.
+	* lib/adlint/cc1/syntax.rb : Ditto.
+	* spec/adlint/cc1/ctrlexpr_spec.rb : Ditto.
+
+	* lib/adlint/cc1/type.rb : Support adaptive size limiter of the actual
+	  array object.
+
+	* features/code_check/W1031.feature : Fix typo.
+
 Thu May 22 15:53:19 2014  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* release.rc : 3.2.15

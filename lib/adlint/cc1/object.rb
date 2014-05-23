@@ -850,7 +850,9 @@ module Cc1 #:nodoc:
       var.assign!(init_val, dcl_or_def, br)
 
       if var.named?
-        @named_variables.last[var.name] = var
+        unless var.scope.global? && dcl_or_def.reference_count == 0
+          @named_variables.last[var.name] = var
+        end
       else
         @temp_variables.last.push(var)
       end

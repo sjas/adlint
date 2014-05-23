@@ -142,10 +142,11 @@ module Cc1
       dcl_specs = DeclarationSpecifiers.new.tap { |ds|
         ds.type_specifiers.push(int_t_spec)
       }
-      decl = Declaration.new(dcl_specs, [uninitialized_int_dcl(name)],
-                             @symbol_table)
-      decl.items.each { |item| item.type = type }
-      decl.items.find { |item| item.kind_of?(VariableDefinition) }
+      dcl = Declaration.new(dcl_specs, [uninitialized_int_dcl(name)],
+                            @symbol_table)
+      dcl.items.each { |item| item.type = type }
+      var_def = dcl.items.find { |item| item.kind_of?(VariableDefinition) }
+      var_def.add_reference
     end
 
     def uninitialized_int_dcl(name)

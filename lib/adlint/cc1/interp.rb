@@ -57,13 +57,98 @@ module Cc1 #:nodoc:
     end
 
     class ExecutionDriver < SyntaxTreeVisitor
+      include SyntaxNodeCollector
+
       def initialize(interp)
         @interpreter = interp
+      end
+
+      def visit_translation_unit(tunit)
+        prepare_for_working_memory_tuning(tunit)
+        super
       end
 
       def visit_declaration(node) @interpreter.execute(node) end
       def visit_ansi_function_definition(node) @interpreter.execute(node) end
       def visit_kandr_function_definition(node) @interpreter.execute(node) end
+
+      private
+      def prepare_for_working_memory_tuning(tunit)
+        gvar_dcls = GVarDclCollector.new.tap { |col| tunit.accept(col) }.result
+        mark_global_variables(tunit, gvar_dcls)
+        tune_array_length_limit(gvar_dcls)
+      end
+
+      def mark_global_variables(tunit, gvar_dcls)
+        obj_specs = collect_object_specifiers(tunit)
+        gvar_dcls.each do |var_dcl|
+          obj_specs.each do |obj_spec|
+            if var_dcl.identifier.value == obj_spec.identifier.value
+              var_dcl.add_reference
+              break
+            end
+          end
+          next if var_dcl.reference_count > 0
+
+          # NOTE: Mark variable reference so that builtin W1031 exam can warn
+          #       about the declaration conflict.
+          gvar_dcls.each do |other_dcl|
+            unless var_dcl.equal?(other_dcl)
+              if var_dcl.identifier.value == other_dcl.identifier.value
+                var_dcl.add_reference
+                break
+              end
+            end
+          end
+        end
+      end
+
+      def tune_array_length_limit(gvar_dcls)
+        # TODO: Adjust threshold magic number.
+        case estimate_memory_usage(gvar_dcls)
+        when 0...300
+          ArrayType.limit_length = ArrayType::LIMIT_LENGTH_GREEN
+        when 300...500
+          ArrayType.limit_length = ArrayType::LIMIT_LENGTH_YELLOW
+        else
+          ArrayType.limit_length = ArrayType::LIMIT_LENGTH_RED
+        end
+      end
+
+      def estimate_memory_usage(gvar_dcls)
+        dcl_cnt = var_cnt = 0
+        gvar_dcls.each do |var_dcl|
+          # NOTE: Ignore unused global variables.
+          if var_dcl.reference_count > 0
+            dcl_cnt += 1
+            if type = var_dcl.type
+              var_cnt += type.number_of_objects
+            end
+          end
+        end
+        dcl_cnt == 0 ? var_cnt : var_cnt / dcl_cnt
+      end
+
+      class GVarDclCollector < SyntaxTreeVisitor
+        def initialize
+          @result = []
+        end
+
+        attr_reader :result
+
+        def visit_variable_declaration(node)
+          result.push(node)
+        end
+
+        def visit_variable_definition(node)
+          result.push(node)
+        end
+
+        # NOTE: Not to dive into the function body.
+        def visit_kandr_function_definition(*) end
+        def visit_ansi_function_definition(*) end
+      end
+      private_constant :GVarDclCollector
     end
     private_constant :ExecutionDriver
   end

@@ -2437,9 +2437,21 @@ module Cc1 #:nodoc:
     end
   end
 
+  module ReferenceCounter
+    def add_reference
+      @ref_cnt = @ref_cnt ? @ref_cnt + 1 : 1
+      self
+    end
+
+    def reference_count
+      defined?(@ref_cnt) ? @ref_cnt : 0
+    end
+  end
+
   class VariableDeclaration < SyntaxNode
     include SymbolicElement
     include DeclarationSpecifiersHolder
+    include ReferenceCounter
 
     def initialize(dcl_specs, dcr, sym)
       super()
@@ -2482,6 +2494,7 @@ module Cc1 #:nodoc:
 
   class VariableDefinition < Definition
     include SymbolicElement
+    include ReferenceCounter
 
     def initialize(dcl_specs, init_dcr, sym)
       super(dcl_specs)

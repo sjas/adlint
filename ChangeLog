@@ -1,3 +1,9 @@
+Sat May 24 23:07:23 2014  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/cc1/interp.rb : Revert cancellation of length restriction
+	  in initializer-list evaluation to shorten analysis time and tune
+	  parameters of the adaptive array length restriction.
+
 Fri May 23 18:12:24 2014  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* lib/adlint/cc1/syntax.rb : Correct to run on ruby 2.1.2p95 without

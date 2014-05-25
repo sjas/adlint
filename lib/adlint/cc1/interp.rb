@@ -106,9 +106,9 @@ module Cc1 #:nodoc:
       def tune_array_length_limit(gvar_dcls)
         # TODO: Adjust threshold magic number.
         case estimate_memory_usage(gvar_dcls)
-        when 0...300
+        when 0...400
           ArrayType.limit_length = ArrayType::LIMIT_LENGTH_GREEN
-        when 300...500
+        when 400...600
           ArrayType.limit_length = ArrayType::LIMIT_LENGTH_YELLOW
         else
           ArrayType.limit_length = ArrayType::LIMIT_LENGTH_RED
@@ -904,7 +904,7 @@ module Cc1 #:nodoc:
         #
         # NOTE: ISO C90 does not support flexible array members.
         type = deduct_array_length_from_initializers(type, inits)
-        memb_types = [type.unqualify.base_type] * type.length
+        memb_types = [type.unqualify.base_type] * type.impl_length
       when type.struct?
         memb_types = type.members.map { |memb| memb.type }
       else

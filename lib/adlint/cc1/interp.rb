@@ -857,6 +857,11 @@ module Cc1 #:nodoc:
       return var, conved
     end
 
+    # NOTE: Limit number of initializers in a initializer-list to break huge
+    #       initializer-list evaluation.
+    INIT_MAX = ArrayType::LIMIT_LENGTH_GREEN
+    private_constant :INIT_MAX
+
     def evaluate_initializers(inits, type)
       case
       when type.union?
@@ -904,7 +909,7 @@ module Cc1 #:nodoc:
         #
         # NOTE: ISO C90 does not support flexible array members.
         type = deduct_array_length_from_initializers(type, inits)
-        memb_types = [type.unqualify.base_type] * type.impl_length
+        memb_types = [type.unqualify.base_type] * [type.length, INIT_MAX].min
       when type.struct?
         memb_types = type.members.map { |memb| memb.type }
       else

@@ -1531,15 +1531,15 @@ module Cc1 #:nodoc:
               _notify_object_referred(expr, inner_var)
               return inner_var
             end
-          else
-            # NOTE: To improve heuristics of array subscript evaluation with an
-            #       indefinite subscript.
-            inner_var = ary.representative_element
-            _notify_object_referred(expr, inner_var)
-            return inner_var
           end
+          # NOTE: To improve heuristics of array subscript evaluation with an
+          #       indefinite subscript.
+          inner_var = ary.representative_element
+          _notify_object_referred(expr, inner_var)
+          inner_var
+        else
+          create_tmpvar(rslt_type)
         end
-        create_tmpvar(rslt_type)
       end
 
       def _notify_object_referred(node, obj)

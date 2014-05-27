@@ -1,3 +1,11 @@
+Tue May 27 12:39:01 2014  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/cc1/expr.rb : Fix array-subscript-expression evaluation to
+	  refer the representative element of the array so that the
+	  cross-reference to the array can be reported even if the subscript
+	  points to the element eliminated by the adaptive array length
+	  restriction.
+
 Mon May 26 16:43:26 2014  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* lib/adlint/cc1/interp.rb : Fix restriction on evaluating number of

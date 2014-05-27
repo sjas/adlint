@@ -1526,10 +1526,16 @@ module Cc1 #:nodoc:
       def _pick_array_element(expr, ary, subs, rslt_type)
         if ary
           if subs.value.definite?
-            inner_var = ary.inner_variable_at(subs.value.unique_sample)
-            if inner_var && inner_var.type.same_as?(rslt_type)
-              _notify_object_referred(expr, inner_var)
-              return inner_var
+            subs_val = subs.value.unique_sample
+            if subs_val >= 0 && subs_val < ary.type.length
+              inner_var = ary.inner_variable_at(subs_val)
+              if inner_var && inner_var.type.same_as?(rslt_type)
+                _notify_object_referred(expr, inner_var)
+                return inner_var
+              end
+            else
+              # NOTE: OOB access should not affect the array.
+              return create_tmpvar(rslt_type)
             end
           end
           # NOTE: To improve heuristics of array subscript evaluation with an

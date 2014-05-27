@@ -1,3 +1,9 @@
+Tue May 27 18:46:08 2014  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/cc1/expr.rb : Fix abend problem when the size omitted
+	  array is accessed; caused by changes of array-subscript-expression
+	  evaluation.
+
 Tue May 27 18:28:58 2014  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* lib/adlint/cc1/expr.rb : Fix array-subscript-expression evaluation in

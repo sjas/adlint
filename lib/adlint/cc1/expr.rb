@@ -1527,7 +1527,8 @@ module Cc1 #:nodoc:
         if ary
           if subs.value.definite?
             subs_val = subs.value.unique_sample
-            if subs_val >= 0 && subs_val < ary.type.length
+            subs_max = ary.type.length
+            if subs_val && subs_max and subs_val >= 0 && subs_val < subs_max
               inner_var = ary.inner_variable_at(subs_val)
               if inner_var && inner_var.type.same_as?(rslt_type)
                 _notify_object_referred(expr, inner_var)

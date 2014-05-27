@@ -1,3 +1,9 @@
+Tue May 27 17:27:30 2014  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/cc1/object.rb : Revert previous revision of the address
+	  derivation and revise memory binding of the representative array
+	  element so that the reverse resolution by memory address can work.
+
 Tue May 27 14:03:21 2014  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* lib/adlint/cc1/object.rb : Revise address derivation logic in order

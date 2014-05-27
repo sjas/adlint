@@ -153,9 +153,8 @@ module Cc1 #:nodoc:
 
     def _interp_object_bridge_
       {
-        create_tmpvar:        method(:create_tmpvar),
-        scalar_value_of:      method(:scalar_value_of),
-        scalar_value_of_null: method(:scalar_value_of_null)
+        create_tmpvar:   method(:create_tmpvar),
+        scalar_value_of: method(:scalar_value_of)
       }
     end
   end
@@ -494,10 +493,13 @@ module Cc1 #:nodoc:
 
     def create_representative_element(type)
       if type.array?
-        mem = binding.memory.create_unmapped_window
-        ArrayRepresentativeElement.new(mem, self, type.base_type).tap do |var|
-          var.assign!(type.base_type.undefined_value)
+        if @inner_variables.empty?
+          mem = binding.memory.create_unmapped_window
+        else
+          repr_elem = @inner_variables[@inner_variables.size / 2]
+          mem = repr_elem.binding.memory.create_unmapped_window
         end
+        ArrayRepresentativeElement.new(mem, self, type.base_type)
       else
         nil
       end
@@ -649,15 +651,7 @@ module Cc1 #:nodoc:
   class ArrayRepresentativeElement < InnerVariable
     def initialize(mem, outer_var, type)
       super(mem, outer_var, type, "[*]")
-    end
-
-    def to_pointer_value(interp_bridge)
-      # NOTE: An array representative element is not bound to a particular
-      #       location.
-      #       But the address must not be NULL.
-      interp_bridge[:scalar_value_of_null].call.tap do |val|
-        val.invert_domain!
-      end
+      self.assign!(type.undefined_value)
     end
   end
 

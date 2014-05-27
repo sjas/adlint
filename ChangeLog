@@ -1,3 +1,8 @@
+Tue May 27 14:03:21 2014  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/cc1/object.rb : Revise address derivation logic in order
+	  not to bind the representative array element to a particular address.
+
 Tue May 27 12:39:01 2014  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* lib/adlint/cc1/expr.rb : Fix array-subscript-expression evaluation to

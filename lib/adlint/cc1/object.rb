@@ -650,7 +650,7 @@ module Cc1 #:nodoc:
 
   class ArrayRepresentativeElement < InnerVariable
     def initialize(mem, outer_var, type)
-      super(mem, outer_var, type, "[*]")
+      super(mem, outer_var, type, "")
       self.assign!(type.undefined_value)
     end
   end
@@ -1206,7 +1206,7 @@ module Cc1 #:nodoc:
     end
 
     def _cascade_update(src, br)
-      # NOTE: This method will be called only from # #narrow_value_domain! and
+      # NOTE: This method will be called only from #narrow_value_domain! and
       #       #widen_value_domain! of Variable to propagate memory mutation to
       #       the upper MemoryBlock from MemoryWindow.
     end

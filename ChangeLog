@@ -1,3 +1,8 @@
+Wed May 28 11:53:57 2014  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/cc1/object.rb : Fix ugly component name of the
+	  representative array element.
+
 Tue May 27 18:46:08 2014  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* lib/adlint/cc1/expr.rb : Fix abend problem when the size omitted

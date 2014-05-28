@@ -152,7 +152,7 @@ Feature: W1031
       | W0117 | 1    | 5      |
       | W0118 | 2    | 12     |
 
-  Scenario: function declaration with `static' and function definition with
+  Scenario: variable definition with `static' and variable definition with
             `extern'
     Given a target source named "fixture.c" with:
       """

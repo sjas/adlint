@@ -5548,8 +5548,15 @@ module Cc1 #:nodoc:
   class ArrayType < Type
     # NOTE: Limit length of the actual array object to avoid huge memory
     #       consumption in interpreting phase.
-    LIMIT_LENGTH = 512
-    private_constant :LIMIT_LENGTH
+    LIMIT_LENGTH_GREEN  = 512
+    LIMIT_LENGTH_YELLOW = 256
+    LIMIT_LENGTH_RED    = 64
+
+    @@limit_length = LIMIT_LENGTH_GREEN
+
+    def self.limit_length=(num)
+      @@limit_length = num
+    end
 
     def initialize(type_tbl, base_type, len = nil)
       super(type_tbl, create_name(base_type, len))
@@ -5757,10 +5764,10 @@ module Cc1 #:nodoc:
       # NOTE: Length of the array type may be deducted by the size of the
       #       initializer in interpret phase.
       if len
-        if @base_type.number_of_objects * len < LIMIT_LENGTH
+        if @base_type.number_of_objects * len < @@limit_length
           @impl_length = len
         else
-          @impl_length = LIMIT_LENGTH / @base_type.number_of_objects
+          @impl_length = @@limit_length / @base_type.number_of_objects
         end
       else
         @impl_length = 0

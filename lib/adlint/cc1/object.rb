@@ -493,10 +493,13 @@ module Cc1 #:nodoc:
 
     def create_representative_element(type)
       if type.array?
-        mem = binding.memory.create_unmapped_window
-        ArrayElementVariable.new(mem, self, type.base_type, 0).tap do |var|
-          var.assign!(type.base_type.undefined_value)
+        if @inner_variables.empty?
+          mem = binding.memory.create_unmapped_window
+        else
+          repr_elem = @inner_variables[@inner_variables.size / 2]
+          mem = repr_elem.binding.memory.create_unmapped_window
         end
+        ArrayRepresentativeElement.new(mem, self, type.base_type)
       else
         nil
       end
@@ -642,6 +645,13 @@ module Cc1 #:nodoc:
 
     def initialize(mem, outer_var, type, idx)
       super(mem, outer_var, type, self.class.component_name_of(idx))
+    end
+  end
+
+  class ArrayRepresentativeElement < InnerVariable
+    def initialize(mem, outer_var, type)
+      super(mem, outer_var, type, "")
+      self.assign!(type.undefined_value)
     end
   end
 
@@ -850,7 +860,9 @@ module Cc1 #:nodoc:
       var.assign!(init_val, dcl_or_def, br)
 
       if var.named?
-        @named_variables.last[var.name] = var
+        unless var.scope.global? && dcl_or_def.reference_count == 0
+          @named_variables.last[var.name] = var
+        end
       else
         @temp_variables.last.push(var)
       end
@@ -1194,7 +1206,7 @@ module Cc1 #:nodoc:
     end
 
     def _cascade_update(src, br)
-      # NOTE: This method will be called only from # #narrow_value_domain! and
+      # NOTE: This method will be called only from #narrow_value_domain! and
       #       #widen_value_domain! of Variable to propagate memory mutation to
       #       the upper MemoryBlock from MemoryWindow.
     end

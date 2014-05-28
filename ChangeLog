@@ -1,3 +1,8 @@
+Wed May 28 13:38:32 2014  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* release.rc : 3.2.17
+	  - Add unused global variable elimination to reduce memory usage.
+
 Wed May 28 11:53:57 2014  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* lib/adlint/cc1/object.rb : Fix ugly component name of the

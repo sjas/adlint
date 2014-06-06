@@ -5347,11 +5347,11 @@ module Cc1 #:nodoc:
     end
 
     def min
-      (-2**fraction_bit_size * 10**(exponent_bit_size - 1)).to_f
+      -max
     end
 
     def max
-      (2**fraction_bit_size * 10**(exponent_bit_size - 1)).to_f
+      2**fraction_bit_size * 10**(exponent_bit_size - 1)
     end
 
     def integer_conversion_rank

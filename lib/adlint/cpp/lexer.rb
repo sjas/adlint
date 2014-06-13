@@ -842,9 +842,6 @@ module Cpp #:nodoc:
     def tokenize_constant(lexer_ctxt)
       loc = lexer_ctxt.location
 
-      # NOTE: For extended bit-access operators.
-      return nil if lexer_ctxt.last_symbol == :IDENTIFIER
-
       constant = Language::C.scan_char_constant(lexer_ctxt.content)     ||
                  Language::C.scan_floating_constant(lexer_ctxt.content) ||
                  Language::C.scan_integer_constant(lexer_ctxt.content)

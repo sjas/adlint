@@ -204,6 +204,14 @@ module Cc1 #:nodoc:
     end
 
     def retokenize_constant(pp_tok, lexer_ctxt)
+      # NOTE: Patch for the extended bit-access operator.
+      if lst_tok = @lst_toks.last and lst_tok.type == :IDENTIFIER
+        case pp_tok.value
+        when ".", "->"
+          return nil
+        end
+      end
+
       case pp_tok.value
       when /\AL?'.*'\z/,
            /\A(?:[0-9]*\.[0-9]+|[0-9]+\.)[FL]*\z/i,

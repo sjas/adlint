@@ -2439,12 +2439,12 @@ module Cc1 #:nodoc:
 
   module ReferenceCounter
     def add_reference
-      @ref_cnt = @ref_cnt ? @ref_cnt + 1 : 1
+      @ref_cnt = reference_count + 1
       self
     end
 
     def reference_count
-      defined?(@ref_cnt) ? @ref_cnt : 0
+      @ref_cnt ||= 0
     end
   end
 

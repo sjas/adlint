@@ -40,41 +40,41 @@ module Cc1
     context "`*'" do
       subject { error_expression(operator("*")) }
 
-      it { should_not be_logical }
-      it { should_not be_arithmetic }
-      it { should_not be_bitwise }
+      it { is_expected.not_to be_logical }
+      it { is_expected.not_to be_arithmetic }
+      it { is_expected.not_to be_bitwise }
     end
 
     context "`foo'" do
       subject { object_specifier("foo") }
 
-      it { should_not be_logical }
-      it { should_not be_arithmetic }
-      it { should_not be_bitwise }
+      it { is_expected.not_to be_logical }
+      it { is_expected.not_to be_arithmetic }
+      it { is_expected.not_to be_bitwise }
     end
 
     context "`0x11'" do
       subject { constant_specifier("0x11") }
 
-      it { should_not be_logical }
-      it { should_not be_arithmetic }
-      it { should_not be_bitwise }
+      it { is_expected.not_to be_logical }
+      it { is_expected.not_to be_arithmetic }
+      it { is_expected.not_to be_bitwise }
     end
 
     context %(`"aiueo"') do
       subject { string_literal_specifier('"aiueo"') }
 
-      it { should_not be_logical }
-      it { should_not be_arithmetic }
-      it { should_not be_bitwise }
+      it { is_expected.not_to be_logical }
+      it { is_expected.not_to be_arithmetic }
+      it { is_expected.not_to be_bitwise }
     end
 
     context "`NULL'" do
       subject { null_constant_specifier }
 
-      it { should_not be_logical }
-      it { should_not be_arithmetic }
-      it { should_not be_bitwise }
+      it { is_expected.not_to be_logical }
+      it { is_expected.not_to be_arithmetic }
+      it { is_expected.not_to be_bitwise }
     end
 
     # NOTE: GroupedExpression encloses an arithmetic expression.
@@ -85,9 +85,9 @@ module Cc1
             "+", constant_specifier(1), constant_specifier(2)))
       end
 
-      it { should_not be_logical }
-      it { should be_arithmetic }
-      it { should_not be_bitwise }
+      it { is_expected.not_to be_logical }
+      it { is_expected.to be_arithmetic }
+      it { is_expected.not_to be_bitwise }
     end
 
     # NOTE: GroupedExpression encloses a bitwise expression.
@@ -97,9 +97,9 @@ module Cc1
           shift_expression("<<", constant_specifier(1), constant_specifier(2)))
       end
 
-      it { should_not be_logical }
-      it { should_not be_arithmetic }
-      it { should be_bitwise }
+      it { is_expected.not_to be_logical }
+      it { is_expected.not_to be_arithmetic }
+      it { is_expected.to be_bitwise }
     end
 
     # NOTE: GroupedExpression encloses an expression which is neither
@@ -110,49 +110,49 @@ module Cc1
           logical_and_expression(constant_specifier(1), constant_specifier(2)))
       end
 
-      it { should be_logical }
-      it { should_not be_arithmetic }
-      it { should_not be_bitwise }
+      it { is_expected.to be_logical }
+      it { is_expected.not_to be_arithmetic }
+      it { is_expected.not_to be_bitwise }
     end
 
     context "`i++'" do
       subject { postfix_increment_expression(object_specifier("i")) }
 
-      it { should_not be_logical }
-      it { should be_arithmetic }
-      it { should_not be_bitwise }
+      it { is_expected.not_to be_logical }
+      it { is_expected.to be_arithmetic }
+      it { is_expected.not_to be_bitwise }
     end
 
     context "`i--'" do
       subject { postfix_decrement_expression(object_specifier("i")) }
 
-      it { should_not be_logical }
-      it { should be_arithmetic }
-      it { should_not be_bitwise }
+      it { is_expected.not_to be_logical }
+      it { is_expected.to be_arithmetic }
+      it { is_expected.not_to be_bitwise }
     end
 
     context "`++i'" do
       subject { prefix_increment_expression(object_specifier("i")) }
 
-      it { should_not be_logical }
-      it { should be_arithmetic }
-      it { should_not be_bitwise }
+      it { is_expected.not_to be_logical }
+      it { is_expected.to be_arithmetic }
+      it { is_expected.not_to be_bitwise }
     end
 
     context "`--i'" do
       subject { prefix_decrement_expression(object_specifier("i")) }
 
-      it { should_not be_logical }
-      it { should be_arithmetic }
-      it { should_not be_bitwise }
+      it { is_expected.not_to be_logical }
+      it { is_expected.to be_arithmetic }
+      it { is_expected.not_to be_bitwise }
     end
 
     context "`(char) i'" do
       subject { cast_expression(char_t_name, object_specifier("i")) }
 
-      it { should_not be_logical }
-      it { should_not be_arithmetic }
-      it { should_not be_bitwise }
+      it { is_expected.not_to be_logical }
+      it { is_expected.not_to be_arithmetic }
+      it { is_expected.not_to be_bitwise }
     end
 
     context "`(char) (i + 1)'" do
@@ -163,9 +163,9 @@ module Cc1
               "+", object_specifier("i"), constant_specifier(1))))
       end
 
-      it { should_not be_logical }
-      it { should be_arithmetic }
-      it { should_not be_bitwise }
+      it { is_expected.not_to be_logical }
+      it { is_expected.to be_arithmetic }
+      it { is_expected.not_to be_bitwise }
     end
 
     context "`(char) (i == 0)'" do
@@ -177,9 +177,9 @@ module Cc1
               "==", object_specifier("i"), constant_specifier(1))))
       end
 
-      it { should be_logical }
-      it { should_not be_arithmetic }
-      it { should_not be_bitwise }
+      it { is_expected.to be_logical }
+      it { is_expected.not_to be_arithmetic }
+      it { is_expected.not_to be_bitwise }
     end
 
     context "`(char) (i & 1)'" do
@@ -190,9 +190,9 @@ module Cc1
             and_expression(object_specifier("i"), constant_specifier(1))))
       end
 
-      it { should_not be_logical }
-      it { should_not be_arithmetic }
-      it { should be_bitwise }
+      it { is_expected.not_to be_logical }
+      it { is_expected.not_to be_arithmetic }
+      it { is_expected.to be_bitwise }
     end
 
     context "`i * j'" do
@@ -201,9 +201,9 @@ module Cc1
           "*", object_specifier("i"), object_specifier("j"))
       end
 
-      it { should_not be_logical }
-      it { should be_arithmetic }
-      it { should_not be_bitwise }
+      it { is_expected.not_to be_logical }
+      it { is_expected.to be_arithmetic }
+      it { is_expected.not_to be_bitwise }
     end
 
     context "`i + j'" do
@@ -211,9 +211,9 @@ module Cc1
         additive_expression("+", object_specifier("i"), object_specifier("j"))
       end
 
-      it { should_not be_logical }
-      it { should be_arithmetic }
-      it { should_not be_bitwise }
+      it { is_expected.not_to be_logical }
+      it { is_expected.to be_arithmetic }
+      it { is_expected.not_to be_bitwise }
     end
 
     context "`i << 1'" do
@@ -221,9 +221,9 @@ module Cc1
         shift_expression("<<", object_specifier("i"), constant_specifier(1))
       end
 
-      it { should_not be_logical }
-      it { should_not be_arithmetic }
-      it { should be_bitwise }
+      it { is_expected.not_to be_logical }
+      it { is_expected.not_to be_arithmetic }
+      it { is_expected.to be_bitwise }
     end
 
     context "`i < 0'" do
@@ -232,9 +232,9 @@ module Cc1
           "<", object_specifier("i"), constant_specifier(0))
       end
 
-      it { should be_logical }
-      it { should_not be_arithmetic }
-      it { should_not be_bitwise }
+      it { is_expected.to be_logical }
+      it { is_expected.not_to be_arithmetic }
+      it { is_expected.not_to be_bitwise }
     end
 
     context "`i == j'" do
@@ -242,17 +242,17 @@ module Cc1
         equality_expression("==", object_specifier("i"), object_specifier("j"))
       end
 
-      it { should be_logical }
-      it { should_not be_arithmetic }
-      it { should_not be_bitwise }
+      it { is_expected.to be_logical }
+      it { is_expected.not_to be_arithmetic }
+      it { is_expected.not_to be_bitwise }
     end
 
     context "`i & 1'" do
       subject { and_expression(object_specifier("i"), constant_specifier(1)) }
 
-      it { should_not be_logical }
-      it { should_not be_arithmetic }
-      it { should be_bitwise }
+      it { is_expected.not_to be_logical }
+      it { is_expected.not_to be_arithmetic }
+      it { is_expected.to be_bitwise }
     end
 
     context "`i ^ 2'" do
@@ -260,9 +260,9 @@ module Cc1
         exclusive_or_expression(object_specifier("i"), constant_specifier(2))
       end
 
-      it { should_not be_logical }
-      it { should_not be_arithmetic }
-      it { should be_bitwise }
+      it { is_expected.not_to be_logical }
+      it { is_expected.not_to be_arithmetic }
+      it { is_expected.to be_bitwise }
     end
 
     context "`i | 2'" do
@@ -270,9 +270,9 @@ module Cc1
         inclusive_or_expression(object_specifier("i"), constant_specifier(2))
       end
 
-      it { should_not be_logical }
-      it { should_not be_arithmetic }
-      it { should be_bitwise }
+      it { is_expected.not_to be_logical }
+      it { is_expected.not_to be_arithmetic }
+      it { is_expected.to be_bitwise }
     end
 
     context "`i && j'" do
@@ -280,9 +280,9 @@ module Cc1
         logical_and_expression(object_specifier("i"), object_specifier("j"))
       end
 
-      it { should be_logical }
-      it { should_not be_arithmetic }
-      it { should_not be_bitwise }
+      it { is_expected.to be_logical }
+      it { is_expected.not_to be_arithmetic }
+      it { is_expected.not_to be_bitwise }
     end
 
     context "`i || j'" do
@@ -290,9 +290,9 @@ module Cc1
         logical_or_expression(object_specifier("i"), object_specifier("j"))
       end
 
-      it { should be_logical }
-      it { should_not be_arithmetic }
-      it { should_not be_bitwise }
+      it { is_expected.to be_logical }
+      it { is_expected.not_to be_arithmetic }
+      it { is_expected.not_to be_bitwise }
     end
 
     # NOTE: ConditionalExpression has arithmetics as 2nd and 3rd expression.
@@ -307,9 +307,9 @@ module Cc1
             "-", object_specifier("j"), constant_specifier(4)))
       end
 
-      it { should_not be_logical }
-      it { should be_arithmetic }
-      it { should_not be_bitwise }
+      it { is_expected.not_to be_logical }
+      it { is_expected.to be_arithmetic }
+      it { is_expected.not_to be_bitwise }
     end
 
     # NOTE: ConditionalExpression has an arithmetic as 2nd expression and a
@@ -325,9 +325,9 @@ module Cc1
             object_specifier("j"), object_specifier("k")))
       end
 
-      it { should be_logical }
-      it { should be_arithmetic }
-      it { should_not be_bitwise }
+      it { is_expected.to be_logical }
+      it { is_expected.to be_arithmetic }
+      it { is_expected.not_to be_bitwise }
     end
 
     # NOTE: ConditionalExpression has an arithmetic as 2nd expression and a
@@ -343,9 +343,9 @@ module Cc1
             "<<", object_specifier("i"), constant_specifier(4)))
       end
 
-      it { should_not be_logical }
-      it { should be_arithmetic }
-      it { should be_bitwise }
+      it { is_expected.not_to be_logical }
+      it { is_expected.to be_arithmetic }
+      it { is_expected.to be_bitwise }
     end
 
     # NOTE: ConditionalExpression has bitwises as 2nd and 3rd expression.
@@ -360,9 +360,9 @@ module Cc1
             "<<", object_specifier("i"), constant_specifier(4)))
       end
 
-      it { should_not be_logical }
-      it { should_not be_arithmetic }
-      it { should be_bitwise }
+      it { is_expected.not_to be_logical }
+      it { is_expected.not_to be_arithmetic }
+      it { is_expected.to be_bitwise }
     end
 
     # NOTE: ConditionalExpression has a logical as 2nd expression and a bitwise
@@ -378,9 +378,9 @@ module Cc1
             "<<", object_specifier("i"), constant_specifier(4)))
       end
 
-      it { should be_logical }
-      it { should_not be_arithmetic }
-      it { should be_bitwise }
+      it { is_expected.to be_logical }
+      it { is_expected.not_to be_arithmetic }
+      it { is_expected.to be_bitwise }
     end
 
     # NOTE: ConditionalExpression has logicals as 2nd and 3rd expression.
@@ -395,9 +395,9 @@ module Cc1
             object_specifier("i"), object_specifier("j")))
       end
 
-      it { should be_logical }
-      it { should_not be_arithmetic }
-      it { should_not be_bitwise }
+      it { is_expected.to be_logical }
+      it { is_expected.not_to be_arithmetic }
+      it { is_expected.not_to be_bitwise }
     end
 
     context "`i = 0'" do
@@ -406,9 +406,9 @@ module Cc1
           object_specifier("i"), constant_specifier(0))
       end
 
-      it { should_not be_logical }
-      it { should_not be_arithmetic }
-      it { should_not be_bitwise }
+      it { is_expected.not_to be_logical }
+      it { is_expected.not_to be_arithmetic }
+      it { is_expected.not_to be_bitwise }
     end
 
     context "`i = j = k + 1'" do
@@ -421,9 +421,9 @@ module Cc1
               "+", object_specifier("k"), constant_specifier(1))))
       end
 
-      it { should_not be_logical }
-      it { should be_arithmetic }
-      it { should_not be_bitwise }
+      it { is_expected.not_to be_logical }
+      it { is_expected.to be_arithmetic }
+      it { is_expected.not_to be_bitwise }
     end
 
     context "`i = j = k << 1'" do
@@ -436,9 +436,9 @@ module Cc1
               "<<", object_specifier("k"), constant_specifier(1))))
       end
 
-      it { should_not be_logical }
-      it { should_not be_arithmetic }
-      it { should be_bitwise }
+      it { is_expected.not_to be_logical }
+      it { is_expected.not_to be_arithmetic }
+      it { is_expected.to be_bitwise }
     end
 
     context "`i = j = (k > 5 && k < 10)'" do
@@ -455,9 +455,9 @@ module Cc1
                   "<", object_specifier("k"), constant_specifier(10))))))
       end
 
-      it { should be_logical }
-      it { should_not be_arithmetic }
-      it { should_not be_bitwise }
+      it { is_expected.to be_logical }
+      it { is_expected.not_to be_arithmetic }
+      it { is_expected.not_to be_bitwise }
     end
 
     context "`i += 2'" do
@@ -466,9 +466,9 @@ module Cc1
           "+=", object_specifier("i"), constant_specifier(2))
       end
 
-      it { should_not be_logical }
-      it { should be_arithmetic }
-      it { should_not be_bitwise }
+      it { is_expected.not_to be_logical }
+      it { is_expected.to be_arithmetic }
+      it { is_expected.not_to be_bitwise }
     end
 
     context "`i &= 2'" do
@@ -477,9 +477,9 @@ module Cc1
           "&=", object_specifier("i"), constant_specifier(2))
       end
 
-      it { should_not be_logical }
-      it { should_not be_arithmetic }
-      it { should be_bitwise }
+      it { is_expected.not_to be_logical }
+      it { is_expected.not_to be_arithmetic }
+      it { is_expected.to be_bitwise }
     end
 
     context "`i ^= j && k'" do
@@ -490,9 +490,9 @@ module Cc1
             object_specifier("j"), object_specifier("k")))
       end
 
-      it { should_not be_logical }
-      it { should_not be_arithmetic }
-      it { should be_bitwise }
+      it { is_expected.not_to be_logical }
+      it { is_expected.not_to be_arithmetic }
+      it { is_expected.to be_bitwise }
     end
 
     # NOTE: CommaSeparatedExpression has two arithmetic expressions.
@@ -505,9 +505,9 @@ module Cc1
             "+", object_specifier("j"), constant_specifier(2)))
       end
 
-      it { should_not be_logical }
-      it { should be_arithmetic }
-      it { should_not be_bitwise }
+      it { is_expected.not_to be_logical }
+      it { is_expected.to be_arithmetic }
+      it { is_expected.not_to be_bitwise }
     end
 
     # NOTE: CommaSeparatedExpression has a logical expression followed by an
@@ -521,9 +521,9 @@ module Cc1
             "+", object_specifier("j"), constant_specifier(2)))
       end
 
-      it { should_not be_logical }
-      it { should be_arithmetic }
-      it { should_not be_bitwise }
+      it { is_expected.not_to be_logical }
+      it { is_expected.to be_arithmetic }
+      it { is_expected.not_to be_bitwise }
     end
 
     # NOTE: CommaSeparatedExpression has an arithmetic expression followed by a
@@ -537,9 +537,9 @@ module Cc1
             "<<", object_specifier("j"), constant_specifier(2)))
       end
 
-      it { should_not be_logical }
-      it { should_not be_arithmetic }
-      it { should be_bitwise }
+      it { is_expected.not_to be_logical }
+      it { is_expected.not_to be_arithmetic }
+      it { is_expected.to be_bitwise }
     end
 
     # NOTE: CommaSeparatedExpression has two bitwise expressions.
@@ -552,9 +552,9 @@ module Cc1
             "<<", object_specifier("j"), constant_specifier(2)))
       end
 
-      it { should_not be_logical }
-      it { should_not be_arithmetic }
-      it { should be_bitwise }
+      it { is_expected.not_to be_logical }
+      it { is_expected.not_to be_arithmetic }
+      it { is_expected.to be_bitwise }
     end
 
     # NOTE: CommaSeparatedExpression has a logical expression followed by a
@@ -568,9 +568,9 @@ module Cc1
             "<<", object_specifier("i"), constant_specifier(1)))
       end
 
-      it { should_not be_logical }
-      it { should_not be_arithmetic }
-      it { should be_bitwise }
+      it { is_expected.not_to be_logical }
+      it { is_expected.not_to be_arithmetic }
+      it { is_expected.to be_bitwise }
     end
 
     # NOTE: CommaSeparatedExpression has two logical expressions.
@@ -583,9 +583,9 @@ module Cc1
             ">", object_specifier("j"), constant_specifier(0)))
       end
 
-      it { should be_logical }
-      it { should_not be_arithmetic }
-      it { should_not be_bitwise }
+      it { is_expected.to be_logical }
+      it { is_expected.not_to be_arithmetic }
+      it { is_expected.not_to be_bitwise }
     end
 
     private

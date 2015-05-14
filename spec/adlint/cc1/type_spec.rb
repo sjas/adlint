@@ -89,11 +89,11 @@ module Cc1
         subject { array_type(int_t, 3) }
 
         it "should be convertible to `const int *'" do
-          should be_convertible(const_int_ptr_t)
+          is_expected.to be_convertible(const_int_ptr_t)
         end
 
         it "should be convertible to `int *'" do
-          should be_convertible(int_ptr_t)
+          is_expected.to be_convertible(int_ptr_t)
         end
       end
 
@@ -101,11 +101,11 @@ module Cc1
         subject { array_type(int_t) }
 
         it "should be convertible to `const int *'" do
-          should be_convertible(const_int_ptr_t)
+          is_expected.to be_convertible(const_int_ptr_t)
         end
 
         it "should be convertible to `int *'" do
-          should be_convertible(int_ptr_t)
+          is_expected.to be_convertible(int_ptr_t)
         end
       end
     end
@@ -115,7 +115,7 @@ module Cc1
         subject { const_int_ptr_t }
 
         it "should not be convertible to `int[]'" do
-          should_not be_convertible(array_type(int_t))
+          is_expected.not_to be_convertible(array_type(int_t))
         end
       end
 
@@ -123,7 +123,7 @@ module Cc1
         subject { int_ptr_t }
 
         it "should be convertible to `int[]'" do
-          should be_convertible(array_type(int_t))
+          is_expected.to be_convertible(array_type(int_t))
         end
       end
 
@@ -131,15 +131,15 @@ module Cc1
         subject { const_int_t }
 
         it "should be more cv-qualified than `int'" do
-          should be_more_cv_qualified(int_t)
+          is_expected.to be_more_cv_qualified(int_t)
         end
 
         it "should not be more cv-qualified than `const int'" do
-          should_not be_more_cv_qualified(const_int_t)
+          is_expected.not_to be_more_cv_qualified(const_int_t)
         end
 
         it "should not be more cv-qualified than `volatile int'" do
-          should_not be_more_cv_qualified(volatile_int_t)
+          is_expected.not_to be_more_cv_qualified(volatile_int_t)
         end
       end
 
@@ -147,7 +147,7 @@ module Cc1
         subject { volatile_int_t }
 
         it "should be more cv-qualified than `int'" do
-          should be_more_cv_qualified(int_t)
+          is_expected.to be_more_cv_qualified(int_t)
         end
       end
 
@@ -155,15 +155,15 @@ module Cc1
         subject { const_volatile_int_t }
 
         it "should be more cv-qualified than `int'" do
-          should be_more_cv_qualified(int_t)
+          is_expected.to be_more_cv_qualified(int_t)
         end
 
         it "should be more cv-qualified than `const int'" do
-          should be_more_cv_qualified(const_int_t)
+          is_expected.to be_more_cv_qualified(const_int_t)
         end
 
         it "should be more cv-qualified than `volatile int'" do
-          should be_more_cv_qualified(volatile_int_t)
+          is_expected.to be_more_cv_qualified(volatile_int_t)
         end
       end
     end
@@ -173,15 +173,15 @@ module Cc1
         subject { const_char_t }
 
         it "should be equal to `const unsigned char'" do
-          should == const_unsigned_char_t
+          is_expected.to eq const_unsigned_char_t
         end
 
         it "should be convertible to `char'" do
-          should be_convertible(char_t)
+          is_expected.to be_convertible(char_t)
         end
 
         it "should be convertible to `const unsigned char'" do
-          should be_convertible(const_unsigned_char_t)
+          is_expected.to be_convertible(const_unsigned_char_t)
         end
       end
 
@@ -189,7 +189,7 @@ module Cc1
         subject { char_t }
 
         it "should be convertible to `const char'" do
-          should be_convertible(const_char_t)
+          is_expected.to be_convertible(const_char_t)
         end
       end
 
@@ -197,11 +197,11 @@ module Cc1
         subject { const_char_ptr_t }
 
         it "should be convertible to `const unsigned char *'" do
-          should be_convertible(const_unsigned_char_ptr_t)
+          is_expected.to be_convertible(const_unsigned_char_ptr_t)
         end
 
         it "should not be convertible to `char *'" do
-          should_not be_convertible(char_ptr_t)
+          is_expected.not_to be_convertible(char_ptr_t)
         end
       end
     end
@@ -211,11 +211,11 @@ module Cc1
         subject { char_t }
 
         it "should be equal to `unsigned char'" do
-          should == unsigned_char_t
+          is_expected.to eq unsigned_char_t
         end
 
         it "should not be equal to `signed char'" do
-          should_not == signed_char_t
+          is_expected.not_to eq signed_char_t
         end
       end
     end

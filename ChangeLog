@@ -1,3 +1,8 @@
+Thu May 14 15:59:43 2015  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/exam/c_builtin/cpp_code.rb : Fix abend problem when
+	  evaluating #error directive followed by no pp-tokens.
+
 Thu May 14 15:02:06 2015  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* spec/adlint/location_spec.rb : Migrate to new RSpec expectations.

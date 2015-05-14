@@ -1,3 +1,8 @@
+Thu May 14 16:56:28 2015  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/cpp/eval.rb : Fix infinite loop problem when evaluating
+	  #elif directive followed by no constant-expression.
+
 Thu May 14 15:59:43 2015  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* lib/adlint/exam/c_builtin/cpp_code.rb : Fix abend problem when

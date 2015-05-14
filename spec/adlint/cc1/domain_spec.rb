@@ -44,11 +44,15 @@ module Cc1
         subject { value_domain_equal_to(-2147483648) }
 
         it "should contain (== -2147483648)" do
-          subject.contain?(value_domain_equal_to(-2147483648)).should be_true
+          expect(
+            subject.contain?(value_domain_equal_to(-2147483648))
+          ).to be true
         end
 
         it "should not contain (== 2147483647)" do
-          subject.contain?(value_domain_equal_to(2147483647)).should be_false
+          expect(
+            subject.contain?(value_domain_equal_to(2147483647))
+          ).to be false
         end
       end
 
@@ -56,7 +60,9 @@ module Cc1
         subject { value_domain_equal_to(2147483647) }
 
         it "should not contain (== -2147483648)" do
-          subject.contain?(value_domain_equal_to(-2147483648)).should be_false
+          expect(
+            subject.contain?(value_domain_equal_to(-2147483648))
+          ).to be false
         end
       end
 
@@ -65,47 +71,47 @@ module Cc1
 
         it "* (== 3) should be (== 6)" do
           rhs = value_domain_equal_to(3)
-          (subject * rhs).to_s.should == "(== 6)"
+          expect((subject * rhs).to_s).to eq "(== 6)"
         end
 
         it "* (== 0) should be (== 0)" do
           rhs = value_domain_equal_to(0)
-          (subject * rhs).to_s.should == "(== 0)"
+          expect((subject * rhs).to_s).to eq "(== 0)"
         end
 
         it "* (== -3) should be (== -6)" do
           rhs = value_domain_equal_to(-3)
-          (subject * rhs).to_s.should == "(== -6)"
+          expect((subject * rhs).to_s).to eq "(== -6)"
         end
 
         it "* (< 3) should be (< 6)" do
           rhs = value_domain_less_than(3)
-          (subject * rhs).to_s.should == "(< 6)"
+          expect((subject * rhs).to_s).to eq "(< 6)"
         end
 
         it "* (< 0) should be (< 0)" do
           rhs = value_domain_less_than(0)
-          (subject * rhs).to_s.should == "(< 0)"
+          expect((subject * rhs).to_s).to eq "(< 0)"
         end
 
         it "* (< -3) should be (< -6)" do
           rhs = value_domain_less_than(-3)
-          (subject * rhs).to_s.should == "(< -6)"
+          expect((subject * rhs).to_s).to eq "(< -6)"
         end
 
         it "* (> 3) should be (> 6)" do
           rhs = value_domain_greater_than(3)
-          (subject * rhs).to_s.should == "(> 6)"
+          expect((subject * rhs).to_s).to eq "(> 6)"
         end
 
         it "* (> 0) should be (> 0)" do
           rhs = value_domain_greater_than(0)
-          (subject * rhs).to_s.should == "(> 0)"
+          expect((subject * rhs).to_s).to eq "(> 0)"
         end
 
         it "* (> -3) should be (> -6)" do
           rhs = value_domain_greater_than(-3)
-          (subject * rhs).to_s.should == "(> -6)"
+          expect((subject * rhs).to_s).to eq "(> -6)"
         end
       end
 
@@ -114,47 +120,47 @@ module Cc1
 
         it "* (== 3) should be (== 0)" do
           rhs = value_domain_equal_to(3)
-          (subject * rhs).to_s.should == "(== 0)"
+          expect((subject * rhs).to_s).to eq "(== 0)"
         end
 
         it "* (== 0) should be (== 0)" do
           rhs = value_domain_equal_to(0)
-          (subject * rhs).to_s.should == "(== 0)"
+          expect((subject * rhs).to_s).to eq "(== 0)"
         end
 
         it "* (== -3) should be (== 0)" do
           rhs = value_domain_equal_to(-3)
-          (subject * rhs).to_s.should == "(== 0)"
+          expect((subject * rhs).to_s).to eq "(== 0)"
         end
 
         it "* (< 3) should be (== 0)" do
           rhs = value_domain_less_than(3)
-          (subject * rhs).to_s.should == "(== 0)"
+          expect((subject * rhs).to_s).to eq "(== 0)"
         end
 
         it "* (< 0) should be (== 0)" do
           rhs = value_domain_less_than(0)
-          (subject * rhs).to_s.should == "(== 0)"
+          expect((subject * rhs).to_s).to eq "(== 0)"
         end
 
         it "* (< -3) should be (== 0)" do
           rhs = value_domain_less_than(-3)
-          (subject * rhs).to_s.should == "(== 0)"
+          expect((subject * rhs).to_s).to eq "(== 0)"
         end
 
         it "* (> 3) should be (== 0)" do
           rhs = value_domain_greater_than(3)
-          (subject * rhs).to_s.should == "(== 0)"
+          expect((subject * rhs).to_s).to eq "(== 0)"
         end
 
         it "* (> 0) should be (== 0)" do
           rhs = value_domain_greater_than(0)
-          (subject * rhs).to_s.should == "(== 0)"
+          expect((subject * rhs).to_s).to eq "(== 0)"
         end
 
         it "* (> -3) should be (== 0)" do
           rhs = value_domain_greater_than(-3)
-          (subject * rhs).to_s.should == "(== 0)"
+          expect((subject * rhs).to_s).to eq "(== 0)"
         end
       end
 
@@ -163,47 +169,47 @@ module Cc1
 
         it "* (== 3) should be (== -6)" do
           rhs = value_domain_equal_to(3)
-          (subject * rhs).to_s.should == "(== -6)"
+          expect((subject * rhs).to_s).to eq "(== -6)"
         end
 
         it "* (== 0) should be (== 0)" do
           rhs = value_domain_equal_to(0)
-          (subject * rhs).to_s.should == "(== 0)"
+          expect((subject * rhs).to_s).to eq "(== 0)"
         end
 
         it "* (== -3) should be (== 6)" do
           rhs = value_domain_equal_to(-3)
-          (subject * rhs).to_s.should == "(== 6)"
+          expect((subject * rhs).to_s).to eq "(== 6)"
         end
 
         it "* (< 3) should be (> -6)" do
           rhs = value_domain_less_than(3)
-          (subject * rhs).to_s.should == "(> -6)"
+          expect((subject * rhs).to_s).to eq "(> -6)"
         end
 
         it "* (< 0) should be (> 0)" do
           rhs = value_domain_less_than(0)
-          (subject * rhs).to_s.should == "(> 0)"
+          expect((subject * rhs).to_s).to eq "(> 0)"
         end
 
         it "* (< -3) should be (> 6)" do
           rhs = value_domain_less_than(-3)
-          (subject * rhs).to_s.should == "(> 6)"
+          expect((subject * rhs).to_s).to eq "(> 6)"
         end
 
         it "* (> 3) should be (< -6)" do
           rhs = value_domain_greater_than(3)
-          (subject * rhs).to_s.should == "(< -6)"
+          expect((subject * rhs).to_s).to eq "(< -6)"
         end
 
         it "* (> 0) should be (< 0)" do
           rhs = value_domain_greater_than(0)
-          (subject * rhs).to_s.should == "(< 0)"
+          expect((subject * rhs).to_s).to eq "(< 0)"
         end
 
         it "* (> -3) should be (< 6)" do
           rhs = value_domain_greater_than(-3)
-          (subject * rhs).to_s.should == "(< 6)"
+          expect((subject * rhs).to_s).to eq "(< 6)"
         end
       end
     end
@@ -214,7 +220,7 @@ module Cc1
 
         it "< (== 127) should be (== Unlimited)" do
           rhs = value_domain_equal_to(127)
-          (subject < rhs).to_s.should == "(== Unlimited)"
+          expect((subject < rhs).to_s).to eq "(== Unlimited)"
         end
       end
 
@@ -223,47 +229,47 @@ module Cc1
 
         it "* (== 3) should be (< 6)" do
           rhs = value_domain_equal_to(3)
-          (subject * rhs).to_s.should == "(< 6)"
+          expect((subject * rhs).to_s).to eq "(< 6)"
         end
 
         it "* (== 0) should be (== 0)" do
           rhs = value_domain_equal_to(0)
-          (subject * rhs).to_s.should == "(== 0)"
+          expect((subject * rhs).to_s).to eq "(== 0)"
         end
 
         it "* (== -3) should be (> -6)" do
           rhs = value_domain_equal_to(-3)
-          (subject * rhs).to_s.should == "(> -6)"
+          expect((subject * rhs).to_s).to eq "(> -6)"
         end
 
         it "* (< 3) should be (== Unlimited)" do
           rhs = value_domain_less_than(3)
-          (subject * rhs).to_s.should == "(== Unlimited)"
+          expect((subject * rhs).to_s).to eq "(== Unlimited)"
         end
 
         it "* (< 0) should be (== Unlimited)" do
           rhs = value_domain_less_than(0)
-          (subject * rhs).to_s.should == "(== Unlimited)"
+          expect((subject * rhs).to_s).to eq "(== Unlimited)"
         end
 
         it "* (< -3) should be (== Unlimited)" do
           rhs = value_domain_less_than(-3)
-          (subject * rhs).to_s.should == "(== Unlimited)"
+          expect((subject * rhs).to_s).to eq "(== Unlimited)"
         end
 
         it "* (> 3) should be (== Unlimited)" do
           rhs = value_domain_greater_than(3)
-          (subject * rhs).to_s.should == "(== Unlimited)"
+          expect((subject * rhs).to_s).to eq "(== Unlimited)"
         end
 
         it "* (> 0) should be (== Unlimited)" do
           rhs = value_domain_greater_than(0)
-          (subject * rhs).to_s.should == "(== Unlimited)"
+          expect((subject * rhs).to_s).to eq "(== Unlimited)"
         end
 
         it "* (> -3) should be (== Unlimited)" do
           rhs = value_domain_greater_than(-3)
-          (subject * rhs).to_s.should == "(== Unlimited)"
+          expect((subject * rhs).to_s).to eq "(== Unlimited)"
         end
       end
 
@@ -272,47 +278,47 @@ module Cc1
 
         it "* (== 3) should be (< 0)" do
           rhs = value_domain_equal_to(3)
-          (subject * rhs).to_s.should == "(< 0)"
+          expect((subject * rhs).to_s).to eq "(< 0)"
         end
 
         it "* (== 0) should be (== 0)" do
           rhs = value_domain_equal_to(0)
-          (subject * rhs).to_s.should == "(== 0)"
+          expect((subject * rhs).to_s).to eq "(== 0)"
         end
 
         it "* (== -3) should be (> 0)" do
           rhs = value_domain_equal_to(-3)
-          (subject * rhs).to_s.should == "(> 0)"
+          expect((subject * rhs).to_s).to eq "(> 0)"
         end
 
         it "* (< 3) should be (== Unlimited)" do
           rhs = value_domain_less_than(3)
-          (subject * rhs).to_s.should == "(== Unlimited)"
+          expect((subject * rhs).to_s).to eq "(== Unlimited)"
         end
 
         it "* (< 0) should be (> 0)" do
           rhs = value_domain_less_than(0)
-          (subject * rhs).to_s.should == "(> 0)"
+          expect((subject * rhs).to_s).to eq "(> 0)"
         end
 
         it "* (< -3) should be (> 0)" do
           rhs = value_domain_less_than(-3)
-          (subject * rhs).to_s.should == "(> 0)"
+          expect((subject * rhs).to_s).to eq "(> 0)"
         end
 
         it "* (> 3) should be (< 0)" do
           rhs = value_domain_greater_than(3)
-          (subject * rhs).to_s.should == "(< 0)"
+          expect((subject * rhs).to_s).to eq "(< 0)"
         end
 
         it "* (> 0) should be (< 0)" do
           rhs = value_domain_greater_than(0)
-          (subject * rhs).to_s.should == "(< 0)"
+          expect((subject * rhs).to_s).to eq "(< 0)"
         end
 
         it "* (> -3) should be (== Unlimited)" do
           rhs = value_domain_greater_than(-3)
-          (subject * rhs).to_s.should == "(== Unlimited)"
+          expect((subject * rhs).to_s).to eq "(== Unlimited)"
         end
       end
 
@@ -321,47 +327,47 @@ module Cc1
 
         it "* (== 3) should be (< -6)" do
           rhs = value_domain_equal_to(3)
-          (subject * rhs).to_s.should == "(< -6)"
+          expect((subject * rhs).to_s).to eq "(< -6)"
         end
 
         it "* (== 0) should be (== 0)" do
           rhs = value_domain_equal_to(0)
-          (subject * rhs).to_s.should == "(== 0)"
+          expect((subject * rhs).to_s).to eq "(== 0)"
         end
 
         it "* (== -3) should be (> 6)" do
           rhs = value_domain_equal_to(-3)
-          (subject * rhs).to_s.should == "(> 6)"
+          expect((subject * rhs).to_s).to eq "(> 6)"
         end
 
         it "* (< 3) should be (== Unlimited)" do
           rhs = value_domain_less_than(3)
-          (subject * rhs).to_s.should == "(== Unlimited)"
+          expect((subject * rhs).to_s).to eq "(== Unlimited)"
         end
 
         it "* (< 0) should be (> 0)" do
           rhs = value_domain_less_than(0)
-          (subject * rhs).to_s.should == "(> 0)"
+          expect((subject * rhs).to_s).to eq "(> 0)"
         end
 
         it "* (< -3) should be (> 6)" do
           rhs = value_domain_less_than(-3)
-          (subject * rhs).to_s.should == "(> 6)"
+          expect((subject * rhs).to_s).to eq "(> 6)"
         end
 
         it "* (> 3) should be (< -6)" do
           rhs = value_domain_greater_than(3)
-          (subject * rhs).to_s.should == "(< -6)"
+          expect((subject * rhs).to_s).to eq "(< -6)"
         end
 
         it "* (> 0) should be (< 0)" do
           rhs = value_domain_greater_than(0)
-          (subject * rhs).to_s.should == "(< 0)"
+          expect((subject * rhs).to_s).to eq "(< 0)"
         end
 
         it "* (> -3) should be (== Unlimited)" do
           rhs = value_domain_greater_than(-3)
-          (subject * rhs).to_s.should == "(== Unlimited)"
+          expect((subject * rhs).to_s).to eq "(== Unlimited)"
         end
       end
     end
@@ -372,7 +378,7 @@ module Cc1
 
         it "< (== 127) should be (== Unlimited)" do
           rhs = value_domain_equal_to(127)
-          (subject < rhs).to_s.should == "(== Unlimited)"
+          expect((subject < rhs).to_s).to eq "(== Unlimited)"
         end
       end
 
@@ -381,47 +387,47 @@ module Cc1
 
         it "* (== 3) should be (> 6)" do
           rhs = value_domain_equal_to(3)
-          (subject * rhs).to_s.should == "(> 6)"
+          expect((subject * rhs).to_s).to eq "(> 6)"
         end
 
         it "* (== 0) should be (== 0)" do
           rhs = value_domain_equal_to(0)
-          (subject * rhs).to_s.should == "(== 0)"
+          expect((subject * rhs).to_s).to eq "(== 0)"
         end
 
         it "* (== -3) should be (< -6)" do
           rhs = value_domain_equal_to(-3)
-          (subject * rhs).to_s.should == "(< -6)"
+          expect((subject * rhs).to_s).to eq "(< -6)"
         end
 
         it "* (< 3) should be (== Unlimited)" do
           rhs = value_domain_less_than(3)
-          (subject * rhs).to_s.should == "(== Unlimited)"
+          expect((subject * rhs).to_s).to eq "(== Unlimited)"
         end
 
         it "* (< 0) should be (< 0)" do
           rhs = value_domain_less_than(0)
-          (subject * rhs).to_s.should == "(< 0)"
+          expect((subject * rhs).to_s).to eq "(< 0)"
         end
 
         it "* (< -3) should be (< -6)" do
           rhs = value_domain_less_than(-3)
-          (subject * rhs).to_s.should == "(< -6)"
+          expect((subject * rhs).to_s).to eq "(< -6)"
         end
 
         it "* (> 3) should be (> 6)" do
           rhs = value_domain_greater_than(3)
-          (subject * rhs).to_s.should == "(> 6)"
+          expect((subject * rhs).to_s).to eq "(> 6)"
         end
 
         it "* (> 0) should be (> 0)" do
           rhs = value_domain_greater_than(0)
-          (subject * rhs).to_s.should == "(> 0)"
+          expect((subject * rhs).to_s).to eq "(> 0)"
         end
 
         it "* (> -3) should be (== Unlimited)" do
           rhs = value_domain_greater_than(-3)
-          (subject * rhs).to_s.should == "(== Unlimited)"
+          expect((subject * rhs).to_s).to eq "(== Unlimited)"
         end
       end
 
@@ -430,47 +436,47 @@ module Cc1
 
         it "* (== 3) should be (> 0)" do
           rhs = value_domain_equal_to(3)
-          (subject * rhs).to_s.should == "(> 0)"
+          expect((subject * rhs).to_s).to eq "(> 0)"
         end
 
         it "* (== 0) should be (== 0)" do
           rhs = value_domain_equal_to(0)
-          (subject * rhs).to_s.should == "(== 0)"
+          expect((subject * rhs).to_s).to eq "(== 0)"
         end
 
         it "* (== -3) should be (< 0)" do
           rhs = value_domain_equal_to(-3)
-          (subject * rhs).to_s.should == "(< 0)"
+          expect((subject * rhs).to_s).to eq "(< 0)"
         end
 
         it "* (< 3) should be (== Unlimited)" do
           rhs = value_domain_less_than(3)
-          (subject * rhs).to_s.should == "(== Unlimited)"
+          expect((subject * rhs).to_s).to eq "(== Unlimited)"
         end
 
         it "* (< 0) should be (< 0)" do
           rhs = value_domain_less_than(0)
-          (subject * rhs).to_s.should == "(< 0)"
+          expect((subject * rhs).to_s).to eq "(< 0)"
         end
 
         it "* (< -3) should be (< 0)" do
           rhs = value_domain_less_than(-3)
-          (subject * rhs).to_s.should == "(< 0)"
+          expect((subject * rhs).to_s).to eq "(< 0)"
         end
 
         it "* (> 3) should be (> 0)" do
           rhs = value_domain_greater_than(3)
-          (subject * rhs).to_s.should == "(> 0)"
+          expect((subject * rhs).to_s).to eq "(> 0)"
         end
 
         it "* (> 0) should be (> 0)" do
           rhs = value_domain_greater_than(0)
-          (subject * rhs).to_s.should == "(> 0)"
+          expect((subject * rhs).to_s).to eq "(> 0)"
         end
 
         it "* (> -3) should be (== Unlimited)" do
           rhs = value_domain_greater_than(-3)
-          (subject * rhs).to_s.should == "(== Unlimited)"
+          expect((subject * rhs).to_s).to eq "(== Unlimited)"
         end
       end
 
@@ -479,47 +485,47 @@ module Cc1
 
         it "* (== 3) should be (> -6)" do
           rhs = value_domain_equal_to(3)
-          (subject * rhs).to_s.should == "(> -6)"
+          expect((subject * rhs).to_s).to eq "(> -6)"
         end
 
         it "* (== 0) should be (== 0)" do
           rhs = value_domain_equal_to(0)
-          (subject * rhs).to_s.should == "(== 0)"
+          expect((subject * rhs).to_s).to eq "(== 0)"
         end
 
         it "* (== -3) should be (< 6)" do
           rhs = value_domain_equal_to(-3)
-          (subject * rhs).to_s.should == "(< 6)"
+          expect((subject * rhs).to_s).to eq "(< 6)"
         end
 
         it "* (< 3) should be (== Unlimited)" do
           rhs = value_domain_less_than(3)
-          (subject * rhs).to_s.should == "(== Unlimited)"
+          expect((subject * rhs).to_s).to eq "(== Unlimited)"
         end
 
         it "* (< 0) should be (== Unlimited)" do
           rhs = value_domain_less_than(0)
-          (subject * rhs).to_s.should == "(== Unlimited)"
+          expect((subject * rhs).to_s).to eq "(== Unlimited)"
         end
 
         it "* (< -3) should be (== Unlimited)" do
           rhs = value_domain_less_than(-3)
-          (subject * rhs).to_s.should == "(== Unlimited)"
+          expect((subject * rhs).to_s).to eq "(== Unlimited)"
         end
 
         it "* (> 3) should be (== Unlimited)" do
           rhs = value_domain_greater_than(3)
-          (subject * rhs).to_s.should == "(== Unlimited)"
+          expect((subject * rhs).to_s).to eq "(== Unlimited)"
         end
 
         it "* (> 0) should be (== Unlimited)" do
           rhs = value_domain_greater_than(0)
-          (subject * rhs).to_s.should == "(== Unlimited)"
+          expect((subject * rhs).to_s).to eq "(== Unlimited)"
         end
 
         it "* (> -3) should be (== Unlimited)" do
           rhs = value_domain_greater_than(-3)
-          (subject * rhs).to_s.should == "(== Unlimited)"
+          expect((subject * rhs).to_s).to eq "(== Unlimited)"
         end
       end
     end
@@ -533,7 +539,7 @@ module Cc1
 
         it "should contain ((== -5) || (== 5))" do
           rhs = value_domain_equal_to(-5).union(value_domain_equal_to(5))
-          subject.contain?(rhs).should be_true
+          expect(subject.contain?(rhs)).to be true
         end
       end
 
@@ -544,43 +550,43 @@ module Cc1
            "(((< 10) || (== 10)) && ((== -10) || (> -10)))" do
           rhs = value_domain_greater_than_or_equal_to(-10)
           rhs = rhs.intersection(value_domain_less_than_or_equal_to(10))
-          subject.contain?(rhs).should be_false
+          expect(subject.contain?(rhs)).to be false
         end
 
         it "should be contained by " +
            "(((< 10) || (== 10)) && ((== -10) || (> -10)))" do
           lhs = value_domain_greater_than_or_equal_to(-10)
           lhs = lhs.intersection(value_domain_less_than_or_equal_to(10))
-          lhs.contain?(subject).should be_true
+          expect(lhs.contain?(subject)).to be true
         end
 
         it "intersection with (< 0) should be equal to (== -5)" do
           rhs = value_domain_less_than(0)
-          subject.intersection(rhs).to_s.should == "(== -5)"
+          expect(subject.intersection(rhs).to_s).to eq "(== -5)"
         end
 
         it "intersection with (> 0) should be equal to (== 5)" do
           rhs = value_domain_greater_than(0)
-          subject.intersection(rhs).to_s.should == "(== 5)"
+          expect(subject.intersection(rhs).to_s).to eq "(== 5)"
         end
 
         it "intersection with ((== -10) || (> -10)) " +
            "should be equal to the subject domain" do
           rhs = value_domain_greater_than_or_equal_to(-10)
-          subject.intersection(rhs).should == subject
+          expect(subject.intersection(rhs)).to eq subject
         end
 
         it "intersection with ((== 10) || (< 10)) " +
            "should be equal to the subject domain" do
           rhs = value_domain_less_than_or_equal_to(10)
-          subject.intersection(rhs).should == subject
+          expect(subject.intersection(rhs)).to eq subject
         end
 
         it "should not contain (((< 0) && (> -10)) || (== -10))" do
           rhs = value_domain_greater_than_or_equal_to(-10)
           rhs = rhs.intersection(value_domain_less_than_or_equal_to(10))
           rhs = rhs.intersection(value_domain_less_than(0))
-          subject.contain?(rhs).should be_false
+          expect(subject.contain?(rhs)).to be false
         end
       end
 
@@ -593,7 +599,7 @@ module Cc1
 
         it "should not contain ((== -5) || (== 5))" do
           rhs = value_domain_equal_to(-5).union(value_domain_equal_to(5))
-          subject.contain?(rhs).should be_false
+          expect(subject.contain?(rhs)).to be false
         end
       end
 
@@ -607,7 +613,7 @@ module Cc1
            "((((< 0) && (> -2147483647)) || (== -2147483647)) || (== 0))" do
           rhs = value_domain_equal_to(-2147483647)
           rhs = rhs.union(value_domain_equal_to(0))
-          subject.union(rhs).to_s.should ==
+          expect(subject.union(rhs).to_s).to eq \
             "((((< 0) && (> -2147483647)) || (== -2147483647)) || (== 0))"
         end
       end
@@ -620,15 +626,17 @@ module Cc1
         it "should contain ((== -2147483647) || (== 0))" do
           rhs = value_domain_equal_to(-2147483647)
           rhs = rhs.union(value_domain_equal_to(0))
-          subject.contain?(rhs).should be_true
+          expect(subject.contain?(rhs)).to be true
         end
 
         it "should contain (== -2147483647)" do
-          subject.contain?(value_domain_equal_to(-2147483647)).should be_true
+          expect(
+            subject.contain?(value_domain_equal_to(-2147483647))
+          ).to be true
         end
 
         it "should contain (== 0)" do
-          subject.contain?(value_domain_equal_to(0)).should be_true
+          expect(subject.contain?(value_domain_equal_to(0))).to be true
         end
       end
 
@@ -641,19 +649,19 @@ module Cc1
 
         it "cloned should be " +
            "(((< 2147483647) && (> -2147483648)) || (== 2147483647))" do
-          subject.dup.to_s.should ==
+          expect(subject.dup.to_s).to eq \
             "(((< 2147483647) && (> -2147483648)) || (== 2147483647))"
         end
 
         it "intersection with its cloned should be " +
            "(((< 2147483647) && (> -2147483648)) || (== 2147483647))" do
-          subject.intersection(subject.dup).to_s.should ==
+          expect(subject.intersection(subject.dup).to_s).to eq \
             "(((< 2147483647) && (> -2147483648)) || (== 2147483647))"
         end
 
         it "union with its cloned should be " +
            "(((< 2147483647) && (> -2147483648)) || (== 2147483647))" do
-          subject.union(subject.dup).to_s.should ==
+          expect(subject.union(subject.dup).to_s).to eq \
             "(((< 2147483647) && (> -2147483648)) || (== 2147483647))"
         end
       end
@@ -669,7 +677,7 @@ module Cc1
            "(((< 2147483647) && (> 1)) || ((== 1) || (== 2147483647)))" do
           rhs = value_domain_equal_to(1)
           rhs = rhs.union(value_domain_equal_to(2147483647))
-          subject.union(rhs).to_s.should ==
+          expect(subject.union(rhs).to_s).to eq \
             "(((< 2147483647) && (> 1)) || ((== 1) || (== 2147483647)))"
         end
       end
@@ -682,7 +690,7 @@ module Cc1
         end
 
         it "intersection with (== 0) should be (== Nil)" do
-          subject.intersection(value_domain_equal_to(0)).to_s.should ==
+          expect(subject.intersection(value_domain_equal_to(0)).to_s).to eq \
             "(== Nil)"
         end
       end
@@ -697,7 +705,7 @@ module Cc1
 
         it "+ (((< 10) || (== 10)) && ((== 0) || (> 0))) " +
            "should be ((((< 20) && (> 0)) || (== 0)) || (== 20))" do
-          (subject + subject.dup).to_s.should ==
+          expect((subject + subject.dup).to_s).to eq \
             "((((< 20) && (> 0)) || (== 0)) || (== 20))"
         end
       end
@@ -709,32 +717,36 @@ module Cc1
         end
 
         it "should intersect with (== 0)" do
-          subject.intersect?(value_domain_equal_to(0)).should be_true
+          expect(subject.intersect?(value_domain_equal_to(0))).to be true
         end
 
         it "< (== 0) should be (== Unlimited)" do
-          (subject < value_domain_equal_to(0)).to_s.should == "(== Unlimited)"
+          expect((subject < value_domain_equal_to(0)).to_s).to eq \
+            "(== Unlimited)"
         end
 
         it "> (== 0) should be (== Unlimited)" do
-          (subject > value_domain_equal_to(0)).to_s.should == "(== Unlimited)"
+          expect((subject > value_domain_equal_to(0)).to_s).to eq \
+            "(== Unlimited)"
         end
 
         it "== (== 0) should be (== Unlimited)" do
-          (subject == value_domain_equal_to(0)).to_s.should == "(== Unlimited)"
+          expect((subject == value_domain_equal_to(0)).to_s).to eq \
+            "(== Unlimited)"
         end
 
         it "!= (== 0) should be (== Unlimited)" do
-          (subject != value_domain_equal_to(0)).to_s.should == "(== Unlimited)"
+          expect((subject != value_domain_equal_to(0)).to_s).to eq \
+            "(== Unlimited)"
         end
 
         it "< (== 20) should be ((< 0) || (> 0))" do
-          (subject < value_domain_equal_to(20)).to_s.should ==
+          expect((subject < value_domain_equal_to(20)).to_s).to eq \
             "((< 0) || (> 0))"
         end
 
         it "> (== 20) should be (== 0)" do
-          (subject > value_domain_equal_to(20)).to_s.should == "(== 0)"
+          expect((subject > value_domain_equal_to(20)).to_s).to eq "(== 0)"
         end
       end
 
@@ -751,7 +763,7 @@ module Cc1
           rhs = rhs.intersection(value_domain_less_than(10))
           rhs = rhs.union(value_domain_equal_to(0))
           rhs = rhs.union(value_domain_equal_to(10))
-          subject.narrow(Operator::EQ, rhs).to_s.should ==
+          expect(subject.narrow(Operator::EQ, rhs).to_s).to eq \
             "(((< 10) && (> 1)) || (== 10))"
         end
       end
@@ -763,11 +775,11 @@ module Cc1
         end
 
         it "should intersect with (== -128)" do
-          subject.intersect?(value_domain_equal_to(-128)).should be_true
+          expect(subject.intersect?(value_domain_equal_to(-128))).to be true
         end
 
         it "should intersect with (== 127)" do
-          subject.intersect?(value_domain_equal_to(127)).should be_true
+          expect(subject.intersect?(value_domain_equal_to(127))).to be true
         end
       end
 
@@ -781,7 +793,9 @@ module Cc1
         it "narrowed by != (== 1) should be " +
            "(((((< 1) && (> -2147483648)) || ((< 2147483647) && (> 1))) || " +
            "(== 2147483647)) || (== -2147483648))" do
-          subject.narrow(Operator::NE, value_domain_equal_to(1)).to_s.should ==
+          expect(
+            subject.narrow(Operator::NE, value_domain_equal_to(1)).to_s
+          ).to eq \
             "(((((< 1) && (> -2147483648)) || ((< 2147483647) && (> 1))) || " +
             "(== 2147483647)) || (== -2147483648))"
         end
@@ -794,7 +808,8 @@ module Cc1
         end
 
         it "narrowed by != its cloned should be (== Nil)" do
-          subject.narrow(Operator::NE, subject.dup).to_s.should == "(== Nil)"
+          expect(subject.narrow(Operator::NE, subject.dup).to_s).to eq \
+            "(== Nil)"
         end
       end
 
@@ -807,23 +822,23 @@ module Cc1
         it "+ ((< 10) && (> 0)) should be ((< 10) && (> 0))" do
           rhs = value_domain_greater_than(0)
           rhs = rhs.intersection(value_domain_less_than(10))
-          (subject + rhs).to_s.should == "((< 20) && (> 0))"
+          expect((subject + rhs).to_s).to eq "((< 20) && (> 0))"
         end
 
         it "* (== 2) should be ((< 20) && (> 0))" do
           rhs = value_domain_equal_to(2)
-          (subject * rhs).to_s.should == "((< 20) && (> 0))"
+          expect((subject * rhs).to_s).to eq "((< 20) && (> 0))"
         end
 
         it "* ((< 10) && (> 0)) should be ((< 100) && (> 0))" do
           rhs = value_domain_greater_than(0)
           rhs = rhs.intersection(value_domain_less_than(10))
-          (subject * rhs).to_s.should == "((< 100) && (> 0))"
+          expect((subject * rhs).to_s).to eq "((< 100) && (> 0))"
         end
 
         it "/ (== 2) should be ((< 5) && (> 0))" do
           rhs = value_domain_equal_to(2)
-          (subject / rhs).to_s.should == "((< 5) && (> 0))"
+          expect((subject / rhs).to_s).to eq "((< 5) && (> 0))"
         end
 
         # TODO: Fix bad value-domain division before 1.14.0 GA release.
@@ -831,7 +846,7 @@ module Cc1
         #  rhs = value_domain_greater_than(0)
         #  rhs = rhs.intersection(value_domain_less_than(10))
         #  File.open("dump", "w") { |io| PP.pp(subject / rhs, io) }
-        #  (subject / rhs).to_s.should == "((< 10) && (> 0))"
+        #  expect((subject / rhs).to_s).to eq "((< 10) && (> 0))"
         #end
       end
 
@@ -840,7 +855,7 @@ module Cc1
 
         it "narrowed by == ((== 3) || (== 4)) should be (== Nil)" do
           rhs = value_domain_equal_to(3).union(value_domain_equal_to(4))
-          subject.narrow(Operator::EQ, rhs).to_s.should == "(== Nil)"
+          expect(subject.narrow(Operator::EQ, rhs).to_s).to eq "(== Nil)"
         end
       end
     end

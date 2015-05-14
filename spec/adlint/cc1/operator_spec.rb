@@ -39,27 +39,27 @@ module Cc1
       subject { Operator }
 
       it "=== Operator::EQ should be true" do
-        (subject === Operator::EQ).should be_true
+        expect(subject === Operator::EQ).to be true
       end
 
       it "=== Operator::NE should be true" do
-        (subject === Operator::NE).should be_true
+        expect(subject === Operator::NE).to be true
       end
 
       it "=== Operator::LT should be true" do
-        (subject === Operator::LT).should be_true
+        expect(subject === Operator::LT).to be true
       end
 
       it "=== Operator::GT should be true" do
-        (subject === Operator::GT).should be_true
+        expect(subject === Operator::GT).to be true
       end
 
       it "=== Operator::LE should be true" do
-        (subject === Operator::LE).should be_true
+        expect(subject === Operator::LE).to be true
       end
 
       it "=== Operator::GE should be true" do
-        (subject === Operator::GE).should be_true
+        expect(subject === Operator::GE).to be true
       end
     end
 
@@ -67,167 +67,167 @@ module Cc1
       subject { Operator::EQ }
 
       it "=== `==' should be true" do
-        (subject === ComparisonOperator.new(:==)).should be_true
+        expect(subject === ComparisonOperator.new(:==)).to be true
       end
 
-      it "=== `!=' should not be true" do
-        (subject === ComparisonOperator.new(:!=)).should_not be_true
+      it "=== `!=' should be false" do
+        expect(subject === ComparisonOperator.new(:!=)).to be false
       end
 
-      it "=== `<' should not be true" do
-        (subject === ComparisonOperator.new(:<)).should_not be_true
+      it "=== `<' should be false" do
+        expect(subject === ComparisonOperator.new(:<)).to be false
       end
 
-      it "=== `>' should not be true" do
-        (subject === ComparisonOperator.new(:>)).should_not be_true
+      it "=== `>' should be false" do
+        expect(subject === ComparisonOperator.new(:>)).to be false
       end
 
-      it "=== `<=' should not be true" do
-        (subject === ComparisonOperator.new(:<=)).should_not be_true
+      it "=== `<=' should be false" do
+        expect(subject === ComparisonOperator.new(:<=)).to be false
       end
 
-      it "=== `>=' should not be true" do
-        (subject === ComparisonOperator.new(:>=)).should_not be_true
+      it "=== `>=' should be false" do
+        expect(subject === ComparisonOperator.new(:>=)).to be false
       end
     end
 
     context "Operator::NE" do
       subject { Operator::NE }
 
-      it "=== `==' should not be true" do
-        (subject === ComparisonOperator.new(:==)).should_not be_true
+      it "=== `==' should be false" do
+        expect(subject === ComparisonOperator.new(:==)).to be false
       end
 
       it "=== `!=' should be true" do
-        (subject === ComparisonOperator.new(:!=)).should be_true
+        expect(subject === ComparisonOperator.new(:!=)).to be true
       end
 
-      it "=== `<' should not be true" do
-        (subject === ComparisonOperator.new(:<)).should_not be_true
+      it "=== `<' should be false" do
+        expect(subject === ComparisonOperator.new(:<)).to be false
       end
 
-      it "=== `>' should not be true" do
-        (subject === ComparisonOperator.new(:>)).should_not be_true
+      it "=== `>' should be false" do
+        expect(subject === ComparisonOperator.new(:>)).to be false
       end
 
-      it "=== `<=' should not be true" do
-        (subject === ComparisonOperator.new(:<=)).should_not be_true
+      it "=== `<=' should be false" do
+        expect(subject === ComparisonOperator.new(:<=)).to be false
       end
 
-      it "=== `>=' should not be true" do
-        (subject === ComparisonOperator.new(:>=)).should_not be_true
+      it "=== `>=' should be false" do
+        expect(subject === ComparisonOperator.new(:>=)).to be false
       end
     end
 
     context "Operator::LT" do
       subject { Operator::LT }
 
-      it "=== `==' should not be true" do
-        (subject === ComparisonOperator.new(:==)).should_not be_true
+      it "=== `==' should be false" do
+        expect(subject === ComparisonOperator.new(:==)).to be false
       end
 
-      it "=== `!=' should not be true" do
-        (subject === ComparisonOperator.new(:!=)).should_not be_true
+      it "=== `!=' should be false" do
+        expect(subject === ComparisonOperator.new(:!=)).to be false
       end
 
       it "=== `<' should be true" do
-        (subject === ComparisonOperator.new(:<)).should be_true
+        expect(subject === ComparisonOperator.new(:<)).to be true
       end
 
-      it "=== `>' should not be true" do
-        (subject === ComparisonOperator.new(:>)).should_not be_true
+      it "=== `>' should be false" do
+        expect(subject === ComparisonOperator.new(:>)).to be false
       end
 
-      it "=== `<=' should not be true" do
-        (subject === ComparisonOperator.new(:<=)).should_not be_true
+      it "=== `<=' should be false" do
+        expect(subject === ComparisonOperator.new(:<=)).to be false
       end
 
-      it "=== `>=' should not be true" do
-        (subject === ComparisonOperator.new(:>=)).should_not be_true
+      it "=== `>=' should be false" do
+        expect(subject === ComparisonOperator.new(:>=)).to be false
       end
     end
 
     context "Operator::GT" do
       subject { Operator::GT }
 
-      it "=== `==' should not be true" do
-        (subject === ComparisonOperator.new(:==)).should_not be_true
+      it "=== `==' should be false" do
+        expect(subject === ComparisonOperator.new(:==)).to be false
       end
 
-      it "=== `!=' should not be true" do
-        (subject === ComparisonOperator.new(:!=)).should_not be_true
+      it "=== `!=' should be false" do
+        expect(subject === ComparisonOperator.new(:!=)).to be false
       end
 
-      it "=== `<' should not be true" do
-        (subject === ComparisonOperator.new(:<)).should_not be_true
+      it "=== `<' should be false" do
+        expect(subject === ComparisonOperator.new(:<)).to be false
       end
 
       it "=== `>' should be true" do
-        (subject === ComparisonOperator.new(:>)).should be_true
+        expect(subject === ComparisonOperator.new(:>)).to be true
       end
 
-      it "=== `<=' should not be true" do
-        (subject === ComparisonOperator.new(:<=)).should_not be_true
+      it "=== `<=' should be false" do
+        expect(subject === ComparisonOperator.new(:<=)).to be false
       end
 
-      it "=== `>=' should not be true" do
-        (subject === ComparisonOperator.new(:>=)).should_not be_true
+      it "=== `>=' should be false" do
+        expect(subject === ComparisonOperator.new(:>=)).to be false
       end
     end
 
     context "Operator::LE" do
       subject { Operator::LE }
 
-      it "=== `==' should not be true" do
-        (subject === ComparisonOperator.new(:==)).should_not be_true
+      it "=== `==' should be false" do
+        expect(subject === ComparisonOperator.new(:==)).to be false
       end
 
-      it "=== `!=' should not be true" do
-        (subject === ComparisonOperator.new(:!=)).should_not be_true
+      it "=== `!=' should be false" do
+        expect(subject === ComparisonOperator.new(:!=)).to be false
       end
 
-      it "=== `<' should not be true" do
-        (subject === ComparisonOperator.new(:<)).should_not be_true
+      it "=== `<' should be false" do
+        expect(subject === ComparisonOperator.new(:<)).to be false
       end
 
-      it "=== `>' should not be true" do
-        (subject === ComparisonOperator.new(:>)).should_not be_true
+      it "=== `>' should be false" do
+        expect(subject === ComparisonOperator.new(:>)).to be false
       end
 
       it "=== `<=' should be true" do
-        (subject === ComparisonOperator.new(:<=)).should be_true
+        expect(subject === ComparisonOperator.new(:<=)).to be true
       end
 
-      it "=== `>=' should not be true" do
-        (subject === ComparisonOperator.new(:>=)).should_not be_true
+      it "=== `>=' should be false" do
+        expect(subject === ComparisonOperator.new(:>=)).to be false
       end
     end
 
     context "Operator::GE" do
       subject { Operator::GE }
 
-      it "=== `==' should not be true" do
-        (subject === ComparisonOperator.new(:==)).should_not be_true
+      it "=== `==' should be false" do
+        expect(subject === ComparisonOperator.new(:==)).to be false
       end
 
-      it "=== `!=' should not be true" do
-        (subject === ComparisonOperator.new(:!=)).should_not be_true
+      it "=== `!=' should be false" do
+        expect(subject === ComparisonOperator.new(:!=)).to be false
       end
 
-      it "=== `<' should not be true" do
-        (subject === ComparisonOperator.new(:<)).should_not be_true
+      it "=== `<' should be false" do
+        expect(subject === ComparisonOperator.new(:<)).to be false
       end
 
-      it "=== `>' should not be true" do
-        (subject === ComparisonOperator.new(:>)).should_not be_true
+      it "=== `>' should be false" do
+        expect(subject === ComparisonOperator.new(:>)).to be false
       end
 
-      it "=== `<=' should not be true" do
-        (subject === ComparisonOperator.new(:<=)).should_not be_true
+      it "=== `<=' should be false" do
+        expect(subject === ComparisonOperator.new(:<=)).to be false
       end
 
       it "=== `>=' should be true" do
-        (subject === ComparisonOperator.new(:>=)).should be_true
+        expect(subject === ComparisonOperator.new(:>=)).to be true
       end
     end
 
@@ -236,167 +236,167 @@ module Cc1
         subject { ComparisonOperator.new(:==) }
 
         it "=== Operator::EQ should be true" do
-          (subject === Operator::EQ).should be_true
+          expect(subject === Operator::EQ).to be true
         end
 
-        it "=== Operator::NE should not be true" do
-          (subject === Operator::NE).should_not be_true
+        it "=== Operator::NE should be false" do
+          expect(subject === Operator::NE).to be false
         end
 
-        it "=== Operator::LT should not be true" do
-          (subject === Operator::LT).should_not be_true
+        it "=== Operator::LT should be false" do
+          expect(subject === Operator::LT).to be false
         end
 
-        it "=== Operator::GT should not be true" do
-          (subject === Operator::GT).should_not be_true
+        it "=== Operator::GT should be false" do
+          expect(subject === Operator::GT).to be false
         end
 
-        it "=== Operator::LE should not be true" do
-          (subject === Operator::LE).should_not be_true
+        it "=== Operator::LE should be false" do
+          expect(subject === Operator::LE).to be false
         end
 
-        it "=== Operator::GE should not be true" do
-          (subject === Operator::GE).should_not be_true
+        it "=== Operator::GE should be false" do
+          expect(subject === Operator::GE).to be false
         end
       end
 
       context "`!='" do
         subject { ComparisonOperator.new(:!=) }
 
-        it "=== Operator::EQ should not be true" do
-          (subject === Operator::EQ).should_not be_true
+        it "=== Operator::EQ should be false" do
+          expect(subject === Operator::EQ).to be false
         end
 
         it "=== Operator::NE should be true" do
-          (subject === Operator::NE).should be_true
+          expect(subject === Operator::NE).to be true
         end
 
-        it "=== Operator::LT should not be true" do
-          (subject === Operator::LT).should_not be_true
+        it "=== Operator::LT should be false" do
+          expect(subject === Operator::LT).to be false
         end
 
-        it "=== Operator::GT should not be true" do
-          (subject === Operator::GT).should_not be_true
+        it "=== Operator::GT should be false" do
+          expect(subject === Operator::GT).to be false
         end
 
-        it "=== Operator::LE should not be true" do
-          (subject === Operator::LE).should_not be_true
+        it "=== Operator::LE should be false" do
+          expect(subject === Operator::LE).to be false
         end
 
-        it "=== Operator::GE should not be true" do
-          (subject === Operator::GE).should_not be_true
+        it "=== Operator::GE should be false" do
+          expect(subject === Operator::GE).to be false
         end
       end
 
       context "`<'" do
         subject { ComparisonOperator.new(:<) }
 
-        it "=== Operator::EQ should not be true" do
-          (subject === Operator::EQ).should_not be_true
+        it "=== Operator::EQ should be false" do
+          expect(subject === Operator::EQ).to be false
         end
 
-        it "=== Operator::NE should not be true" do
-          (subject === Operator::NE).should_not be_true
+        it "=== Operator::NE should be false" do
+          expect(subject === Operator::NE).to be false
         end
 
         it "=== Operator::LT should be true" do
-          (subject === Operator::LT).should be_true
+          expect(subject === Operator::LT).to be true
         end
 
-        it "=== Operator::GT should not be true" do
-          (subject === Operator::GT).should_not be_true
+        it "=== Operator::GT should be false" do
+          expect(subject === Operator::GT).to be false
         end
 
-        it "=== Operator::LE should not be true" do
-          (subject === Operator::LE).should_not be_true
+        it "=== Operator::LE should be false" do
+          expect(subject === Operator::LE).to be false
         end
 
-        it "=== Operator::GE should not be true" do
-          (subject === Operator::GE).should_not be_true
+        it "=== Operator::GE should be false" do
+          expect(subject === Operator::GE).to be false
         end
       end
 
       context "`>'" do
         subject { ComparisonOperator.new(:>) }
 
-        it "=== Operator::EQ should not be true" do
-          (subject === Operator::EQ).should_not be_true
+        it "=== Operator::EQ should be false" do
+          expect(subject === Operator::EQ).to be false
         end
 
-        it "=== Operator::NE should not be true" do
-          (subject === Operator::NE).should_not be_true
+        it "=== Operator::NE should be false" do
+          expect(subject === Operator::NE).to be false
         end
 
-        it "=== Operator::LT should not be true" do
-          (subject === Operator::LT).should_not be_true
+        it "=== Operator::LT should be false" do
+          expect(subject === Operator::LT).to be false
         end
 
         it "=== Operator::GT should be true" do
-          (subject === Operator::GT).should be_true
+          expect(subject === Operator::GT).to be true
         end
 
-        it "=== Operator::LE should not be true" do
-          (subject === Operator::LE).should_not be_true
+        it "=== Operator::LE should be false" do
+          expect(subject === Operator::LE).to be false
         end
 
-        it "=== Operator::GE should not be true" do
-          (subject === Operator::GE).should_not be_true
+        it "=== Operator::GE should be false" do
+          expect(subject === Operator::GE).to be false
         end
       end
 
       context "`<='" do
         subject { ComparisonOperator.new(:<=) }
 
-        it "=== Operator::EQ should not be true" do
-          (subject === Operator::EQ).should_not be_true
+        it "=== Operator::EQ should be false" do
+          expect(subject === Operator::EQ).to be false
         end
 
-        it "=== Operator::NE should not be true" do
-          (subject === Operator::NE).should_not be_true
+        it "=== Operator::NE should be false" do
+          expect(subject === Operator::NE).to be false
         end
 
-        it "=== Operator::LT should not be true" do
-          (subject === Operator::LT).should_not be_true
+        it "=== Operator::LT should be false" do
+          expect(subject === Operator::LT).to be false
         end
 
-        it "=== Operator::GT should not be true" do
-          (subject === Operator::GT).should_not be_true
+        it "=== Operator::GT should be false" do
+          expect(subject === Operator::GT).to be false
         end
 
         it "=== Operator::LE should be true" do
-          (subject === Operator::LE).should be_true
+          expect(subject === Operator::LE).to be true
         end
 
-        it "=== Operator::GE should not be true" do
-          (subject === Operator::GE).should_not be_true
+        it "=== Operator::GE should be false" do
+          expect(subject === Operator::GE).to be false
         end
       end
 
       context "`>='" do
         subject { ComparisonOperator.new(:>=) }
 
-        it "=== Operator::EQ should not be true" do
-          (subject === Operator::EQ).should_not be_true
+        it "=== Operator::EQ should be false" do
+          expect(subject === Operator::EQ).to be false
         end
 
-        it "=== Operator::NE should not be true" do
-          (subject === Operator::NE).should_not be_true
+        it "=== Operator::NE should be false" do
+          expect(subject === Operator::NE).to be false
         end
 
-        it "=== Operator::LT should not be true" do
-          (subject === Operator::LT).should_not be_true
+        it "=== Operator::LT should be false" do
+          expect(subject === Operator::LT).to be false
         end
 
-        it "=== Operator::GT should not be true" do
-          (subject === Operator::GT).should_not be_true
+        it "=== Operator::GT should be false" do
+          expect(subject === Operator::GT).to be false
         end
 
-        it "=== Operator::LE should not be true" do
-          (subject === Operator::LE).should_not be_true
+        it "=== Operator::LE should be false" do
+          expect(subject === Operator::LE).to be false
         end
 
         it "=== Operator::GE should be true" do
-          (subject === Operator::GE).should be_true
+          expect(subject === Operator::GE).to be true
         end
       end
     end

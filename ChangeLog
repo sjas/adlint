@@ -1,3 +1,13 @@
+Thu May 14 15:02:06 2015  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* spec/adlint/location_spec.rb : Migrate to new RSpec expectations.
+	* spec/adlint/cc1/ctrlexpr_spec.rb : Ditto.
+	* spec/adlint/cc1/domain_spec.rb : Ditto.
+	* spec/adlint/cc1/operator_spec.rb : Ditto.
+	* spec/adlint/cc1/syntax_spec.rb : Ditto.
+	* spec/adlint/cc1/type_spec.rb : Ditto.
+	* features/step_definitions/code_check_steps.rb : Ditto.
+
 Thu May 14 15:00:40 2015  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* lib/adlint/cc1/syntax.rb : Fix uninitialized inst-var access.

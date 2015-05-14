@@ -39,13 +39,13 @@ module AdLint
     context "initial header" do
       subject { Location.new(Pathname.new("spec/conf.d/empty_pinit.h"), 1, 1) }
 
-      it { should_not be_in_analysis_target(@adlint.traits) }
+      it { is_expected.not_to be_in_analysis_target(@adlint.traits) }
     end
 
     context "source file" do
       subject { Location.new(Pathname.new("spec/conf.d/project/foo.c"), 1, 1) }
 
-      it { should be_in_analysis_target(@adlint.traits) }
+      it { is_expected.to be_in_analysis_target(@adlint.traits) }
     end
   end
 

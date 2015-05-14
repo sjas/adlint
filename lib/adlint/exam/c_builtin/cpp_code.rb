@@ -179,8 +179,9 @@ module CBuiltin #:nodoc:
     end
 
     def extract_error(error_line)
+      toks = error_line.pp_tokens
       PP_DIRECTIVE(error_line.location, error_line.keyword.value,
-                   error_line.pp_tokens.tokens.map { |t| t.value }.join(" "))
+                   toks ? toks.tokens.map { |t| t.value }.join(" ") : "")
     end
 
     def extract_pragma(pragma_line)

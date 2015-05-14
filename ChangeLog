@@ -1,3 +1,7 @@
+Thu May 14 15:00:40 2015  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/cc1/syntax.rb : Fix uninitialized inst-var access.
+
 Wed May 28 13:38:32 2014  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* release.rc : 3.2.17

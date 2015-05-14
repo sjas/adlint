@@ -228,7 +228,7 @@ module Cpp #:nodoc:
         end
         return elif_groups
       end
-      nil
+      ElifGroups.new
     end
 
     def elif_group(pp_ctxt)
@@ -241,6 +241,10 @@ module Cpp #:nodoc:
       if keyword = pp_ctxt.next_token
         if keyword.type == :ELIF
           unless pp_toks = pp_tokens(pp_ctxt)
+            # NOTE: Skip current elif-group in order to ignore the ill-formed
+            #       #elif directive followed by no constant-expression.
+            discard_extra_tokens_until_newline(pp_ctxt)
+            pp_ctxt.skip_group
             return nil
           end
           discard_extra_tokens_until_newline(pp_ctxt)

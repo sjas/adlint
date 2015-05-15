@@ -100,6 +100,7 @@ module AdLint #:nodoc:
     private
     def read_content(fpath)
       cont = IO.read(fpath, mode: "rb", encoding: @fenc || "binary")
+      cont = cont.byteslice(3..-1) if cont.byteslice(0..2).bytes == UTF_8_BOM
 
       if cont =~ /\r/
         notify_cr_at_eol_found(Location.new(fpath))
@@ -130,6 +131,9 @@ module AdLint #:nodoc:
     def notify_eof_newline_not_found(loc)
       on_eof_newline_not_found.invoke(loc)
     end
+
+    UTF_8_BOM = [0xEF, 0xBB, 0xBF]
+    private_constant :UTF_8_BOM
   end
 
   class EmptySource < Source

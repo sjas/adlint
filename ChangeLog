@@ -1,3 +1,7 @@
+Fri May 15 14:18:38 2015  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* lib/adlint/source.rb : Support input encoded in UTF-8 with BOM.
+
 Thu May 14 16:56:28 2015  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* lib/adlint/cpp/eval.rb : Fix infinite loop problem when evaluating

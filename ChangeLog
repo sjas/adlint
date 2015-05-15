@@ -1,3 +1,12 @@
+Fri May 15 14:39:51 2015  Yutaka Yanoh  <yanoh@users.sourceforge.net>
+
+	* release.rc : 3.2.19
+	  - Fix abend problem when evaluating #error directive followed by no
+	    pp-tokens.
+	  - Fix infinite loop problem when evaluating #elif directive followed
+	    by no constant-expression.
+	  - Support input encoded in UTF-8 with BOM.
+
 Fri May 15 14:18:38 2015  Yutaka Yanoh  <yanoh@users.sourceforge.net>
 
 	* lib/adlint/source.rb : Support input encoded in UTF-8 with BOM.

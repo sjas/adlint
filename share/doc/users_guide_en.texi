@@ -2,7 +2,7 @@
 @setfilename users_guide_en.info
 @documentlanguage en
 @documentencoding utf-8
-@settitle AdLint 3.2.17 User's Guide
+@settitle AdLint 3.2.19 User's Guide
 
 @copying
 Copyright (C) 2010-2014, OGIS-RI Co.,Ltd.

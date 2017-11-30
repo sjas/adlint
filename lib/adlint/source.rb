@@ -101,6 +101,7 @@ module AdLint #:nodoc:
     def read_content(fpath)
       cont = IO.read(fpath, mode: "rb", encoding: @fenc || "binary")
       cont = cont.byteslice(3..-1) if cont.byteslice(0..2).bytes == UTF_8_BOM
+      cont = cont.encode("UTF-8", 'binary', invalid: :replace, undef: :replace, replace: '')
 
       if cont =~ /\r/
         notify_cr_at_eol_found(Location.new(fpath))
